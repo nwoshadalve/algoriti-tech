@@ -24,6 +24,7 @@ Additional products are planned and will be added under this repo as they are sc
 
 ```
 algoriti-tech/
+├── .gitignore         # Shared ignore rules for the monorepo
 ├── README.md          # Company overview (this file)
 └── algoritiQ/         # AlgoritiQ — patient serial management
 ```
