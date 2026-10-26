@@ -26,7 +26,7 @@
 
 - Collect the minimum. **No clinical notes in v1.**
 - TV, receipts and public views show serial number only — no names, phones, diagnoses.
-- Encrypt backups. Audit every sensitive action ([05](./05-data-offline.md)).
+- Encrypt backups. Audit every sensitive action ([Data & offline](./data-offline.md)).
 - Adding patient-identifying data later requires a privacy/security review first.
 
 ## Android hardening

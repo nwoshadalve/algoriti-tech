@@ -31,9 +31,9 @@ Features MUST NOT import another feature's internals — depend on its `domain` 
 ## Boundaries (from architecture docs)
 
 - MUST NOT talk to the TV or React app directly; only via the Backend API.
-- MUST NOT put Bluetooth socket code in Dart — it lives in Android services ([03](./03-android-services.md)).
+- MUST NOT put Bluetooth socket code in Dart — it lives in Android services ([Android services](../standards/android-services.md)).
 - MUST NOT hardcode API clients in features; depend on interfaces for **storage, printing, API publishing** (host may move to a dedicated backend later).
-- Only the tablet allocates serial numbers ([05](./05-data-offline.md)).
+- Only the tablet allocates serial numbers ([Data & offline](./data-offline.md)).
 - Business rules live in `domain`, never in widgets or Android services.
 
 ## Defaults (change only via ADR in `docs/decisions/`)

@@ -11,8 +11,8 @@
 ## Pull requests
 
 - Describe what/why, how it was tested, and screenshots for UI changes (from the tablet).
-- Checklist: the Definition of Done in the [principles README](./README.md).
-- Review for: layering ([01](./01-architecture.md)), security ([07](./07-security-privacy.md)), tests ([08](./08-testing.md)).
+- Checklist: the Definition of Done in the [principles README](../README.md).
+- Review for: layering ([Architecture](../principles/architecture.md)), security ([Security & privacy](../principles/security-privacy.md)), tests ([Testing](./testing.md)).
 
 ## Dependencies
 
@@ -39,4 +39,4 @@ Pipeline order: `format check → analyze → test → build apk/aab`. A red pip
 
 - Give the assistant the task, the relevant principle docs, and the acceptance criteria.
 - Review AI diffs like any other: layering, tests, no stray files, no invented APIs.
-- The assistant rules in the [principles README](./README.md) apply to every tool and model.
+- The assistant rules in the [principles README](../README.md) apply to every tool and model.

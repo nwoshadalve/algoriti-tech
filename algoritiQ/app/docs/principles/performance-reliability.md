@@ -18,8 +18,8 @@ The app runs a full clinic shift (hours) on a mid-range tablet. Reliability beat
 
 - No leaks: dispose controllers/streams/sockets; cancel timers and coroutines.
 - Soak test a full shift (≥ 8 h) before clinic rollout: memory stable, connections recover.
-- Survive process death and app restart by restoring from SQLite ([05](./05-data-offline.md)).
-- Keep the screen on during a session using `FLAG_KEEP_SCREEN_ON` (foreground), not a permanent wake lock ([03](./03-android-services.md)).
+- Survive process death and app restart by restoring from SQLite ([Data & offline](./data-offline.md)).
+- Keep the screen on during a session using `FLAG_KEEP_SCREEN_ON` (foreground), not a permanent wake lock ([Android services](../standards/android-services.md)).
 
 ## Connectivity
 

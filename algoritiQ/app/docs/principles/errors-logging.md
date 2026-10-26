@@ -32,4 +32,4 @@
 
 ## Android side
 
-- Kotlin services map exceptions to typed error codes across the channel ([03](./03-android-services.md)). Never let an uncaught exception kill a foreground service.
+- Kotlin services map exceptions to typed error codes across the channel ([Android services](../standards/android-services.md)). Never let an uncaught exception kill a foreground service.

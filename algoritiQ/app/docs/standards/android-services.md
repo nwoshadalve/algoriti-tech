@@ -56,4 +56,4 @@ Location: `android/app/src/main/kotlin/tech/algoriti/algoritiq_app/services/`.
 ## Logging & health
 
 - Log with `Log.*` tags per service; no PII, no secrets. Report `connected | connecting | disconnected | error(code)` to Flutter.
-- Unit-test logic behind a `Transport` interface (fake Bluetooth); test real hardware on the tablet ([08](./08-testing.md)).
+- Unit-test logic behind a `Transport` interface (fake Bluetooth); test real hardware on the tablet ([Testing](./testing.md)).

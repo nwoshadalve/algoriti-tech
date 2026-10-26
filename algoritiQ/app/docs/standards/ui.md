@@ -17,6 +17,9 @@ Counter tablet UI: used all day by non-technical staff, under time pressure, in 
 - MUST NOT hardcode colors, font sizes, paddings, or magic numbers in widgets.
 - Spacing on a 4/8 dp grid. One `ThemeData` (light first; dark optional).
 - Reuse shared components in `core/widgets` before creating new ones.
+- Logo: always use `BrandLogo` (`.wordmark` / `.symbol`); it switches navy/white variants by theme. Never hardcode logo files or colors. Brand colors live in `core/theme/brand_colors.dart`; brand font (Plus Jakarta Sans, OFL) is bundled in `assets/fonts`.
+- Native splash wordmark PNGs are generated from `BrandLogo`: after changing the logo, run `flutter test tool/generate_splash_logo_test.dart`.
+- Support **light and dark** themes (`ThemeMode.system`); verify every screen in both.
 
 ## Layout (tablet-first, any Android)
 

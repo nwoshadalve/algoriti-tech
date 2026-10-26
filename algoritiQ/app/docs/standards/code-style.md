@@ -44,12 +44,12 @@ Suffixes: `*Page`/`*Screen` (route), `*View` (sub-UI), `*Controller`/`*Notifier`
 - Code explains *what*; comments explain *why* (constraints, trade-offs).
 - `///` doc comments on public API of `domain` and `core`.
 - No dead code, no commented-out code. `TODO(name): …` must link an issue.
-- No `print`/`debugPrint` — use the logger ([06](./06-errors-logging.md)).
+- No `print`/`debugPrint` — use the logger ([Errors & logging](../principles/errors-logging.md)).
 
 ## Imports
 
 - `package:` imports; relative only within the same feature folder. Keep sorted (`directives_ordering`).
-- Respect layer rules ([01](./01-architecture.md)).
+- Respect layer rules ([Architecture](../principles/architecture.md)).
 
 ## Dependencies
 
