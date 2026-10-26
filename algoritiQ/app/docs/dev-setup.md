@@ -102,5 +102,7 @@ Optional wireless debug (Android 11+): Developer options → Wireless debugging 
 | License errors | `flutter doctor --android-licenses` |
 | Gradle needs JDK | `flutter config --jdk-dir "<JAVA_HOME>"` |
 | First build slow | Normal (Gradle downloads ~1 GB once) |
+| `Could not close incremental caches` (Kotlin) | Project on E:, pub cache on C:. `kotlin.incremental=false` is set in `android/gradle.properties`; stop daemons (`gradlew --stop`) and delete the plugin's `build/` folder |
+| App shows the activation screen on a dev tablet | Issue a dev key: see [license/README.md](../../license/README.md) |
 
 More detail: [../../docs/dev-setup/](../../docs/dev-setup/README.md).

@@ -18,6 +18,7 @@ Two kinds of docs:
 | [Security & privacy](./principles/security-privacy.md) | Secrets, pairing, TLS, data minimization |
 | [Performance & reliability](./principles/performance-reliability.md) | Frame budget, long shifts, API levels |
 | [Testing](./principles/testing.md) | Regression-test strategy and critical paths |
+| [Localization](./principles/localization.md) | Bengali-first: every feature fully usable in Bengali |
 
 ## Standards ([standards/](./standards/))
 
@@ -55,7 +56,7 @@ If rules conflict or a task needs to break one: **stop and ask**, don't improvis
 - [ ] `dart format .` clean
 - [ ] `flutter analyze` — zero issues
 - [ ] `flutter test` passes; bug fixes and critical-path changes have regression tests ([principles](./principles/testing.md))
-- [ ] Strings localized, no hardcoded colors/sizes ([UI](./standards/ui.md))
+- [ ] Strings localized in **Bengali and English**, no hardcoded colors/sizes ([Localization](./principles/localization.md), [UI](./standards/ui.md))
 - [ ] No business logic in widgets; boundaries respected ([Architecture](./principles/architecture.md))
 - [ ] Errors handled, no PII in logs ([Errors & logging](./principles/errors-logging.md), [Security](./principles/security-privacy.md))
 - [ ] UI changes checked on the physical tablet
