@@ -5,6 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('should open straight to home (no Flutter splash)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const AlgoritiqApp());
+    expect(find.byIcon(Icons.add), findsOneWidget);
+  });
+
   group('theme', () {
     for (final mode in [ThemeMode.light, ThemeMode.dark]) {
       testWidgets('should render the logo with ${mode.name} theme', (

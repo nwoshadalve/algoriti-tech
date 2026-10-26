@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Pre-Android 12 launch screen: AlgoritiQ wordmark on the theme surface color. -->
+<!-- Pre-Android 12 launch screen: the AlgoritiQ wordmark on the theme surface
+     color. Flutter's splash continues from this exact logo (features/splash). -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/launch_surface" />
-    <item>
-        <bitmap android:gravity="center" android:src="@drawable/splash_wordmark" />
-    </item>
+    <item android:drawable="@drawable/splash_wordmark" android:gravity="center" />
 </layer-list>
