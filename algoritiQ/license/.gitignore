@@ -1,0 +1,6 @@
+# Vendor secrets - never commit.
+keys/*
+!keys/.gitkeep
+ledger.csv
+__pycache__/
+*.pyc
