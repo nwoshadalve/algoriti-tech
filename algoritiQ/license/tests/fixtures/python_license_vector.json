@@ -1,0 +1,15 @@
+{
+  "comment": "Shared Python<->Dart test vector. TEST KEY ONLY (not secret). Regenerate with tests/test_license_tool.py --regenerate-vector if the format changes.",
+  "keyId": 1,
+  "seedBase64": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=",
+  "publicKeyBase64": "ebVWLo/mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ=",
+  "androidId": "fixture-android-id",
+  "deviceCode": "FPN1M-5SMAR",
+  "type": "chamber",
+  "maxDoctors": 3,
+  "maxChambers": 1,
+  "issued": "2026-10-27",
+  "expires": "2027-10-27",
+  "licenseIdHex": "01020304",
+  "activationKey": "040G4-0R101-8H2MK-YFPN1-M5SMA-R0G40-R419N-SAT2M-TV8W6-EZ80M-72PEJ-49Y1B-WX950-8MHEY-4SSA3-WYS6Q-97NXP-VW731-MM381-XZ4CS-9GNN0-T5BFS-NCAPZ-MVYFT-SSFCK-8607C-ZG23R"
+}

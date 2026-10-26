@@ -1,0 +1,73 @@
+name: Issue AlgoritiQ license
+
+# Manual workflow: issue a license key from any browser or the GitHub mobile app.
+# Needs the repository secret ALGORITIQ_LICENSE_KEY (contents of license/keys/key-<id>.json).
+# The key appears in the run's job summary. See algoritiQ/license/README.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: doctor = 1 doctor, N chambers; chamber = 1 chamber, N doctors
+        type: choice
+        options: [doctor, chamber]
+        required: true
+      device:
+        description: Device code shown on the activation screen (XXXXX-XXXXX)
+        required: true
+      count:
+        description: Chambers (doctor license) or doctors (chamber license)
+        default: '2'
+        required: true
+      expires:
+        description: Last valid day YYYY-MM-DD, or "perpetual"
+        default: perpetual
+        required: true
+      customer:
+        description: Customer name (for the ledger row)
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  issue:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: algoritiQ/license
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Run tests
+        run: python -m unittest discover -s tests
+      - name: Issue license
+        env:
+          ALGORITIQ_LICENSE_KEY: ${{ secrets.ALGORITIQ_LICENSE_KEY }}
+          TYPE: ${{ inputs.type }}
+          DEVICE: ${{ inputs.device }}
+          COUNT: ${{ inputs.count }}
+          EXPIRES: ${{ inputs.expires }}
+          CUSTOMER: ${{ inputs.customer }}
+        run: |
+          if [ "$TYPE" = "doctor" ]; then limit="--chambers $COUNT"; else limit="--doctors $COUNT"; fi
+          if [ "$EXPIRES" = "perpetual" ]; then expiry="--perpetual"; else expiry="--expires $EXPIRES"; fi
+          out=$(python license_tool.py issue --type "$TYPE" --device "$DEVICE" $limit $expiry --customer "$CUSTOMER" --json)
+          {
+            echo "## License issued"
+            echo
+            echo "Send this key to the customer:"
+            echo
+            echo '```'
+            echo "$out" | python -c "import json,sys; print(json.load(sys.stdin)['activationKey'])"
+            echo '```'
+            echo
+            echo "Ledger row (add to your records):"
+            echo
+            echo '```'
+            tail -n 1 ledger.csv
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

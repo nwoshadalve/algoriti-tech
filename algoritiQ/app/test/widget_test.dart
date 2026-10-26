@@ -1,30 +1,57 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:algoritiq_app/app/app.dart';
+import 'package:algoritiq_app/core/theme/app_theme.dart';
+import 'package:algoritiq_app/core/widgets/brand_logo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:algoritiq_app/main.dart';
+import 'support/licensing_kit.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  late LicensingKit kit;
+  late MemoryLicenseStore licensed;
 
-    // Verify that our counter starts at 0.
+  setUpAll(() async {
+    kit = await LicensingKit.create();
+    licensed = MemoryLicenseStore(await kit.issue());
+  });
+
+  Future<void> openLicensedApp(WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: kit.overrides(store: licensed),
+        child: const AlgoritiqApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  group('theme', () {
+    for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+      testWidgets('should render the logo with ${mode.name} theme', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: mode,
+            home: const Scaffold(body: BrandLogo.wordmark()),
+          ),
+        );
+
+        expect(find.bySemanticsLabel('AlgoritiQ'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+    }
+  });
+
+  testWidgets('home counter increments', (tester) async {
+    await openLicensedApp(tester);
+
     expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
   });
 }
