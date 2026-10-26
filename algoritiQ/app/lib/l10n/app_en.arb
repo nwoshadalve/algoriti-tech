@@ -1,0 +1,54 @@
+{
+  "@@locale": "en",
+  "activationTitle": "Activate AlgoritiQ",
+  "activationIntro": "Send this device code to your AlgoritiQ provider to get your activation key.",
+  "deviceCodeLabel": "Device code",
+  "copyDeviceCode": "Copy",
+  "deviceCodeCopied": "Device code copied",
+  "activationKeyLabel": "Activation key",
+  "activationKeyHint": "Paste or type the key",
+  "activateButton": "Activate",
+  "licenseErrorMalformed": "This doesn't look like an activation key. Check it and try again.",
+  "licenseErrorUnknownKey": "This version of the app doesn't recognise this key.",
+  "licenseErrorBadSignature": "This key is not valid.",
+  "licenseErrorWrongDevice": "This key was issued for a different device.",
+  "licenseErrorExpired": "Your license has expired. Enter a renewed key to continue.",
+  "deviceUnavailable": "Couldn't read this device's identity.",
+  "retryButton": "Try again",
+  "licenseSummaryDoctor": "Doctor license · up to {chambers} {chambers, plural, =1{chamber} other{chambers}}",
+  "@licenseSummaryDoctor": {
+    "placeholders": {
+      "chambers": {
+        "type": "int"
+      }
+    }
+  },
+  "licenseSummaryChamber": "Chamber license · up to {doctors} {doctors, plural, =1{doctor} other{doctors}}",
+  "@licenseSummaryChamber": {
+    "placeholders": {
+      "doctors": {
+        "type": "int"
+      }
+    }
+  },
+  "licenseValidUntil": "Valid until {date}",
+  "@licenseValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      }
+    }
+  },
+  "licenseNoExpiry": "No expiry",
+  "licenseGraceNotice": "License expired. Enter a renewed key soon to avoid interruption.",
+  "activationStepCopy": "Copy code",
+  "activationStepGet": "Get key",
+  "activationStepEnter": "Enter key",
+  "stepDone": "done",
+  "stepCurrent": "current step",
+  "activationFooter": "Your license is tied to this device and works offline.",
+  "activating": "Activating…",
+  "languageLabel": "Language",
+  "loading": "Loading…"
+}

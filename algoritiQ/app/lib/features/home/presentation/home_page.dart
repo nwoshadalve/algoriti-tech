@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/brand_logo.dart';
+import '../../licensing/presentation/license_summary.dart';
 
 /// Placeholder home screen (counter demo) until real features land.
 class HomePage extends StatefulWidget {
@@ -32,6 +33,12 @@ class _HomePageState extends State<HomePage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: const SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: LicenseSummary(),
         ),
       ),
       floatingActionButton: FloatingActionButton(

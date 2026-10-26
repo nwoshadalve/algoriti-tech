@@ -2,15 +2,29 @@ import 'package:algoritiq_app/app/app.dart';
 import 'package:algoritiq_app/core/theme/app_theme.dart';
 import 'package:algoritiq_app/core/widgets/brand_logo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/licensing_kit.dart';
+
 void main() {
-  testWidgets('should open straight to home (no Flutter splash)', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const AlgoritiqApp());
-    expect(find.byIcon(Icons.add), findsOneWidget);
+  late LicensingKit kit;
+  late MemoryLicenseStore licensed;
+
+  setUpAll(() async {
+    kit = await LicensingKit.create();
+    licensed = MemoryLicenseStore(await kit.issue());
   });
+
+  Future<void> openLicensedApp(WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: kit.overrides(store: licensed),
+        child: const AlgoritiqApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
 
   group('theme', () {
     for (final mode in [ThemeMode.light, ThemeMode.dark]) {
@@ -33,7 +47,7 @@ void main() {
   });
 
   testWidgets('home counter increments', (tester) async {
-    await tester.pumpWidget(const AlgoritiqApp());
+    await openLicensedApp(tester);
 
     expect(find.text('0'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.add));
