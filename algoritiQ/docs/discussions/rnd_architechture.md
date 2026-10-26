@@ -1,5 +1,7 @@
 # Patient Serial Management System — R&D Architecture
 
+> **Canonical architecture workspace:** [../architecture/](../architecture/) — use `overview.md`, ADRs, and `open-questions.md` to finalize; this file remains the detailed R&D reference.
+
 Status: proposed architecture for discussion  
 Research date: 20 October 2026  
 Primary operating mode: local network, fully usable without Internet

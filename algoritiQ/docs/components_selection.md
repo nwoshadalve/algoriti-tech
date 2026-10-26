@@ -1,6 +1,6 @@
 # Components Selection
 
-Role in the system is defined in [rnd_architechture.md](discussions/rnd_architechture.md).
+Role in the system is defined in [architecture/overview.md](architecture/overview.md) (summary) and [rnd_architechture.md](discussions/rnd_architechture.md) (detail).
 
 Prices were checked on **23 October 2026** and may change. Prefer **Star Tech** or **Ryans** for purchase; confirm stock and warranty on the invoice before buying.
 

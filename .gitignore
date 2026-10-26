@@ -56,3 +56,11 @@ coverage/
 
 # Optional local tooling
 *.local
+
+# Flutter / Android release secrets (AlgoritiQ)
+**/key.properties
+**/*.keystore
+**/*.jks
+.dart_tool/
+.pub/
+**/android/local.properties

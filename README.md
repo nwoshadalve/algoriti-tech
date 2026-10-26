@@ -14,7 +14,7 @@ This repository is the company monorepo: products live in their own directories 
 |---|---|
 | **Status** | In development |
 | **Location** | [`algoritiQ/`](./algoritiQ/) |
-| **Docs** | [`algoritiQ/docs/`](./algoritiQ/docs/) |
+| **Docs** | [`algoritiQ/docs/`](./algoritiQ/docs/) · [Architecture](./algoritiQ/docs/architecture/) · [Dev setup](./algoritiQ/docs/dev-setup/) · [Prod build](./algoritiQ/docs/prod-build-deploy/) |
 
 ### Coming soon
 
