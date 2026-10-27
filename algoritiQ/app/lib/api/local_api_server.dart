@@ -185,7 +185,9 @@ class LocalApiServer {
     final result = await (await _access()).registerAdmin(
       claimCode: _text(body, 'claimCode'),
       username: _text(body, 'username'),
-      displayName: _text(body, 'displayName', required: false),
+      firstName: _text(body, 'firstName'),
+      lastName: _text(body, 'lastName'),
+      email: _text(body, 'email'),
       password: _text(body, 'password'),
     );
     switch (result) {
@@ -211,11 +213,12 @@ class LocalApiServer {
       case CredentialsRefused(:final problem):
         throw _ApiError(400, switch (problem) {
           CredentialProblem.usernameInvalid => 'username_invalid',
+          CredentialProblem.emailInvalid => 'email_invalid',
           CredentialProblem.passwordTooShort => 'password_too_short',
           CredentialProblem.passwordTooLong => 'password_too_long',
           CredentialProblem.passwordContainsUsername =>
             'password_contains_username',
-        }, 'The username or password was not accepted.');
+        }, 'The registration details were not accepted.');
     }
   }
 
@@ -297,6 +300,7 @@ class LocalApiServer {
           CredentialProblem.passwordContainsUsername =>
             'password_contains_username',
           CredentialProblem.usernameInvalid => 'invalid_request',
+          CredentialProblem.emailInvalid => 'invalid_request',
         }, 'The new password was not accepted.');
       case ResetThrottled(:final retryAfter):
         throw _tooManyAttempts(retryAfter);
@@ -363,6 +367,7 @@ class LocalApiServer {
     'id': account.id,
     'username': account.username,
     'displayName': account.displayName,
+    'email': account.email,
     'role': account.role.name,
   };
 

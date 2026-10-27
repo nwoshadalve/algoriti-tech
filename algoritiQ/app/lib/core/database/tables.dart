@@ -64,6 +64,7 @@ class Users extends Table {
   TextColumn get id => text()();
   TextColumn get username => text().unique()();
   TextColumn get displayName => text()();
+  TextColumn get email => text().withDefault(const Constant(''))();
   TextColumn get role => text()();
 
   /// Self-describing slow hash; the password itself is never stored.

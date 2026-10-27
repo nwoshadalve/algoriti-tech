@@ -16,6 +16,7 @@ part 'app_database.g.dart';
 /// - v3: every chamber belongs to a doctor (`doctor_id`, foreign key); chamber
 ///   phone number.
 /// - v4: accounts (`users`), sign-in sessions and the audit trail.
+/// - v5: account email on `users`.
 @DriftDatabase(
   tables: [Doctors, Chambers, AppSettings, Users, AuthSessions, AuditEntries],
 )
@@ -33,7 +34,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -64,6 +65,9 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(users);
         await m.createTable(authSessions);
         await m.createTable(auditEntries);
+      }
+      if (from < 5) {
+        await m.addColumn(users, users.email);
       }
     },
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

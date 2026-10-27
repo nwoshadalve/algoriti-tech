@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:algoritiq_app/api/api_host.dart';
 import 'package:algoritiq_app/core/clock.dart';
 import 'package:algoritiq_app/core/database/app_database.dart';
+import 'package:drift/drift.dart';
 import 'package:algoritiq_app/core/l10n/locale_controller.dart';
 import 'package:algoritiq_app/core/l10n/locale_store.dart';
 import 'package:algoritiq_app/core/security/secure_storage_secret_store.dart';
@@ -177,6 +178,7 @@ Future<void> seedAdmin(AppDatabase database) async {
           id: 'seed-admin',
           username: 'admin',
           displayName: 'Admin',
+          email: const Value('admin@clinic.test'),
           role: 'admin',
           passwordHash: 'unused',
           createdAt: testNow.millisecondsSinceEpoch,
@@ -226,6 +228,7 @@ class _SignedInSession extends TabletSession {
       id: 'seed-admin',
       username: 'admin',
       displayName: 'Admin',
+      email: 'admin@clinic.test',
       role: Role.admin,
       createdAt: testNow,
     ),

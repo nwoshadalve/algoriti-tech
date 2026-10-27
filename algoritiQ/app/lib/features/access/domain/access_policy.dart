@@ -1,21 +1,37 @@
 /// Why a username or password was refused.
 enum CredentialProblem {
   usernameInvalid,
+  emailInvalid,
   passwordTooShort,
   passwordTooLong,
   passwordContainsUsername,
 }
 
-/// Rules for usernames and passwords. There is no email offline, so the
-/// username is the identity; passwords must be long rather than complex.
+/// Rules for usernames, email and passwords on registration.
 abstract final class AccessPolicy {
-  static const minPasswordLength = 10;
+  static const minPasswordLength = 8;
   static const maxPasswordLength = 128;
+  static const maxEmailLength = 254;
 
   static final _usernamePattern = RegExp(r'^[a-z0-9._-]{3,32}$');
+  static final _emailPattern = RegExp(
+    r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
+    caseSensitive: false,
+  );
 
   /// Sign-in names are not case sensitive.
   static String normalizeUsername(String input) => input.trim().toLowerCase();
+
+  static String normalizeEmail(String input) => input.trim().toLowerCase();
+
+  static CredentialProblem? checkEmail(String email) {
+    final value = email.trim();
+    if (value.isEmpty || value.length > maxEmailLength) {
+      return CredentialProblem.emailInvalid;
+    }
+    if (!_emailPattern.hasMatch(value)) return CredentialProblem.emailInvalid;
+    return null;
+  }
 
   /// The first problem with the pair, or null when both are acceptable.
   static CredentialProblem? check({

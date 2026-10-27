@@ -16,6 +16,8 @@ export function setupErrorKey(error: unknown): MessageKey {
         return 'errorAdminAlreadyRegistered'
       case 'username_invalid':
         return 'errorUsernameInvalidApi'
+      case 'email_invalid':
+        return 'errorEmailInvalidApi'
       case 'password_too_short':
         return 'errorPasswordTooShortApi'
       case 'password_too_long':
@@ -34,6 +36,15 @@ export function setupErrorKey(error: unknown): MessageKey {
   }
 
   return 'errorGeneric'
+}
+
+export function isClaimCodeApiError(error: unknown): boolean {
+  if (!(error instanceof ApiError)) return false
+  return (
+    error.code === 'claim_code_invalid' ||
+    error.code === 'claim_code_expired' ||
+    error.code === 'claim_code_locked'
+  )
 }
 
 export function setupErrorParams(error: unknown): Record<string, string | number> | undefined {

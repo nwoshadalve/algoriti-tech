@@ -476,7 +476,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetPasswordHint =>
-      'At least 10 characters. Must not include your username.';
+      'At least 8 characters. Must not include your username.';
 
   @override
   String get resetButton => 'Reset password';
@@ -504,7 +504,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordNeeded => 'Choose a password.';
 
   @override
-  String get passwordTooShort => 'Use at least 10 characters.';
+  String get passwordTooShort => 'Use at least 8 characters.';
 
   @override
   String get passwordTooLong => 'Use at most 128 characters.';

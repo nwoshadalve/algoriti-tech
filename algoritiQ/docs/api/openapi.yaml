@@ -111,7 +111,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [claimCode, username, password]
+              required: [claimCode, username, firstName, lastName, email, password]
               properties:
                 claimCode:
                   type: string
@@ -121,10 +121,12 @@ paths:
                   type: string
                   pattern: '^[a-zA-Z0-9._-]{3,32}$'
                   description: Not case sensitive; stored lower-case.
-                displayName: { type: string }
+                firstName: { type: string, minLength: 1, maxLength: 64 }
+                lastName: { type: string, minLength: 1, maxLength: 64 }
+                email: { type: string, format: email, maxLength: 254 }
                 password:
                   type: string
-                  minLength: 10
+                  minLength: 8
                   maxLength: 128
                   format: password
       responses:
@@ -140,7 +142,7 @@ paths:
         '400':
           description: >
             Invalid input. Codes: `invalid_request`, `username_invalid`,
-            `password_too_short`, `password_too_long`,
+            `email_invalid`, `password_too_short`, `password_too_long`,
             `password_contains_username`.
           content:
             application/json:
@@ -333,11 +335,12 @@ components:
   schemas:
     Account:
       type: object
-      required: [id, username, displayName, role]
+      required: [id, username, displayName, email, role]
       properties:
         id: { type: string, format: uuid }
         username: { type: string }
         displayName: { type: string }
+        email: { type: string, format: email }
         role: { type: string, enum: [admin] }
     Error:
       type: object

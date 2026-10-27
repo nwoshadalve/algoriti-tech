@@ -7,13 +7,14 @@ import { SetupCard } from '@/core/ui/SetupCard'
 import { PagePreloader } from '@/core/ui/PagePreloader'
 import { LoadingButton } from '@/core/ui/LoadingButton'
 import { PasswordField } from '@/core/ui/PasswordField'
-import { registerAdmin, getSetupStatus } from '@/core/api/setup'
+import { registerAdmin, getSetupStatus, verifyClaimCode } from '@/core/api/setup'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import { TextField } from '@/core/ui/TextField'
 import {
   clearClaimCode,
   isClaimCodeVerified,
   readClaimCode,
+  setActivationFlash,
 } from '@/features/setup/claimCodeSession'
 import {
   hasFieldErrors,
@@ -21,12 +22,18 @@ import {
   type FieldErrors,
   type RegistrationFields,
 } from '@/features/setup/adminRegistrationValidation'
-import { setupErrorKey, setupErrorParams } from '@/features/setup/setupErrorMessages'
+import {
+  isClaimCodeApiError,
+  setupErrorKey,
+  setupErrorParams,
+} from '@/features/setup/setupErrorMessages'
 import type { Account } from '@/core/api/types'
 
 const emptyFields: RegistrationFields = {
+  firstName: '',
+  lastName: '',
+  email: '',
   username: '',
-  displayName: '',
   password: '',
   confirmPassword: '',
 }
@@ -52,20 +59,31 @@ export function AdminRegistrationPage() {
   useEffect(() => {
     let cancelled = false
     void (async () => {
+      if (!claimCode) return
       try {
         const status = await getSetupStatus()
         if (cancelled) return
-        // Registered meanwhile (another device): the sign-in page is next.
         if (status.adminRegistered) {
           navigate('/login', { replace: true })
           return
         }
+        await verifyClaimCode(claimCode)
+        if (cancelled) return
         setPhase({ kind: 'register' })
-      } catch {
-        if (!cancelled) {
-          setPhase({ kind: 'register' })
-          setFormError(t('errorStatusCheck'))
+      } catch (error) {
+        if (cancelled) return
+        if (isClaimCodeApiError(error)) {
+          clearClaimCode()
+          setActivationFlash(t(setupErrorKey(error), setupErrorParams(error)))
+          navigate('/', { replace: true })
+          return
         }
+        if (setupErrorKey(error) === 'errorAdminAlreadyRegistered') {
+          navigate('/login', { replace: true })
+          return
+        }
+        setPhase({ kind: 'register' })
+        setFormError(t('errorStatusCheck'))
       }
     })()
     return () => {
@@ -73,11 +91,6 @@ export function AdminRegistrationPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mount only
   }, [])
-
-  function changeCode() {
-    clearClaimCode()
-    navigate('/')
-  }
 
   function updateField<K extends keyof RegistrationFields>(key: K, value: RegistrationFields[K]) {
     setFields((prev) => ({ ...prev, [key]: value }))
@@ -104,13 +117,25 @@ export function AdminRegistrationPage() {
       const account = await registerAdmin({
         claimCode,
         username: fields.username.trim().toLowerCase(),
+        firstName: fields.firstName.trim(),
+        lastName: fields.lastName.trim(),
+        email: fields.email.trim(),
         password: fields.password,
-        displayName: fields.displayName.trim() || undefined,
       })
       clearClaimCode()
       setPhase({ kind: 'success', account })
     } catch (error) {
       const key = setupErrorKey(error)
+      if (isClaimCodeApiError(error)) {
+        clearClaimCode()
+        setActivationFlash(t(key, setupErrorParams(error)))
+        navigate('/', { replace: true })
+        return
+      }
+      if (key === 'errorAdminAlreadyRegistered') {
+        navigate('/login', { replace: true })
+        return
+      }
       setFormError(t(key, setupErrorParams(error)))
     } finally {
       setSubmitting(false)
@@ -138,7 +163,6 @@ export function AdminRegistrationPage() {
           submitting={submitting}
           onFieldChange={updateField}
           onSubmit={onSubmit}
-          onChangeCode={changeCode}
         />
       ) : null}
     </SetupLayout>
@@ -160,7 +184,6 @@ type RegistrationCardProps = {
   submitting: boolean
   onFieldChange: <K extends keyof RegistrationFields>(key: K, value: RegistrationFields[K]) => void
   onSubmit: (event: React.FormEvent) => void
-  onChangeCode: () => void
 }
 
 function RegistrationCard({
@@ -170,7 +193,6 @@ function RegistrationCard({
   submitting,
   onFieldChange,
   onSubmit,
-  onChangeCode,
 }: RegistrationCardProps) {
   const { t } = useLocale()
 
@@ -184,14 +206,6 @@ function RegistrationCard({
         {t('registerIntro')}
       </p>
 
-      <button
-        type="button"
-        onClick={onChangeCode}
-        className="-ml-1 mt-1 inline-flex min-h-11 items-center px-1 text-left text-sm font-medium text-brand-coral-action underline-offset-2 hover:underline"
-      >
-        {t('changeActivationCode')}
-      </button>
-
       {formError ? (
         <div
           role="alert"
@@ -204,28 +218,48 @@ function RegistrationCard({
       <form className="mt-6 space-y-4 lg:mt-8" onSubmit={onSubmit} noValidate>
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
-            id="username"
-            name="username"
-            label={t('fieldUsername')}
-            hint={t('fieldUsernameHint')}
-            autoComplete="username"
-            spellCheck={false}
-            value={fields.username}
-            error={fieldErrors.username ? t(fieldErrors.username) : undefined}
-            onChange={(e) => onFieldChange('username', e.target.value)}
+            id="firstName"
+            name="firstName"
+            label={t('fieldFirstName')}
+            autoComplete="given-name"
+            value={fields.firstName}
+            error={fieldErrors.firstName ? t(fieldErrors.firstName) : undefined}
+            onChange={(e) => onFieldChange('firstName', e.target.value)}
           />
-
           <TextField
-            id="displayName"
-            name="displayName"
-            label={t('fieldDisplayName')}
-            hint={t('fieldDisplayNameHint')}
-            autoComplete="name"
-            value={fields.displayName}
-            error={fieldErrors.displayName ? t(fieldErrors.displayName) : undefined}
-            onChange={(e) => onFieldChange('displayName', e.target.value)}
+            id="lastName"
+            name="lastName"
+            label={t('fieldLastName')}
+            autoComplete="family-name"
+            value={fields.lastName}
+            error={fieldErrors.lastName ? t(fieldErrors.lastName) : undefined}
+            onChange={(e) => onFieldChange('lastName', e.target.value)}
           />
         </div>
+
+        <TextField
+          id="email"
+          name="email"
+          type="email"
+          label={t('fieldEmail')}
+          autoComplete="email"
+          spellCheck={false}
+          value={fields.email}
+          error={fieldErrors.email ? t(fieldErrors.email) : undefined}
+          onChange={(e) => onFieldChange('email', e.target.value)}
+        />
+
+        <TextField
+          id="username"
+          name="username"
+          label={t('fieldUsername')}
+          hint={t('fieldUsernameHint')}
+          autoComplete="username"
+          spellCheck={false}
+          value={fields.username}
+          error={fieldErrors.username ? t(fieldErrors.username) : undefined}
+          onChange={(e) => onFieldChange('username', e.target.value)}
+        />
 
         <PasswordField
           id="password"

@@ -444,7 +444,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get resetConfirmLabel => 'নতুন পাসওয়ার্ড নিশ্চিত করুন';
 
   @override
-  String get resetPasswordHint => 'কমপক্ষে ১০ অক্ষর। ইউজারনেম থাকা যাবে না।';
+  String get resetPasswordHint => 'কমপক্ষে ৮ অক্ষর। ইউজারনেম থাকা যাবে না।';
 
   @override
   String get resetButton => 'পাসওয়ার্ড রিসেট করুন';
@@ -472,7 +472,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get passwordNeeded => 'একটি পাসওয়ার্ড দিন।';
 
   @override
-  String get passwordTooShort => 'কমপক্ষে ১০ অক্ষর দিন।';
+  String get passwordTooShort => 'কমপক্ষে ৮ অক্ষর দিন।';
 
   @override
   String get passwordTooLong => 'সর্বোচ্চ ১২৮ অক্ষর দিন।';

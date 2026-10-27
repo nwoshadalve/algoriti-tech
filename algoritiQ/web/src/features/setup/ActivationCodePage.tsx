@@ -10,7 +10,7 @@ import { LoadingButton } from '@/core/ui/LoadingButton'
 import { getSetupStatus, verifyClaimCode } from '@/core/api/setup'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import { validateActivationCode } from '@/features/setup/adminRegistrationValidation'
-import { saveVerifiedClaimCode } from '@/features/setup/claimCodeSession'
+import { saveVerifiedClaimCode, takeActivationFlash } from '@/features/setup/claimCodeSession'
 import { setupErrorKey, setupErrorParams } from '@/features/setup/setupErrorMessages'
 import type { MessageKey } from '@/core/i18n/messages/types'
 
@@ -32,10 +32,12 @@ export function ActivationCodePage() {
         await getSetupStatus()
         if (cancelled) return
         setPhase({ kind: 'activate' })
+        const flash = takeActivationFlash()
+        if (flash) setBanner(flash)
       } catch {
         if (!cancelled) {
           setPhase({ kind: 'activate' })
-          setBanner(t('errorStatusCheck'))
+          setBanner(takeActivationFlash() ?? t('errorStatusCheck'))
         }
       }
     })()

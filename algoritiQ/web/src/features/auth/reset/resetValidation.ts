@@ -16,7 +16,7 @@ export function validateNewPassword(
 
   if (!newPassword) {
     errors.newPassword = 'errorPasswordRequired'
-  } else if (newPassword.length < 10) {
+  } else if (newPassword.length < 8) {
     errors.newPassword = 'errorPasswordTooShort'
   } else if (newPassword.length > 128) {
     errors.newPassword = 'errorPasswordTooLong'

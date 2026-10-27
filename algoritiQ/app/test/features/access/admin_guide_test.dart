@@ -220,7 +220,9 @@ void main() {
       () => service!.registerAdmin(
         claimCode: code,
         username: 'owner',
-        displayName: 'Owner',
+        firstName: 'Owner',
+        lastName: 'Admin',
+        email: 'owner@clinic.test',
         password: 'a-long-passphrase',
       ),
     );

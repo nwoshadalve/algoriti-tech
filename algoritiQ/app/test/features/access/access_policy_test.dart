@@ -22,8 +22,8 @@ void main() {
     });
   }
 
-  test('should refuse a password shorter than ten characters', () {
-    expect(check('owner', 'short-one'), CredentialProblem.passwordTooShort);
+  test('should refuse a password shorter than eight characters', () {
+    expect(check('owner', 'short'), CredentialProblem.passwordTooShort);
   });
 
   test('should refuse a password longer than 128 characters', () {

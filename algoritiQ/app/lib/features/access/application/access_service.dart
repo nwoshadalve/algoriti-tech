@@ -192,7 +192,9 @@ class AccessService {
   Future<RegisterResult> registerAdmin({
     required String claimCode,
     required String username,
-    required String displayName,
+    required String firstName,
+    required String lastName,
+    required String email,
     required String password,
   }) async {
     if (await hasAdmin) return const AdminAlreadyRegistered();
@@ -208,14 +210,19 @@ class AccessService {
       );
       return ClaimRefused(claim, attemptsLeft: _claimCodes.attemptsLeft);
     }
+    if (AccessPolicy.checkEmail(email) != null) {
+      return const CredentialsRefused(CredentialProblem.emailInvalid);
+    }
     final problem = AccessPolicy.check(username: username, password: password);
     if (problem != null) return CredentialsRefused(problem);
 
     final name = AccessPolicy.normalizeUsername(username);
+    final displayName = '${firstName.trim()} ${lastName.trim()}'.trim();
     final account = Account(
       id: _newId(),
       username: name,
-      displayName: displayName.trim().isEmpty ? name : displayName.trim(),
+      displayName: displayName.isEmpty ? name : displayName,
+      email: AccessPolicy.normalizeEmail(email),
       role: Role.admin,
       createdAt: _clock().toUtc(),
     );

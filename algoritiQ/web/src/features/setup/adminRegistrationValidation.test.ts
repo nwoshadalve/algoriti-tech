@@ -24,10 +24,12 @@ describe('validateActivationCode', () => {
 
 describe('validateRegistration', () => {
   const valid = {
+    firstName: 'Ada',
+    lastName: 'Admin',
+    email: 'ada@clinic.test',
     username: 'admin.clinic',
-    displayName: '',
-    password: 'long-enough-pass',
-    confirmPassword: 'long-enough-pass',
+    password: 'long-enough',
+    confirmPassword: 'long-enough',
   }
 
   it('should accept valid fields', () => {
@@ -38,9 +40,18 @@ describe('validateRegistration', () => {
     const errors = validateRegistration({
       ...valid,
       username: 'clinic',
-      password: 'clinic-secret-12',
-      confirmPassword: 'clinic-secret-12',
+      password: 'clinic-secret',
+      confirmPassword: 'clinic-secret',
     })
     expect(errors.password).toBe('errorPasswordContainsUsername')
+  })
+
+  it('should reject passwords shorter than 8 characters', () => {
+    const errors = validateRegistration({
+      ...valid,
+      password: 'short',
+      confirmPassword: 'short',
+    })
+    expect(errors.password).toBe('errorPasswordTooShort')
   })
 })

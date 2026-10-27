@@ -60,7 +60,9 @@ void main() {
   }) => {
     'claimCode': code ?? kit.claimCodes.current().code,
     'username': 'owner',
-    'displayName': 'The Owner',
+    'firstName': 'The',
+    'lastName': 'Owner',
+    'email': 'owner@clinic.test',
     'password': password,
   };
 

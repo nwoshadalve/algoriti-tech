@@ -33,7 +33,8 @@ function resolveTheme(preference: ThemePreference): 'light' | 'dark' {
   if (preference === 'light' || preference === 'dark') {
     return preference
   }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  const media = window.matchMedia?.('(prefers-color-scheme: dark)')
+  return media?.matches ? 'dark' : 'light'
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

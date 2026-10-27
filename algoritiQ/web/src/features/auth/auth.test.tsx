@@ -8,7 +8,13 @@ import type { Account } from '@/core/api/types'
 import { readSession, saveSession } from '@/features/auth/session'
 import { renderAppAt } from '@/test/render'
 
-const owner: Account = { id: 'a1', username: 'owner', displayName: 'The Owner', role: 'admin' }
+const owner: Account = {
+  id: 'a1',
+  username: 'owner',
+  displayName: 'The Owner',
+  email: 'owner@clinic.test',
+  role: 'admin',
+}
 const inOneHour = () => new Date(Date.now() + 3_600_000).toISOString()
 
 function adminExists(registered = true) {
@@ -282,7 +288,7 @@ describe('forgot password', () => {
     await giveKey(user)
     await givePassword(user, 'short', 'other')
 
-    expect(await screen.findByText('Use at least 10 characters.')).toBeInTheDocument()
+    expect(await screen.findByText('Use at least 8 characters.')).toBeInTheDocument()
     expect(screen.getByText('Passwords do not match.')).toBeInTheDocument()
     expect(finish).not.toHaveBeenCalled()
   })

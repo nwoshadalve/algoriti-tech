@@ -45,6 +45,7 @@ describe('AdminRegistrationPage', () => {
       adminRegistered: false,
       claimCodeRequired: true,
     })
+    vi.spyOn(setupApi, 'verifyClaimCode').mockResolvedValue()
 
     renderAppAt('/register')
 
@@ -54,7 +55,10 @@ describe('AdminRegistrationPage', () => {
   })
 
   async function fillAndSubmit(user: ReturnType<typeof userEvent.setup>) {
-    await user.type(await screen.findByLabelText('Username'), 'owner')
+    await user.type(await screen.findByLabelText('First name'), 'The')
+    await user.type(screen.getByLabelText('Last name'), 'Owner')
+    await user.type(screen.getByLabelText('Email'), 'owner@clinic.test')
+    await user.type(screen.getByLabelText('Username'), 'owner')
     await user.type(screen.getByLabelText('Password'), 'a-long-passphrase')
     await user.type(screen.getByLabelText('Confirm password'), 'a-long-passphrase')
     await user.click(screen.getByRole('button', { name: 'Create admin account' }))
@@ -66,10 +70,12 @@ describe('AdminRegistrationPage', () => {
       adminRegistered: false,
       claimCodeRequired: true,
     })
+    vi.spyOn(setupApi, 'verifyClaimCode').mockResolvedValue()
     const register = vi.spyOn(setupApi, 'registerAdmin').mockResolvedValue({
       id: '1',
       username: 'owner',
-      displayName: 'owner',
+      displayName: 'The Owner',
+      email: 'owner@clinic.test',
       role: 'admin',
     })
 
@@ -83,12 +89,13 @@ describe('AdminRegistrationPage', () => {
     expect(sessionStorage.getItem('algoritiq.setup.claimCode')).toBeNull()
   })
 
-  it('should stay on the form when the tablet refuses the code', async () => {
+  it('should return to activation when the tablet refuses the code on submit', async () => {
     saveVerifiedClaimCode('TEST-CODE')
     vi.spyOn(setupApi, 'getSetupStatus').mockResolvedValue({
       adminRegistered: false,
       claimCodeRequired: true,
     })
+    vi.spyOn(setupApi, 'verifyClaimCode').mockResolvedValue()
     vi.spyOn(setupApi, 'registerAdmin').mockRejectedValue(
       new ApiError('claim_code_invalid', 'no', 3),
     )
@@ -97,9 +104,27 @@ describe('AdminRegistrationPage', () => {
     await fillAndSubmit(userEvent.setup())
 
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(screen.getByRole('textbox', { name: 'Activation code' })).toBeInTheDocument()
     })
-    expect(screen.getByLabelText('Username')).toBeInTheDocument()
-    expect(screen.queryByText('Admin account created')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Username')).not.toBeInTheDocument()
+    expect(sessionStorage.getItem('algoritiq.setup.claimVerified')).toBeNull()
+  })
+
+  it('should return to activation when the stored code fails re-check on load', async () => {
+    saveVerifiedClaimCode('STALE-CODE')
+    vi.spyOn(setupApi, 'getSetupStatus').mockResolvedValue({
+      adminRegistered: false,
+      claimCodeRequired: true,
+    })
+    vi.spyOn(setupApi, 'verifyClaimCode').mockRejectedValue(
+      new ApiError('claim_code_invalid', 'no', 4),
+    )
+
+    renderAppAt('/register')
+
+    await waitFor(() => {
+      expect(screen.getByRole('textbox', { name: 'Activation code' })).toBeInTheDocument()
+    })
+    expect(screen.queryByLabelText('Username')).not.toBeInTheDocument()
   })
 })

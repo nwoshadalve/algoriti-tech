@@ -1205,6 +1205,16 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _roleMeta = const VerificationMeta('role');
   @override
   late final GeneratedColumn<String> role = GeneratedColumn<String>(
@@ -1251,6 +1261,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserRow> {
     id,
     username,
     displayName,
+    email,
     role,
     passwordHash,
     status,
@@ -1291,6 +1302,12 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserRow> {
       );
     } else if (isInserting) {
       context.missing(_displayNameMeta);
+    }
+    if (data.containsKey('email')) {
+      context.handle(
+        _emailMeta,
+        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
     }
     if (data.containsKey('role')) {
       context.handle(
@@ -1346,6 +1363,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserRow> {
         DriftSqlType.string,
         data['${effectivePrefix}display_name'],
       )!,
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      )!,
       role: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}role'],
@@ -1375,6 +1396,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
   final String id;
   final String username;
   final String displayName;
+  final String email;
   final String role;
 
   /// Self-describing slow hash; the password itself is never stored.
@@ -1387,6 +1409,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     required this.id,
     required this.username,
     required this.displayName,
+    required this.email,
     required this.role,
     required this.passwordHash,
     required this.status,
@@ -1398,6 +1421,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     map['id'] = Variable<String>(id);
     map['username'] = Variable<String>(username);
     map['display_name'] = Variable<String>(displayName);
+    map['email'] = Variable<String>(email);
     map['role'] = Variable<String>(role);
     map['password_hash'] = Variable<String>(passwordHash);
     map['status'] = Variable<String>(status);
@@ -1410,6 +1434,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
       id: Value(id),
       username: Value(username),
       displayName: Value(displayName),
+      email: Value(email),
       role: Value(role),
       passwordHash: Value(passwordHash),
       status: Value(status),
@@ -1426,6 +1451,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
       id: serializer.fromJson<String>(json['id']),
       username: serializer.fromJson<String>(json['username']),
       displayName: serializer.fromJson<String>(json['displayName']),
+      email: serializer.fromJson<String>(json['email']),
       role: serializer.fromJson<String>(json['role']),
       passwordHash: serializer.fromJson<String>(json['passwordHash']),
       status: serializer.fromJson<String>(json['status']),
@@ -1439,6 +1465,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
       'id': serializer.toJson<String>(id),
       'username': serializer.toJson<String>(username),
       'displayName': serializer.toJson<String>(displayName),
+      'email': serializer.toJson<String>(email),
       'role': serializer.toJson<String>(role),
       'passwordHash': serializer.toJson<String>(passwordHash),
       'status': serializer.toJson<String>(status),
@@ -1450,6 +1477,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     String? id,
     String? username,
     String? displayName,
+    String? email,
     String? role,
     String? passwordHash,
     String? status,
@@ -1458,6 +1486,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     id: id ?? this.id,
     username: username ?? this.username,
     displayName: displayName ?? this.displayName,
+    email: email ?? this.email,
     role: role ?? this.role,
     passwordHash: passwordHash ?? this.passwordHash,
     status: status ?? this.status,
@@ -1470,6 +1499,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
       displayName: data.displayName.present
           ? data.displayName.value
           : this.displayName,
+      email: data.email.present ? data.email.value : this.email,
       role: data.role.present ? data.role.value : this.role,
       passwordHash: data.passwordHash.present
           ? data.passwordHash.value
@@ -1485,6 +1515,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
           ..write('id: $id, ')
           ..write('username: $username, ')
           ..write('displayName: $displayName, ')
+          ..write('email: $email, ')
           ..write('role: $role, ')
           ..write('passwordHash: $passwordHash, ')
           ..write('status: $status, ')
@@ -1498,6 +1529,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     id,
     username,
     displayName,
+    email,
     role,
     passwordHash,
     status,
@@ -1510,6 +1542,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
           other.id == this.id &&
           other.username == this.username &&
           other.displayName == this.displayName &&
+          other.email == this.email &&
           other.role == this.role &&
           other.passwordHash == this.passwordHash &&
           other.status == this.status &&
@@ -1520,6 +1553,7 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
   final Value<String> id;
   final Value<String> username;
   final Value<String> displayName;
+  final Value<String> email;
   final Value<String> role;
   final Value<String> passwordHash;
   final Value<String> status;
@@ -1529,6 +1563,7 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
     this.id = const Value.absent(),
     this.username = const Value.absent(),
     this.displayName = const Value.absent(),
+    this.email = const Value.absent(),
     this.role = const Value.absent(),
     this.passwordHash = const Value.absent(),
     this.status = const Value.absent(),
@@ -1539,6 +1574,7 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
     required String id,
     required String username,
     required String displayName,
+    this.email = const Value.absent(),
     required String role,
     required String passwordHash,
     this.status = const Value.absent(),
@@ -1554,6 +1590,7 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
     Expression<String>? id,
     Expression<String>? username,
     Expression<String>? displayName,
+    Expression<String>? email,
     Expression<String>? role,
     Expression<String>? passwordHash,
     Expression<String>? status,
@@ -1564,6 +1601,7 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
       if (id != null) 'id': id,
       if (username != null) 'username': username,
       if (displayName != null) 'display_name': displayName,
+      if (email != null) 'email': email,
       if (role != null) 'role': role,
       if (passwordHash != null) 'password_hash': passwordHash,
       if (status != null) 'status': status,
@@ -1576,6 +1614,7 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
     Value<String>? id,
     Value<String>? username,
     Value<String>? displayName,
+    Value<String>? email,
     Value<String>? role,
     Value<String>? passwordHash,
     Value<String>? status,
@@ -1586,6 +1625,7 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
       id: id ?? this.id,
       username: username ?? this.username,
       displayName: displayName ?? this.displayName,
+      email: email ?? this.email,
       role: role ?? this.role,
       passwordHash: passwordHash ?? this.passwordHash,
       status: status ?? this.status,
@@ -1605,6 +1645,9 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
     }
     if (displayName.present) {
       map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
     }
     if (role.present) {
       map['role'] = Variable<String>(role.value);
@@ -1630,6 +1673,7 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
           ..write('id: $id, ')
           ..write('username: $username, ')
           ..write('displayName: $displayName, ')
+          ..write('email: $email, ')
           ..write('role: $role, ')
           ..write('passwordHash: $passwordHash, ')
           ..write('status: $status, ')
@@ -3357,6 +3401,7 @@ typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
   required String id,
   required String username,
   required String displayName,
+  Value<String> email,
   required String role,
   required String passwordHash,
   Value<String> status,
@@ -3367,6 +3412,7 @@ typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
   Value<String> id,
   Value<String> username,
   Value<String> displayName,
+  Value<String> email,
   Value<String> role,
   Value<String> passwordHash,
   Value<String> status,
@@ -3417,6 +3463,11 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<String> get displayName => $composableBuilder(
     column: $table.displayName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get email => $composableBuilder(
+    column: $table.email,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3490,6 +3541,11 @@ class $$UsersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get role => $composableBuilder(
     column: $table.role,
     builder: (column) => ColumnOrderings(column),
@@ -3530,6 +3586,9 @@ class $$UsersTableAnnotationComposer
     column: $table.displayName,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
 
   GeneratedColumn<String> get role =>
       $composableBuilder(column: $table.role, builder: (column) => column);
@@ -3602,6 +3661,7 @@ class $$UsersTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> username = const Value.absent(),
                 Value<String> displayName = const Value.absent(),
+                Value<String> email = const Value.absent(),
                 Value<String> role = const Value.absent(),
                 Value<String> passwordHash = const Value.absent(),
                 Value<String> status = const Value.absent(),
@@ -3611,6 +3671,7 @@ class $$UsersTableTableManager
                 id: id,
                 username: username,
                 displayName: displayName,
+                email: email,
                 role: role,
                 passwordHash: passwordHash,
                 status: status,
@@ -3622,6 +3683,7 @@ class $$UsersTableTableManager
                 required String id,
                 required String username,
                 required String displayName,
+                Value<String> email = const Value.absent(),
                 required String role,
                 required String passwordHash,
                 Value<String> status = const Value.absent(),
@@ -3631,6 +3693,7 @@ class $$UsersTableTableManager
                 id: id,
                 username: username,
                 displayName: displayName,
+                email: email,
                 role: role,
                 passwordHash: passwordHash,
                 status: status,

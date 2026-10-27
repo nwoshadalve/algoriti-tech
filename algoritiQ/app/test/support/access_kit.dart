@@ -107,7 +107,9 @@ class AccessKit {
   }) => service.registerAdmin(
     claimCode: claimCode ?? claimCodes.current().code,
     username: username,
-    displayName: 'The Owner',
+    firstName: 'The',
+    lastName: 'Owner',
+    email: 'owner@clinic.test',
     password: pass,
   );
 

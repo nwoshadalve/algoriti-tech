@@ -25,23 +25,28 @@ export type Messages = {
   asideStepCode: string
   asideStepRegister: string
   registerFormHeading: string
-  changeActivationCode: string
   registerSubmit: string
   registerSubmitting: string
 
+  fieldFirstName: string
+  fieldLastName: string
+  fieldEmail: string
   fieldUsername: string
   fieldUsernameHint: string
-  fieldDisplayName: string
-  fieldDisplayNameHint: string
   fieldPassword: string
   fieldPasswordHint: string
   fieldConfirmPassword: string
   showPassword: string
   hidePassword: string
 
+  errorFirstNameRequired: string
+  errorFirstNameTooLong: string
+  errorLastNameRequired: string
+  errorLastNameTooLong: string
+  errorEmailRequired: string
+  errorEmailInvalid: string
   errorUsernameRequired: string
   errorUsernameInvalid: string
-  errorDisplayNameTooLong: string
   errorPasswordRequired: string
   errorPasswordTooShort: string
   errorPasswordTooLong: string
@@ -55,6 +60,7 @@ export type Messages = {
   errorClaimCodeLocked: string
   errorAdminAlreadyRegistered: string
   errorUsernameInvalidApi: string
+  errorEmailInvalidApi: string
   errorPasswordTooShortApi: string
   errorPasswordTooLongApi: string
   errorPasswordContainsUsernameApi: string
@@ -110,8 +116,6 @@ export type Messages = {
 
   successTitle: string
   successBody: string
-
-  privacyNote: string
 }
 
 export type Locale = 'en' | 'bn'

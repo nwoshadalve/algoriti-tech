@@ -14,6 +14,7 @@ final class DriftAccountRepository implements AccountRepository {
     id: row.id,
     username: row.username,
     displayName: row.displayName,
+    email: row.email,
     role: Role.values.asNameMap()[row.role] ?? Role.admin,
     createdAt: DateTime.fromMillisecondsSinceEpoch(row.createdAt, isUtc: true),
   );
@@ -51,6 +52,7 @@ final class DriftAccountRepository implements AccountRepository {
                 id: account.id,
                 username: account.username,
                 displayName: account.displayName,
+                email: Value(account.email),
                 role: account.role.name,
                 passwordHash: passwordHash,
                 createdAt: account.createdAt.toUtc().millisecondsSinceEpoch,

@@ -2,6 +2,7 @@ export type Account = {
   id: string
   username: string
   displayName: string
+  email: string
   role: 'admin'
 }
 
@@ -27,8 +28,10 @@ export type SetupStatus = {
 export type RegisterAdminRequest = {
   claimCode: string
   username: string
+  firstName: string
+  lastName: string
+  email: string
   password: string
-  displayName?: string
 }
 
 export type ApiErrorBody = {

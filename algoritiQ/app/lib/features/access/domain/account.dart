@@ -8,6 +8,7 @@ final class Account {
     required this.id,
     required this.username,
     required this.displayName,
+    required this.email,
     required this.role,
     required this.createdAt,
   });
@@ -17,6 +18,7 @@ final class Account {
   /// Lower-case sign-in name, unique.
   final String username;
   final String displayName;
+  final String email;
   final Role role;
   final DateTime createdAt;
 }

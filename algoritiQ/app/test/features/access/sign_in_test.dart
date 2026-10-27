@@ -60,7 +60,9 @@ void main() {
       () => service!.registerAdmin(
         claimCode: container.read(claimCodesProvider).current().code,
         username: 'owner',
-        displayName: 'The Owner',
+        firstName: 'The',
+        lastName: 'Owner',
+        email: 'owner@clinic.test',
         password: password,
       ),
     );
@@ -385,7 +387,7 @@ void main() {
 
       await givePassword(tester, pass: 'short', confirm: 'other');
 
-      expect(find.text('Use at least 10 characters.'), findsOneWidget);
+      expect(find.text('Use at least 8 characters.'), findsOneWidget);
       expect(find.text('Passwords do not match.'), findsOneWidget);
       expect(find.textContaining('Step 3 of 3'), findsOneWidget);
       await close(tester);

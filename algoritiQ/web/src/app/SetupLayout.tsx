@@ -1,6 +1,5 @@
 import { BrandWordmark } from '@/core/ui/BrandWordmark'
 import { PageToolbar } from '@/core/ui/PageToolbar'
-import { useLocale } from '@/core/i18n/LocaleProvider'
 import type { ReactNode } from 'react'
 
 type SetupLayoutProps = {
@@ -13,13 +12,11 @@ type SetupLayoutProps = {
 
 /**
  * The page frame: logo and toolbar on top, one card (with an optional aside
- * on wide screens), a privacy note below. Built from 280 px up: the header
+ * on wide screens). Built from 280 px up: the header
  * wraps instead of overflowing, padding grows with the screen, and the page
  * keeps clear of notches and the home bar.
  */
 export function SetupLayout({ children, aside, mobileHeader }: SetupLayoutProps) {
-  const { t } = useLocale()
-
   return (
     <div className="relative min-h-dvh overflow-x-clip bg-brand-mist text-brand-navy dark:bg-brand-navy dark:text-white">
       {/* A soft coral glow in the corner; decoration only. */}
@@ -50,10 +47,6 @@ export function SetupLayout({ children, aside, mobileHeader }: SetupLayoutProps)
             {children}
           </div>
         </div>
-
-        <p className="mx-auto mt-6 max-w-md text-center text-xs text-brand-navy/60 dark:text-white/55 sm:mt-8 sm:max-w-xl lg:max-w-none lg:text-left">
-          {t('privacyNote')}
-        </p>
       </main>
     </div>
   )

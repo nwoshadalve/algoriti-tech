@@ -887,7 +887,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetPasswordHint.
   ///
   /// In en, this message translates to:
-  /// **'At least 10 characters. Must not include your username.'**
+  /// **'At least 8 characters. Must not include your username.'**
   String get resetPasswordHint;
 
   /// No description provided for @resetButton.
@@ -941,7 +941,7 @@ abstract class AppLocalizations {
   /// No description provided for @passwordTooShort.
   ///
   /// In en, this message translates to:
-  /// **'Use at least 10 characters.'**
+  /// **'Use at least 8 characters.'**
   String get passwordTooShort;
 
   /// No description provided for @passwordTooLong.
