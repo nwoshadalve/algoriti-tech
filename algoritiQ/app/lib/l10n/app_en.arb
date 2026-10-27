@@ -138,16 +138,11 @@
   "degreesRequired": "Add at least one degree.",
   "adminGuideTitle": "Create the admin account",
   "adminGuideIntro": "Someone you trust sets up the clinic from a laptop or phone on the same Wi-Fi.",
-  "guideStepOpen": "1. Open this address",
-  "guideStepCode": "2. Enter this code when asked",
-  "guideStepRegister": "3. Register the admin, then sign in",
+  "guideStepOpen": "Open this address",
+  "guideStepCode": "Enter this code when asked",
+  "guideStepRegister": "Register the admin, then sign in",
   "guideScanHint": "Or scan with a phone camera",
-  "guideAddressByIp": "Or by IP address: {url}",
-  "@guideAddressByIp": {
-    "placeholders": {
-      "url": {"type": "String"}
-    }
-  },
+  "guideAddressByIp": "Or by IP address",
   "copyAddressTooltip": "Copy address",
   "addressCopied": "Address copied",
   "codeExpiresIn": "Expires in {time}",

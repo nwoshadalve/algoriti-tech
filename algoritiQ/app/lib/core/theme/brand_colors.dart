@@ -21,4 +21,8 @@ abstract final class BrandColors {
 
   /// Dark hairlines and idle indicators (card borders, loader dots).
   static const navyLine = Color(0xFF2E4A75);
+
+  /// "Working" dot (server running). Visible on both the light and the dark
+  /// surfaces; never the only sign of the state (a label always comes with it).
+  static const positive = Color(0xFF1F9D63);
 }

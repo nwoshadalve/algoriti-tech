@@ -272,21 +272,19 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার বিশ্বস্ত কেউ একই ওয়াই-ফাইয়ে থাকা ল্যাপটপ বা ফোন থেকে ক্লিনিক সেটআপ করবেন।';
 
   @override
-  String get guideStepOpen => '১. এই ঠিকানাটি খুলুন';
+  String get guideStepOpen => 'এই ঠিকানাটি খুলুন';
 
   @override
-  String get guideStepCode => '২. চাইলে এই কোডটি লিখুন';
+  String get guideStepCode => 'চাইলে এই কোডটি লিখুন';
 
   @override
-  String get guideStepRegister => '৩. অ্যাডমিন নিবন্ধন করে সাইন ইন করুন';
+  String get guideStepRegister => 'অ্যাডমিন নিবন্ধন করে সাইন ইন করুন';
 
   @override
   String get guideScanHint => 'অথবা ফোনের ক্যামেরা দিয়ে স্ক্যান করুন';
 
   @override
-  String guideAddressByIp(String url) {
-    return 'অথবা আইপি ঠিকানায়: $url';
-  }
+  String get guideAddressByIp => 'অথবা আইপি ঠিকানায়';
 
   @override
   String get copyAddressTooltip => 'ঠিকানা কপি করুন';

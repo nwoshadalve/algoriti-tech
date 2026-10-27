@@ -569,19 +569,19 @@ abstract class AppLocalizations {
   /// No description provided for @guideStepOpen.
   ///
   /// In en, this message translates to:
-  /// **'1. Open this address'**
+  /// **'Open this address'**
   String get guideStepOpen;
 
   /// No description provided for @guideStepCode.
   ///
   /// In en, this message translates to:
-  /// **'2. Enter this code when asked'**
+  /// **'Enter this code when asked'**
   String get guideStepCode;
 
   /// No description provided for @guideStepRegister.
   ///
   /// In en, this message translates to:
-  /// **'3. Register the admin, then sign in'**
+  /// **'Register the admin, then sign in'**
   String get guideStepRegister;
 
   /// No description provided for @guideScanHint.
@@ -593,8 +593,8 @@ abstract class AppLocalizations {
   /// No description provided for @guideAddressByIp.
   ///
   /// In en, this message translates to:
-  /// **'Or by IP address: {url}'**
-  String guideAddressByIp(String url);
+  /// **'Or by IP address'**
+  String get guideAddressByIp;
 
   /// No description provided for @copyAddressTooltip.
   ///

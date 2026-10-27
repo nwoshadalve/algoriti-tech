@@ -14,6 +14,16 @@ The HTTPS server starts as soon as the device is activated ([keep-alive](./keep-
 2. On a laptop or phone on the same Wi-Fi, the admin opens the address and enters the claim code.
 3. The admin registers (username + password) and signs in. The tablet moves on by itself.
 
+## The admin guide screen
+
+Three numbered panels (`GuideStep`) in a card, light and dark, Bengali and English:
+
+1. **Open this address**: the name to type (scheme and port quieter than the name), a copy button, the IP address and a QR code (always the IP).
+2. **Enter this code**: the claim code like a queue ticket, with the time left running down along its bottom edge, and a *New code* button.
+3. **Register the admin**: why the browser warns, and the certificate fingerprint in two even lines.
+
+Wide landscape: steps 1 and 2 side by side, step 3 below. Portrait: stacked, with the QR code beside the IP address. Both fit the Honor Pad X7 (893 x 533 dp landscape, 533 x 893 dp portrait) **without scrolling**, in both languages and themes; narrower screens or larger text scroll. The status pill ("Server running") sits beside the title when there is room.
+
 ## Claim code
 
 - 8 characters (e.g. `7K4M-9XQ2`), shown only on the tablet screen.

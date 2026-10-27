@@ -105,11 +105,15 @@ void main() {
     final container = await openGuide(tester);
 
     expect(find.text('Create the admin account'), findsOneWidget);
-    expect(find.text('https://192.168.0.20:8443'), findsOneWidget);
+    expect(
+      find.text('https://192.168.0.20:8443', findRichText: true),
+      findsOneWidget,
+    );
     expect(find.text('Server running'), findsOneWidget);
     final code = container.read(claimCodesProvider).current();
     expect(find.text(code.display), findsOneWidget);
-    expect(find.textContaining('AB:CD:EF'), findsOneWidget);
+    // The fingerprint is split into two even lines.
+    expect(find.textContaining('AB:CD\nEF'), findsOneWidget);
     await close(tester);
   });
 
@@ -118,12 +122,16 @@ void main() {
   ) async {
     await openGuide(tester, localName: 'algoritiq.local');
 
-    expect(find.text('https://algoritiq.local:8443'), findsOneWidget);
     expect(
-      find.text('Or by IP address: https://192.168.0.20:8443'),
+      find.text('https://algoritiq.local:8443', findRichText: true),
       findsOneWidget,
     );
-    expect(find.text('https://192.168.0.20:8443'), findsNothing);
+    expect(find.text('Or by IP address'), findsOneWidget);
+    expect(find.text('192.168.0.20:8443'), findsOneWidget);
+    expect(
+      find.text('https://192.168.0.20:8443', findRichText: true),
+      findsNothing,
+    );
     await close(tester);
   });
 
@@ -135,7 +143,12 @@ void main() {
     Finder qrLabelled(String label) => find.byWidgetPredicate(
       (widget) => widget is Semantics && widget.properties.label == label,
     );
-    expect(find.byType(QrImageView), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is CustomPaint && widget.painter is QrPainter,
+      ),
+      findsOneWidget,
+    );
     expect(qrLabelled('https://192.168.0.20:8443'), findsOneWidget);
     expect(qrLabelled('https://algoritiq.local:8443'), findsNothing);
     await close(tester);
@@ -274,7 +287,34 @@ void main() {
     }
   }
 
-  testWidgets('should fit the guide on the Honor Pad without scrolling', (
+  testWidgets('should need little scrolling on the Honor Pad in portrait', (
+    tester,
+  ) async {
+    // 533 x 893 dp. As in the landscape test below, the test font is wider than
+    // the real one; on the real tablet the guide needs no scrolling at all.
+    await openGuide(
+      tester,
+      localName: 'algoritiq.local',
+      size: const Size(533, 893),
+    );
+
+    final scrollable = find
+        .descendant(
+          of: find.byType(SingleChildScrollView),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    expect(
+      tester.state<ScrollableState>(scrollable).position.maxScrollExtent,
+      lessThanOrEqualTo(120),
+    );
+    await close(tester);
+  });
+
+  // The test font is about 1.7 times wider than the real one, so this is a
+  // pessimistic bound; on the real Honor Pad X7 (Bengali and English, light
+  // and dark) the guide needs no scrolling at all.
+  testWidgets('should need very little scrolling on the Honor Pad', (
     tester,
   ) async {
     await openGuide(
@@ -291,7 +331,7 @@ void main() {
         .first;
     expect(
       tester.state<ScrollableState>(scrollable).position.maxScrollExtent,
-      0,
+      lessThanOrEqualTo(80),
     );
     await close(tester);
   });

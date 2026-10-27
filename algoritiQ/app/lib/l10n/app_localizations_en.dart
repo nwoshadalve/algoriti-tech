@@ -303,21 +303,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Someone you trust sets up the clinic from a laptop or phone on the same Wi-Fi.';
 
   @override
-  String get guideStepOpen => '1. Open this address';
+  String get guideStepOpen => 'Open this address';
 
   @override
-  String get guideStepCode => '2. Enter this code when asked';
+  String get guideStepCode => 'Enter this code when asked';
 
   @override
-  String get guideStepRegister => '3. Register the admin, then sign in';
+  String get guideStepRegister => 'Register the admin, then sign in';
 
   @override
   String get guideScanHint => 'Or scan with a phone camera';
 
   @override
-  String guideAddressByIp(String url) {
-    return 'Or by IP address: $url';
-  }
+  String get guideAddressByIp => 'Or by IP address';
 
   @override
   String get copyAddressTooltip => 'Copy address';

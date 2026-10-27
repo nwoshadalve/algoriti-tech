@@ -1,23 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../api/api_host.dart';
 import '../../../api/server_controller.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/widgets/brand_loader.dart';
 import '../../../core/widgets/card_page.dart';
 import '../../../l10n/app_localizations.dart';
 import 'address_panel.dart';
+import 'certificate_note.dart';
 import 'claim_code_panel.dart';
+import 'guide_step.dart';
+import 'server_status_chip.dart';
 
 /// Shown after activation until the first admin has registered on the web
 /// app. Tells whoever holds the tablet how to hand over: open the address,
-/// type the code, register.
+/// type the code, register. Three numbered steps; side by side on wide
+/// screens (address and code in a row, the certificate note below), stacked
+/// on narrow ones.
 class AdminGuidePage extends ConsumerWidget {
   const AdminGuidePage({super.key});
 
   /// Card width from which the two-column layout is used.
   static const _wideWidth = 640.0;
+
+  /// Card width from which the status pill sits beside the title, and the
+  /// largest text scale at which there is room for both.
+  static const _inlineHeaderWidth = 400.0;
+  static const _inlineHeaderMaxTextScale = 1.3;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,11 +40,21 @@ class AdminGuidePage extends ConsumerWidget {
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= _wideWidth;
             return Padding(
-              padding: EdgeInsets.all(wide ? Spacing.md : Spacing.lg),
+              padding: EdgeInsets.all(
+                wide ? Spacing.sm + Spacing.xs : Spacing.md,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _Header(wide: wide, server: server),
+                  _Header(
+                    wide: wide,
+                    inline:
+                        wide ||
+                        (constraints.maxWidth >= _inlineHeaderWidth &&
+                            MediaQuery.textScalerOf(context).scale(1) <=
+                                _inlineHeaderMaxTextScale),
+                    server: server,
+                  ),
                   if (!wide) ...[
                     const SizedBox(height: Spacing.sm),
                     Text(
@@ -46,7 +64,7 @@ class AdminGuidePage extends ConsumerWidget {
                       ),
                     ),
                   ],
-                  const SizedBox(height: Spacing.md),
+                  const SizedBox(height: Spacing.sm),
                   _Body(wide: wide, server: server),
                 ],
               ),
@@ -59,25 +77,33 @@ class AdminGuidePage extends ConsumerWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.wide, required this.server});
+  const _Header({
+    required this.wide,
+    required this.inline,
+    required this.server,
+  });
 
   final bool wide;
+
+  /// The status pill beside the title (otherwise below it).
+  final bool inline;
   final ServerState server;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final title = Text(
-      l10n.adminGuideTitle,
-      style: wide ? theme.textTheme.titleLarge : theme.textTheme.headlineSmall,
+      AppLocalizations.of(context).adminGuideTitle,
+      // A little smaller on the narrow card, so the title and the status pill
+      // share one line in English and Bengali.
+      style: wide ? theme.textTheme.titleLarge : theme.textTheme.titleMedium,
     );
-    final chip = _StatusChip(server: server);
-    if (wide) {
+    final chip = ServerStatusChip(server: server);
+    if (inline) {
       return Row(
         children: [
           Expanded(child: title),
-          const SizedBox(width: Spacing.md),
+          const SizedBox(width: Spacing.sm),
           chip,
         ],
       );
@@ -93,49 +119,6 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.server});
-
-  final ServerState server;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    final (label, color) = switch (server) {
-      ServerStarting() => (l10n.serverStarting, scheme.onSurfaceVariant),
-      ServerRunning() => (l10n.serverRunning, scheme.onSurface),
-      ServerFailed() => (l10n.serverFailed, scheme.error),
-    };
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        switch (server) {
-          ServerStarting() => const BrandLoader(dotSize: 6),
-          ServerRunning() => Icon(
-            Icons.check_circle_rounded,
-            size: 18,
-            color: color,
-          ),
-          ServerFailed() => Icon(
-            Icons.error_outline_rounded,
-            size: 18,
-            color: color,
-          ),
-        },
-        const SizedBox(width: Spacing.sm),
-        Flexible(
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.labelLarge
-                ?.copyWith(color: color),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _Body extends ConsumerWidget {
   const _Body({required this.wide, required this.server});
 
@@ -145,7 +128,6 @@ class _Body extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
 
     switch (server) {
       case ServerStarting():
@@ -162,89 +144,55 @@ class _Body extends ConsumerWidget {
         final url = endpoint.url;
         if (url == null) return Text(l10n.serverNoNetwork);
 
-        final address = _Step(
+        final address = GuideStep(
+          number: 1,
+          compact: true,
           title: l10n.guideStepOpen,
           child: AddressPanel(
             url: url,
             nameUrl: endpoint.nameUrl,
-            qrSize: wide ? 104 : 140,
+            sideBySide: wide,
           ),
         );
-        final code = _Step(
+        final code = GuideStep(
+          number: 2,
+          compact: true,
           title: l10n.guideStepCode,
-          child: const ClaimCodePanel(),
+          child: const ClaimCodePanel(compact: true),
         );
-        final note = _CertificateNote(endpoint: endpoint);
+        final register = GuideStep(
+          number: 3,
+          compact: true,
+          title: l10n.guideStepRegister,
+          child: CertificateNote(fingerprint: endpoint.fingerprint, wide: wide),
+        );
+        final gap = SizedBox(
+          width: wide ? Spacing.sm + Spacing.xs : Spacing.md,
+          height: Spacing.sm,
+        );
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (wide)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(flex: 5, child: address),
-                  const SizedBox(width: Spacing.lg),
-                  Expanded(flex: 4, child: code),
-                ],
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(flex: 6, child: address),
+                    gap,
+                    Expanded(flex: 4, child: code),
+                  ],
+                ),
               )
             else ...[
               address,
-              const SizedBox(height: Spacing.lg),
+              gap,
               code,
             ],
-            const SizedBox(height: Spacing.sm),
-            Text(l10n.guideStepRegister, style: theme.textTheme.titleSmall),
-            const SizedBox(height: Spacing.sm),
-            note,
+            gap,
+            register,
           ],
         );
     }
-  }
-}
-
-class _Step extends StatelessWidget {
-  const _Step({required this.title, required this.child});
-
-  final String title;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: Spacing.sm),
-        child,
-      ],
-    );
-  }
-}
-
-class _CertificateNote extends StatelessWidget {
-  const _CertificateNote({required this.endpoint});
-
-  final ApiEndpoint endpoint;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final muted = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(l10n.certNote, style: muted),
-        const SizedBox(height: Spacing.xs),
-        Text(
-          '${l10n.certFingerprintLabel}: ${endpoint.fingerprint}',
-          style: muted?.copyWith(
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
-        ),
-      ],
-    );
   }
 }
