@@ -4,6 +4,7 @@ import '../../../core/clock.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/id_generator.dart';
 import '../../../core/security/secure_storage_secret_store.dart';
+import '../../licensing/application/license_controller.dart';
 import '../data/argon2id_password_hasher.dart';
 import '../data/drift_account_repository.dart';
 import '../domain/account_repository.dart';
@@ -37,6 +38,7 @@ final accessServiceProvider = FutureProvider<AccessService>((ref) async {
     throttle: ref.watch(loginThrottleProvider),
     clock: ref.watch(clockProvider),
     newId: ref.watch(idGeneratorProvider),
+    licenseKey: () => ref.read(licenseStoreProvider).read(),
   );
 });
 

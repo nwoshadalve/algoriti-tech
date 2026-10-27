@@ -16,6 +16,9 @@ class LabeledTextField extends StatelessWidget {
     this.capitalization = TextCapitalization.words,
     this.keyboardType,
     this.compact = false,
+    this.maxLines = 1,
+    this.hint,
+    this.autocorrect = true,
   });
 
   final String label;
@@ -29,6 +32,16 @@ class LabeledTextField extends StatelessWidget {
 
   /// Smaller label and tighter gap, for short (landscape) screens.
   final bool compact;
+
+  /// More than one line (for example a long key); the field grows to fit up
+  /// to this many.
+  final int maxLines;
+
+  /// Guidance under the field while there is no error.
+  final String? hint;
+
+  /// Off for keys and codes, which no keyboard should "correct".
+  final bool autocorrect;
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +63,18 @@ class LabeledTextField extends StatelessWidget {
             controller: controller,
             enabled: enabled,
             textCapitalization: capitalization,
+            minLines: 1,
+            maxLines: maxLines,
+            autocorrect: autocorrect,
+            enableSuggestions: autocorrect,
             keyboardType: keyboardType,
             textInputAction: textInputAction,
             onSubmitted: onSubmitted == null ? null : (_) => onSubmitted!(),
-            decoration: InputDecoration(errorText: errorText),
+            decoration: InputDecoration(
+              errorText: errorText,
+              helperText: errorText == null ? hint : null,
+              helperMaxLines: 3,
+            ),
           ),
         ],
       ),

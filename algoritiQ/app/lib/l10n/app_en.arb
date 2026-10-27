@@ -178,5 +178,65 @@
   "readinessContinueAnyway": "Continue anyway",
   "readinessStateDone": "Done",
   "readinessStateNeeded": "Needs attention",
-  "readinessStateUnconfirmed": "Not confirmed"
+  "readinessStateUnconfirmed": "Not confirmed",
+  "signInTitle": "Sign in",
+  "signInIntro": "Use the username and password of your admin account.",
+  "signInUsernameLabel": "Username",
+  "signInPasswordLabel": "Password",
+  "signInButton": "Sign in",
+  "signInBusy": "Signing in…",
+  "signInForgot": "Forgot password?",
+  "signInFieldsRequired": "Enter your username and password.",
+  "signInWrong": "Wrong username or password.",
+  "signInWait": "Too many attempts. Try again in {seconds} seconds.",
+  "@signInWait": {
+    "placeholders": {
+      "seconds": {"type": "int"}
+    }
+  },
+  "showPasswordTooltip": "Show password",
+  "hidePasswordTooltip": "Hide password",
+  "signOutTooltip": "Sign out",
+  "resetTitle": "Reset your password",
+  "resetIntro": "Enter the username of the admin account whose password you forgot.",
+  "resetKeyLabel": "Activation key",
+  "resetKeyHint": "The full key this tablet was activated with. Ask the clinic owner or the vendor. Spaces and dashes are optional.",
+  "resetNewPasswordLabel": "New password",
+  "resetConfirmLabel": "Confirm new password",
+  "resetPasswordHint": "At least 10 characters. Must not include your username.",
+  "resetButton": "Reset password",
+  "resetBusy": "Resetting…",
+  "resetBack": "Back to sign in",
+  "resetDone": "Password changed. Sign in with your new password.",
+  "resetRefused": "The activation key or the username is not correct.",
+  "resetNeedUsername": "Enter your username.",
+  "resetNeedKey": "Enter the activation key.",
+  "passwordNeeded": "Choose a password.",
+  "passwordTooShort": "Use at least 10 characters.",
+  "passwordTooLong": "Use at most 128 characters.",
+  "passwordHasUsername": "Password must not contain your username.",
+  "passwordsDiffer": "Passwords do not match.",
+  "resetStepOf": "Step {current} of {total}",
+  "@resetStepOf": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "resetStepUsername": "Enter your username",
+  "resetStepKey": "Enter the activation key",
+  "resetStepPassword": "Choose a new password",
+  "resetKeyTitle": "Confirm it is you",
+  "resetKeyIntro": "Enter the key this tablet was activated with. Ask the clinic owner or the vendor if you do not have it.",
+  "resetPasswordTitle": "Choose a new password",
+  "resetPasswordIntro": "The key was accepted. Choose a new password for {username}.",
+  "@resetPasswordIntro": {
+    "placeholders": {
+      "username": {"type": "String"}
+    }
+  },
+  "resetContinue": "Continue",
+  "resetChecking": "Checking the key…",
+  "resetPrevious": "Back",
+  "resetExpired": "This reset has expired. Enter the activation key again."
 }

@@ -31,7 +31,9 @@ class AccessKit {
     this.clock,
   );
 
-  static Future<AccessKit> create() async {
+  static Future<AccessKit> create({
+    String? activationKey = AccessKit.activationKey,
+  }) async {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     final clock = TestClock();
     final database = AppDatabase(NativeDatabase.memory());
@@ -51,6 +53,7 @@ class AccessKit {
       throttle: throttle,
       clock: clock.call,
       newId: () => 'id${ids++}',
+      licenseKey: () async => activationKey,
     );
     return AccessKit._(
       database,
@@ -70,6 +73,31 @@ class AccessKit {
   final TestClock clock;
 
   static const password = 'a-long-passphrase';
+
+  /// The activation key this tablet pretends to hold.
+  static const activationKey = '040G2-08501-8H1ZZ-ZQ00N';
+
+  /// Resets [username]'s password the whole way (both steps).
+  Future<ResetFinishResult> resetPassword({
+    String username = 'owner',
+    String key = activationKey,
+    required String password,
+    String client = 'laptop',
+  }) async {
+    final start = await service.startReset(
+      username: username,
+      activationKey: key,
+      clientKey: client,
+    );
+    if (start case ResetTicketIssued(:final ticket)) {
+      return service.finishReset(
+        ticket: ticket,
+        newPassword: password,
+        clientKey: client,
+      );
+    }
+    return start is ResetThrottled ? start : const ResetTicketInvalid();
+  }
 
   /// Registers the first admin with the code currently on screen.
   Future<RegisterResult> registerAdmin({

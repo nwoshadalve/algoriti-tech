@@ -12,7 +12,7 @@ The HTTPS server starts as soon as the device is activated ([keep-alive](./keep-
 
 1. After activation the tablet shows the **admin guide**: the web address (`algoritiq.local` when the tablet has [claimed its name](./local-name.md), else the IP; always the IP in the QR code), a **claim code**, and the server status.
 2. On a laptop or phone on the same Wi-Fi, the admin opens the address and enters the claim code.
-3. The admin registers (username + password) and signs in. The tablet moves on by itself.
+3. The admin registers (username + password). The tablet moves on by itself to its sign-in screen, and the website offers *Sign in*.
 
 ## The admin guide screen
 
@@ -62,4 +62,4 @@ Tests: `test/features/access/`, `test/api/`.
 
 ## Not yet
 
-Creating more users and roles (doctor, receptionist), password reset, serving the React build from the tablet, sign-in on the tablet itself.
+Creating more users and roles (doctor, receptionist), changing a password while signed in, moving doctor and chamber setup to the website. Sign-in, password reset and the website served from the tablet are in [authentication](./authentication.md) and [web app](./web-app.md).

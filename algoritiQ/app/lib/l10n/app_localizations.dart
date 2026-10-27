@@ -769,6 +769,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not confirmed'**
   String get readinessStateUnconfirmed;
+
+  /// No description provided for @signInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInTitle;
+
+  /// No description provided for @signInIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the username and password of your admin account.'**
+  String get signInIntro;
+
+  /// No description provided for @signInUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get signInUsernameLabel;
+
+  /// No description provided for @signInPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get signInPasswordLabel;
+
+  /// No description provided for @signInButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInButton;
+
+  /// No description provided for @signInBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in…'**
+  String get signInBusy;
+
+  /// No description provided for @signInForgot.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get signInForgot;
+
+  /// No description provided for @signInFieldsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your username and password.'**
+  String get signInFieldsRequired;
+
+  /// No description provided for @signInWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong username or password.'**
+  String get signInWrong;
+
+  /// No description provided for @signInWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Try again in {seconds} seconds.'**
+  String signInWait(int seconds);
+
+  /// No description provided for @showPasswordTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPasswordTooltip;
+
+  /// No description provided for @hidePasswordTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePasswordTooltip;
+
+  /// No description provided for @signOutTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOutTooltip;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get resetTitle;
+
+  /// No description provided for @resetIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the username of the admin account whose password you forgot.'**
+  String get resetIntro;
+
+  /// No description provided for @resetKeyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation key'**
+  String get resetKeyLabel;
+
+  /// No description provided for @resetKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The full key this tablet was activated with. Ask the clinic owner or the vendor. Spaces and dashes are optional.'**
+  String get resetKeyHint;
+
+  /// No description provided for @resetNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get resetNewPasswordLabel;
+
+  /// No description provided for @resetConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get resetConfirmLabel;
+
+  /// No description provided for @resetPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 10 characters. Must not include your username.'**
+  String get resetPasswordHint;
+
+  /// No description provided for @resetButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetButton;
+
+  /// No description provided for @resetBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Resetting…'**
+  String get resetBusy;
+
+  /// No description provided for @resetBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get resetBack;
+
+  /// No description provided for @resetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. Sign in with your new password.'**
+  String get resetDone;
+
+  /// No description provided for @resetRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'The activation key or the username is not correct.'**
+  String get resetRefused;
+
+  /// No description provided for @resetNeedUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your username.'**
+  String get resetNeedUsername;
+
+  /// No description provided for @resetNeedKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the activation key.'**
+  String get resetNeedKey;
+
+  /// No description provided for @passwordNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a password.'**
+  String get passwordNeeded;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 10 characters.'**
+  String get passwordTooShort;
+
+  /// No description provided for @passwordTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at most 128 characters.'**
+  String get passwordTooLong;
+
+  /// No description provided for @passwordHasUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must not contain your username.'**
+  String get passwordHasUsername;
+
+  /// No description provided for @passwordsDiffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get passwordsDiffer;
+
+  /// No description provided for @resetStepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String resetStepOf(int current, int total);
+
+  /// No description provided for @resetStepUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your username'**
+  String get resetStepUsername;
+
+  /// No description provided for @resetStepKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the activation key'**
+  String get resetStepKey;
+
+  /// No description provided for @resetStepPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password'**
+  String get resetStepPassword;
+
+  /// No description provided for @resetKeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it is you'**
+  String get resetKeyTitle;
+
+  /// No description provided for @resetKeyIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the key this tablet was activated with. Ask the clinic owner or the vendor if you do not have it.'**
+  String get resetKeyIntro;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @resetPasswordIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The key was accepted. Choose a new password for {username}.'**
+  String resetPasswordIntro(String username);
+
+  /// No description provided for @resetContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get resetContinue;
+
+  /// No description provided for @resetChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the key…'**
+  String get resetChecking;
+
+  /// No description provided for @resetPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get resetPrevious;
+
+  /// No description provided for @resetExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This reset has expired. Enter the activation key again.'**
+  String get resetExpired;
 }
 
 class _AppLocalizationsDelegate

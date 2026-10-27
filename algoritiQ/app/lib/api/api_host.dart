@@ -7,6 +7,7 @@ import 'local_api_server.dart';
 import 'mdns/local_name_responder.dart';
 import 'mdns/mdns_socket.dart';
 import 'tls_identity.dart';
+import 'web_site.dart';
 
 /// Where the running API can be reached.
 final class ApiEndpoint {
@@ -119,8 +120,10 @@ final apiHostProvider = Provider<ApiHost>((ref) {
   final gateway = ref.watch(keepAliveGatewayProvider);
   final host = LocalApiHost(
     addresses: gateway.localAddresses,
-    createServer: () async =>
-        LocalApiServer(access: () => ref.read(accessServiceProvider.future)),
+    createServer: () async => LocalApiServer(
+      access: () => ref.read(accessServiceProvider.future),
+      web: WebSite(BundledWebFiles()),
+    ),
     tls: TlsIdentityStore(ref.watch(secretStoreProvider)),
     names: LocalNameResponder(
       open: UdpMdnsSocket.open,

@@ -7,6 +7,8 @@ import 'package:algoritiq_app/core/l10n/locale_controller.dart';
 import 'package:algoritiq_app/core/l10n/locale_store.dart';
 import 'package:algoritiq_app/core/security/secure_storage_secret_store.dart';
 import 'package:algoritiq_app/features/access/application/access_providers.dart';
+import 'package:algoritiq_app/features/access/application/tablet_session.dart';
+import 'package:algoritiq_app/features/access/domain/account.dart';
 import 'package:algoritiq_app/features/access/data/argon2id_password_hasher.dart';
 import 'package:algoritiq_app/features/readiness/application/readiness_controller.dart';
 import 'package:algoritiq_app/platform/keep_alive_gateway.dart';
@@ -83,6 +85,10 @@ class LicensingKit {
     /// An admin account exists, so the app is past the admin guide.
     bool adminRegistered = true,
 
+    /// Someone is signed in on the tablet, so screens past sign-in can be
+    /// tested. Turn off to test sign-in itself.
+    bool signedIn = true,
+
     /// Stands in for the real HTTPS server (no ports are opened in tests).
     ApiHost? apiHost,
 
@@ -106,6 +112,7 @@ class LicensingKit {
     clockProvider.overrideWithValue(() => testNow),
     localeStoreProvider.overrideWithValue(localeStore ?? MemoryLocaleStore()),
     apiHostProvider.overrideWithValue(apiHost ?? FakeApiHost()),
+    if (signedIn) tabletSessionProvider.overrideWith(_SignedInSession.new),
     secretStoreProvider.overrideWithValue(MemorySecretStore()),
     keepAliveGatewayProvider.overrideWithValue(
       keepAlive ?? FakeKeepAliveGateway(),
@@ -209,4 +216,19 @@ class FakeApiHost implements ApiHost {
 
   @override
   Future<void> stop() async {}
+}
+
+/// A tablet that already has someone signed in.
+class _SignedInSession extends TabletSession {
+  @override
+  TabletSignIn? build() => TabletSignIn(
+    Account(
+      id: 'seed-admin',
+      username: 'admin',
+      displayName: 'Admin',
+      role: Role.admin,
+      createdAt: testNow,
+    ),
+    'seed-token',
+  );
 }

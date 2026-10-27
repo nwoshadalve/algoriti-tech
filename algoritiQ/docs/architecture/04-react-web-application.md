@@ -2,15 +2,17 @@
 
 ## Purpose
 
-The React web app is the browser client for staff and doctor workflows.
+The React web app is the browser client for **admin** and **doctor** workflows.
 
-It runs in a laptop browser. It uses the Backend API for all data and actions.
+It runs in a browser on the **Android tablet** (primary host surface) and on clinic laptops on the LAN. It uses the Backend API for all data and actions.
 
 ## Platform
 
-- React.
-- Static web build.
+- React + TypeScript.
+- Tailwind CSS (utility-first styling).
+- Static web build with offline-capable shell (service worker).
 - Served by the local Backend API host in v1.
+- Engineering rules: [../principles/](../principles/) and [../standards/](../standards/); project root `web/README.md`.
 
 ## Responsibilities
 

@@ -128,6 +128,21 @@ final class DriftAccountRepository implements AccountRepository {
   }
 
   @override
+  Future<void> resetPassword({
+    required String accountId,
+    required String passwordHash,
+    required DateTime at,
+  }) => _db.transaction(() async {
+    await (_db.update(_db.users)..where((u) => u.id.equals(accountId))).write(
+      UsersCompanion(passwordHash: Value(passwordHash)),
+    );
+    await (_db.update(_db.authSessions)
+          ..where((s) => s.userId.equals(accountId)))
+        .write(const AuthSessionsCompanion(revoked: Value(true)));
+    await audit(at: at, action: 'auth.password_reset', actorId: accountId);
+  });
+
+  @override
   Future<void> audit({
     required DateTime at,
     required String action,

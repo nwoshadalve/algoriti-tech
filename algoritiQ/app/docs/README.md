@@ -39,6 +39,10 @@ Two kinds of docs:
 | [Admin access](./features/admin-access.md) | Claim code, first admin, local HTTPS API, passwords, audit |
 | [Keep-alive](./features/keep-alive.md) | Background service, boot start, permission guide |
 | [Local name](./features/local-name.md) | `algoritiq.local` on the clinic Wi-Fi, no internet needed |
+| [Authentication](./features/authentication.md) | Sign-in, session tokens (why not JWT), password reset with the activation key |
+| [Web app](./features/web-app.md) | The React site served by the tablet, how to build and bundle it |
+
+Guides: [Build the web app and deploy it on the tablet](./web-build-and-deploy.md) · [Dev setup](./dev-setup.md).
 
 Source of truth for *what* the system is: [../../../docs/architecture/](../../docs/architecture/).
 

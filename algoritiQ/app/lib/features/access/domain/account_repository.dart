@@ -24,6 +24,14 @@ abstract interface class AccountRepository {
 
   Future<void> revokeSession(String tokenHash);
 
+  /// Sets a new password, ends every sign-in of the account and audits it, in
+  /// one transaction.
+  Future<void> resetPassword({
+    required String accountId,
+    required String passwordHash,
+    required DateTime at,
+  });
+
   /// Appends to the tamper-evident audit trail.
   Future<void> audit({
     required DateTime at,

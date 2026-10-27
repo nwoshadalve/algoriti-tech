@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/brand_logo.dart';
+import '../../access/presentation/sign_out_button.dart';
 import '../../licensing/presentation/license_summary.dart';
 
 /// Placeholder home screen (counter demo) until real features land.
@@ -22,6 +23,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: const BrandLogo.wordmark(height: 32),
+        actions: const [SignOutButton()],
       ),
       body: Center(
         child: Column(

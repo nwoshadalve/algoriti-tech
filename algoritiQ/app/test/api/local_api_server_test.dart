@@ -111,6 +111,53 @@ void main() {
     });
   });
 
+  group('verifying the claim code', () {
+    test('should accept the code from the tablet without using it', () async {
+      final code = kit.claimCodes.current().code;
+
+      final result = await call(
+        'POST',
+        '/api/v1/setup/claim/verify',
+        json: {'claimCode': code},
+      );
+
+      expect(result.status, 200);
+      expect(result.body, {'valid': true});
+    });
+
+    test('should still register after a successful verify', () async {
+      final code = kit.claimCodes.current().code;
+      await call(
+        'POST',
+        '/api/v1/setup/claim/verify',
+        json: {'claimCode': code},
+      );
+
+      final result = await call(
+        'POST',
+        '/api/v1/setup/admin',
+        json: register(),
+      );
+
+      expect(result.status, 201);
+    });
+
+    test('should refuse a wrong code with 403 and the tries left', () async {
+      kit.claimCodes.current();
+
+      final result = await call(
+        'POST',
+        '/api/v1/setup/claim/verify',
+        json: {'claimCode': 'WRONG123'},
+      );
+
+      expect(result.status, 403);
+      final error = result.body['error']! as Map;
+      expect(error['code'], 'claim_code_invalid');
+      expect(error['attemptsLeft'], 4);
+    });
+  });
+
   group('registering the admin', () {
     test('should register with the claim code from the tablet', () async {
       final result = await call(
@@ -291,6 +338,143 @@ void main() {
 
       expect(out.status, 204);
       expect(after.status, 401);
+    });
+  });
+
+  group('resetting a forgotten password', () {
+    const start = '/api/v1/auth/password/reset/start';
+    const finish = '/api/v1/auth/password/reset';
+    const newPassword = 'a-brand-new-passphrase';
+
+    Map<String, Object?> startBody({String key = AccessKit.activationKey}) => {
+      'username': 'owner',
+      'activationKey': key,
+    };
+
+    Future<String> ticket() async {
+      final result = await call('POST', start, json: startBody());
+      return result.body['resetToken']! as String;
+    }
+
+    setUp(() async {
+      await call('POST', '/api/v1/setup/admin', json: register());
+    });
+
+    test('should give a ticket for the right key', () async {
+      final result = await call('POST', start, json: startBody());
+
+      expect(result.status, 200);
+      expect(result.body['resetToken'], isA<String>());
+      expect(result.body['expiresAt'], isA<String>());
+    });
+
+    test('should set the new password and end old sign-ins', () async {
+      final old =
+          (await call(
+                'POST',
+                '/api/v1/auth/login',
+                json: {'username': 'owner', 'password': AccessKit.password},
+              )).body['token']!
+              as String;
+
+      final result = await call(
+        'POST',
+        finish,
+        json: {'resetToken': await ticket(), 'newPassword': newPassword},
+      );
+
+      expect(result.status, 204);
+      expect((await call('GET', '/api/v1/me', token: old)).status, 401);
+      final login = await call(
+        'POST',
+        '/api/v1/auth/login',
+        json: {'username': 'owner', 'password': newPassword},
+      );
+      expect(login.status, 200);
+    });
+
+    test('should refuse a wrong key without saying more', () async {
+      final result = await call('POST', start, json: startBody(key: 'WRONG'));
+
+      expect(result.status, 403);
+      expect((result.body['error']! as Map)['code'], 'reset_refused');
+      expect(result.body.containsKey('resetToken'), isFalse);
+    });
+
+    test('should refuse an unknown username the same way', () async {
+      final result = await call(
+        'POST',
+        start,
+        json: {'username': 'nobody', 'activationKey': AccessKit.activationKey},
+      );
+
+      expect(result.status, 403);
+      expect((result.body['error']! as Map)['code'], 'reset_refused');
+    });
+
+    test('should refuse a ticket nobody issued', () async {
+      final result = await call(
+        'POST',
+        finish,
+        json: {'resetToken': 'made-up', 'newPassword': newPassword},
+      );
+
+      expect(result.status, 403);
+      expect((result.body['error']! as Map)['code'], 'reset_token_invalid');
+    });
+
+    test('should accept a ticket only once', () async {
+      final t = await ticket();
+      await call(
+        'POST',
+        finish,
+        json: {'resetToken': t, 'newPassword': newPassword},
+      );
+
+      final again = await call(
+        'POST',
+        finish,
+        json: {'resetToken': t, 'newPassword': 'another-passphrase-1'},
+      );
+
+      expect(again.status, 403);
+    });
+
+    test('should refuse a weak new password with the reason', () async {
+      final result = await call(
+        'POST',
+        finish,
+        json: {'resetToken': await ticket(), 'newPassword': 'short'},
+      );
+
+      expect(result.status, 400);
+      expect((result.body['error']! as Map)['code'], 'password_too_short');
+    });
+
+    test('should slow down guessing keys with a wait time', () async {
+      for (var i = 0; i < 5; i++) {
+        await call('POST', start, json: startBody(key: 'guess$i'));
+      }
+
+      final result = await call('POST', start, json: startBody());
+
+      expect(result.status, 429);
+      expect(result.raw.headers.value('retry-after'), isNotNull);
+    });
+
+    test('should insist on JSON and the right method', () async {
+      for (final path in [start, finish]) {
+        expect(
+          (await call(
+            'POST',
+            path,
+            rawBody: 'x',
+            contentType: 'text/plain',
+          )).status,
+          415,
+        );
+        expect((await call('GET', path)).status, 405);
+      }
     });
   });
 

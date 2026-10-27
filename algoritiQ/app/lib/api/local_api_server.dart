@@ -7,6 +7,7 @@ import '../features/access/application/claim_codes.dart';
 import '../features/access/domain/access_policy.dart';
 import '../features/access/domain/account.dart';
 import 'https_server_socket.dart';
+import 'web_site.dart';
 
 /// The tablet's local backend API (`/api/v1`), served over HTTPS to the web
 /// app, the TV and other clients on the chamber Wi-Fi. The contract is
@@ -15,9 +16,12 @@ import 'https_server_socket.dart';
 /// Rules: JSON only, bearer tokens (no cookies), small request bodies, no
 /// internal details in errors, nothing cached.
 class LocalApiServer {
-  LocalApiServer({required this._access});
+  LocalApiServer({required this._access, this._web});
 
   final Future<AccessService> Function() _access;
+
+  /// The web app served at `/` (null: only the API and a plain home page).
+  final WebSite? _web;
   HttpServer? _server;
   HttpsServerSocket? _socket;
 
@@ -85,20 +89,29 @@ class LocalApiServer {
       await request.response.close();
       return;
     }
+    final path = request.uri.path;
+    if (!path.startsWith('/api/')) {
+      await _page(request);
+      return;
+    }
     try {
-      switch ((request.method, request.uri.path)) {
-        case ('GET', '/'):
-          await _home(request);
+      switch ((request.method, path)) {
         case ('GET', '/api/v1/health'):
           await _json(request, 200, {'status': 'ok'});
         case ('GET', '/api/v1/setup/status'):
           await _setupStatus(request);
+        case ('POST', '/api/v1/setup/claim/verify'):
+          await _verifyClaim(request);
         case ('POST', '/api/v1/setup/admin'):
           await _registerAdmin(request);
         case ('POST', '/api/v1/auth/login'):
           await _login(request);
         case ('POST', '/api/v1/auth/logout'):
           await _logout(request);
+        case ('POST', '/api/v1/auth/password/reset/start'):
+          await _startReset(request);
+        case ('POST', '/api/v1/auth/password/reset'):
+          await _finishReset(request);
         case ('GET', '/api/v1/me'):
           await _me(request);
         default:
@@ -119,12 +132,14 @@ class LocalApiServer {
   }
 
   static const _knownPaths = {
-    '/',
     '/api/v1/health',
     '/api/v1/setup/status',
+    '/api/v1/setup/claim/verify',
     '/api/v1/setup/admin',
     '/api/v1/auth/login',
     '/api/v1/auth/logout',
+    '/api/v1/auth/password/reset/start',
+    '/api/v1/auth/password/reset',
     '/api/v1/me',
   };
 
@@ -135,6 +150,34 @@ class LocalApiServer {
       // Registration needs the code shown on the tablet.
       'claimCodeRequired': !registered,
     });
+  }
+
+  Future<void> _verifyClaim(HttpRequest request) async {
+    final body = await _readJson(request);
+    final result = await (await _access()).verifyClaimCode(
+      _text(body, 'claimCode'),
+    );
+    switch (result) {
+      case ClaimVerified():
+        await _json(request, 200, {'valid': true});
+      case ClaimRefused(:final reason, :final attemptsLeft):
+        throw _ApiError(
+          403,
+          switch (reason) {
+            ClaimCheck.expired => 'claim_code_expired',
+            ClaimCheck.locked => 'claim_code_locked',
+            _ => 'claim_code_invalid',
+          },
+          'The claim code on the tablet was not accepted.',
+          extra: {'attemptsLeft': attemptsLeft},
+        );
+      case AdminAlreadyRegistered():
+        throw const _ApiError(
+          409,
+          'admin_already_registered',
+          'An admin account already exists.',
+        );
+    }
   }
 
   Future<void> _registerAdmin(HttpRequest request) async {
@@ -206,6 +249,67 @@ class LocalApiServer {
     }
   }
 
+  Future<void> _startReset(HttpRequest request) async {
+    final body = await _readJson(request);
+    final result = await (await _access()).startReset(
+      username: _text(body, 'username'),
+      activationKey: _text(body, 'activationKey'),
+      clientKey: request.connectionInfo?.remoteAddress.address ?? 'unknown',
+    );
+    switch (result) {
+      case ResetTicketIssued(:final ticket, :final expiresAt):
+        await _json(request, 200, {
+          'resetToken': ticket,
+          'expiresAt': expiresAt.toUtc().toIso8601String(),
+        });
+      case ResetRefused():
+        throw const _ApiError(
+          403,
+          'reset_refused',
+          'The activation key or the username was not accepted.',
+        );
+      case ResetThrottled(:final retryAfter):
+        throw _tooManyAttempts(retryAfter);
+    }
+  }
+
+  Future<void> _finishReset(HttpRequest request) async {
+    final body = await _readJson(request);
+    final result = await (await _access()).finishReset(
+      ticket: _text(body, 'resetToken'),
+      newPassword: _text(body, 'newPassword'),
+      clientKey: request.connectionInfo?.remoteAddress.address ?? 'unknown',
+    );
+    switch (result) {
+      case PasswordWasReset():
+        request.response.statusCode = HttpStatus.noContent;
+        await request.response.close();
+      case ResetTicketInvalid():
+        throw const _ApiError(
+          403,
+          'reset_token_invalid',
+          'This reset has expired. Start again.',
+        );
+      case ResetCredentialsRefused(:final problem):
+        throw _ApiError(400, switch (problem) {
+          CredentialProblem.passwordTooShort => 'password_too_short',
+          CredentialProblem.passwordTooLong => 'password_too_long',
+          CredentialProblem.passwordContainsUsername =>
+            'password_contains_username',
+          CredentialProblem.usernameInvalid => 'invalid_request',
+        }, 'The new password was not accepted.');
+      case ResetThrottled(:final retryAfter):
+        throw _tooManyAttempts(retryAfter);
+    }
+  }
+
+  _ApiError _tooManyAttempts(Duration retryAfter) => _ApiError(
+    429,
+    'too_many_attempts',
+    'Too many attempts. Try again later.',
+    headers: {'retry-after': '${retryAfter.inSeconds + 1}'},
+  );
+
   Future<void> _logout(HttpRequest request) async {
     final token = _bearer(request);
     if (token != null) await (await _access()).logout(token);
@@ -224,7 +328,29 @@ class LocalApiServer {
     await _json(request, 200, {'account': _accountJson(account)});
   }
 
-  Future<void> _home(HttpRequest request) async {
+  /// Anything outside `/api/`: the web app's pages and files, read-only.
+  Future<void> _page(HttpRequest request) async {
+    final response = request.response;
+    final isRead = request.method == 'GET' || request.method == 'HEAD';
+    if (!isRead) {
+      return _fail(response, 405, 'method_not_allowed', 'Wrong method.');
+    }
+    final asset = await _web?.find(request.uri.path);
+    if (asset == null) {
+      if (_web == null && request.uri.path == '/') return _plainHome(request);
+      return _fail(response, 404, 'not_found', 'Not found.');
+    }
+    response
+      ..statusCode = HttpStatus.ok
+      ..headers.contentType = ContentType.parse(asset.contentType)
+      ..contentLength = asset.bytes.length;
+    asset.headers.forEach(response.headers.set);
+    if (request.method == 'GET') response.add(asset.bytes);
+    await response.close();
+  }
+
+  /// Shown at `/` when no web app is bundled.
+  Future<void> _plainHome(HttpRequest request) async {
     request.response.headers.contentType = ContentType.html;
     request.response.write(
       '<!doctype html><meta charset="utf-8"><title>AlgoritiQ</title>'

@@ -72,6 +72,13 @@ flutter:
   uses-material-design: true
   generate: true
 
+  # The web app the tablet serves at `/` (built by algoritiQ/web, copied here
+  # by tool/bundle_web.py). Assets are bundled folder by folder.
+  assets:
+    - assets/web/
+    - assets/web/assets/
+    - assets/web/fonts/
+
   fonts:
     - family: PlusJakartaSans
       fonts:

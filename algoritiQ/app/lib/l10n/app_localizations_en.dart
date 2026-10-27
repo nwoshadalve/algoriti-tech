@@ -411,4 +411,149 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readinessStateUnconfirmed => 'Not confirmed';
+
+  @override
+  String get signInTitle => 'Sign in';
+
+  @override
+  String get signInIntro =>
+      'Use the username and password of your admin account.';
+
+  @override
+  String get signInUsernameLabel => 'Username';
+
+  @override
+  String get signInPasswordLabel => 'Password';
+
+  @override
+  String get signInButton => 'Sign in';
+
+  @override
+  String get signInBusy => 'Signing in…';
+
+  @override
+  String get signInForgot => 'Forgot password?';
+
+  @override
+  String get signInFieldsRequired => 'Enter your username and password.';
+
+  @override
+  String get signInWrong => 'Wrong username or password.';
+
+  @override
+  String signInWait(int seconds) {
+    return 'Too many attempts. Try again in $seconds seconds.';
+  }
+
+  @override
+  String get showPasswordTooltip => 'Show password';
+
+  @override
+  String get hidePasswordTooltip => 'Hide password';
+
+  @override
+  String get signOutTooltip => 'Sign out';
+
+  @override
+  String get resetTitle => 'Reset your password';
+
+  @override
+  String get resetIntro =>
+      'Enter the username of the admin account whose password you forgot.';
+
+  @override
+  String get resetKeyLabel => 'Activation key';
+
+  @override
+  String get resetKeyHint =>
+      'The full key this tablet was activated with. Ask the clinic owner or the vendor. Spaces and dashes are optional.';
+
+  @override
+  String get resetNewPasswordLabel => 'New password';
+
+  @override
+  String get resetConfirmLabel => 'Confirm new password';
+
+  @override
+  String get resetPasswordHint =>
+      'At least 10 characters. Must not include your username.';
+
+  @override
+  String get resetButton => 'Reset password';
+
+  @override
+  String get resetBusy => 'Resetting…';
+
+  @override
+  String get resetBack => 'Back to sign in';
+
+  @override
+  String get resetDone => 'Password changed. Sign in with your new password.';
+
+  @override
+  String get resetRefused =>
+      'The activation key or the username is not correct.';
+
+  @override
+  String get resetNeedUsername => 'Enter your username.';
+
+  @override
+  String get resetNeedKey => 'Enter the activation key.';
+
+  @override
+  String get passwordNeeded => 'Choose a password.';
+
+  @override
+  String get passwordTooShort => 'Use at least 10 characters.';
+
+  @override
+  String get passwordTooLong => 'Use at most 128 characters.';
+
+  @override
+  String get passwordHasUsername => 'Password must not contain your username.';
+
+  @override
+  String get passwordsDiffer => 'Passwords do not match.';
+
+  @override
+  String resetStepOf(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get resetStepUsername => 'Enter your username';
+
+  @override
+  String get resetStepKey => 'Enter the activation key';
+
+  @override
+  String get resetStepPassword => 'Choose a new password';
+
+  @override
+  String get resetKeyTitle => 'Confirm it is you';
+
+  @override
+  String get resetKeyIntro =>
+      'Enter the key this tablet was activated with. Ask the clinic owner or the vendor if you do not have it.';
+
+  @override
+  String get resetPasswordTitle => 'Choose a new password';
+
+  @override
+  String resetPasswordIntro(String username) {
+    return 'The key was accepted. Choose a new password for $username.';
+  }
+
+  @override
+  String get resetContinue => 'Continue';
+
+  @override
+  String get resetChecking => 'Checking the key…';
+
+  @override
+  String get resetPrevious => 'Back';
+
+  @override
+  String get resetExpired =>
+      'This reset has expired. Enter the activation key again.';
 }

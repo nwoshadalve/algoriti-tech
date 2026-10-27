@@ -24,7 +24,7 @@ React Web App   Kotlin Android TV App
 | 1 | Flutter application for tablet | [01-flutter-tablet-application.md](./01-flutter-tablet-application.md) |
 | 2 | Kotlin Android application for Android TV | [02-kotlin-android-tv-application.md](./02-kotlin-android-tv-application.md) |
 | 3 | Android services for tablet | [03-android-tablet-services.md](./03-android-tablet-services.md) |
-| 4 | React web application | [04-react-web-application.md](./04-react-web-application.md) |
+| 4 | React web application (`web/`) | [04-react-web-application.md](./04-react-web-application.md) · [principles](../principles/) · [standards](../standards/) |
 | 5 | Backend API | [05-backend-api.md](./05-backend-api.md) |
 
 ## High-Level Direction

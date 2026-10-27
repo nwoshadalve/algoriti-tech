@@ -380,4 +380,147 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get readinessStateUnconfirmed => 'নিশ্চিত নয়';
+
+  @override
+  String get signInTitle => 'সাইন ইন';
+
+  @override
+  String get signInIntro =>
+      'আপনার অ্যাডমিন অ্যাকাউন্টের ইউজারনেম ও পাসওয়ার্ড দিন।';
+
+  @override
+  String get signInUsernameLabel => 'ইউজারনেম';
+
+  @override
+  String get signInPasswordLabel => 'পাসওয়ার্ড';
+
+  @override
+  String get signInButton => 'সাইন ইন করুন';
+
+  @override
+  String get signInBusy => 'সাইন ইন হচ্ছে…';
+
+  @override
+  String get signInForgot => 'পাসওয়ার্ড ভুলে গেছেন?';
+
+  @override
+  String get signInFieldsRequired => 'ইউজারনেম ও পাসওয়ার্ড লিখুন।';
+
+  @override
+  String get signInWrong => 'ইউজারনেম বা পাসওয়ার্ড ভুল।';
+
+  @override
+  String signInWait(int seconds) {
+    return 'অনেকবার চেষ্টা হয়েছে। $seconds সেকেন্ড পরে আবার চেষ্টা করুন।';
+  }
+
+  @override
+  String get showPasswordTooltip => 'পাসওয়ার্ড দেখুন';
+
+  @override
+  String get hidePasswordTooltip => 'পাসওয়ার্ড লুকান';
+
+  @override
+  String get signOutTooltip => 'সাইন আউট';
+
+  @override
+  String get resetTitle => 'পাসওয়ার্ড রিসেট করুন';
+
+  @override
+  String get resetIntro =>
+      'যে অ্যাডমিন অ্যাকাউন্টের পাসওয়ার্ড ভুলে গেছেন তার ইউজারনেম লিখুন।';
+
+  @override
+  String get resetKeyLabel => 'অ্যাক্টিভেশন কী';
+
+  @override
+  String get resetKeyHint =>
+      'এই ট্যাবলেট যে কী দিয়ে চালু করা হয়েছিল তার পুরোটা। ক্লিনিকের মালিক বা সরবরাহকারীর কাছ থেকে নিন। স্পেস ও ড্যাশ লাগবে না।';
+
+  @override
+  String get resetNewPasswordLabel => 'নতুন পাসওয়ার্ড';
+
+  @override
+  String get resetConfirmLabel => 'নতুন পাসওয়ার্ড নিশ্চিত করুন';
+
+  @override
+  String get resetPasswordHint => 'কমপক্ষে ১০ অক্ষর। ইউজারনেম থাকা যাবে না।';
+
+  @override
+  String get resetButton => 'পাসওয়ার্ড রিসেট করুন';
+
+  @override
+  String get resetBusy => 'রিসেট হচ্ছে…';
+
+  @override
+  String get resetBack => 'সাইন ইনে ফিরে যান';
+
+  @override
+  String get resetDone =>
+      'পাসওয়ার্ড বদলানো হয়েছে। নতুন পাসওয়ার্ড দিয়ে সাইন ইন করুন।';
+
+  @override
+  String get resetRefused => 'অ্যাক্টিভেশন কী বা ইউজারনেম সঠিক নয়।';
+
+  @override
+  String get resetNeedUsername => 'ইউজারনেম লিখুন।';
+
+  @override
+  String get resetNeedKey => 'অ্যাক্টিভেশন কী লিখুন।';
+
+  @override
+  String get passwordNeeded => 'একটি পাসওয়ার্ড দিন।';
+
+  @override
+  String get passwordTooShort => 'কমপক্ষে ১০ অক্ষর দিন।';
+
+  @override
+  String get passwordTooLong => 'সর্বোচ্চ ১২৮ অক্ষর দিন।';
+
+  @override
+  String get passwordHasUsername => 'পাসওয়ার্ডে ইউজারনেম থাকা যাবে না।';
+
+  @override
+  String get passwordsDiffer => 'পাসওয়ার্ড দুটি মেলেনি।';
+
+  @override
+  String resetStepOf(int current, int total) {
+    return 'ধাপ $current / $total';
+  }
+
+  @override
+  String get resetStepUsername => 'ইউজারনেম লিখুন';
+
+  @override
+  String get resetStepKey => 'অ্যাক্টিভেশন কী লিখুন';
+
+  @override
+  String get resetStepPassword => 'নতুন পাসওয়ার্ড বেছে নিন';
+
+  @override
+  String get resetKeyTitle => 'আপনিই যে আপনি, তা নিশ্চিত করুন';
+
+  @override
+  String get resetKeyIntro =>
+      'এই ট্যাবলেট যে কী দিয়ে চালু করা হয়েছিল সেটি লিখুন। না থাকলে ক্লিনিকের মালিক বা সরবরাহকারীর কাছ থেকে নিন।';
+
+  @override
+  String get resetPasswordTitle => 'নতুন পাসওয়ার্ড বেছে নিন';
+
+  @override
+  String resetPasswordIntro(String username) {
+    return 'কী গ্রহণ করা হয়েছে। $username-এর জন্য নতুন পাসওয়ার্ড বেছে নিন।';
+  }
+
+  @override
+  String get resetContinue => 'এগিয়ে যান';
+
+  @override
+  String get resetChecking => 'কী যাচাই হচ্ছে…';
+
+  @override
+  String get resetPrevious => 'পেছনে';
+
+  @override
+  String get resetExpired => 'এই রিসেটের সময় শেষ। অ্যাক্টিভেশন কী আবার লিখুন।';
 }

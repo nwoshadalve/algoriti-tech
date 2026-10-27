@@ -6,6 +6,7 @@ import '../api/server_host.dart';
 import '../core/l10n/locale_controller.dart';
 import '../core/theme/app_theme.dart';
 import '../features/access/presentation/admin_gate.dart';
+import '../features/access/presentation/sign_in_gate.dart';
 import '../features/clinic/presentation/setup_gate.dart';
 import '../features/home/presentation/home_page.dart';
 import '../features/readiness/presentation/readiness_gate.dart';
@@ -37,7 +38,9 @@ class AlgoritiqApp extends ConsumerWidget {
       home: const LicenseGate(
         child: SetupGate(
           child: ReadinessGate(
-            child: ServerHost(child: AdminGate(child: HomePage())),
+            child: ServerHost(
+              child: AdminGate(child: SignInGate(child: HomePage())),
+            ),
           ),
         ),
       ),

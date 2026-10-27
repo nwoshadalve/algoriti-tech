@@ -23,7 +23,7 @@ final class Registered extends RegisterResult {
 }
 
 /// The claim code was wrong, expired or locked ([reason]).
-final class ClaimRefused extends RegisterResult {
+final class ClaimRefused extends RegisterResult implements VerifyClaimResult {
   const ClaimRefused(this.reason, {required this.attemptsLeft});
 
   final ClaimCheck reason;
@@ -31,7 +31,8 @@ final class ClaimRefused extends RegisterResult {
 }
 
 /// An admin already exists; the registration page is closed for good.
-final class AdminAlreadyRegistered extends RegisterResult {
+final class AdminAlreadyRegistered extends RegisterResult
+    implements VerifyClaimResult {
   const AdminAlreadyRegistered();
 }
 
@@ -39,6 +40,15 @@ final class CredentialsRefused extends RegisterResult {
   const CredentialsRefused(this.problem);
 
   final CredentialProblem problem;
+}
+
+sealed class VerifyClaimResult {
+  const VerifyClaimResult();
+}
+
+/// The claim code matches the tablet; it is not used up until registration.
+final class ClaimVerified extends VerifyClaimResult {
+  const ClaimVerified();
 }
 
 sealed class LoginResult {
@@ -69,8 +79,64 @@ final class TooManyAttempts extends LoginResult {
   final Duration retryAfter;
 }
 
+/// First step of a password reset: prove the activation key.
+sealed class ResetStartResult {
+  const ResetStartResult();
+}
+
+/// The key was right: [ticket] lets the owner choose a new password until
+/// [expiresAt]. Shown once; only its hash is kept.
+final class ResetTicketIssued extends ResetStartResult {
+  const ResetTicketIssued(this.ticket, this.expiresAt);
+
+  final String ticket;
+  final DateTime expiresAt;
+}
+
+/// The activation key or the username was not accepted (never says which).
+final class ResetRefused extends ResetStartResult {
+  const ResetRefused();
+}
+
+/// Second step: choose the new password with the ticket.
+sealed class ResetFinishResult {
+  const ResetFinishResult();
+}
+
+/// The password was changed and every sign-in of the account ended.
+final class PasswordWasReset extends ResetFinishResult {
+  const PasswordWasReset();
+}
+
+/// The ticket is unknown, used or expired: start again.
+final class ResetTicketInvalid extends ResetFinishResult {
+  const ResetTicketInvalid();
+}
+
+final class ResetCredentialsRefused extends ResetFinishResult {
+  const ResetCredentialsRefused(this.problem);
+
+  final CredentialProblem problem;
+}
+
+/// Too many failures; try again after [retryAfter].
+final class ResetThrottled implements ResetStartResult, ResetFinishResult {
+  const ResetThrottled(this.retryAfter);
+
+  final Duration retryAfter;
+}
+
+class _ResetTicket {
+  const _ResetTicket(this.accountId, this.username, this.expiresAt);
+
+  final String accountId;
+  final String username;
+  final DateTime expiresAt;
+}
+
 /// Accounts and sign-in: registering the first admin, logging in and out,
-/// and telling who a token belongs to. Everything sensitive is audited.
+/// resetting a forgotten password, and telling who a token belongs to.
+/// Everything sensitive is audited.
 class AccessService {
   AccessService({
     required this._repository,
@@ -79,8 +145,10 @@ class AccessService {
     required this._throttle,
     required this._clock,
     required this._newId,
+    required this._licenseKey,
     Random? random,
     this.sessionLifetime = const Duration(hours: 12),
+    this.resetLifetime = const Duration(minutes: 10),
   }) : _random = random ?? Random.secure();
 
   final AccountRepository _repository;
@@ -89,10 +157,36 @@ class AccessService {
   final LoginThrottle _throttle;
   final Clock _clock;
   final IdGenerator _newId;
+
+  /// The activation key stored on this tablet.
+  final Future<String?> Function() _licenseKey;
   final Random _random;
   final Duration sessionLifetime;
 
+  /// How long the ticket from a verified activation key stays usable.
+  final Duration resetLifetime;
+
+  /// Tickets in memory only: a restart of the app ends them.
+  final _tickets = <String, _ResetTicket>{};
+
+  static const _maxTickets = 8;
+
   Future<bool> get hasAdmin async => await _repository.adminCount() > 0;
+
+  /// Checks the claim code before the registration form. Does not consume it.
+  Future<VerifyClaimResult> verifyClaimCode(String claimCode) async {
+    if (await hasAdmin) return const AdminAlreadyRegistered();
+    final claim = _claimCodes.check(claimCode);
+    if (claim != ClaimCheck.ok) {
+      await _repository.audit(
+        at: _clock(),
+        action: 'admin.claim_refused',
+        detail: claim.name,
+      );
+      return ClaimRefused(claim, attemptsLeft: _claimCodes.attemptsLeft);
+    }
+    return const ClaimVerified();
+  }
 
   /// Registers the first admin. Needs the claim code shown on the tablet.
   Future<RegisterResult> registerAdmin({
@@ -183,6 +277,112 @@ class AccessService {
       expiresAt: expiresAt,
       account: stored.account,
     );
+  }
+
+  /// Step 1 of a forgotten-password reset. When [activationKey] is the key
+  /// this tablet was activated with (the clinic owner or the vendor holds it)
+  /// and [username] exists, returns a ticket for step 2. Works offline.
+  ///
+  /// A wrong key and an unknown username give the same answer, and attempts
+  /// are slowed down per client and for the whole tablet.
+  Future<ResetStartResult> startReset({
+    required String username,
+    required String activationKey,
+    required String clientKey,
+  }) async {
+    final keys = ['reset:client:$clientKey', 'reset:all'];
+    for (final key in keys) {
+      final wait = _throttle.waitFor(key);
+      if (wait != null) return ResetThrottled(wait);
+    }
+
+    final name = AccessPolicy.normalizeUsername(username);
+    final stored = await _licenseKey();
+    final keyMatches =
+        stored != null && _sameKey(_keyForm(stored), _keyForm(activationKey));
+    final target = keyMatches ? await _repository.findCredentials(name) : null;
+    if (target == null) {
+      keys.forEach(_throttle.recordFailure);
+      await _repository.audit(
+        at: _clock(),
+        action: 'auth.reset_refused',
+        detail: keyMatches ? 'unknown user' : 'wrong key',
+      );
+      return const ResetRefused();
+    }
+
+    keys.forEach(_throttle.recordSuccess);
+    final now = _clock().toUtc();
+    _tickets.removeWhere(
+      (_, t) => t.accountId == target.account.id || !now.isBefore(t.expiresAt),
+    );
+    while (_tickets.length >= _maxTickets) {
+      _tickets.remove(_tickets.keys.first);
+    }
+    final ticket = _newToken();
+    final expiresAt = now.add(resetLifetime);
+    _tickets[_hashToken(ticket)] = _ResetTicket(
+      target.account.id,
+      name,
+      expiresAt,
+    );
+    await _repository.audit(
+      at: now,
+      action: 'auth.reset_key_accepted',
+      actorId: target.account.id,
+    );
+    return ResetTicketIssued(ticket, expiresAt);
+  }
+
+  /// Step 2: sets the new password for the account the [ticket] belongs to.
+  /// Every sign-in of the account ends, any lockout on it is lifted, and the
+  /// reset is audited. A refused password keeps the ticket, so the owner can
+  /// try another one.
+  Future<ResetFinishResult> finishReset({
+    required String ticket,
+    required String newPassword,
+    required String clientKey,
+  }) async {
+    final limit = 'reset:client:$clientKey';
+    final wait = _throttle.waitFor(limit);
+    if (wait != null) return ResetThrottled(wait);
+
+    final now = _clock().toUtc();
+    final hash = _hashToken(ticket);
+    final found = _tickets[hash];
+    if (found == null || !now.isBefore(found.expiresAt)) {
+      _tickets.remove(hash);
+      _throttle.recordFailure(limit);
+      return const ResetTicketInvalid();
+    }
+
+    final problem = AccessPolicy.check(
+      username: found.username,
+      password: newPassword,
+    );
+    if (problem != null) return ResetCredentialsRefused(problem);
+
+    await _repository.resetPassword(
+      accountId: found.accountId,
+      passwordHash: await _hasher.hash(newPassword),
+      at: now,
+    );
+    _tickets.removeWhere((_, t) => t.accountId == found.accountId);
+    _throttle.recordSuccess('user:${found.username}');
+    return const PasswordWasReset();
+  }
+
+  /// Case, spaces and dashes do not matter when the key is pasted.
+  static String _keyForm(String key) =>
+      key.toUpperCase().replaceAll(RegExp('[^A-Z0-9]'), '');
+
+  /// Compares without stopping at the first difference.
+  static bool _sameKey(String a, String b) {
+    var diff = a.length ^ b.length;
+    for (var i = 0; i < a.length && i < b.length; i++) {
+      diff |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
+    }
+    return diff == 0;
   }
 
   /// The account a token belongs to, or null if unknown, expired or revoked.
