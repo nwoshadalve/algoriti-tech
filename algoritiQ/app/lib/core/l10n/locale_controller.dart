@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,9 +17,12 @@ final localeControllerProvider = NotifierProvider<LocaleController, Locale?>(
 ///
 /// The choice survives restarts and needs no network.
 class LocaleController extends Notifier<Locale?> {
+  /// Completes once the saved language (if any) has been applied.
+  late Future<void> restored;
+
   @override
   Locale? build() {
-    unawaited(_restore());
+    restored = _restore();
     return null;
   }
 

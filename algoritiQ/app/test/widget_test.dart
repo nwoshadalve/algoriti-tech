@@ -1,11 +1,10 @@
-import 'package:algoritiq_app/app/app.dart';
 import 'package:algoritiq_app/core/theme/app_theme.dart';
 import 'package:algoritiq_app/core/widgets/brand_logo.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/licensing_kit.dart';
+import 'support/pump_app.dart';
 
 void main() {
   late LicensingKit kit;
@@ -16,15 +15,8 @@ void main() {
     licensed = MemoryLicenseStore(await kit.issue());
   });
 
-  Future<void> openLicensedApp(WidgetTester tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: kit.overrides(store: licensed),
-        child: const AlgoritiqApp(),
-      ),
-    );
-    await tester.pumpAndSettle();
-  }
+  Future<void> openLicensedApp(WidgetTester tester) =>
+      pumpApp(tester, kit.overrides(store: licensed));
 
   group('theme', () {
     for (final mode in [ThemeMode.light, ThemeMode.dark]) {

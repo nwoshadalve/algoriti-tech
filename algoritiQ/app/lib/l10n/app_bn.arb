@@ -1,7 +1,7 @@
 {
   "@@locale": "bn",
-  "activationTitle": "AlgoritiQ সক্রিয় করুন",
-  "activationIntro": "অ্যাক্টিভেশন কী পেতে এই ডিভাইস কোডটি আপনার AlgoritiQ সরবরাহকারীকে পাঠান।",
+  "activationTitle": "এই ডিভাইসটি সক্রিয় করুন",
+  "activationIntro": "অ্যাক্টিভেশন কী পেতে এই ডিভাইস কোডটি আপনার সরবরাহকারীকে পাঠান।",
   "deviceCodeLabel": "ডিভাইস কোড",
   "copyDeviceCode": "কপি",
   "deviceCodeCopied": "ডিভাইস কোড কপি হয়েছে",
@@ -28,5 +28,133 @@
   "activationFooter": "আপনার লাইসেন্স এই ডিভাইসের সাথে যুক্ত এবং অফলাইনেও কাজ করে।",
   "activating": "সক্রিয় করা হচ্ছে…",
   "languageLabel": "ভাষা",
-  "loading": "লোড হচ্ছে…"
+  "pasteKey": "কী পেস্ট করুন",
+  "setupStepProfile": "আপনার প্রোফাইল",
+  "setupStepChambers": "চেম্বার",
+  "setupStepReady": "প্রস্তুত",
+  "continueButton": "চালিয়ে যান",
+  "saving": "সংরক্ষণ করা হচ্ছে…",
+  "setupSaveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+  "setupLoadFailed": "আপনার সেটআপ লোড করা যায়নি।",
+  "profileTitle": "আপনার প্রোফাইল",
+  "profileIntro": "এটি টিভিতে ও টোকেনে দেখানো হবে।",
+  "doctorNameLabel": "পূর্ণ নাম (উপাধিসহ)",
+  "specialtyLabel": "বিশেষত্ব ও দক্ষতার ক্ষেত্র",
+  "doctorNameRequired": "আপনার নাম লিখুন।",
+  "chambersTitle": "আপনার চেম্বার যোগ করুন",
+  "chambersIntro": "আপনার লাইসেন্সে সর্বোচ্চ {max}টি চেম্বার থাকতে পারবে। পরে সেটিংসে পরিবর্তন করতে পারবেন।",
+  "@chambersIntro": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "chamberQuota": "{max}টির মধ্যে {count}টি চেম্বার",
+  "@chamberQuota": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "chamberNameLabel": "চেম্বারের নাম",
+  "chamberLocationLabel": "ঠিকানা",
+  "addChamberButton": "চেম্বার যোগ করুন",
+  "saveChamberButton": "চেম্বার সংরক্ষণ করুন",
+  "cancelEditButton": "বাতিল",
+  "editChamberTooltip": "{name} সম্পাদনা করুন",
+  "@editChamberTooltip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chamberNameRequired": "চেম্বারের নাম লিখুন।",
+  "chamberLimitReached": "আপনার লাইসেন্সে {max}টি চেম্বার, আর সবগুলোই যোগ করা হয়েছে।",
+  "@chamberLimitReached": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "addOneChamber": "চালিয়ে যেতে অন্তত একটি চেম্বার যোগ করুন।",
+  "readyTitle": "সব প্রস্তুত",
+  "readyIntro": "আপনার প্রোফাইল ও চেম্বার সংরক্ষিত হয়েছে। পরে সেটিংসে পরিবর্তন করতে পারবেন।",
+  "startButton": "শুরু করুন",
+  "degreesLabel": "ডিগ্রি",
+  "addDegreeButton": "ডিগ্রি যোগ করুন",
+  "removeDegreeTooltip": "{degree} মুছুন",
+  "@removeDegreeTooltip": {
+    "placeholders": {
+      "degree": {
+        "type": "String"
+      }
+    }
+  },
+  "designationLabel": "পদবি",
+  "workplaceLabel": "হাসপাতাল বা প্রতিষ্ঠান (ঐচ্ছিক)",
+  "registrationLabel": "মেডিকেল কাউন্সিল নিবন্ধন নম্বর (ঐচ্ছিক)",
+  "photoLabel": "ছবি (ঐচ্ছিক)",
+  "addPhotoButton": "ছবি যোগ করুন",
+  "changePhotoButton": "ছবি পরিবর্তন করুন",
+  "removePhotoButton": "ছবি সরান",
+  "photoFromGallery": "গ্যালারি থেকে বেছে নিন",
+  "photoFromCamera": "ছবি তুলুন",
+  "photoFailed": "এই ছবিটি ব্যবহার করা যায়নি। অন্যটি চেষ্টা করুন।",
+  "chamberPhoneLabel": "সিরিয়াল বা যোগাযোগের নম্বর",
+  "chamberAddressRequired": "চেম্বারের ঠিকানা লিখুন।",
+  "chamberPhoneRequired": "একটি ফোন নম্বর লিখুন।",
+  "backButton": "পেছনে",
+  "designationRequired": "আপনার পদবি লিখুন।",
+  "specialtyRequired": "আপনার বিশেষত্ব লিখুন।",
+  "degreesRequired": "অন্তত একটি ডিগ্রি যোগ করুন।",
+  "adminGuideTitle": "অ্যাডমিন অ্যাকাউন্ট তৈরি করুন",
+  "adminGuideIntro": "আপনার বিশ্বস্ত কেউ একই ওয়াই-ফাইয়ে থাকা ল্যাপটপ বা ফোন থেকে ক্লিনিক সেটআপ করবেন।",
+  "guideStepOpen": "১. এই ঠিকানাটি খুলুন",
+  "guideStepCode": "২. চাইলে এই কোডটি লিখুন",
+  "guideStepRegister": "৩. অ্যাডমিন নিবন্ধন করে সাইন ইন করুন",
+  "guideScanHint": "অথবা ফোনের ক্যামেরা দিয়ে স্ক্যান করুন",
+  "guideAddressByIp": "অথবা আইপি ঠিকানায়: {url}",
+  "copyAddressTooltip": "ঠিকানা কপি করুন",
+  "addressCopied": "ঠিকানা কপি হয়েছে",
+  "codeExpiresIn": "মেয়াদ বাকি {time}",
+  "@codeExpiresIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "newCodeButton": "নতুন কোড",
+  "serverStarting": "সার্ভার চালু হচ্ছে…",
+  "serverRunning": "সার্ভার চলছে",
+  "serverNoNetwork": "চালিয়ে যেতে এই ট্যাবলেটকে ক্লিনিকের ওয়াই-ফাইয়ে যুক্ত করুন।",
+  "serverFailed": "সার্ভার চালু করা যায়নি।",
+  "certNote": "ব্রাউজার বলবে সংযোগটি ব্যক্তিগত নয়। এটি স্বাভাবিক, কারণ ট্যাবলেট নিজের সার্টিফিকেট ব্যবহার করে। ফিঙ্গারপ্রিন্ট মিলিয়ে নিয়ে চালিয়ে যান।",
+  "certFingerprintLabel": "সার্টিফিকেট ফিঙ্গারপ্রিন্ট",
+  "readinessTitle": "ট্যাবলেট প্রস্তুত রাখুন",
+  "readinessIntro": "যাতে স্ক্রিন লক থাকলে বা রিস্টার্টের পরেও রোগী, টিভি ও ওয়েব অ্যাপ কিউ-তে পৌঁছাতে পারে।",
+  "readinessBackgroundTitle": "ব্যাকগ্রাউন্ডে চালু রাখুন",
+  "readinessBackgroundBody": "ব্যাটারি বাঁচাতে অ্যান্ড্রয়েড যেন সার্ভার থামিয়ে না দেয়।",
+  "readinessNotificationsTitle": "চলমান নোটিশ দেখান",
+  "readinessNotificationsBody": "ছোট একটি নোটিশ অ্যান্ড্রয়েডকে জানায় যে অ্যাপটি চালু থাকতে হবে।",
+  "readinessAutoStartTitle": "রিস্টার্টের পর চালু হোক",
+  "readinessAutoStartBody": "যাচাই করতে ট্যাবলেটটি একবার রিস্টার্ট করুন। রিস্টার্টের পর সার্ভার নিজে থেকে চালু হলে এখানে টিক চিহ্ন আসবে। না এলে সেটিংস আইকনে চাপ দিয়ে AlgoritiQ-কে নিজে থেকে চালু হওয়ার অনুমতি দিন (App launch), তারপর আবার রিস্টার্ট করুন।",
+  "readinessServiceTitle": "ব্যাকগ্রাউন্ড সার্ভিস",
+  "readinessServiceDone": "চলছে।",
+  "readinessServiceNeeded": "এখনও চালু হয়নি।",
+  "readinessAllow": "অনুমতি দিন",
+  "readinessOpenSettings": "সেটিংস খুলুন",
+  "readinessConfirm": "আমি করেছি",
+  "readinessRequired": "আবশ্যক",
+  "readinessContinueAnyway": "তবুও চালিয়ে যান",
+  "readinessStateDone": "সম্পন্ন",
+  "readinessStateNeeded": "মনোযোগ দরকার",
+  "readinessStateUnconfirmed": "নিশ্চিত নয়"
 }

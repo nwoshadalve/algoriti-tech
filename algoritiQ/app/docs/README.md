@@ -30,6 +30,16 @@ Two kinds of docs:
 | [Testing](./standards/testing.md) | How to write regression tests |
 | [Git & delivery](./standards/git-delivery.md) | Commits, PRs, dependencies, docs, versioning |
 
+## Features ([features/](./features/))
+
+| Doc | Covers |
+| --- | --- |
+| [Activation](./features/activation.md) | Offline license key, device code, expiry |
+| [First-time setup](./features/setup.md) | Doctor profile, chambers, ready |
+| [Admin access](./features/admin-access.md) | Claim code, first admin, local HTTPS API, passwords, audit |
+| [Keep-alive](./features/keep-alive.md) | Background service, boot start, permission guide |
+| [Local name](./features/local-name.md) | `algoritiq.local` on the clinic Wi-Fi, no internet needed |
+
 Source of truth for *what* the system is: [../../../docs/architecture/](../../docs/architecture/).
 
 ## Precedence

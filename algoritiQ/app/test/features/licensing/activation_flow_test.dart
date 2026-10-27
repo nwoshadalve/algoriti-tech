@@ -1,23 +1,18 @@
-import 'package:algoritiq_app/app/app.dart';
 import 'package:algoritiq_app/features/licensing/domain/license_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/licensing_kit.dart';
+import '../../support/pump_app.dart';
 
 void main() {
   late LicensingKit kit;
 
   setUpAll(() async => kit = await LicensingKit.create());
 
-  Future<void> openApp(WidgetTester tester, List<Override> overrides) async {
-    await tester.pumpWidget(
-      ProviderScope(overrides: overrides, child: const AlgoritiqApp()),
-    );
-    await tester.pumpAndSettle();
-  }
+  Future<void> openApp(WidgetTester tester, List<Override> overrides) =>
+      pumpApp(tester, overrides);
 
   testWidgets('should show the activation screen with the device code', (
     tester,
@@ -25,7 +20,7 @@ void main() {
     await openApp(tester, kit.overrides());
 
     final code = (await DeviceCode.fromAndroidId(kit.deviceId)).toString();
-    expect(find.text('Activate AlgoritiQ'), findsOneWidget);
+    expect(find.text('Activate this device'), findsOneWidget);
     expect(find.text(code), findsOneWidget);
     expect(find.byIcon(Icons.add), findsNothing);
   });
@@ -44,6 +39,29 @@ void main() {
     expect(find.byIcon(Icons.add), findsOneWidget);
     expect(find.text('Doctor license · up to 2 chambers'), findsOneWidget);
     expect(find.text('No expiry'), findsOneWidget);
+  });
+
+  testWidgets('should activate from the keyboard Done key', (tester) async {
+    await openApp(tester, kit.overrides());
+    final token = await tester.runAsync(kit.issue);
+
+    await tester.enterText(find.byType(TextField), token!);
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.add), findsOneWidget);
+  });
+
+  testWidgets('should drop line breaks and spaces from a pasted key', (
+    tester,
+  ) async {
+    await openApp(tester, kit.overrides());
+
+    await tester.enterText(find.byType(TextField), 'AB12 CD34\nEF56');
+
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.controller!.text, 'AB12CD34EF56');
   });
 
   testWidgets('should explain why a key for another device is rejected', (
@@ -73,7 +91,7 @@ void main() {
     await openApp(tester, kit.overrides(store: store));
 
     expect(find.byIcon(Icons.add), findsOneWidget);
-    expect(find.text('Activate AlgoritiQ'), findsNothing);
+    expect(find.text('Activate this device'), findsNothing);
   });
 
   testWidgets('should warn during the grace period', (tester) async {

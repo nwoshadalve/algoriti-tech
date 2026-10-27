@@ -45,3 +45,33 @@ WAITING -> CALLED -> IN_CONSULTATION -> COMPLETED
 
 - Backups are encrypted; restore is tested. Document what can be lost after the last backup.
 - Online services (backup, updates, reporting) are optional and MUST NOT gate clinic operation.
+
+### Physical tablet — before destructive dev operations
+
+A **full app restart** (reinstall, `adb uninstall`, `pm clear`, or anything that wipes the app sandbox) is sometimes necessary: native/Kotlin changes, a broken install, Gradle cache issues, or debugging platform channels. That is acceptable when the task needs it — but it **destroys** the local SQLite database, license prefs, setup, readiness, and admin accounts unless you copy them off the device first.
+
+**MUST** take a backup **before** any operation that can wipe app data, including:
+
+- `adb uninstall …`
+- `adb shell pm clear …`
+- Reinstall flows that require uninstall (signature mismatch, etc.)
+- Manually deleting files under the app's private storage
+
+**SHOULD** prefer less destructive options when they are enough:
+
+- `adb install -r` (keep data) for APK updates
+- Edit `shared_prefs/FlutterSharedPreferences.xml` only (app data is under `/data/user_de/0/<package>/`, not the default data folder — see [keep-alive](../features/keep-alive.md)) (e.g. reset `readiness.acknowledged`) instead of clearing the whole app
+- `flutter run` / hot restart for Dart-only changes
+
+**Backup bundle** (minimum):
+
+| Asset | On-device path (via `run-as tech.algoriti.algoritiq_app`) |
+| --- | --- |
+| SQLite (Drift name `algoritiq`) | `databases/algoritiq.sqlite` plus `databases/algoritiq.sqlite-wal` and `databases/algoritiq.sqlite-shm` if present |
+| License, language, readiness flags | `shared_prefs/FlutterSharedPreferences.xml` |
+
+Stop the app (`adb shell am force-stop tech.algoriti.algoritiq_app`) before copying the database files so WAL files are consistent. Store backups **outside** the repo (e.g. `tablet-backups/<timestamp>/`); **MUST NOT** commit backups or activation keys to git.
+
+**Restore:** push files back with `adb push` + `run-as … cp` into the same paths, then cold-start the app. If the app was uninstalled, reinstall first, then restore before opening the UI.
+
+Commands and examples: [dev-setup.md](../dev-setup.md) § Tablet data backup & restore.

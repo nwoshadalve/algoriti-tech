@@ -10,11 +10,11 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get activationTitle => 'Activate AlgoritiQ';
+  String get activationTitle => 'Activate this device';
 
   @override
   String get activationIntro =>
-      'Send this device code to your AlgoritiQ provider to get your activation key.';
+      'Send this device code to your provider to get an activation key.';
 
   @override
   String get deviceCodeLabel => 'Device code';
@@ -122,5 +122,295 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageLabel => 'Language';
 
   @override
-  String get loading => 'Loading…';
+  String get pasteKey => 'Paste key';
+
+  @override
+  String get setupStepProfile => 'Your profile';
+
+  @override
+  String get setupStepChambers => 'Chambers';
+
+  @override
+  String get setupStepReady => 'Ready';
+
+  @override
+  String get continueButton => 'Continue';
+
+  @override
+  String get saving => 'Saving…';
+
+  @override
+  String get setupSaveFailed => 'Couldn\'t save. Try again.';
+
+  @override
+  String get setupLoadFailed => 'Couldn\'t load your setup.';
+
+  @override
+  String get profileTitle => 'Your profile';
+
+  @override
+  String get profileIntro => 'This is shown on the TV and on tokens.';
+
+  @override
+  String get doctorNameLabel => 'Full name, with title';
+
+  @override
+  String get specialtyLabel => 'Specialty and areas of expertise';
+
+  @override
+  String get doctorNameRequired => 'Enter your name.';
+
+  @override
+  String get chambersTitle => 'Add your chambers';
+
+  @override
+  String chambersIntro(int max) {
+    String _temp0 = intl.Intl.pluralLogic(
+      max,
+      locale: localeName,
+      other: 'chambers',
+      one: 'chamber',
+    );
+    return 'Your license covers up to $max $_temp0. You can change these later in settings.';
+  }
+
+  @override
+  String chamberQuota(int count, int max) {
+    String _temp0 = intl.Intl.pluralLogic(
+      max,
+      locale: localeName,
+      other: 'chambers',
+      one: 'chamber',
+    );
+    return '$count of $max $_temp0';
+  }
+
+  @override
+  String get chamberNameLabel => 'Chamber name';
+
+  @override
+  String get chamberLocationLabel => 'Address';
+
+  @override
+  String get addChamberButton => 'Add chamber';
+
+  @override
+  String get saveChamberButton => 'Save chamber';
+
+  @override
+  String get cancelEditButton => 'Cancel';
+
+  @override
+  String editChamberTooltip(String name) {
+    return 'Edit $name';
+  }
+
+  @override
+  String get chamberNameRequired => 'Enter a chamber name.';
+
+  @override
+  String chamberLimitReached(int max) {
+    String _temp0 = intl.Intl.pluralLogic(
+      max,
+      locale: localeName,
+      other: 'chambers',
+      one: 'chamber',
+    );
+    return 'Your license covers $max $_temp0, and you\'ve added them all.';
+  }
+
+  @override
+  String get addOneChamber => 'Add at least one chamber to continue.';
+
+  @override
+  String get readyTitle => 'You\'re all set';
+
+  @override
+  String get readyIntro =>
+      'Your profile and chambers are saved. You can change them later in settings.';
+
+  @override
+  String get startButton => 'Start';
+
+  @override
+  String get degreesLabel => 'Degrees';
+
+  @override
+  String get addDegreeButton => 'Add degree';
+
+  @override
+  String removeDegreeTooltip(String degree) {
+    return 'Remove $degree';
+  }
+
+  @override
+  String get designationLabel => 'Designation';
+
+  @override
+  String get workplaceLabel => 'Hospital or institution (optional)';
+
+  @override
+  String get registrationLabel =>
+      'Medical council registration number (optional)';
+
+  @override
+  String get photoLabel => 'Photo (optional)';
+
+  @override
+  String get addPhotoButton => 'Add photo';
+
+  @override
+  String get changePhotoButton => 'Change photo';
+
+  @override
+  String get removePhotoButton => 'Remove photo';
+
+  @override
+  String get photoFromGallery => 'Choose from gallery';
+
+  @override
+  String get photoFromCamera => 'Take a photo';
+
+  @override
+  String get photoFailed => 'Couldn\'t use that photo. Try another.';
+
+  @override
+  String get chamberPhoneLabel => 'Serial or contact number';
+
+  @override
+  String get chamberAddressRequired => 'Enter the chamber address.';
+
+  @override
+  String get chamberPhoneRequired => 'Enter a phone number.';
+
+  @override
+  String get backButton => 'Back';
+
+  @override
+  String get designationRequired => 'Enter your designation.';
+
+  @override
+  String get specialtyRequired => 'Enter your specialty.';
+
+  @override
+  String get degreesRequired => 'Add at least one degree.';
+
+  @override
+  String get adminGuideTitle => 'Create the admin account';
+
+  @override
+  String get adminGuideIntro =>
+      'Someone you trust sets up the clinic from a laptop or phone on the same Wi-Fi.';
+
+  @override
+  String get guideStepOpen => '1. Open this address';
+
+  @override
+  String get guideStepCode => '2. Enter this code when asked';
+
+  @override
+  String get guideStepRegister => '3. Register the admin, then sign in';
+
+  @override
+  String get guideScanHint => 'Or scan with a phone camera';
+
+  @override
+  String guideAddressByIp(String url) {
+    return 'Or by IP address: $url';
+  }
+
+  @override
+  String get copyAddressTooltip => 'Copy address';
+
+  @override
+  String get addressCopied => 'Address copied';
+
+  @override
+  String codeExpiresIn(String time) {
+    return 'Expires in $time';
+  }
+
+  @override
+  String get newCodeButton => 'New code';
+
+  @override
+  String get serverStarting => 'Starting the server…';
+
+  @override
+  String get serverRunning => 'Server running';
+
+  @override
+  String get serverNoNetwork =>
+      'Connect this tablet to the clinic Wi-Fi to continue.';
+
+  @override
+  String get serverFailed => 'The server could not start.';
+
+  @override
+  String get certNote =>
+      'Your browser will say the connection is not private. That is expected: the tablet uses its own certificate. Check the fingerprint, then continue.';
+
+  @override
+  String get certFingerprintLabel => 'Certificate fingerprint';
+
+  @override
+  String get readinessTitle => 'Keep the tablet ready';
+
+  @override
+  String get readinessIntro =>
+      'So the queue stays reachable for patients, the TV and the web app, even with the screen locked or after a restart.';
+
+  @override
+  String get readinessBackgroundTitle => 'Run in the background';
+
+  @override
+  String get readinessBackgroundBody =>
+      'Stops Android from pausing the server to save battery.';
+
+  @override
+  String get readinessNotificationsTitle => 'Show the running notice';
+
+  @override
+  String get readinessNotificationsBody =>
+      'A small notice tells Android this app must keep running.';
+
+  @override
+  String get readinessAutoStartTitle => 'Start after a restart';
+
+  @override
+  String get readinessAutoStartBody =>
+      'Restart the tablet once to check. This is ticked when the server starts by itself after the restart. If it stays unticked, tap the settings icon, allow AlgoritiQ to start automatically (App launch), and restart again.';
+
+  @override
+  String get readinessServiceTitle => 'Background service';
+
+  @override
+  String get readinessServiceDone => 'Running.';
+
+  @override
+  String get readinessServiceNeeded => 'Not running yet.';
+
+  @override
+  String get readinessAllow => 'Allow';
+
+  @override
+  String get readinessOpenSettings => 'Open settings';
+
+  @override
+  String get readinessConfirm => 'I\'ve done this';
+
+  @override
+  String get readinessRequired => 'Required';
+
+  @override
+  String get readinessContinueAnyway => 'Continue anyway';
+
+  @override
+  String get readinessStateDone => 'Done';
+
+  @override
+  String get readinessStateNeeded => 'Needs attention';
+
+  @override
+  String get readinessStateUnconfirmed => 'Not confirmed';
 }

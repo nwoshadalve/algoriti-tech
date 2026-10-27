@@ -10,11 +10,11 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
-  String get activationTitle => 'AlgoritiQ সক্রিয় করুন';
+  String get activationTitle => 'এই ডিভাইসটি সক্রিয় করুন';
 
   @override
   String get activationIntro =>
-      'অ্যাক্টিভেশন কী পেতে এই ডিভাইস কোডটি আপনার AlgoritiQ সরবরাহকারীকে পাঠান।';
+      'অ্যাক্টিভেশন কী পেতে এই ডিভাইস কোডটি আপনার সরবরাহকারীকে পাঠান।';
 
   @override
   String get deviceCodeLabel => 'ডিভাইস কোড';
@@ -110,5 +110,276 @@ class AppLocalizationsBn extends AppLocalizations {
   String get languageLabel => 'ভাষা';
 
   @override
-  String get loading => 'লোড হচ্ছে…';
+  String get pasteKey => 'কী পেস্ট করুন';
+
+  @override
+  String get setupStepProfile => 'আপনার প্রোফাইল';
+
+  @override
+  String get setupStepChambers => 'চেম্বার';
+
+  @override
+  String get setupStepReady => 'প্রস্তুত';
+
+  @override
+  String get continueButton => 'চালিয়ে যান';
+
+  @override
+  String get saving => 'সংরক্ষণ করা হচ্ছে…';
+
+  @override
+  String get setupSaveFailed => 'সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get setupLoadFailed => 'আপনার সেটআপ লোড করা যায়নি।';
+
+  @override
+  String get profileTitle => 'আপনার প্রোফাইল';
+
+  @override
+  String get profileIntro => 'এটি টিভিতে ও টোকেনে দেখানো হবে।';
+
+  @override
+  String get doctorNameLabel => 'পূর্ণ নাম (উপাধিসহ)';
+
+  @override
+  String get specialtyLabel => 'বিশেষত্ব ও দক্ষতার ক্ষেত্র';
+
+  @override
+  String get doctorNameRequired => 'আপনার নাম লিখুন।';
+
+  @override
+  String get chambersTitle => 'আপনার চেম্বার যোগ করুন';
+
+  @override
+  String chambersIntro(int max) {
+    return 'আপনার লাইসেন্সে সর্বোচ্চ $maxটি চেম্বার থাকতে পারবে। পরে সেটিংসে পরিবর্তন করতে পারবেন।';
+  }
+
+  @override
+  String chamberQuota(int count, int max) {
+    return '$maxটির মধ্যে $countটি চেম্বার';
+  }
+
+  @override
+  String get chamberNameLabel => 'চেম্বারের নাম';
+
+  @override
+  String get chamberLocationLabel => 'ঠিকানা';
+
+  @override
+  String get addChamberButton => 'চেম্বার যোগ করুন';
+
+  @override
+  String get saveChamberButton => 'চেম্বার সংরক্ষণ করুন';
+
+  @override
+  String get cancelEditButton => 'বাতিল';
+
+  @override
+  String editChamberTooltip(String name) {
+    return '$name সম্পাদনা করুন';
+  }
+
+  @override
+  String get chamberNameRequired => 'চেম্বারের নাম লিখুন।';
+
+  @override
+  String chamberLimitReached(int max) {
+    return 'আপনার লাইসেন্সে $maxটি চেম্বার, আর সবগুলোই যোগ করা হয়েছে।';
+  }
+
+  @override
+  String get addOneChamber => 'চালিয়ে যেতে অন্তত একটি চেম্বার যোগ করুন।';
+
+  @override
+  String get readyTitle => 'সব প্রস্তুত';
+
+  @override
+  String get readyIntro =>
+      'আপনার প্রোফাইল ও চেম্বার সংরক্ষিত হয়েছে। পরে সেটিংসে পরিবর্তন করতে পারবেন।';
+
+  @override
+  String get startButton => 'শুরু করুন';
+
+  @override
+  String get degreesLabel => 'ডিগ্রি';
+
+  @override
+  String get addDegreeButton => 'ডিগ্রি যোগ করুন';
+
+  @override
+  String removeDegreeTooltip(String degree) {
+    return '$degree মুছুন';
+  }
+
+  @override
+  String get designationLabel => 'পদবি';
+
+  @override
+  String get workplaceLabel => 'হাসপাতাল বা প্রতিষ্ঠান (ঐচ্ছিক)';
+
+  @override
+  String get registrationLabel => 'মেডিকেল কাউন্সিল নিবন্ধন নম্বর (ঐচ্ছিক)';
+
+  @override
+  String get photoLabel => 'ছবি (ঐচ্ছিক)';
+
+  @override
+  String get addPhotoButton => 'ছবি যোগ করুন';
+
+  @override
+  String get changePhotoButton => 'ছবি পরিবর্তন করুন';
+
+  @override
+  String get removePhotoButton => 'ছবি সরান';
+
+  @override
+  String get photoFromGallery => 'গ্যালারি থেকে বেছে নিন';
+
+  @override
+  String get photoFromCamera => 'ছবি তুলুন';
+
+  @override
+  String get photoFailed => 'এই ছবিটি ব্যবহার করা যায়নি। অন্যটি চেষ্টা করুন।';
+
+  @override
+  String get chamberPhoneLabel => 'সিরিয়াল বা যোগাযোগের নম্বর';
+
+  @override
+  String get chamberAddressRequired => 'চেম্বারের ঠিকানা লিখুন।';
+
+  @override
+  String get chamberPhoneRequired => 'একটি ফোন নম্বর লিখুন।';
+
+  @override
+  String get backButton => 'পেছনে';
+
+  @override
+  String get designationRequired => 'আপনার পদবি লিখুন।';
+
+  @override
+  String get specialtyRequired => 'আপনার বিশেষত্ব লিখুন।';
+
+  @override
+  String get degreesRequired => 'অন্তত একটি ডিগ্রি যোগ করুন।';
+
+  @override
+  String get adminGuideTitle => 'অ্যাডমিন অ্যাকাউন্ট তৈরি করুন';
+
+  @override
+  String get adminGuideIntro =>
+      'আপনার বিশ্বস্ত কেউ একই ওয়াই-ফাইয়ে থাকা ল্যাপটপ বা ফোন থেকে ক্লিনিক সেটআপ করবেন।';
+
+  @override
+  String get guideStepOpen => '১. এই ঠিকানাটি খুলুন';
+
+  @override
+  String get guideStepCode => '২. চাইলে এই কোডটি লিখুন';
+
+  @override
+  String get guideStepRegister => '৩. অ্যাডমিন নিবন্ধন করে সাইন ইন করুন';
+
+  @override
+  String get guideScanHint => 'অথবা ফোনের ক্যামেরা দিয়ে স্ক্যান করুন';
+
+  @override
+  String guideAddressByIp(String url) {
+    return 'অথবা আইপি ঠিকানায়: $url';
+  }
+
+  @override
+  String get copyAddressTooltip => 'ঠিকানা কপি করুন';
+
+  @override
+  String get addressCopied => 'ঠিকানা কপি হয়েছে';
+
+  @override
+  String codeExpiresIn(String time) {
+    return 'মেয়াদ বাকি $time';
+  }
+
+  @override
+  String get newCodeButton => 'নতুন কোড';
+
+  @override
+  String get serverStarting => 'সার্ভার চালু হচ্ছে…';
+
+  @override
+  String get serverRunning => 'সার্ভার চলছে';
+
+  @override
+  String get serverNoNetwork =>
+      'চালিয়ে যেতে এই ট্যাবলেটকে ক্লিনিকের ওয়াই-ফাইয়ে যুক্ত করুন।';
+
+  @override
+  String get serverFailed => 'সার্ভার চালু করা যায়নি।';
+
+  @override
+  String get certNote =>
+      'ব্রাউজার বলবে সংযোগটি ব্যক্তিগত নয়। এটি স্বাভাবিক, কারণ ট্যাবলেট নিজের সার্টিফিকেট ব্যবহার করে। ফিঙ্গারপ্রিন্ট মিলিয়ে নিয়ে চালিয়ে যান।';
+
+  @override
+  String get certFingerprintLabel => 'সার্টিফিকেট ফিঙ্গারপ্রিন্ট';
+
+  @override
+  String get readinessTitle => 'ট্যাবলেট প্রস্তুত রাখুন';
+
+  @override
+  String get readinessIntro =>
+      'যাতে স্ক্রিন লক থাকলে বা রিস্টার্টের পরেও রোগী, টিভি ও ওয়েব অ্যাপ কিউ-তে পৌঁছাতে পারে।';
+
+  @override
+  String get readinessBackgroundTitle => 'ব্যাকগ্রাউন্ডে চালু রাখুন';
+
+  @override
+  String get readinessBackgroundBody =>
+      'ব্যাটারি বাঁচাতে অ্যান্ড্রয়েড যেন সার্ভার থামিয়ে না দেয়।';
+
+  @override
+  String get readinessNotificationsTitle => 'চলমান নোটিশ দেখান';
+
+  @override
+  String get readinessNotificationsBody =>
+      'ছোট একটি নোটিশ অ্যান্ড্রয়েডকে জানায় যে অ্যাপটি চালু থাকতে হবে।';
+
+  @override
+  String get readinessAutoStartTitle => 'রিস্টার্টের পর চালু হোক';
+
+  @override
+  String get readinessAutoStartBody =>
+      'যাচাই করতে ট্যাবলেটটি একবার রিস্টার্ট করুন। রিস্টার্টের পর সার্ভার নিজে থেকে চালু হলে এখানে টিক চিহ্ন আসবে। না এলে সেটিংস আইকনে চাপ দিয়ে AlgoritiQ-কে নিজে থেকে চালু হওয়ার অনুমতি দিন (App launch), তারপর আবার রিস্টার্ট করুন।';
+
+  @override
+  String get readinessServiceTitle => 'ব্যাকগ্রাউন্ড সার্ভিস';
+
+  @override
+  String get readinessServiceDone => 'চলছে।';
+
+  @override
+  String get readinessServiceNeeded => 'এখনও চালু হয়নি।';
+
+  @override
+  String get readinessAllow => 'অনুমতি দিন';
+
+  @override
+  String get readinessOpenSettings => 'সেটিংস খুলুন';
+
+  @override
+  String get readinessConfirm => 'আমি করেছি';
+
+  @override
+  String get readinessRequired => 'আবশ্যক';
+
+  @override
+  String get readinessContinueAnyway => 'তবুও চালিয়ে যান';
+
+  @override
+  String get readinessStateDone => 'সম্পন্ন';
+
+  @override
+  String get readinessStateNeeded => 'মনোযোগ দরকার';
+
+  @override
+  String get readinessStateUnconfirmed => 'নিশ্চিত নয়';
 }

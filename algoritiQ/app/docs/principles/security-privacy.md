@@ -7,6 +7,11 @@
 - Store runtime secrets (pairing/session tokens) in Android Keystore-backed storage (`flutter_secure_storage`).
 - Release keystore: offline/secure backup only ([prod build](../../../docs/prod-build-deploy/README.md)).
 
+## Data at rest
+
+- All app data lives in Android **device-protected storage** so the local API can start after a restart before the PIN is entered ([keep-alive](../features/keep-alive.md)). It is encrypted, but with a device-bound key, not the user's PIN: protection against a stolen tablet relies on Android's file-based encryption and app sandbox, plus our own login, not on the screen lock.
+- Keystore keys used by `flutter_secure_storage` MUST NOT require an unlocked device or user authentication, or the API cannot start before the first unlock.
+
 ## Pairing & access control
 
 - Pair devices with an **expiring PIN/QR challenge** — "same Wi-Fi" is not trust.

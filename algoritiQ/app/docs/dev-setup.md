@@ -92,6 +92,67 @@ adb logcat -d -t 100
 ```
 Optional wireless debug (Android 11+): Developer options → Wireless debugging → `adb pair` / `adb connect`.
 
+## Tablet data backup & restore
+
+Sometimes a **full reinstall or app-data wipe** is the right fix (native code, corrupted install, etc.). That deletes clinic data on the device. **Back up first** — see [principles/data-offline.md](./principles/data-offline.md) § Physical tablet.
+
+```powershell
+$serial = "<adb-serial>"   # from adb devices
+$pkg = "tech.algoriti.algoritiq_app"
+$stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$dest = "$env:USERPROFILE\algoritiq-tablet-backups\$stamp"
+New-Item -ItemType Directory -Force -Path $dest | Out-Null
+$env:Path = "C:\dev\android-sdk\platform-tools;$env:Path"
+
+adb -s $serial shell am force-stop $pkg
+
+# All app data (SQLite, photos, prefs, secure storage) is in device-protected
+# storage: /data/user_de/0/<package>/ (see docs/features/keep-alive.md).
+adb -s $serial exec-out run-as $pkg tar -cf - -C /data/user_de/0/$pkg app_flutter shared_prefs files > "$dest\app-data.tar"
+
+Write-Host "Backed up to $dest"
+```
+
+**Restore** (after `adb install` if the app was removed; open the app once first so its folders exist):
+
+```powershell
+adb -s $serial shell am force-stop $pkg
+adb -s $serial push "$dest\app-data.tar" /data/local/tmp/app-data.tar
+adb -s $serial shell run-as $pkg tar -xf /data/local/tmp/app-data.tar -C /data/user_de/0/$pkg
+adb -s $serial shell run-as $pkg touch /data/user_de/0/$pkg/no_backup/storage_moved_to_device
+adb -s $serial shell rm /data/local/tmp/app-data.tar
+adb -s $serial shell am start -n $pkg/.MainActivity
+```
+
+To **reset only readiness** (keep DB + license), edit prefs on device — do not uninstall. Example: set `flutter.readiness.acknowledged` to `false` in `/data/user_de/0/<package>/shared_prefs/FlutterSharedPreferences.xml` (force-stop the app first).
+
+## AI / agent shells (Cursor, etc.)
+
+Integrated terminals often **do not** inherit the user `PATH`. If `flutter` or `adb` is “not found”, prepend the same paths as in steps 2–4, then verify the tablet:
+
+```powershell
+$env:Path = "C:\dev\flutter\bin;C:\dev\android-sdk\platform-tools;$env:Path"
+cd E:\Projects\algoriti-tech\algoritiQ\app
+adb devices          # expect: <serial>    device
+flutter devices
+flutter analyze
+flutter test
+```
+
+**Before marking work done:** build and install on the connected tablet, then smoke-test (at minimum: app launches, `KeepAliveService` running, `GET https://<tablet-ip>:8443/api/v1/health` returns `{"status":"ok"}`). For keep-alive / boot changes, also test screen-off and reboot when the task requires it.
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
+$env:Path = "C:\dev\flutter\bin;C:\dev\android-sdk\platform-tools;$env:JAVA_HOME\bin;$env:Path"
+cd E:\Projects\algoriti-tech\algoritiQ\app
+flutter build apk --debug
+adb install -r build\app\outputs\flutter-apk\app-debug.apk
+adb shell am start -n tech.algoriti.algoritiq_app/.MainActivity
+curl.exe -k -s https://192.168.1.110:8443/api/v1/health
+```
+
+Project root: `E:\Projects\algoriti-tech\algoritiQ\app`. Default SDK layout on this machine: Flutter `C:\dev\flutter`, Android `C:\dev\android-sdk` (`ANDROID_HOME`).
+
 ## Troubleshooting
 
 | Problem | Fix |
@@ -103,6 +164,7 @@ Optional wireless debug (Android 11+): Developer options → Wireless debugging 
 | Gradle needs JDK | `flutter config --jdk-dir "<JAVA_HOME>"` |
 | First build slow | Normal (Gradle downloads ~1 GB once) |
 | `Could not close incremental caches` (Kotlin) | Project on E:, pub cache on C:. `kotlin.incremental=false` is set in `android/gradle.properties`; stop daemons (`gradlew --stop`) and delete the plugin's `build/` folder |
+| `build_runner` fails: Application Control policy blocked `gen_snapshot.exe` | Generate code in JIT mode: `dart run build_runner build --force-jit`. Run it after changing drift tables (`lib/core/database/tables.dart`) |
 | App shows the activation screen on a dev tablet | Issue a dev key: see [license/README.md](../../license/README.md) |
 
 More detail: [../../docs/dev-setup/](../../docs/dev-setup/README.md).

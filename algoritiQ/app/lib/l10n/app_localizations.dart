@@ -101,13 +101,13 @@ abstract class AppLocalizations {
   /// No description provided for @activationTitle.
   ///
   /// In en, this message translates to:
-  /// **'Activate AlgoritiQ'**
+  /// **'Activate this device'**
   String get activationTitle;
 
   /// No description provided for @activationIntro.
   ///
   /// In en, this message translates to:
-  /// **'Send this device code to your AlgoritiQ provider to get your activation key.'**
+  /// **'Send this device code to your provider to get an activation key.'**
   String get activationIntro;
 
   /// No description provided for @deviceCodeLabel.
@@ -266,11 +266,509 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get languageLabel;
 
-  /// No description provided for @loading.
+  /// No description provided for @pasteKey.
   ///
   /// In en, this message translates to:
-  /// **'Loading…'**
-  String get loading;
+  /// **'Paste key'**
+  String get pasteKey;
+
+  /// No description provided for @setupStepProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile'**
+  String get setupStepProfile;
+
+  /// No description provided for @setupStepChambers.
+  ///
+  /// In en, this message translates to:
+  /// **'Chambers'**
+  String get setupStepChambers;
+
+  /// No description provided for @setupStepReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get setupStepReady;
+
+  /// No description provided for @continueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueButton;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get saving;
+
+  /// No description provided for @setupSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Try again.'**
+  String get setupSaveFailed;
+
+  /// No description provided for @setupLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your setup.'**
+  String get setupLoadFailed;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'This is shown on the TV and on tokens.'**
+  String get profileIntro;
+
+  /// No description provided for @doctorNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name, with title'**
+  String get doctorNameLabel;
+
+  /// No description provided for @specialtyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty and areas of expertise'**
+  String get specialtyLabel;
+
+  /// No description provided for @doctorNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name.'**
+  String get doctorNameRequired;
+
+  /// No description provided for @chambersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your chambers'**
+  String get chambersTitle;
+
+  /// No description provided for @chambersIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your license covers up to {max} {max, plural, =1{chamber} other{chambers}}. You can change these later in settings.'**
+  String chambersIntro(int max);
+
+  /// No description provided for @chamberQuota.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {max} {max, plural, =1{chamber} other{chambers}}'**
+  String chamberQuota(int count, int max);
+
+  /// No description provided for @chamberNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chamber name'**
+  String get chamberNameLabel;
+
+  /// No description provided for @chamberLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get chamberLocationLabel;
+
+  /// No description provided for @addChamberButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add chamber'**
+  String get addChamberButton;
+
+  /// No description provided for @saveChamberButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save chamber'**
+  String get saveChamberButton;
+
+  /// No description provided for @cancelEditButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelEditButton;
+
+  /// No description provided for @editChamberTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {name}'**
+  String editChamberTooltip(String name);
+
+  /// No description provided for @chamberNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a chamber name.'**
+  String get chamberNameRequired;
+
+  /// No description provided for @chamberLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Your license covers {max} {max, plural, =1{chamber} other{chambers}}, and you\'ve added them all.'**
+  String chamberLimitReached(int max);
+
+  /// No description provided for @addOneChamber.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one chamber to continue.'**
+  String get addOneChamber;
+
+  /// No description provided for @readyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all set'**
+  String get readyTitle;
+
+  /// No description provided for @readyIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile and chambers are saved. You can change them later in settings.'**
+  String get readyIntro;
+
+  /// No description provided for @startButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get startButton;
+
+  /// No description provided for @degreesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Degrees'**
+  String get degreesLabel;
+
+  /// No description provided for @addDegreeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add degree'**
+  String get addDegreeButton;
+
+  /// No description provided for @removeDegreeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {degree}'**
+  String removeDegreeTooltip(String degree);
+
+  /// No description provided for @designationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Designation'**
+  String get designationLabel;
+
+  /// No description provided for @workplaceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hospital or institution (optional)'**
+  String get workplaceLabel;
+
+  /// No description provided for @registrationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical council registration number (optional)'**
+  String get registrationLabel;
+
+  /// No description provided for @photoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo (optional)'**
+  String get photoLabel;
+
+  /// No description provided for @addPhotoButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photo'**
+  String get addPhotoButton;
+
+  /// No description provided for @changePhotoButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get changePhotoButton;
+
+  /// No description provided for @removePhotoButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get removePhotoButton;
+
+  /// No description provided for @photoFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get photoFromGallery;
+
+  /// No description provided for @photoFromCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get photoFromCamera;
+
+  /// No description provided for @photoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t use that photo. Try another.'**
+  String get photoFailed;
+
+  /// No description provided for @chamberPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial or contact number'**
+  String get chamberPhoneLabel;
+
+  /// No description provided for @chamberAddressRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the chamber address.'**
+  String get chamberAddressRequired;
+
+  /// No description provided for @chamberPhoneRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a phone number.'**
+  String get chamberPhoneRequired;
+
+  /// No description provided for @backButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get backButton;
+
+  /// No description provided for @designationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your designation.'**
+  String get designationRequired;
+
+  /// No description provided for @specialtyRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your specialty.'**
+  String get specialtyRequired;
+
+  /// No description provided for @degreesRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one degree.'**
+  String get degreesRequired;
+
+  /// No description provided for @adminGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create the admin account'**
+  String get adminGuideTitle;
+
+  /// No description provided for @adminGuideIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone you trust sets up the clinic from a laptop or phone on the same Wi-Fi.'**
+  String get adminGuideIntro;
+
+  /// No description provided for @guideStepOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Open this address'**
+  String get guideStepOpen;
+
+  /// No description provided for @guideStepCode.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Enter this code when asked'**
+  String get guideStepCode;
+
+  /// No description provided for @guideStepRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'3. Register the admin, then sign in'**
+  String get guideStepRegister;
+
+  /// No description provided for @guideScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Or scan with a phone camera'**
+  String get guideScanHint;
+
+  /// No description provided for @guideAddressByIp.
+  ///
+  /// In en, this message translates to:
+  /// **'Or by IP address: {url}'**
+  String guideAddressByIp(String url);
+
+  /// No description provided for @copyAddressTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get copyAddressTooltip;
+
+  /// No description provided for @addressCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied'**
+  String get addressCopied;
+
+  /// No description provided for @codeExpiresIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires in {time}'**
+  String codeExpiresIn(String time);
+
+  /// No description provided for @newCodeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'New code'**
+  String get newCodeButton;
+
+  /// No description provided for @serverStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting the server…'**
+  String get serverStarting;
+
+  /// No description provided for @serverRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Server running'**
+  String get serverRunning;
+
+  /// No description provided for @serverNoNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect this tablet to the clinic Wi-Fi to continue.'**
+  String get serverNoNetwork;
+
+  /// No description provided for @serverFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not start.'**
+  String get serverFailed;
+
+  /// No description provided for @certNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your browser will say the connection is not private. That is expected: the tablet uses its own certificate. Check the fingerprint, then continue.'**
+  String get certNote;
+
+  /// No description provided for @certFingerprintLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate fingerprint'**
+  String get certFingerprintLabel;
+
+  /// No description provided for @readinessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the tablet ready'**
+  String get readinessTitle;
+
+  /// No description provided for @readinessIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'So the queue stays reachable for patients, the TV and the web app, even with the screen locked or after a restart.'**
+  String get readinessIntro;
+
+  /// No description provided for @readinessBackgroundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Run in the background'**
+  String get readinessBackgroundTitle;
+
+  /// No description provided for @readinessBackgroundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops Android from pausing the server to save battery.'**
+  String get readinessBackgroundBody;
+
+  /// No description provided for @readinessNotificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the running notice'**
+  String get readinessNotificationsTitle;
+
+  /// No description provided for @readinessNotificationsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A small notice tells Android this app must keep running.'**
+  String get readinessNotificationsBody;
+
+  /// No description provided for @readinessAutoStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start after a restart'**
+  String get readinessAutoStartTitle;
+
+  /// No description provided for @readinessAutoStartBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart the tablet once to check. This is ticked when the server starts by itself after the restart. If it stays unticked, tap the settings icon, allow AlgoritiQ to start automatically (App launch), and restart again.'**
+  String get readinessAutoStartBody;
+
+  /// No description provided for @readinessServiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Background service'**
+  String get readinessServiceTitle;
+
+  /// No description provided for @readinessServiceDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Running.'**
+  String get readinessServiceDone;
+
+  /// No description provided for @readinessServiceNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not running yet.'**
+  String get readinessServiceNeeded;
+
+  /// No description provided for @readinessAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get readinessAllow;
+
+  /// No description provided for @readinessOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get readinessOpenSettings;
+
+  /// No description provided for @readinessConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve done this'**
+  String get readinessConfirm;
+
+  /// No description provided for @readinessRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get readinessRequired;
+
+  /// No description provided for @readinessContinueAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue anyway'**
+  String get readinessContinueAnyway;
+
+  /// No description provided for @readinessStateDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get readinessStateDone;
+
+  /// No description provided for @readinessStateNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get readinessStateNeeded;
+
+  /// No description provided for @readinessStateUnconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not confirmed'**
+  String get readinessStateUnconfirmed;
 }
 
 class _AppLocalizationsDelegate

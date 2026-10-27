@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
-  "activationTitle": "Activate AlgoritiQ",
-  "activationIntro": "Send this device code to your AlgoritiQ provider to get your activation key.",
+  "activationTitle": "Activate this device",
+  "activationIntro": "Send this device code to your provider to get an activation key.",
   "deviceCodeLabel": "Device code",
   "copyDeviceCode": "Copy",
   "deviceCodeCopied": "Device code copied",
@@ -50,5 +50,138 @@
   "activationFooter": "Your license is tied to this device and works offline.",
   "activating": "Activating…",
   "languageLabel": "Language",
-  "loading": "Loading…"
+  "pasteKey": "Paste key",
+  "setupStepProfile": "Your profile",
+  "setupStepChambers": "Chambers",
+  "setupStepReady": "Ready",
+  "continueButton": "Continue",
+  "saving": "Saving…",
+  "setupSaveFailed": "Couldn't save. Try again.",
+  "setupLoadFailed": "Couldn't load your setup.",
+  "profileTitle": "Your profile",
+  "profileIntro": "This is shown on the TV and on tokens.",
+  "doctorNameLabel": "Full name, with title",
+  "specialtyLabel": "Specialty and areas of expertise",
+  "doctorNameRequired": "Enter your name.",
+  "chambersTitle": "Add your chambers",
+  "chambersIntro": "Your license covers up to {max} {max, plural, =1{chamber} other{chambers}}. You can change these later in settings.",
+  "@chambersIntro": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "chamberQuota": "{count} of {max} {max, plural, =1{chamber} other{chambers}}",
+  "@chamberQuota": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "chamberNameLabel": "Chamber name",
+  "chamberLocationLabel": "Address",
+  "addChamberButton": "Add chamber",
+  "saveChamberButton": "Save chamber",
+  "cancelEditButton": "Cancel",
+  "editChamberTooltip": "Edit {name}",
+  "@editChamberTooltip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chamberNameRequired": "Enter a chamber name.",
+  "chamberLimitReached": "Your license covers {max} {max, plural, =1{chamber} other{chambers}}, and you've added them all.",
+  "@chamberLimitReached": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "addOneChamber": "Add at least one chamber to continue.",
+  "readyTitle": "You're all set",
+  "readyIntro": "Your profile and chambers are saved. You can change them later in settings.",
+  "startButton": "Start",
+  "degreesLabel": "Degrees",
+  "addDegreeButton": "Add degree",
+  "removeDegreeTooltip": "Remove {degree}",
+  "@removeDegreeTooltip": {
+    "placeholders": {
+      "degree": {
+        "type": "String"
+      }
+    }
+  },
+  "designationLabel": "Designation",
+  "workplaceLabel": "Hospital or institution (optional)",
+  "registrationLabel": "Medical council registration number (optional)",
+  "photoLabel": "Photo (optional)",
+  "addPhotoButton": "Add photo",
+  "changePhotoButton": "Change photo",
+  "removePhotoButton": "Remove photo",
+  "photoFromGallery": "Choose from gallery",
+  "photoFromCamera": "Take a photo",
+  "photoFailed": "Couldn't use that photo. Try another.",
+  "chamberPhoneLabel": "Serial or contact number",
+  "chamberAddressRequired": "Enter the chamber address.",
+  "chamberPhoneRequired": "Enter a phone number.",
+  "backButton": "Back",
+  "designationRequired": "Enter your designation.",
+  "specialtyRequired": "Enter your specialty.",
+  "degreesRequired": "Add at least one degree.",
+  "adminGuideTitle": "Create the admin account",
+  "adminGuideIntro": "Someone you trust sets up the clinic from a laptop or phone on the same Wi-Fi.",
+  "guideStepOpen": "1. Open this address",
+  "guideStepCode": "2. Enter this code when asked",
+  "guideStepRegister": "3. Register the admin, then sign in",
+  "guideScanHint": "Or scan with a phone camera",
+  "guideAddressByIp": "Or by IP address: {url}",
+  "@guideAddressByIp": {
+    "placeholders": {
+      "url": {"type": "String"}
+    }
+  },
+  "copyAddressTooltip": "Copy address",
+  "addressCopied": "Address copied",
+  "codeExpiresIn": "Expires in {time}",
+  "@codeExpiresIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "newCodeButton": "New code",
+  "serverStarting": "Starting the server…",
+  "serverRunning": "Server running",
+  "serverNoNetwork": "Connect this tablet to the clinic Wi-Fi to continue.",
+  "serverFailed": "The server could not start.",
+  "certNote": "Your browser will say the connection is not private. That is expected: the tablet uses its own certificate. Check the fingerprint, then continue.",
+  "certFingerprintLabel": "Certificate fingerprint",
+  "readinessTitle": "Keep the tablet ready",
+  "readinessIntro": "So the queue stays reachable for patients, the TV and the web app, even with the screen locked or after a restart.",
+  "readinessBackgroundTitle": "Run in the background",
+  "readinessBackgroundBody": "Stops Android from pausing the server to save battery.",
+  "readinessNotificationsTitle": "Show the running notice",
+  "readinessNotificationsBody": "A small notice tells Android this app must keep running.",
+  "readinessAutoStartTitle": "Start after a restart",
+  "readinessAutoStartBody": "Restart the tablet once to check. This is ticked when the server starts by itself after the restart. If it stays unticked, tap the settings icon, allow AlgoritiQ to start automatically (App launch), and restart again.",
+  "readinessServiceTitle": "Background service",
+  "readinessServiceDone": "Running.",
+  "readinessServiceNeeded": "Not running yet.",
+  "readinessAllow": "Allow",
+  "readinessOpenSettings": "Open settings",
+  "readinessConfirm": "I've done this",
+  "readinessRequired": "Required",
+  "readinessContinueAnyway": "Continue anyway",
+  "readinessStateDone": "Done",
+  "readinessStateNeeded": "Needs attention",
+  "readinessStateUnconfirmed": "Not confirmed"
 }
