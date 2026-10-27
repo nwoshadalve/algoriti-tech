@@ -6,6 +6,7 @@ import '../features/access/application/access_service.dart';
 import '../features/access/application/claim_codes.dart';
 import '../features/access/domain/access_policy.dart';
 import '../features/access/domain/account.dart';
+import 'https_server_socket.dart';
 
 /// The tablet's local backend API (`/api/v1`), served over HTTPS to the web
 /// app, the TV and other clients on the chamber Wi-Fi. The contract is
@@ -18,6 +19,7 @@ class LocalApiServer {
 
   final Future<AccessService> Function() _access;
   HttpServer? _server;
+  HttpsServerSocket? _socket;
 
   /// The port actually bound (useful when started on port 0 in tests).
   int get port => _server!.port;
@@ -28,9 +30,13 @@ class LocalApiServer {
     InternetAddress address,
     int port,
     SecurityContext? context,
-  ) => context == null
-      ? HttpServer.bind(address, port, v6Only: false)
-      : HttpServer.bindSecure(address, port, context, v6Only: false);
+  ) async {
+    if (context == null) return HttpServer.bind(address, port, v6Only: false);
+    // Also answers a plain-HTTP visit with a redirect to https.
+    final socket = await HttpsServerSocket.bind(address, port, context);
+    _socket = socket;
+    return HttpServer.listenOn(socket);
+  }
 
   /// Both IPv4 and IPv6, so a name that resolves to either one works.
   Future<HttpServer> _bindEverywhere(int port, SecurityContext? context) async {
@@ -67,7 +73,9 @@ class LocalApiServer {
 
   Future<void> stop() async {
     await _server?.close(force: true);
+    await _socket?.close();
     _server = null;
+    _socket = null;
   }
 
   Future<void> _handle(HttpRequest request) async {

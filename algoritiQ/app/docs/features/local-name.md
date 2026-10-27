@@ -16,6 +16,12 @@ The admin guide shows `https://algoritiq.local:8443` to type, the IP address bel
 
 The browser still shows the one-time certificate warning: no trusted certificate can exist for a `.local` name.
 
+## Typing the address
+
+Android apps cannot listen on ports below 1024 (the tablet's limit is exactly 1024), so the address always carries the port: `algoritiq.local:8443`. Without a scheme, many browsers (Firefox, Safari, most phone browsers) try plain `http://`, which used to fail silently on the TLS-only port.
+
+The server socket now sniffs the first byte of each connection (`lib/api/https_server_socket.dart`): a TLS handshake goes to the HTTPS server as before; a plain HTTP request gets a **307 redirect** to `https://<the host the visitor typed>:8443/<same path>` and is closed. The redirect uses only the visitor's own host name or IP (checked against a strict pattern), never anything else from the request, and is not cached. Anything that is not HTTP gets `400`; a connection that says nothing is dropped after 5 s.
+
 ## Why the tablet never says "no IPv6"
 
 Windows asks for IPv4 and IPv6 together. A "this name has no IPv6 address" reply (the standard way to say it) made Windows fail most lookups (0 of 8), and saying nothing made lookups take about 3 s and fail sometimes. Answering with a real IPv6 address makes them instant (12 of 12, 0.2 s). So the tablet announces its link-local IPv6 address and answers IPv6 questions with it; with no IPv6 it stays silent.
@@ -46,5 +52,5 @@ Not checked: phones (Android and iPhone), Mac, Linux. Android Chrome in particul
 
 ## Code
 
-`lib/api/mdns/` (`mdns_message.dart` packets, `mdns_socket.dart` UDP socket, `local_name_responder.dart`) · wired in `lib/api/api_host.dart` and `server_controller.dart` · `KeepAliveService.kt` (multicast lock), `KeepAliveChannel.kt` (`localAddressesV6`) · `AddressPanel`.
-Tests: `test/api/mdns/`, `test/api/server_controller_test.dart`, `test/features/access/admin_guide_test.dart`.
+`lib/api/https_server_socket.dart` (plain HTTP to https) · `lib/api/mdns/` (`mdns_message.dart` packets, `mdns_socket.dart` UDP socket, `local_name_responder.dart`) · wired in `lib/api/api_host.dart` and `server_controller.dart` · `KeepAliveService.kt` (multicast lock), `KeepAliveChannel.kt` (`localAddressesV6`) · `AddressPanel`.
+Tests: `test/api/https_server_socket_test.dart`, `test/api/mdns/`, `test/api/server_controller_test.dart`, `test/features/access/admin_guide_test.dart`.
