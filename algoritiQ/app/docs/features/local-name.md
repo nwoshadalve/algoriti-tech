@@ -25,6 +25,20 @@ Windows asks for IPv4 and IPv6 together. A "this name has no IPv6 address" reply
 On the Honor Pad X7 (Android 15) from a Windows PC: lookups by name worked 12 of 12; in deep sleep with the screen off 12 of 12; after a restart with the PIN never entered, within about 20 s.
 Not checked: phones (Android and iPhone), Mac, Linux. Android Chrome in particular may not resolve `.local`; that is why the QR uses the IP.
 
+## If the IP or the router changes
+
+- **New IP, same router:** the tablet checks its addresses every 30 s and announces the new one. Devices cache a name for 2 minutes, so the name works again within about 2 minutes (an open page may need a refresh).
+- **Different router or Wi-Fi:** same thing, as long as the new network lets devices talk to each other (no "client isolation"). If another tablet there already uses `algoritiq.local`, this one becomes `algoritiq-2.local`; check the admin guide.
+- The certificate belongs to the tablet, not to the address, so the browser warning does not come back for a new IP.
+- Checked: Wi-Fi switched off and on (name back in 5 s). Not checked on real hardware: a changed IP or a different router (covered by unit tests only).
+
+## Check it yourself
+
+1. Tablet on the clinic Wi-Fi, set up, admin guide on screen (it shows the name).
+2. On a PC on the same Wi-Fi: `ping algoritiq.local` answers with the tablet's IP.
+3. Open `https://algoritiq.local:8443/api/v1/health`, accept the warning: `{"status":"ok"}`.
+4. Restart the tablet without unlocking it and repeat step 2 after about 30 s.
+
 ## Limits
 
 - Some networks block multicast between devices (guest Wi-Fi, "client isolation"): the name will not resolve there, the IP address will not work either.
