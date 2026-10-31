@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/core/theme/app_theme.dart';
 import 'package:algoritiq_app/core/widgets/brand_logo.dart';
 import 'package:flutter/material.dart';
@@ -38,12 +43,9 @@ void main() {
     }
   });
 
-  testWidgets('home counter increments', (tester) async {
+  testWidgets('home shows the receptionist board', (tester) async {
     await openLicensedApp(tester);
 
-    expect(find.text('0'), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Patient queue'), findsOneWidget);
   });
 }

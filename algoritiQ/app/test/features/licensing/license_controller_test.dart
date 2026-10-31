@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/features/licensing/application/license_controller.dart';
 import 'package:algoritiq_app/features/licensing/domain/license_state.dart';
 import 'package:algoritiq_app/features/licensing/domain/license_core.dart';

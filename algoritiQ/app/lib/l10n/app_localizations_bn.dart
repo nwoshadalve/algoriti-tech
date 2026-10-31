@@ -342,6 +342,13 @@ class AppLocalizationsBn extends AppLocalizations {
       'ছোট একটি নোটিশ অ্যান্ড্রয়েডকে জানায় যে অ্যাপটি চালু থাকতে হবে।';
 
   @override
+  String get readinessBluetoothTitle => 'ব্লুটুথের অনুমতি';
+
+  @override
+  String get readinessBluetoothBody =>
+      'ব্লুটুথ চালু বা বন্ধ—অ্যাপ জানতে পারবে এবং প্রিন্টের জন্য দরকার হলে চালু করতে বলতে পারবে।';
+
+  @override
   String get readinessAutoStartTitle => 'রিস্টার্টের পর চালু হোক';
 
   @override
@@ -382,11 +389,38 @@ class AppLocalizationsBn extends AppLocalizations {
   String get readinessStateUnconfirmed => 'নিশ্চিত নয়';
 
   @override
+  String get clinicDataTitle => 'ক্লিনিকের তথ্য';
+
+  @override
+  String get clinicDataIntro =>
+      'এই ট্যাবলেটে নতুন শুরু করুন, অথবা ওয়েব অ্যাপের ব্যাকআপ থেকে সংরক্ষিত জিপ ফিরিয়ে আনুন।';
+
+  @override
+  String get clinicDataStartNew => 'নতুন শুরু';
+
+  @override
+  String get clinicDataRestore => 'ব্যাকআপ থেকে রিস্টোর';
+
+  @override
+  String get clinicDataRestoreHint =>
+      'ব্যাকআপ পৃষ্ঠা থেকে ডাউনলোড করা জিপ ফাইল বেছে নিন।';
+
+  @override
+  String get clinicDataRestoreBusy => 'রিস্টোর হচ্ছে…';
+
+  @override
+  String get clinicDataRestoreFailed =>
+      'এই ব্যাকআপ রিস্টোর করা যায়নি। ফাইল যাচাই করে আবার চেষ্টা করুন।';
+
+  @override
   String get signInTitle => 'সাইন ইন';
 
   @override
   String get signInIntro =>
-      'আপনার অ্যাডমিন অ্যাকাউন্টের ইউজারনেম ও পাসওয়ার্ড দিন।';
+      'আপনার অ্যাডমিন অ্যাকাউন্টের ইউজারনেম বা ইমেইল এবং পাসওয়ার্ড দিন।';
+
+  @override
+  String get signInIdentifierLabel => 'ইউজারনেম বা ইমেইল';
 
   @override
   String get signInUsernameLabel => 'ইউজারনেম';
@@ -404,10 +438,59 @@ class AppLocalizationsBn extends AppLocalizations {
   String get signInForgot => 'পাসওয়ার্ড ভুলে গেছেন?';
 
   @override
-  String get signInFieldsRequired => 'ইউজারনেম ও পাসওয়ার্ড লিখুন।';
+  String get signInRemember => 'এই ট্যাবলেটে মনে রাখুন';
 
   @override
-  String get signInWrong => 'ইউজারনেম বা পাসওয়ার্ড ভুল।';
+  String get signInRememberHint =>
+      '৩০ দিন সাইন ইন থাকবেন। শুধু নিজের ডিভাইসে ব্যবহার করুন।';
+
+  @override
+  String pinLoginTitle(String name) {
+    return 'আবার স্বাগতম, $name';
+  }
+
+  @override
+  String get pinLoginIntro => 'এই ট্যাবলেটে সাইন ইন করতে আপনার পিন দিন।';
+
+  @override
+  String get fieldPin => 'পিন';
+
+  @override
+  String get pinUsePassword => 'পাসওয়ার্ড দিয়ে সাইন ইন করুন';
+
+  @override
+  String get pinUsePin => 'পিন দিয়ে সাইন ইন করুন';
+
+  @override
+  String pinWrong(int count) {
+    return 'পিন সঠিক নয়। আর $count বার চেষ্টা করতে পারবেন।';
+  }
+
+  @override
+  String get pinLocked => 'অনেকবার ভুল পিন। পাসওয়ার্ড দিয়ে সাইন ইন করুন।';
+
+  @override
+  String get pinRequired => '৬ অঙ্কের পিন লিখুন।';
+
+  @override
+  String get adminNoticeTitle => 'অ্যাডমিন সাইন-ইন এখন ওয়েবে';
+
+  @override
+  String get adminNoticeBody =>
+      'এই ট্যাবলেটে আপাতত শুধু রিসেপশনিস্টের স্ক্রিন আছে। অ্যাডমিন হিসেবে ক্লিনিক পরিচালনা করতে আপনার ফোন বা ল্যাপটপের ব্রাউজারে নিচের ঠিকানাটি খুলে সেখানে সাইন ইন করুন। ট্যাবলেটে অ্যাডমিন সাইন-ইন পরের কোনো আপডেটে আসতে পারে।';
+
+  @override
+  String get adminNoticeSignOut =>
+      'সাইন-ইন স্ক্রিনে ফিরতে ঠিক আছে চাপুন। অ্যাপ বন্ধ করলেও আপনি সাইন আউট হয়ে যাবেন।';
+
+  @override
+  String get adminNoticeOk => 'ঠিক আছে';
+
+  @override
+  String get signInFieldsRequired => 'ইউজারনেম বা ইমেইল এবং পাসওয়ার্ড লিখুন।';
+
+  @override
+  String get signInWrong => 'ইউজারনেম, ইমেইল বা পাসওয়ার্ড ভুল।';
 
   @override
   String signInWait(int seconds) {
@@ -523,4 +606,426 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get resetExpired => 'এই রিসেটের সময় শেষ। অ্যাক্টিভেশন কী আবার লিখুন।';
+
+  @override
+  String get navPrimaryLabel => 'ড্যাশবোর্ডের অংশ';
+
+  @override
+  String get navBoard => 'বোর্ড';
+
+  @override
+  String get navCloseMenu => 'মেনু বন্ধ করুন';
+
+  @override
+  String get navOpenMenu => 'মেনু খুলুন';
+
+  @override
+  String boardGreeting(String name) {
+    return 'আবার স্বাগতম, $name';
+  }
+
+  @override
+  String get workScopeTitle => 'আপনি কোথায় কাজ করছেন?';
+
+  @override
+  String get workScopeIntroChamber =>
+      'বোর্ড ও রোগীর কিউ খুলতে একটি চেম্বার বেছে নিন।';
+
+  @override
+  String get workScopeIntroDoctor =>
+      'বোর্ড ও রোগীর কিউ খুলতে একজন ডাক্তার বেছে নিন।';
+
+  @override
+  String get workScopeEmpty =>
+      'আপনাকে এখনো কোনো চেম্বারে নিয়োগ দেওয়া হয়নি। অ্যাডমিনকে বলুন।';
+
+  @override
+  String workScopeActive(String name) {
+    return '$name-এ কাজ করছেন। এখান থেকেই কাউন্টার চালান।';
+  }
+
+  @override
+  String get workScopeSidebarLabel => 'কাজ করছেন';
+
+  @override
+  String get navChangeWorkScope => 'চেম্বার বদলান';
+
+  @override
+  String get boardIntro =>
+      'এখান থেকেই কাউন্টার চালান। লাইভ কিউ সরঞ্জাম এই বোর্ডে দেখা যাবে।';
+
+  @override
+  String get boardServerTitle => 'ক্লিনিক সারভার';
+
+  @override
+  String get boardServerOk =>
+      'এই ট্যাবলেট ওয়েব অ্যাপ ও অন্যান্য ডিভাইসকে সেবা দিচ্ছে।';
+
+  @override
+  String get boardServerStarting => 'ক্লিনিক সারভার চালু হচ্ছে…';
+
+  @override
+  String get boardServerFailed =>
+      'ক্লিনিক সারভার চালু হয়নি। রেডিনেস সেটিংস দেখুন বা অ্যাপ আবার চালু করুন।';
+
+  @override
+  String get boardAccountTitle => 'আপনার অ্যাকাউন্ট';
+
+  @override
+  String get fieldRole => 'ভূমিকা';
+
+  @override
+  String get fieldUsername => 'ইউজারনেম';
+
+  @override
+  String get fieldEmail => 'ইমেইল';
+
+  @override
+  String get roleAdmin => 'অ্যাডমিন';
+
+  @override
+  String get roleReceptionist => 'রিসেপশনিস্ট';
+
+  @override
+  String get boardQueueTitle => 'রোগীর কিউ';
+
+  @override
+  String get boardQueueSoon => 'লাইভ কিউ সরঞ্জাম প্রস্তুত হলে এখানে দেখা যাবে।';
+
+  @override
+  String get themeLight => 'হালকা থিমে যান';
+
+  @override
+  String get themeDark => 'গাঢ় থিমে যান';
+
+  @override
+  String get navSettings => 'সেটিংস';
+
+  @override
+  String get settingsIntro =>
+      'প্রোফাইল ছবি, নাম, পাসওয়ার্ড ও এই ডিভাইসের পিন।';
+
+  @override
+  String get userMenuLabel => 'অ্যাকাউন্ট মেনু';
+
+  @override
+  String get signOut => 'সাইন আউট';
+
+  @override
+  String get signingOut => 'সাইন আউট হচ্ছে…';
+
+  @override
+  String get fieldFirstName => 'নামের প্রথম অংশ';
+
+  @override
+  String get fieldLastName => 'নামের শেষ অংশ';
+
+  @override
+  String get fieldPhone => 'ফোন';
+
+  @override
+  String get settingsPhotoTitle => 'প্রোফাইল ছবি';
+
+  @override
+  String get settingsPhotoHelp =>
+      'JPEG, PNG বা WebP। ছবি এই ট্যাবলেটে সংরক্ষিত হয়।';
+
+  @override
+  String get settingsProfileTitle => 'ব্যক্তিগত তথ্য';
+
+  @override
+  String get settingsProfileIntro => 'আপনার নাম ও যোগাযোগের তথ্য।';
+
+  @override
+  String get settingsSave => 'পরিবর্তন সংরক্ষণ করুন';
+
+  @override
+  String get settingsSaving => 'সংরক্ষণ হচ্ছে…';
+
+  @override
+  String get settingsSaved => 'পরিবর্তন সংরক্ষিত হয়েছে।';
+
+  @override
+  String get settingsUsernameNote => 'ইউজারনেম বদলানো যায় না।';
+
+  @override
+  String get settingsFixFields => 'চিহ্নিত ঘরগুলো ঠিক করুন।';
+
+  @override
+  String get settingsFirstNameRequired => 'নামের প্রথম অংশ লিখুন।';
+
+  @override
+  String get settingsNameTooLong => 'ছোট নাম ব্যবহার করুন।';
+
+  @override
+  String get settingsEmailInvalid => 'সঠিক ইমেইল লিখুন।';
+
+  @override
+  String get settingsEmailTaken => 'এই ইমেইল ইতিমধ্যে ব্যবহারে আছে।';
+
+  @override
+  String get settingsPhoneInvalid => 'সঠিক ফোন নম্বর লিখুন।';
+
+  @override
+  String get settingsPhotoSaved => 'ছবি আপডেট হয়েছে।';
+
+  @override
+  String get settingsPhotoRemoved => 'ছবি সরানো হয়েছে।';
+
+  @override
+  String get settingsPhotoFailed => 'ছবি সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get securityCardTitle => 'পাসওয়ার্ড ও পিন';
+
+  @override
+  String get securityCardIntro =>
+      'পাসওয়ার্ড বদলান অথবা দ্রুত সাইন-ইনের জন্য পিন সেট করুন। পাসওয়ার্ড বদলালে সব পিন মুছে যাবে।';
+
+  @override
+  String get passwordCardTitle => 'পাসওয়ার্ড';
+
+  @override
+  String get passwordCardIntro =>
+      'নতুন পাসওয়ার্ড বেছে নিন। অন্য সাইন-ইন শেষ হয়ে যাবে।';
+
+  @override
+  String get passwordChangeButton => 'পাসওয়ার্ড বদলান';
+
+  @override
+  String get passwordModalTitle => 'পাসওয়ার্ড বদলান';
+
+  @override
+  String get passwordCurrentLabel => 'বর্তমান পাসওয়ার্ড';
+
+  @override
+  String get passwordNewLabel => 'নতুন পাসওয়ার্ড';
+
+  @override
+  String get passwordConfirmLabel => 'নতুন পাসওয়ার্ড নিশ্চিত করুন';
+
+  @override
+  String get passwordChanged =>
+      'পাসওয়ার্ড বদলানো হয়েছে। অন্য সাইন-ইন শেষ হয়েছে।';
+
+  @override
+  String get passwordCurrentWrong => 'বর্তমান পাসওয়ার্ড সঠিক নয়।';
+
+  @override
+  String get passwordNewSame => 'অন্য পাসওয়ার্ড বেছে নিন।';
+
+  @override
+  String get pinCardTitle => 'দ্রুত সাইন-ইন পিন';
+
+  @override
+  String get pinCardIntro =>
+      'এই ট্যাবলেটে পাসওয়ার্ডের বদলে ৬ অঙ্কের পিন দিয়ে সাইন ইন করুন।';
+
+  @override
+  String get pinNone => 'এই ট্যাবলেটে এখনও কোনো পিন নেই।';
+
+  @override
+  String get pinThisTablet => 'এই ট্যাবলেট';
+
+  @override
+  String get pinSetButton => 'এই ট্যাবলেটের জন্য পিন সেট করুন';
+
+  @override
+  String get pinChangeButton => 'পিন বদলান';
+
+  @override
+  String get pinRemove => 'সরান';
+
+  @override
+  String get pinRemoved => 'পিন সরানো হয়েছে।';
+
+  @override
+  String get pinSetDone => 'এই ট্যাবলেটের জন্য পিন সংরক্ষিত হয়েছে।';
+
+  @override
+  String get pinLoadFailed => 'পিন ডিভাইস লোড করা যায়নি।';
+
+  @override
+  String get pinModalTitle => 'পিন সেট করুন';
+
+  @override
+  String get pinModalPasswordLabel => 'আপনার পাসওয়ার্ড';
+
+  @override
+  String get pinModalPinLabel => 'নতুন পিন';
+
+  @override
+  String get pinModalConfirmLabel => 'পিন নিশ্চিত করুন';
+
+  @override
+  String get pinModalSubmit => 'পিন সংরক্ষণ করুন';
+
+  @override
+  String get pinModalBusy => 'সংরক্ষণ হচ্ছে…';
+
+  @override
+  String get pinFormatInvalid => '৬ অঙ্কের পিন লিখুন।';
+
+  @override
+  String get pinWeak => 'অনুমান করা সহজ এমন পিন বেছে নিন না।';
+
+  @override
+  String get pinPasswordWrong => 'পাসওয়ার্ড সঠিক নয়।';
+
+  @override
+  String get pinPinsDiffer => 'পিন দুটি মেলেনি।';
+
+  @override
+  String get navConnectivity => 'সংযোগ';
+
+  @override
+  String get toastDismiss => 'বার্তা বন্ধ করুন';
+
+  @override
+  String get connectivityTitle => 'সংযোগ';
+
+  @override
+  String get connectivityIntro =>
+      'প্রিন্টার ও টিভি স্ক্রিন যুক্ত আছে কি না দেখুন।';
+
+  @override
+  String get printerTitle => 'প্রিন্টার';
+
+  @override
+  String get printerStatusConnected => 'যুক্ত আছে';
+
+  @override
+  String get printerStatusConnecting => 'যুক্ত হচ্ছে…';
+
+  @override
+  String get printerStatusDisconnected => 'যুক্ত নেই';
+
+  @override
+  String get printerStatusNotPaired => 'কোনো প্রিন্টার সেট করা নেই';
+
+  @override
+  String get printerStatusBtOff => 'ব্লুটুথ বন্ধ';
+
+  @override
+  String get printerStatusBtDenied => 'ব্লুটুথের অনুমতি নেই';
+
+  @override
+  String get printerStatusBtMissing => 'এই ট্যাবলেটে ব্লুটুথ নেই';
+
+  @override
+  String get printerBodyNotPaired =>
+      'প্রিন্টার চালু করে তালিকা থেকে বেছে নিন। এটি শুধু একবারই করতে হবে।';
+
+  @override
+  String get printerBodyDisconnected =>
+      'ট্যাবলেট নিজে থেকেই যুক্ত হওয়ার চেষ্টা করছে। প্রিন্টার চালু ও কাছে আছে কি না দেখুন।';
+
+  @override
+  String get printerBodyConnected => 'টোকেন ছাপার জন্য প্রস্তুত।';
+
+  @override
+  String get printerBodyBtOff =>
+      'ট্যাবলেট যেন প্রিন্টারে পৌঁছাতে পারে, তাই ব্লুটুথ চালু করুন।';
+
+  @override
+  String get printerBodyBtDenied =>
+      'ট্যাবলেট যেন প্রিন্টারে পৌঁছাতে পারে, তাই এই অ্যাপের জন্য ব্লুটুথের অনুমতি দিন।';
+
+  @override
+  String get printerBodyBtMissing =>
+      'এই ট্যাবলেট ব্লুটুথ প্রিন্টারে যুক্ত হতে পারে না।';
+
+  @override
+  String printerRetryIn(int seconds) {
+    return '$seconds সেকেন্ড পরে আবার চেষ্টা হবে';
+  }
+
+  @override
+  String get printerActionChoose => 'প্রিন্টার বেছে নিন';
+
+  @override
+  String get printerActionRetry => 'এখনই যুক্ত করুন';
+
+  @override
+  String get printerActionTest => 'টেস্ট প্রিন্ট';
+
+  @override
+  String get printerActionAllow => 'ব্লুটুথের অনুমতি দিন';
+
+  @override
+  String get printerActionTurnOn => 'ব্লুটুথ চালু করুন';
+
+  @override
+  String get printerPickerTitle => 'প্রিন্টার বেছে নিন';
+
+  @override
+  String get printerPickerBody =>
+      'প্রিন্টার চালু করে কাছে রাখুন। আশপাশের প্রিন্টার নিচে দেখা যাবে।';
+
+  @override
+  String get printerPickerPairHint =>
+      'অ্যান্ড্রয়েড পেয়ারিং কোড চাইতে পারে। বেশির ভাগ প্রিন্টারে এটি ০০০০ বা ১২৩৪।';
+
+  @override
+  String get printerPickerEmpty => 'এখনও কোনো প্রিন্টার পাওয়া যায়নি।';
+
+  @override
+  String get printerPickerScanning => 'প্রিন্টার খোঁজা হচ্ছে…';
+
+  @override
+  String get printerPickerScanAgain => 'আবার খুঁজুন';
+
+  @override
+  String get printerPickerPairedTag => 'পেয়ার করা';
+
+  @override
+  String get printerToastConnected => 'প্রিন্টার যুক্ত হয়েছে।';
+
+  @override
+  String get printerToastLost =>
+      'প্রিন্টারের সংযোগ কেটে গেছে। ট্যাবলেট আবার যুক্ত হচ্ছে।';
+
+  @override
+  String get printerToastRejected => 'পেয়ারিং বাতিল হয়েছে বা কোড ভুল ছিল।';
+
+  @override
+  String get printerToastChooseFailed =>
+      'প্রিন্টারে যুক্ত হওয়া যায়নি। প্রিন্টার চালু ও কাছে আছে কি না দেখুন।';
+
+  @override
+  String get printerToastConnectFailed =>
+      'এখনও প্রিন্টারে পৌঁছানো যাচ্ছে না। ট্যাবলেট চেষ্টা চালিয়ে যাবে।';
+
+  @override
+  String get printerToastTestOk => 'টেস্ট টোকেন ছাপা হয়েছে।';
+
+  @override
+  String get printerToastTestFailed =>
+      'টেস্ট টোকেন ছাপা হয়নি। কাগজ ও ঢাকনা দেখুন।';
+
+  @override
+  String get tvTitle => 'টিভি স্ক্রিন';
+
+  @override
+  String get tvStatus => 'শীঘ্রই আসছে';
+
+  @override
+  String get tvBody => 'ওয়েটিং রুমের টিভি এখান থেকে দেখে যুক্ত করবেন।';
+
+  @override
+  String get dialogClose => 'বন্ধ করুন';
+
+  @override
+  String get printerTestConfirmTitle => 'টেস্ট টোকেন ছাপাবেন?';
+
+  @override
+  String get printerTestConfirmBody =>
+      'এখানে সেট করা চেম্বার ও ডাক্তারের তথ্য দিয়ে একটি নমুনা টোকেন, ডামি নম্বরসহ, ছাপা হবে।';
+
+  @override
+  String get printerTestConfirmAction => 'টেস্ট টোকেন ছাপান';
+
+  @override
+  String get printerToastNoDetails =>
+      'টোকেনের জন্য চেম্বার বা ডাক্তারের তথ্য পাওয়া যায়নি।';
 }

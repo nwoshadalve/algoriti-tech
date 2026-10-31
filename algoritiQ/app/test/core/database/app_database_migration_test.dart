@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/core/database/app_database.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
@@ -61,4 +66,38 @@ void main() {
       expect(setting.value, 'chambers');
     },
   );
+
+  test('should keep an admin saved before profile details existed (v5)', () async {
+    final database = AppDatabase(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw
+            ..execute(
+              'CREATE TABLE users (id TEXT NOT NULL, username TEXT NOT NULL '
+              'UNIQUE, display_name TEXT NOT NULL, email TEXT NOT NULL '
+              "DEFAULT '', role TEXT NOT NULL, password_hash TEXT NOT NULL, "
+              "status TEXT NOT NULL DEFAULT 'active', created_at INTEGER NOT "
+              'NULL, PRIMARY KEY (id))',
+            )
+            ..execute(
+              "INSERT INTO users (id, username, display_name, email, role, "
+              "password_hash, created_at) VALUES ('u1', 'owner', 'The Owner', "
+              "'o@c.test', 'admin', 'hash', 1)",
+            )
+            ..execute('PRAGMA user_version = 5');
+        },
+      ),
+    );
+    addTearDown(database.close);
+
+    final user = await database.select(database.users).getSingle();
+
+    expect(user.displayName, 'The Owner');
+    expect(user.email, 'o@c.test');
+    expect(user.firstName, '');
+    expect(user.lastName, '');
+    expect(user.phone, '');
+    expect(user.photo, isNull);
+    expect(user.photoVersion, 0);
+  });
 }

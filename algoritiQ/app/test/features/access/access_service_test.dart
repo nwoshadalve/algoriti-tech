@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/features/access/application/access_service.dart';
 import 'package:algoritiq_app/features/access/application/claim_codes.dart';
 import 'package:algoritiq_app/features/access/domain/access_policy.dart';
@@ -127,6 +132,28 @@ void main() {
       expect(await login(username: 'OWNER'), isA<LoggedIn>());
     });
 
+    test(
+      'should sign in with the email address in place of the username',
+      () async {
+        expect(await login(username: 'owner@clinic.test'), isA<LoggedIn>());
+        expect(await login(username: ' Owner@Clinic.Test '), isA<LoggedIn>());
+      },
+    );
+
+    test('should refuse an unknown email or a wrong password for it', () async {
+      expect(
+        await login(username: 'nobody@clinic.test'),
+        isA<InvalidCredentials>(),
+      );
+      expect(
+        await login(
+          username: 'owner@clinic.test',
+          password: 'not-the-password',
+        ),
+        isA<InvalidCredentials>(),
+      );
+    });
+
     test('should refuse a wrong password', () async {
       expect(
         await login(password: 'not-the-password'),
@@ -148,8 +175,17 @@ void main() {
       expect(result, isA<TooManyAttempts>());
       expect(
         (result as TooManyAttempts).retryAfter,
-        const Duration(seconds: 30),
+        const Duration(seconds: 20),
       );
+    });
+
+    test('should accept the right password again after the wait', () async {
+      for (var i = 0; i < 5; i++) {
+        await login(password: 'wrong-password-$i');
+      }
+      kit.clock.advance(const Duration(seconds: 21));
+
+      expect(await login(), isA<LoggedIn>());
     });
 
     test('should slow a guesser who tries many different names', () async {
@@ -159,15 +195,6 @@ void main() {
 
       expect(await login(client: '10.0.0.5'), isA<TooManyAttempts>());
       expect(await login(client: '10.0.0.9'), isA<LoggedIn>());
-    });
-
-    test('should accept the right password again after the wait', () async {
-      for (var i = 0; i < 5; i++) {
-        await login(password: 'wrong-password-$i');
-      }
-      kit.clock.advance(const Duration(seconds: 31));
-
-      expect(await login(), isA<LoggedIn>());
     });
 
     test('should stop a token working after logout', () async {

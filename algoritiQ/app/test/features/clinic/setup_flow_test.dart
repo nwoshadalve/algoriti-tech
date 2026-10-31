@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/core/database/app_database.dart';
 import 'package:algoritiq_app/features/clinic/application/clinic_providers.dart';
 import 'package:algoritiq_app/features/licensing/domain/license_core.dart';
@@ -38,6 +43,8 @@ void main() {
       ...kit.overrides(
         store: doctorLicense,
         setupDone: false,
+        adminRegistered: false,
+        signedIn: false,
         readinessAcknowledged: readinessAcknowledged,
         seed: seed,
       ),
@@ -111,40 +118,47 @@ void main() {
     await tapText(tester, 'Start');
     await settle(tester);
 
-    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.text('Create the admin account'), findsOneWidget);
   });
 
-  testWidgets('should show keep the tablet ready after finishing setup', (
-    tester,
-  ) async {
-    await openSetup(tester, readinessAcknowledged: false);
+  testWidgets(
+    'should show the admin guide after setup when readiness is done',
+    (tester) async {
+      await openSetup(tester, readinessAcknowledged: true);
 
-    await tester.enterText(fieldLabelled('Full name, with title'), 'Dr. Test');
-    await tester.enterText(fieldLabelled('Degrees'), 'MBBS');
-    await tester.tap(find.byTooltip('Add degree'));
-    await tester.pump();
-    await tester.enterText(fieldLabelled('Degrees'), 'MS');
-    await tester.tap(find.byTooltip('Add degree'));
-    await tester.pump();
-    await tester.enterText(fieldLabelled('Designation'), 'Assistant Professor');
-    await tester.enterText(
-      fieldLabelled('Specialty and areas of expertise'),
-      'Orthopaedics',
-    );
-    await tapText(tester, 'Continue');
-    await settle(tester);
+      await tester.enterText(
+        fieldLabelled('Full name, with title'),
+        'Dr. Test',
+      );
+      await tester.enterText(fieldLabelled('Degrees'), 'MBBS');
+      await tester.tap(find.byTooltip('Add degree'));
+      await tester.pump();
+      await tester.enterText(fieldLabelled('Degrees'), 'MS');
+      await tester.tap(find.byTooltip('Add degree'));
+      await tester.pump();
+      await tester.enterText(
+        fieldLabelled('Designation'),
+        'Assistant Professor',
+      );
+      await tester.enterText(
+        fieldLabelled('Specialty and areas of expertise'),
+        'Orthopaedics',
+      );
+      await tapText(tester, 'Continue');
+      await settle(tester);
 
-    await addChamber(tester, 'Dhanmondi Chamber');
-    await tapText(tester, 'Continue');
-    await settle(tester);
+      await addChamber(tester, 'Dhanmondi Chamber');
+      await tapText(tester, 'Continue');
+      await settle(tester);
 
-    await tapText(tester, 'Start');
-    await settle(tester);
+      await tapText(tester, 'Start');
+      await settle(tester);
 
-    expect(find.text('Keep the tablet ready'), findsOneWidget);
-    expect(find.text('Create the admin account'), findsNothing);
-    expect(find.byIcon(Icons.add), findsNothing);
-  });
+      expect(find.text('Keep the tablet ready'), findsNothing);
+      expect(find.text('Create the admin account'), findsOneWidget);
+      expect(find.byIcon(Icons.add), findsNothing);
+    },
+  );
 
   // regression: name, designation, specialty and a degree are mandatory.
   testWidgets('should ask for every blank required profile field', (
@@ -415,7 +429,7 @@ void main() {
       ...kit.overrides(store: chamberLicense, setupDone: false),
     ]);
 
-    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.text('Patient queue'), findsOneWidget);
     expect(find.text('Full name, with title'), findsNothing);
   });
 }

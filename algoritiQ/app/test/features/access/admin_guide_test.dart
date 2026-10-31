@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/app/app.dart';
 import 'package:algoritiq_app/features/access/application/access_providers.dart';
 import 'package:algoritiq_app/features/access/application/access_service.dart';
@@ -50,6 +55,7 @@ void main() {
       overrides: kit.overrides(
         store: licensed,
         adminRegistered: false,
+        signedIn: false,
         readinessAcknowledged: true,
         apiHost: fake,
       ),
@@ -230,7 +236,7 @@ void main() {
 
     expect(result, isA<Registered>());
     expect(find.text('Create the admin account'), findsNothing);
-    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.text('Sign in'), findsWidgets);
     await close(tester);
   });
 

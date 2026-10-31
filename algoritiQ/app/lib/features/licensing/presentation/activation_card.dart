@@ -1,8 +1,14 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/toast/toast_controller.dart';
 import '../../../core/widgets/loading_button.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/license_controller.dart';
@@ -61,13 +67,13 @@ class _ActivationCardState extends ConsumerState<ActivationCard> {
 
   Future<void> _copyDeviceCode() async {
     final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
+    final toaster = ref.read(toastControllerProvider.notifier);
     await Clipboard.setData(
       ClipboardData(text: widget.state.deviceCode.toString()),
     );
     if (!mounted) return;
     setState(() => _copied = true);
-    messenger.showSnackBar(SnackBar(content: Text(l10n.deviceCodeCopied)));
+    toaster.success(l10n.deviceCodeCopied);
   }
 
   @override

@@ -1,5 +1,13 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { useTheme } from '@/core/theme/ThemeProvider'
 import { useLocale } from '@/core/i18n/LocaleProvider'
+import { Tooltip } from '@/core/ui/Tooltip'
 
 function SunIcon({ size = 16 }: { size?: number }) {
   return (
@@ -35,14 +43,16 @@ export function ThemeToggle() {
   const isDark = resolved === 'dark'
 
   return (
-    <button
-      type="button"
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand-navy/35 bg-white text-brand-navy shadow-sm transition-colors hover:border-brand-navy/55 hover:bg-brand-mist sm:h-9 sm:w-9 dark:border-white/35 dark:bg-brand-navy-raised dark:text-white dark:shadow-none dark:hover:bg-brand-navy-line"
-      onClick={toggleTheme}
-      aria-label={isDark ? t('themeLight') : t('themeDark')}
-    >
-      <span className="sm:hidden">{isDark ? <SunIcon size={16} /> : <MoonIcon size={16} />}</span>
-      <span className="hidden sm:inline">{isDark ? <SunIcon size={18} /> : <MoonIcon size={18} />}</span>
-    </button>
+    <Tooltip label={isDark ? t('themeLight') : t('themeDark')} placement="bottom">
+      <button
+        type="button"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand-navy/35 bg-white text-brand-navy shadow-sm transition-colors hover:border-brand-navy/55 hover:bg-brand-mist sm:h-9 sm:w-9 dark:border-white/35 dark:bg-brand-navy-raised dark:text-white dark:shadow-none dark:hover:bg-brand-navy-line"
+        onClick={toggleTheme}
+        aria-label={isDark ? t('themeLight') : t('themeDark')}
+      >
+        <span className="sm:hidden">{isDark ? <SunIcon size={16} /> : <MoonIcon size={16} />}</span>
+        <span className="hidden sm:inline">{isDark ? <SunIcon size={18} /> : <MoonIcon size={18} />}</span>
+      </button>
+    </Tooltip>
   )
 }

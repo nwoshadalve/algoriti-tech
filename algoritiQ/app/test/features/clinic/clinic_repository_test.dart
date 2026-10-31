@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/core/database/app_database.dart';
 import 'package:algoritiq_app/features/clinic/data/drift_clinic_repository.dart';
 import 'package:algoritiq_app/features/clinic/domain/chamber.dart';

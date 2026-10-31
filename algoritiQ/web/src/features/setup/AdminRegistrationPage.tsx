@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { SetupLayout } from '@/app/SetupLayout'
@@ -9,6 +16,7 @@ import { LoadingButton } from '@/core/ui/LoadingButton'
 import { PasswordField } from '@/core/ui/PasswordField'
 import { registerAdmin, getSetupStatus, verifyClaimCode } from '@/core/api/setup'
 import { useLocale } from '@/core/i18n/LocaleProvider'
+import { useToast } from '@/core/toast/toastContext'
 import { TextField } from '@/core/ui/TextField'
 import {
   clearClaimCode,
@@ -53,7 +61,7 @@ export function AdminRegistrationPage() {
   const [phase, setPhase] = useState<PagePhase>({ kind: 'loading' })
   const [fields, setFields] = useState<RegistrationFields>(emptyFields)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
-  const [formError, setFormError] = useState<string | null>(null)
+  const toast = useToast()
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -83,7 +91,7 @@ export function AdminRegistrationPage() {
           return
         }
         setPhase({ kind: 'register' })
-        setFormError(t('errorStatusCheck'))
+        toast.error(t('errorStatusCheck'))
       }
     })()
     return () => {
@@ -100,7 +108,6 @@ export function AdminRegistrationPage() {
       delete next[key]
       return next
     })
-    setFormError(null)
   }
 
   async function onSubmit(event: React.FormEvent) {
@@ -112,7 +119,6 @@ export function AdminRegistrationPage() {
     }
 
     setSubmitting(true)
-    setFormError(null)
     try {
       const account = await registerAdmin({
         claimCode,
@@ -124,6 +130,7 @@ export function AdminRegistrationPage() {
       })
       clearClaimCode()
       setPhase({ kind: 'success', account })
+      toast.success(t('registerSuccessToast'))
     } catch (error) {
       const key = setupErrorKey(error)
       if (isClaimCodeApiError(error)) {
@@ -136,7 +143,7 @@ export function AdminRegistrationPage() {
         navigate('/login', { replace: true })
         return
       }
-      setFormError(t(key, setupErrorParams(error)))
+      toast.error(t(key, setupErrorParams(error)))
     } finally {
       setSubmitting(false)
     }
@@ -159,7 +166,6 @@ export function AdminRegistrationPage() {
         <RegistrationCard
           fields={fields}
           fieldErrors={fieldErrors}
-          formError={formError}
           submitting={submitting}
           onFieldChange={updateField}
           onSubmit={onSubmit}
@@ -180,7 +186,6 @@ function LoadingCard() {
 type RegistrationCardProps = {
   fields: RegistrationFields
   fieldErrors: FieldErrors
-  formError: string | null
   submitting: boolean
   onFieldChange: <K extends keyof RegistrationFields>(key: K, value: RegistrationFields[K]) => void
   onSubmit: (event: React.FormEvent) => void
@@ -189,7 +194,6 @@ type RegistrationCardProps = {
 function RegistrationCard({
   fields,
   fieldErrors,
-  formError,
   submitting,
   onFieldChange,
   onSubmit,
@@ -205,15 +209,6 @@ function RegistrationCard({
       <p className="mt-2 text-sm leading-relaxed text-brand-navy/75 dark:text-white/75 lg:hidden">
         {t('registerIntro')}
       </p>
-
-      {formError ? (
-        <div
-          role="alert"
-          className="mt-4 rounded-xl border border-amber-300/80 bg-amber-50 px-3 py-2.5 text-sm text-amber-950 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-100"
-        >
-          {formError}
-        </div>
-      ) : null}
 
       <form className="mt-6 space-y-4 lg:mt-8" onSubmit={onSubmit} noValidate>
         <div className="grid gap-4 sm:grid-cols-2">

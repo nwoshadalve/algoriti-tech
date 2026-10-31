@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { apiFetch } from '@/core/api/client'
 import type { Account, RegisterAdminRequest, SetupStatus } from '@/core/api/types'
 import { normalizeClaimCode } from '@/features/setup/adminRegistrationValidation'

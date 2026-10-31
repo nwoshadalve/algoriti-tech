@@ -1,9 +1,16 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/theme/app_radii.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/toast/toast_controller.dart';
 import '../../../l10n/app_localizations.dart';
 
 /// The tablet's web address, with a copy button and a QR code to scan.
@@ -30,10 +37,11 @@ class AddressPanel extends StatelessWidget {
   static const _qrSize = 96.0;
 
   Future<void> _copy(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
+    final toaster = ProviderScope.containerOf(context)
+        .read(toastControllerProvider.notifier);
     final message = AppLocalizations.of(context).addressCopied;
     await Clipboard.setData(ClipboardData(text: nameUrl ?? url));
-    messenger.showSnackBar(SnackBar(content: Text(message)));
+    toaster.success(message);
   }
 
   @override

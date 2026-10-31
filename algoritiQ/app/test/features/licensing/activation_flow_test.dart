@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/features/licensing/domain/license_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -36,7 +41,7 @@ void main() {
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await tester.pumpAndSettle();
 
-    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.text('Patient queue'), findsOneWidget);
     expect(find.text('Doctor license · up to 2 chambers'), findsOneWidget);
     expect(find.text('No expiry'), findsOneWidget);
   });
@@ -50,7 +55,7 @@ void main() {
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await tester.pumpAndSettle();
 
-    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.text('Patient queue'), findsOneWidget);
   });
 
   testWidgets('should drop line breaks and spaces from a pasted key', (
@@ -90,7 +95,7 @@ void main() {
     final store = MemoryLicenseStore(await kit.issue());
     await openApp(tester, kit.overrides(store: store));
 
-    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.text('Patient queue'), findsOneWidget);
     expect(find.text('Activate this device'), findsNothing);
   });
 
@@ -100,7 +105,7 @@ void main() {
     );
     await openApp(tester, kit.overrides(store: store));
 
-    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.text('Patient queue'), findsOneWidget);
     expect(
       find.text(
         'License expired. Enter a renewed key soon to avoid interruption.',

@@ -1,19 +1,43 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:algoritiq_app/api/cors_policy.dart';
 import 'package:algoritiq_app/api/local_api_server.dart';
+import 'package:algoritiq_app/api/live_api_web_socket.dart';
+import 'package:algoritiq_app/features/monitoring/application/monitoring_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/access_kit.dart';
+import '../support/readiness_kit.dart';
+import '../support/system_health_fake.dart';
+
+import 'package:algoritiq_app/platform/system_health_gateway.dart';
 
 void main() {
   late AccessKit kit;
   late LocalApiServer server;
   late HttpClient client;
+  late FakeSystemHealth health;
 
   setUp(() async {
     kit = await AccessKit.create();
-    server = LocalApiServer(access: () async => kit.service);
+    health = FakeSystemHealth();
+    server = LocalApiServer(
+      access: () async => kit.service,
+      monitoring: MonitoringService(
+        health: health,
+        keepAlive: FakeKeepAliveGateway(),
+        clock: DateTime.now,
+        retryDelay: const Duration(milliseconds: 50),
+      ),
+      corsPolicy: CorsPolicy.reflectOrigin,
+    );
     // Plain HTTP on a free local port: HTTPS itself is tested separately.
     await server.start(port: 0, address: InternetAddress.loopbackIPv4);
     client = HttpClient();
@@ -81,6 +105,90 @@ void main() {
 
     expect(result.status, 200);
     expect(result.body, {'status': 'ok'});
+  });
+
+  group('monitoring', () {
+    test('should need a sign-in', () async {
+      final result = await call('GET', '/api/v1/monitoring');
+
+      expect(result.status, 401);
+    });
+
+    test('should report resources and every service to an admin', () async {
+      final token = await signIn();
+
+      final result = await call('GET', '/api/v1/monitoring', token: token);
+
+      expect(result.status, 200);
+      final resources = result.body['resources']! as Map<String, Object?>;
+      expect(resources.keys, ['cpu', 'ram', 'storage', 'bluetooth']);
+      final services = (result.body['services']! as List).cast<Map>();
+      expect(services.map((s) => s['id']), [
+        'api',
+        'websocket',
+        'androidService',
+        'printer',
+        'tv',
+      ]);
+      final printer = services.firstWhere((s) => s['id'] == 'printer');
+      expect(printer['status'], 'unavailable');
+      expect(printer['reason'], 'printer_not_set_up');
+      expect(printer['retryable'], isTrue);
+      expect(result.body['deviceUptimeSeconds'], 18000);
+    });
+
+    test(
+      'should show the retry progress after asking to retry the TV app',
+      () async {
+        final token = await signIn();
+
+        final result = await call(
+          'POST',
+          '/api/v1/monitoring/services/tv/retry',
+          token: token,
+        );
+
+        expect(result.status, 202);
+        final services = (result.body['services']! as List).cast<Map>();
+        final tv = services.firstWhere((s) => s['id'] == 'tv');
+        expect(tv['status'], 'retrying');
+        expect(tv['retry'], {'attempt': 1, 'max': 3});
+      },
+    );
+
+    test('should turn Bluetooth on for an admin', () async {
+      health.bluetooth = BluetoothState.off;
+      final token = await signIn();
+
+      final result = await call(
+        'POST',
+        '/api/v1/monitoring/bluetooth/enable',
+        token: token,
+      );
+
+      expect(result.status, 200);
+      expect(result.body['outcome'], 'dialog_shown');
+      final bluetooth = (result.body['resources']! as Map)['bluetooth']! as Map;
+      expect(bluetooth['detail'], 'on');
+    });
+
+    test('should refuse to retry the API and an unknown service', () async {
+      final token = await signIn();
+
+      final api = await call(
+        'POST',
+        '/api/v1/monitoring/services/api/retry',
+        token: token,
+      );
+      final unknown = await call(
+        'POST',
+        '/api/v1/monitoring/services/toaster/retry',
+        token: token,
+      );
+
+      expect(api.status, 409);
+      expect(unknown.status, 404);
+    });
   });
 
   group('setup status', () {
@@ -506,6 +614,25 @@ void main() {
       );
     });
 
+    test('should allow any origin on preflight in debug CORS mode', () async {
+      await server.stop();
+      server = LocalApiServer(
+        access: () async => kit.service,
+        corsPolicy: CorsPolicy.allowAnyOrigin,
+      );
+      await server.start(port: 0, address: InternetAddress.loopbackIPv4);
+
+      final result = await call(
+        'OPTIONS',
+        '/api/v1/auth/login',
+        headers: {'origin': 'http://localhost:5173'},
+      );
+
+      expect(result.status, 204);
+      expect(result.raw.headers.value('access-control-allow-origin'), '*');
+      expect(result.raw.headers.value('vary'), isNull);
+    });
+
     test(
       'should answer 404 for unknown paths and 405 for the wrong method',
       () async {
@@ -524,6 +651,67 @@ void main() {
 
       expect(result.status, 500);
       expect(jsonEncode(result.body), isNot(contains('secret')));
+    });
+  });
+
+  group('live websocket', () {
+    test('should refuse a connection without a token', () async {
+      expect(
+        WebSocket.connect(
+          'ws://127.0.0.1:${server.port}${LiveApiWebSocket.path}',
+        ),
+        throwsA(isA<WebSocketException>()),
+      );
+    });
+
+    test('should send hello and snapshot after sign-in', () async {
+      final token = await signIn();
+      final socket = await WebSocket.connect(
+        'ws://127.0.0.1:${server.port}${LiveApiWebSocket.path}?token=$token',
+      );
+      addTearDown(socket.close);
+
+      final frames = <String>[];
+      final done = Completer<void>();
+      late final StreamSubscription<dynamic> sub;
+      sub = socket.listen((event) {
+        frames.add(event as String);
+        if (frames.length >= 2) {
+          unawaited(sub.cancel());
+          done.complete();
+        }
+      });
+      await done.future.timeout(const Duration(seconds: 2));
+
+      expect(frames[0], contains('"type":"hello"'));
+      expect(frames[1], contains('"type":"snapshot"'));
+    });
+
+    test('should deliver published events to the client', () async {
+      final token = await signIn();
+      final socket = await WebSocket.connect(
+        'ws://127.0.0.1:${server.port}${LiveApiWebSocket.path}?token=$token',
+      );
+      addTearDown(socket.close);
+
+      final frames = <String>[];
+      final eventSeen = Completer<void>();
+      late final StreamSubscription<dynamic> sub;
+      sub = socket.listen((event) {
+        final line = event as String;
+        frames.add(line);
+        if (line.contains('"name":"server.test"')) {
+          unawaited(sub.cancel());
+          eventSeen.complete();
+        }
+      });
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+
+      server.liveEvents.publish('server.test', {'ok': true});
+
+      await eventSeen.future.timeout(const Duration(seconds: 2));
+      expect(frames.any((line) => line.contains('"type":"event"')), isTrue);
     });
   });
 }

@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/foundation.dart' show FlutterError;
 import 'package:flutter/services.dart';
 
@@ -60,7 +65,7 @@ final class WebSite {
   /// framing. Styles may be inline (React sets some `style` attributes).
   static const contentSecurityPolicy =
       "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
-      "img-src 'self' data:; font-src 'self'; connect-src 'self'; "
+      "img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; "
       "manifest-src 'self'; worker-src 'self'; object-src 'none'; "
       "base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
 

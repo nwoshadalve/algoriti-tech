@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
@@ -113,6 +118,21 @@ final class DriftClinicRepository implements ClinicRepository {
   });
 
   @override
+  Future<void> updateDoctor(Doctor doctor) async {
+    await (_db.update(_db.doctors)..where((d) => d.id.equals(doctor.id))).write(
+      DoctorsCompanion(
+        name: Value(doctor.name),
+        specialty: Value(doctor.specialty),
+        degrees: Value(jsonEncode(doctor.degrees)),
+        designation: Value(doctor.designation),
+        workplace: Value(doctor.workplace),
+        registrationNumber: Value(doctor.registrationNumber),
+        photoPath: Value(doctor.photoPath),
+      ),
+    );
+  }
+
+  @override
   Future<bool> addChamber(Chamber chamber, {required int limit}) =>
       _db.transaction(() async {
         if (await _chamberCountOf(chamber.doctorId) >= limit) return false;
@@ -142,6 +162,11 @@ final class DriftClinicRepository implements ClinicRepository {
         phone: Value(chamber.phone),
       ),
     );
+  }
+
+  @override
+  Future<void> deleteChamber(String chamberId) async {
+    await (_db.delete(_db.chambers)..where((c) => c.id.equals(chamberId))).go();
   }
 
   @override

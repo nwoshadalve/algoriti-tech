@@ -1215,6 +1215,61 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserRow> {
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _firstNameMeta = const VerificationMeta(
+    'firstName',
+  );
+  @override
+  late final GeneratedColumn<String> firstName = GeneratedColumn<String>(
+    'first_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _lastNameMeta = const VerificationMeta(
+    'lastName',
+  );
+  @override
+  late final GeneratedColumn<String> lastName = GeneratedColumn<String>(
+    'last_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _phoneMeta = const VerificationMeta('phone');
+  @override
+  late final GeneratedColumn<String> phone = GeneratedColumn<String>(
+    'phone',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _photoMeta = const VerificationMeta('photo');
+  @override
+  late final GeneratedColumn<Uint8List> photo = GeneratedColumn<Uint8List>(
+    'photo',
+    aliasedName,
+    true,
+    type: DriftSqlType.blob,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _photoVersionMeta = const VerificationMeta(
+    'photoVersion',
+  );
+  @override
+  late final GeneratedColumn<int> photoVersion = GeneratedColumn<int>(
+    'photo_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _roleMeta = const VerificationMeta('role');
   @override
   late final GeneratedColumn<String> role = GeneratedColumn<String>(
@@ -1262,6 +1317,11 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserRow> {
     username,
     displayName,
     email,
+    firstName,
+    lastName,
+    phone,
+    photo,
+    photoVersion,
     role,
     passwordHash,
     status,
@@ -1307,6 +1367,39 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserRow> {
       context.handle(
         _emailMeta,
         email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    }
+    if (data.containsKey('first_name')) {
+      context.handle(
+        _firstNameMeta,
+        firstName.isAcceptableOrUnknown(data['first_name']!, _firstNameMeta),
+      );
+    }
+    if (data.containsKey('last_name')) {
+      context.handle(
+        _lastNameMeta,
+        lastName.isAcceptableOrUnknown(data['last_name']!, _lastNameMeta),
+      );
+    }
+    if (data.containsKey('phone')) {
+      context.handle(
+        _phoneMeta,
+        phone.isAcceptableOrUnknown(data['phone']!, _phoneMeta),
+      );
+    }
+    if (data.containsKey('photo')) {
+      context.handle(
+        _photoMeta,
+        photo.isAcceptableOrUnknown(data['photo']!, _photoMeta),
+      );
+    }
+    if (data.containsKey('photo_version')) {
+      context.handle(
+        _photoVersionMeta,
+        photoVersion.isAcceptableOrUnknown(
+          data['photo_version']!,
+          _photoVersionMeta,
+        ),
       );
     }
     if (data.containsKey('role')) {
@@ -1367,6 +1460,26 @@ class $UsersTable extends Users with TableInfo<$UsersTable, UserRow> {
         DriftSqlType.string,
         data['${effectivePrefix}email'],
       )!,
+      firstName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}first_name'],
+      )!,
+      lastName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_name'],
+      )!,
+      phone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phone'],
+      )!,
+      photo: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}photo'],
+      ),
+      photoVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}photo_version'],
+      )!,
       role: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}role'],
@@ -1397,6 +1510,16 @@ class UserRow extends DataClass implements Insertable<UserRow> {
   final String username;
   final String displayName;
   final String email;
+  final String firstName;
+  final String lastName;
+  final String phone;
+
+  /// Profile picture (a small JPEG, PNG or WebP), if one was uploaded.
+  final Uint8List? photo;
+
+  /// UTC epoch milliseconds of the last photo change; 0 when there is none.
+  /// Clients use it to know when to fetch the picture again.
+  final int photoVersion;
   final String role;
 
   /// Self-describing slow hash; the password itself is never stored.
@@ -1410,6 +1533,11 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     required this.username,
     required this.displayName,
     required this.email,
+    required this.firstName,
+    required this.lastName,
+    required this.phone,
+    this.photo,
+    required this.photoVersion,
     required this.role,
     required this.passwordHash,
     required this.status,
@@ -1422,6 +1550,13 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     map['username'] = Variable<String>(username);
     map['display_name'] = Variable<String>(displayName);
     map['email'] = Variable<String>(email);
+    map['first_name'] = Variable<String>(firstName);
+    map['last_name'] = Variable<String>(lastName);
+    map['phone'] = Variable<String>(phone);
+    if (!nullToAbsent || photo != null) {
+      map['photo'] = Variable<Uint8List>(photo);
+    }
+    map['photo_version'] = Variable<int>(photoVersion);
     map['role'] = Variable<String>(role);
     map['password_hash'] = Variable<String>(passwordHash);
     map['status'] = Variable<String>(status);
@@ -1435,6 +1570,13 @@ class UserRow extends DataClass implements Insertable<UserRow> {
       username: Value(username),
       displayName: Value(displayName),
       email: Value(email),
+      firstName: Value(firstName),
+      lastName: Value(lastName),
+      phone: Value(phone),
+      photo: photo == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photo),
+      photoVersion: Value(photoVersion),
       role: Value(role),
       passwordHash: Value(passwordHash),
       status: Value(status),
@@ -1452,6 +1594,11 @@ class UserRow extends DataClass implements Insertable<UserRow> {
       username: serializer.fromJson<String>(json['username']),
       displayName: serializer.fromJson<String>(json['displayName']),
       email: serializer.fromJson<String>(json['email']),
+      firstName: serializer.fromJson<String>(json['firstName']),
+      lastName: serializer.fromJson<String>(json['lastName']),
+      phone: serializer.fromJson<String>(json['phone']),
+      photo: serializer.fromJson<Uint8List?>(json['photo']),
+      photoVersion: serializer.fromJson<int>(json['photoVersion']),
       role: serializer.fromJson<String>(json['role']),
       passwordHash: serializer.fromJson<String>(json['passwordHash']),
       status: serializer.fromJson<String>(json['status']),
@@ -1466,6 +1613,11 @@ class UserRow extends DataClass implements Insertable<UserRow> {
       'username': serializer.toJson<String>(username),
       'displayName': serializer.toJson<String>(displayName),
       'email': serializer.toJson<String>(email),
+      'firstName': serializer.toJson<String>(firstName),
+      'lastName': serializer.toJson<String>(lastName),
+      'phone': serializer.toJson<String>(phone),
+      'photo': serializer.toJson<Uint8List?>(photo),
+      'photoVersion': serializer.toJson<int>(photoVersion),
       'role': serializer.toJson<String>(role),
       'passwordHash': serializer.toJson<String>(passwordHash),
       'status': serializer.toJson<String>(status),
@@ -1478,6 +1630,11 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     String? username,
     String? displayName,
     String? email,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    Value<Uint8List?> photo = const Value.absent(),
+    int? photoVersion,
     String? role,
     String? passwordHash,
     String? status,
@@ -1487,6 +1644,11 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     username: username ?? this.username,
     displayName: displayName ?? this.displayName,
     email: email ?? this.email,
+    firstName: firstName ?? this.firstName,
+    lastName: lastName ?? this.lastName,
+    phone: phone ?? this.phone,
+    photo: photo.present ? photo.value : this.photo,
+    photoVersion: photoVersion ?? this.photoVersion,
     role: role ?? this.role,
     passwordHash: passwordHash ?? this.passwordHash,
     status: status ?? this.status,
@@ -1500,6 +1662,13 @@ class UserRow extends DataClass implements Insertable<UserRow> {
           ? data.displayName.value
           : this.displayName,
       email: data.email.present ? data.email.value : this.email,
+      firstName: data.firstName.present ? data.firstName.value : this.firstName,
+      lastName: data.lastName.present ? data.lastName.value : this.lastName,
+      phone: data.phone.present ? data.phone.value : this.phone,
+      photo: data.photo.present ? data.photo.value : this.photo,
+      photoVersion: data.photoVersion.present
+          ? data.photoVersion.value
+          : this.photoVersion,
       role: data.role.present ? data.role.value : this.role,
       passwordHash: data.passwordHash.present
           ? data.passwordHash.value
@@ -1516,6 +1685,11 @@ class UserRow extends DataClass implements Insertable<UserRow> {
           ..write('username: $username, ')
           ..write('displayName: $displayName, ')
           ..write('email: $email, ')
+          ..write('firstName: $firstName, ')
+          ..write('lastName: $lastName, ')
+          ..write('phone: $phone, ')
+          ..write('photo: $photo, ')
+          ..write('photoVersion: $photoVersion, ')
           ..write('role: $role, ')
           ..write('passwordHash: $passwordHash, ')
           ..write('status: $status, ')
@@ -1530,6 +1704,11 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     username,
     displayName,
     email,
+    firstName,
+    lastName,
+    phone,
+    $driftBlobEquality.hash(photo),
+    photoVersion,
     role,
     passwordHash,
     status,
@@ -1543,6 +1722,11 @@ class UserRow extends DataClass implements Insertable<UserRow> {
           other.username == this.username &&
           other.displayName == this.displayName &&
           other.email == this.email &&
+          other.firstName == this.firstName &&
+          other.lastName == this.lastName &&
+          other.phone == this.phone &&
+          $driftBlobEquality.equals(other.photo, this.photo) &&
+          other.photoVersion == this.photoVersion &&
           other.role == this.role &&
           other.passwordHash == this.passwordHash &&
           other.status == this.status &&
@@ -1554,6 +1738,11 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
   final Value<String> username;
   final Value<String> displayName;
   final Value<String> email;
+  final Value<String> firstName;
+  final Value<String> lastName;
+  final Value<String> phone;
+  final Value<Uint8List?> photo;
+  final Value<int> photoVersion;
   final Value<String> role;
   final Value<String> passwordHash;
   final Value<String> status;
@@ -1564,6 +1753,11 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
     this.username = const Value.absent(),
     this.displayName = const Value.absent(),
     this.email = const Value.absent(),
+    this.firstName = const Value.absent(),
+    this.lastName = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.photo = const Value.absent(),
+    this.photoVersion = const Value.absent(),
     this.role = const Value.absent(),
     this.passwordHash = const Value.absent(),
     this.status = const Value.absent(),
@@ -1575,6 +1769,11 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
     required String username,
     required String displayName,
     this.email = const Value.absent(),
+    this.firstName = const Value.absent(),
+    this.lastName = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.photo = const Value.absent(),
+    this.photoVersion = const Value.absent(),
     required String role,
     required String passwordHash,
     this.status = const Value.absent(),
@@ -1591,6 +1790,11 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
     Expression<String>? username,
     Expression<String>? displayName,
     Expression<String>? email,
+    Expression<String>? firstName,
+    Expression<String>? lastName,
+    Expression<String>? phone,
+    Expression<Uint8List>? photo,
+    Expression<int>? photoVersion,
     Expression<String>? role,
     Expression<String>? passwordHash,
     Expression<String>? status,
@@ -1602,6 +1806,11 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
       if (username != null) 'username': username,
       if (displayName != null) 'display_name': displayName,
       if (email != null) 'email': email,
+      if (firstName != null) 'first_name': firstName,
+      if (lastName != null) 'last_name': lastName,
+      if (phone != null) 'phone': phone,
+      if (photo != null) 'photo': photo,
+      if (photoVersion != null) 'photo_version': photoVersion,
       if (role != null) 'role': role,
       if (passwordHash != null) 'password_hash': passwordHash,
       if (status != null) 'status': status,
@@ -1615,6 +1824,11 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
     Value<String>? username,
     Value<String>? displayName,
     Value<String>? email,
+    Value<String>? firstName,
+    Value<String>? lastName,
+    Value<String>? phone,
+    Value<Uint8List?>? photo,
+    Value<int>? photoVersion,
     Value<String>? role,
     Value<String>? passwordHash,
     Value<String>? status,
@@ -1626,6 +1840,11 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
       username: username ?? this.username,
       displayName: displayName ?? this.displayName,
       email: email ?? this.email,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      phone: phone ?? this.phone,
+      photo: photo ?? this.photo,
+      photoVersion: photoVersion ?? this.photoVersion,
       role: role ?? this.role,
       passwordHash: passwordHash ?? this.passwordHash,
       status: status ?? this.status,
@@ -1648,6 +1867,21 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
     }
     if (email.present) {
       map['email'] = Variable<String>(email.value);
+    }
+    if (firstName.present) {
+      map['first_name'] = Variable<String>(firstName.value);
+    }
+    if (lastName.present) {
+      map['last_name'] = Variable<String>(lastName.value);
+    }
+    if (phone.present) {
+      map['phone'] = Variable<String>(phone.value);
+    }
+    if (photo.present) {
+      map['photo'] = Variable<Uint8List>(photo.value);
+    }
+    if (photoVersion.present) {
+      map['photo_version'] = Variable<int>(photoVersion.value);
     }
     if (role.present) {
       map['role'] = Variable<String>(role.value);
@@ -1674,10 +1908,236 @@ class UsersCompanion extends UpdateCompanion<UserRow> {
           ..write('username: $username, ')
           ..write('displayName: $displayName, ')
           ..write('email: $email, ')
+          ..write('firstName: $firstName, ')
+          ..write('lastName: $lastName, ')
+          ..write('phone: $phone, ')
+          ..write('photo: $photo, ')
+          ..write('photoVersion: $photoVersion, ')
           ..write('role: $role, ')
           ..write('passwordHash: $passwordHash, ')
           ..write('status: $status, ')
           ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserScopeAssignmentsTable extends UserScopeAssignments
+    with TableInfo<$UserScopeAssignmentsTable, UserScopeAssignmentRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserScopeAssignmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (id)',
+    ),
+  );
+  static const VerificationMeta _scopeIdMeta = const VerificationMeta(
+    'scopeId',
+  );
+  @override
+  late final GeneratedColumn<String> scopeId = GeneratedColumn<String>(
+    'scope_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [userId, scopeId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_scope_assignments';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserScopeAssignmentRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('scope_id')) {
+      context.handle(
+        _scopeIdMeta,
+        scopeId.isAcceptableOrUnknown(data['scope_id']!, _scopeIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_scopeIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId, scopeId};
+  @override
+  UserScopeAssignmentRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserScopeAssignmentRow(
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      scopeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}scope_id'],
+      )!,
+    );
+  }
+
+  @override
+  $UserScopeAssignmentsTable createAlias(String alias) {
+    return $UserScopeAssignmentsTable(attachedDatabase, alias);
+  }
+}
+
+class UserScopeAssignmentRow extends DataClass
+    implements Insertable<UserScopeAssignmentRow> {
+  final String userId;
+  final String scopeId;
+  const UserScopeAssignmentRow({required this.userId, required this.scopeId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['scope_id'] = Variable<String>(scopeId);
+    return map;
+  }
+
+  UserScopeAssignmentsCompanion toCompanion(bool nullToAbsent) {
+    return UserScopeAssignmentsCompanion(
+      userId: Value(userId),
+      scopeId: Value(scopeId),
+    );
+  }
+
+  factory UserScopeAssignmentRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserScopeAssignmentRow(
+      userId: serializer.fromJson<String>(json['userId']),
+      scopeId: serializer.fromJson<String>(json['scopeId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'scopeId': serializer.toJson<String>(scopeId),
+    };
+  }
+
+  UserScopeAssignmentRow copyWith({String? userId, String? scopeId}) =>
+      UserScopeAssignmentRow(
+        userId: userId ?? this.userId,
+        scopeId: scopeId ?? this.scopeId,
+      );
+  UserScopeAssignmentRow copyWithCompanion(UserScopeAssignmentsCompanion data) {
+    return UserScopeAssignmentRow(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      scopeId: data.scopeId.present ? data.scopeId.value : this.scopeId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserScopeAssignmentRow(')
+          ..write('userId: $userId, ')
+          ..write('scopeId: $scopeId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, scopeId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserScopeAssignmentRow &&
+          other.userId == this.userId &&
+          other.scopeId == this.scopeId);
+}
+
+class UserScopeAssignmentsCompanion
+    extends UpdateCompanion<UserScopeAssignmentRow> {
+  final Value<String> userId;
+  final Value<String> scopeId;
+  final Value<int> rowid;
+  const UserScopeAssignmentsCompanion({
+    this.userId = const Value.absent(),
+    this.scopeId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserScopeAssignmentsCompanion.insert({
+    required String userId,
+    required String scopeId,
+    this.rowid = const Value.absent(),
+  }) : userId = Value(userId),
+       scopeId = Value(scopeId);
+  static Insertable<UserScopeAssignmentRow> custom({
+    Expression<String>? userId,
+    Expression<String>? scopeId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (scopeId != null) 'scope_id': scopeId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserScopeAssignmentsCompanion copyWith({
+    Value<String>? userId,
+    Value<String>? scopeId,
+    Value<int>? rowid,
+  }) {
+    return UserScopeAssignmentsCompanion(
+      userId: userId ?? this.userId,
+      scopeId: scopeId ?? this.scopeId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (scopeId.present) {
+      map['scope_id'] = Variable<String>(scopeId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserScopeAssignmentsCompanion(')
+          ..write('userId: $userId, ')
+          ..write('scopeId: $scopeId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2538,6 +2998,523 @@ class AuditEntriesCompanion extends UpdateCompanion<AuditEntryRow> {
   }
 }
 
+class $PinDevicesTable extends PinDevices
+    with TableInfo<$PinDevicesTable, PinDeviceRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PinDevicesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (id)',
+    ),
+  );
+  static const VerificationMeta _tokenHashMeta = const VerificationMeta(
+    'tokenHash',
+  );
+  @override
+  late final GeneratedColumn<String> tokenHash = GeneratedColumn<String>(
+    'token_hash',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _pinHashMeta = const VerificationMeta(
+    'pinHash',
+  );
+  @override
+  late final GeneratedColumn<String> pinHash = GeneratedColumn<String>(
+    'pin_hash',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastUsedAtMeta = const VerificationMeta(
+    'lastUsedAt',
+  );
+  @override
+  late final GeneratedColumn<int> lastUsedAt = GeneratedColumn<int>(
+    'last_used_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _failuresMeta = const VerificationMeta(
+    'failures',
+  );
+  @override
+  late final GeneratedColumn<int> failures = GeneratedColumn<int>(
+    'failures',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    userId,
+    tokenHash,
+    pinHash,
+    label,
+    createdAt,
+    lastUsedAt,
+    failures,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pin_devices';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PinDeviceRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('token_hash')) {
+      context.handle(
+        _tokenHashMeta,
+        tokenHash.isAcceptableOrUnknown(data['token_hash']!, _tokenHashMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tokenHashMeta);
+    }
+    if (data.containsKey('pin_hash')) {
+      context.handle(
+        _pinHashMeta,
+        pinHash.isAcceptableOrUnknown(data['pin_hash']!, _pinHashMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pinHashMeta);
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('last_used_at')) {
+      context.handle(
+        _lastUsedAtMeta,
+        lastUsedAt.isAcceptableOrUnknown(
+          data['last_used_at']!,
+          _lastUsedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('failures')) {
+      context.handle(
+        _failuresMeta,
+        failures.isAcceptableOrUnknown(data['failures']!, _failuresMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PinDeviceRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PinDeviceRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      tokenHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token_hash'],
+      )!,
+      pinHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pin_hash'],
+      )!,
+      label: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      lastUsedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_used_at'],
+      )!,
+      failures: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}failures'],
+      )!,
+    );
+  }
+
+  @override
+  $PinDevicesTable createAlias(String alias) {
+    return $PinDevicesTable(attachedDatabase, alias);
+  }
+}
+
+class PinDeviceRow extends DataClass implements Insertable<PinDeviceRow> {
+  final String id;
+  final String userId;
+  final String tokenHash;
+  final String pinHash;
+
+  /// Which browser, for the person to recognise in their list.
+  final String label;
+  final int createdAt;
+
+  /// UTC epoch milliseconds of the last PIN sign-in; 0 when never.
+  final int lastUsedAt;
+
+  /// Wrong PINs in a row. Reaching the limit removes the device.
+  final int failures;
+  const PinDeviceRow({
+    required this.id,
+    required this.userId,
+    required this.tokenHash,
+    required this.pinHash,
+    required this.label,
+    required this.createdAt,
+    required this.lastUsedAt,
+    required this.failures,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['user_id'] = Variable<String>(userId);
+    map['token_hash'] = Variable<String>(tokenHash);
+    map['pin_hash'] = Variable<String>(pinHash);
+    map['label'] = Variable<String>(label);
+    map['created_at'] = Variable<int>(createdAt);
+    map['last_used_at'] = Variable<int>(lastUsedAt);
+    map['failures'] = Variable<int>(failures);
+    return map;
+  }
+
+  PinDevicesCompanion toCompanion(bool nullToAbsent) {
+    return PinDevicesCompanion(
+      id: Value(id),
+      userId: Value(userId),
+      tokenHash: Value(tokenHash),
+      pinHash: Value(pinHash),
+      label: Value(label),
+      createdAt: Value(createdAt),
+      lastUsedAt: Value(lastUsedAt),
+      failures: Value(failures),
+    );
+  }
+
+  factory PinDeviceRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PinDeviceRow(
+      id: serializer.fromJson<String>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
+      tokenHash: serializer.fromJson<String>(json['tokenHash']),
+      pinHash: serializer.fromJson<String>(json['pinHash']),
+      label: serializer.fromJson<String>(json['label']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      lastUsedAt: serializer.fromJson<int>(json['lastUsedAt']),
+      failures: serializer.fromJson<int>(json['failures']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'userId': serializer.toJson<String>(userId),
+      'tokenHash': serializer.toJson<String>(tokenHash),
+      'pinHash': serializer.toJson<String>(pinHash),
+      'label': serializer.toJson<String>(label),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'lastUsedAt': serializer.toJson<int>(lastUsedAt),
+      'failures': serializer.toJson<int>(failures),
+    };
+  }
+
+  PinDeviceRow copyWith({
+    String? id,
+    String? userId,
+    String? tokenHash,
+    String? pinHash,
+    String? label,
+    int? createdAt,
+    int? lastUsedAt,
+    int? failures,
+  }) => PinDeviceRow(
+    id: id ?? this.id,
+    userId: userId ?? this.userId,
+    tokenHash: tokenHash ?? this.tokenHash,
+    pinHash: pinHash ?? this.pinHash,
+    label: label ?? this.label,
+    createdAt: createdAt ?? this.createdAt,
+    lastUsedAt: lastUsedAt ?? this.lastUsedAt,
+    failures: failures ?? this.failures,
+  );
+  PinDeviceRow copyWithCompanion(PinDevicesCompanion data) {
+    return PinDeviceRow(
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      tokenHash: data.tokenHash.present ? data.tokenHash.value : this.tokenHash,
+      pinHash: data.pinHash.present ? data.pinHash.value : this.pinHash,
+      label: data.label.present ? data.label.value : this.label,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      lastUsedAt: data.lastUsedAt.present
+          ? data.lastUsedAt.value
+          : this.lastUsedAt,
+      failures: data.failures.present ? data.failures.value : this.failures,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PinDeviceRow(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('tokenHash: $tokenHash, ')
+          ..write('pinHash: $pinHash, ')
+          ..write('label: $label, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('lastUsedAt: $lastUsedAt, ')
+          ..write('failures: $failures')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    userId,
+    tokenHash,
+    pinHash,
+    label,
+    createdAt,
+    lastUsedAt,
+    failures,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PinDeviceRow &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.tokenHash == this.tokenHash &&
+          other.pinHash == this.pinHash &&
+          other.label == this.label &&
+          other.createdAt == this.createdAt &&
+          other.lastUsedAt == this.lastUsedAt &&
+          other.failures == this.failures);
+}
+
+class PinDevicesCompanion extends UpdateCompanion<PinDeviceRow> {
+  final Value<String> id;
+  final Value<String> userId;
+  final Value<String> tokenHash;
+  final Value<String> pinHash;
+  final Value<String> label;
+  final Value<int> createdAt;
+  final Value<int> lastUsedAt;
+  final Value<int> failures;
+  final Value<int> rowid;
+  const PinDevicesCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.tokenHash = const Value.absent(),
+    this.pinHash = const Value.absent(),
+    this.label = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.lastUsedAt = const Value.absent(),
+    this.failures = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PinDevicesCompanion.insert({
+    required String id,
+    required String userId,
+    required String tokenHash,
+    required String pinHash,
+    this.label = const Value.absent(),
+    required int createdAt,
+    this.lastUsedAt = const Value.absent(),
+    this.failures = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       userId = Value(userId),
+       tokenHash = Value(tokenHash),
+       pinHash = Value(pinHash),
+       createdAt = Value(createdAt);
+  static Insertable<PinDeviceRow> custom({
+    Expression<String>? id,
+    Expression<String>? userId,
+    Expression<String>? tokenHash,
+    Expression<String>? pinHash,
+    Expression<String>? label,
+    Expression<int>? createdAt,
+    Expression<int>? lastUsedAt,
+    Expression<int>? failures,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (tokenHash != null) 'token_hash': tokenHash,
+      if (pinHash != null) 'pin_hash': pinHash,
+      if (label != null) 'label': label,
+      if (createdAt != null) 'created_at': createdAt,
+      if (lastUsedAt != null) 'last_used_at': lastUsedAt,
+      if (failures != null) 'failures': failures,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PinDevicesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? userId,
+    Value<String>? tokenHash,
+    Value<String>? pinHash,
+    Value<String>? label,
+    Value<int>? createdAt,
+    Value<int>? lastUsedAt,
+    Value<int>? failures,
+    Value<int>? rowid,
+  }) {
+    return PinDevicesCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      tokenHash: tokenHash ?? this.tokenHash,
+      pinHash: pinHash ?? this.pinHash,
+      label: label ?? this.label,
+      createdAt: createdAt ?? this.createdAt,
+      lastUsedAt: lastUsedAt ?? this.lastUsedAt,
+      failures: failures ?? this.failures,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (tokenHash.present) {
+      map['token_hash'] = Variable<String>(tokenHash.value);
+    }
+    if (pinHash.present) {
+      map['pin_hash'] = Variable<String>(pinHash.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (lastUsedAt.present) {
+      map['last_used_at'] = Variable<int>(lastUsedAt.value);
+    }
+    if (failures.present) {
+      map['failures'] = Variable<int>(failures.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PinDevicesCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('tokenHash: $tokenHash, ')
+          ..write('pinHash: $pinHash, ')
+          ..write('label: $label, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('lastUsedAt: $lastUsedAt, ')
+          ..write('failures: $failures, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2545,8 +3522,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ChambersTable chambers = $ChambersTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $UsersTable users = $UsersTable(this);
+  late final $UserScopeAssignmentsTable userScopeAssignments =
+      $UserScopeAssignmentsTable(this);
   late final $AuthSessionsTable authSessions = $AuthSessionsTable(this);
   late final $AuditEntriesTable auditEntries = $AuditEntriesTable(this);
+  late final $PinDevicesTable pinDevices = $PinDevicesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2556,8 +3536,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     chambers,
     appSettings,
     users,
+    userScopeAssignments,
     authSessions,
     auditEntries,
+    pinDevices,
   ];
 }
 
@@ -3402,6 +4384,11 @@ typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
   required String username,
   required String displayName,
   Value<String> email,
+  Value<String> firstName,
+  Value<String> lastName,
+  Value<String> phone,
+  Value<Uint8List?> photo,
+  Value<int> photoVersion,
   required String role,
   required String passwordHash,
   Value<String> status,
@@ -3413,6 +4400,11 @@ typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
   Value<String> username,
   Value<String> displayName,
   Value<String> email,
+  Value<String> firstName,
+  Value<String> lastName,
+  Value<String> phone,
+  Value<Uint8List?> photo,
+  Value<int> photoVersion,
   Value<String> role,
   Value<String> passwordHash,
   Value<String> status,
@@ -3423,6 +4415,31 @@ typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
 final class $$UsersTableReferences
     extends BaseReferences<_$AppDatabase, $UsersTable, UserRow> {
   $$UsersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<
+    $UserScopeAssignmentsTable,
+    List<UserScopeAssignmentRow>
+  >
+  _userScopeAssignmentsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.userScopeAssignments,
+        aliasName: 'users__id__user_scope_assignments__user_id',
+      );
+
+  $$UserScopeAssignmentsTableProcessedTableManager
+  get userScopeAssignmentsRefs {
+    final manager = $$UserScopeAssignmentsTableTableManager(
+      $_db,
+      $_db.userScopeAssignments,
+    ).filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _userScopeAssignmentsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 
   static MultiTypedResultKey<$AuthSessionsTable, List<AuthSessionRow>>
   _authSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
@@ -3437,6 +4454,24 @@ final class $$UsersTableReferences
     ).filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_authSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$PinDevicesTable, List<PinDeviceRow>>
+  _pinDevicesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.pinDevices,
+    aliasName: 'users__id__pin_devices__user_id',
+  );
+
+  $$PinDevicesTableProcessedTableManager get pinDevicesRefs {
+    final manager = $$PinDevicesTableTableManager(
+      $_db,
+      $_db.pinDevices,
+    ).filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_pinDevicesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -3471,6 +4506,31 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get firstName => $composableBuilder(
+    column: $table.firstName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastName => $composableBuilder(
+    column: $table.lastName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get phone => $composableBuilder(
+    column: $table.phone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<Uint8List> get photo => $composableBuilder(
+    column: $table.photo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get photoVersion => $composableBuilder(
+    column: $table.photoVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get role => $composableBuilder(
     column: $table.role,
     builder: (column) => ColumnFilters(column),
@@ -3491,6 +4551,31 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  Expression<bool> userScopeAssignmentsRefs(
+    Expression<bool> Function($$UserScopeAssignmentsTableFilterComposer f) f,
+  ) {
+    final $$UserScopeAssignmentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userScopeAssignments,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserScopeAssignmentsTableFilterComposer(
+            $db: $db,
+            $table: $db.userScopeAssignments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<bool> authSessionsRefs(
     Expression<bool> Function($$AuthSessionsTableFilterComposer f) f,
   ) {
@@ -3507,6 +4592,31 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
           }) => $$AuthSessionsTableFilterComposer(
             $db: $db,
             $table: $db.authSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> pinDevicesRefs(
+    Expression<bool> Function($$PinDevicesTableFilterComposer f) f,
+  ) {
+    final $$PinDevicesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.pinDevices,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PinDevicesTableFilterComposer(
+            $db: $db,
+            $table: $db.pinDevices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3543,6 +4653,31 @@ class $$UsersTableOrderingComposer
 
   ColumnOrderings<String> get email => $composableBuilder(
     column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get firstName => $composableBuilder(
+    column: $table.firstName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastName => $composableBuilder(
+    column: $table.lastName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get phone => $composableBuilder(
+    column: $table.phone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<Uint8List> get photo => $composableBuilder(
+    column: $table.photo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get photoVersion => $composableBuilder(
+    column: $table.photoVersion,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3590,6 +4725,23 @@ class $$UsersTableAnnotationComposer
   GeneratedColumn<String> get email =>
       $composableBuilder(column: $table.email, builder: (column) => column);
 
+  GeneratedColumn<String> get firstName =>
+      $composableBuilder(column: $table.firstName, builder: (column) => column);
+
+  GeneratedColumn<String> get lastName =>
+      $composableBuilder(column: $table.lastName, builder: (column) => column);
+
+  GeneratedColumn<String> get phone =>
+      $composableBuilder(column: $table.phone, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get photo =>
+      $composableBuilder(column: $table.photo, builder: (column) => column);
+
+  GeneratedColumn<int> get photoVersion => $composableBuilder(
+    column: $table.photoVersion,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get role =>
       $composableBuilder(column: $table.role, builder: (column) => column);
 
@@ -3603,6 +4755,32 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> userScopeAssignmentsRefs<T extends Object>(
+    Expression<T> Function($$UserScopeAssignmentsTableAnnotationComposer a) f,
+  ) {
+    final $$UserScopeAssignmentsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.userScopeAssignments,
+          getReferencedColumn: (t) => t.userId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$UserScopeAssignmentsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.userScopeAssignments,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 
   Expression<T> authSessionsRefs<T extends Object>(
     Expression<T> Function($$AuthSessionsTableAnnotationComposer a) f,
@@ -3628,6 +4806,31 @@ class $$UsersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> pinDevicesRefs<T extends Object>(
+    Expression<T> Function($$PinDevicesTableAnnotationComposer a) f,
+  ) {
+    final $$PinDevicesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.pinDevices,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PinDevicesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.pinDevices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$UsersTableTableManager
@@ -3643,7 +4846,11 @@ class $$UsersTableTableManager
           $$UsersTableUpdateCompanionBuilder,
           (UserRow, $$UsersTableReferences),
           UserRow,
-          PrefetchHooks Function({bool authSessionsRefs})
+          PrefetchHooks Function({
+            bool userScopeAssignmentsRefs,
+            bool authSessionsRefs,
+            bool pinDevicesRefs,
+          })
         > {
   $$UsersTableTableManager(_$AppDatabase db, $UsersTable table)
     : super(
@@ -3662,6 +4869,11 @@ class $$UsersTableTableManager
                 Value<String> username = const Value.absent(),
                 Value<String> displayName = const Value.absent(),
                 Value<String> email = const Value.absent(),
+                Value<String> firstName = const Value.absent(),
+                Value<String> lastName = const Value.absent(),
+                Value<String> phone = const Value.absent(),
+                Value<Uint8List?> photo = const Value.absent(),
+                Value<int> photoVersion = const Value.absent(),
                 Value<String> role = const Value.absent(),
                 Value<String> passwordHash = const Value.absent(),
                 Value<String> status = const Value.absent(),
@@ -3672,6 +4884,11 @@ class $$UsersTableTableManager
                 username: username,
                 displayName: displayName,
                 email: email,
+                firstName: firstName,
+                lastName: lastName,
+                phone: phone,
+                photo: photo,
+                photoVersion: photoVersion,
                 role: role,
                 passwordHash: passwordHash,
                 status: status,
@@ -3684,6 +4901,11 @@ class $$UsersTableTableManager
                 required String username,
                 required String displayName,
                 Value<String> email = const Value.absent(),
+                Value<String> firstName = const Value.absent(),
+                Value<String> lastName = const Value.absent(),
+                Value<String> phone = const Value.absent(),
+                Value<Uint8List?> photo = const Value.absent(),
+                Value<int> photoVersion = const Value.absent(),
                 required String role,
                 required String passwordHash,
                 Value<String> status = const Value.absent(),
@@ -3694,6 +4916,11 @@ class $$UsersTableTableManager
                 username: username,
                 displayName: displayName,
                 email: email,
+                firstName: firstName,
+                lastName: lastName,
+                phone: phone,
+                photo: photo,
+                photoVersion: photoVersion,
                 role: role,
                 passwordHash: passwordHash,
                 status: status,
@@ -3708,36 +4935,86 @@ class $$UsersTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({authSessionsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (authSessionsRefs) db.authSessions],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (authSessionsRefs)
-                    await $_getPrefetchedDataByColumns<
-                      UserRow,
-                      $UsersTable,
-                      AuthSessionRow,
-                      $AuthSessionsTable
-                    >(
-                      currentTable: table,
-                      referencedTable: $$UsersTableReferences
-                          ._authSessionsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$UsersTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).authSessionsRefs,
-                      currentColumn: 'id',
-                      referencedColumn: 'user_id',
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({
+                userScopeAssignmentsRefs = false,
+                authSessionsRefs = false,
+                pinDevicesRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (userScopeAssignmentsRefs) db.userScopeAssignments,
+                    if (authSessionsRefs) db.authSessions,
+                    if (pinDevicesRefs) db.pinDevices,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (userScopeAssignmentsRefs)
+                        await $_getPrefetchedDataByColumns<
+                          UserRow,
+                          $UsersTable,
+                          UserScopeAssignmentRow,
+                          $UserScopeAssignmentsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._userScopeAssignmentsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).userScopeAssignmentsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'user_id',
+                          typedResults: items,
+                        ),
+                      if (authSessionsRefs)
+                        await $_getPrefetchedDataByColumns<
+                          UserRow,
+                          $UsersTable,
+                          AuthSessionRow,
+                          $AuthSessionsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._authSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).authSessionsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'user_id',
+                          typedResults: items,
+                        ),
+                      if (pinDevicesRefs)
+                        await $_getPrefetchedDataByColumns<
+                          UserRow,
+                          $UsersTable,
+                          PinDeviceRow,
+                          $PinDevicesTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._pinDevicesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).pinDevicesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'user_id',
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -3754,7 +5031,289 @@ typedef $$UsersTableProcessedTableManager =
       $$UsersTableUpdateCompanionBuilder,
       (UserRow, $$UsersTableReferences),
       UserRow,
-      PrefetchHooks Function({bool authSessionsRefs})
+      PrefetchHooks Function({
+        bool userScopeAssignmentsRefs,
+        bool authSessionsRefs,
+        bool pinDevicesRefs,
+      })
+    >;
+typedef $$UserScopeAssignmentsTableCreateCompanionBuilder =
+    UserScopeAssignmentsCompanion Function({
+      required String userId,
+      required String scopeId,
+      Value<int> rowid,
+    });
+typedef $$UserScopeAssignmentsTableUpdateCompanionBuilder =
+    UserScopeAssignmentsCompanion Function({
+      Value<String> userId,
+      Value<String> scopeId,
+      Value<int> rowid,
+    });
+
+final class $$UserScopeAssignmentsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $UserScopeAssignmentsTable,
+          UserScopeAssignmentRow
+        > {
+  $$UserScopeAssignmentsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $UsersTable _userIdTable(_$AppDatabase db) =>
+      db.users.createAlias('user_scope_assignments__user_id__users__id');
+
+  $$UsersTableProcessedTableManager get userId {
+    final $_column = $_itemColumn<String>('user_id')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$UserScopeAssignmentsTableFilterComposer
+    extends Composer<_$AppDatabase, $UserScopeAssignmentsTable> {
+  $$UserScopeAssignmentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get scopeId => $composableBuilder(
+    column: $table.scopeId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get userId {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserScopeAssignmentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserScopeAssignmentsTable> {
+  $$UserScopeAssignmentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get scopeId => $composableBuilder(
+    column: $table.scopeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get userId {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserScopeAssignmentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserScopeAssignmentsTable> {
+  $$UserScopeAssignmentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get scopeId =>
+      $composableBuilder(column: $table.scopeId, builder: (column) => column);
+
+  $$UsersTableAnnotationComposer get userId {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserScopeAssignmentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UserScopeAssignmentsTable,
+          UserScopeAssignmentRow,
+          $$UserScopeAssignmentsTableFilterComposer,
+          $$UserScopeAssignmentsTableOrderingComposer,
+          $$UserScopeAssignmentsTableAnnotationComposer,
+          $$UserScopeAssignmentsTableCreateCompanionBuilder,
+          $$UserScopeAssignmentsTableUpdateCompanionBuilder,
+          (UserScopeAssignmentRow, $$UserScopeAssignmentsTableReferences),
+          UserScopeAssignmentRow,
+          PrefetchHooks Function({bool userId})
+        > {
+  $$UserScopeAssignmentsTableTableManager(
+    _$AppDatabase db,
+    $UserScopeAssignmentsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserScopeAssignmentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserScopeAssignmentsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$UserScopeAssignmentsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> userId = const Value.absent(),
+                Value<String> scopeId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserScopeAssignmentsCompanion(
+                userId: userId,
+                scopeId: scopeId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String userId,
+                required String scopeId,
+                Value<int> rowid = const Value.absent(),
+              }) => UserScopeAssignmentsCompanion.insert(
+                userId: userId,
+                scopeId: scopeId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $UserScopeAssignmentsTable,
+                    UserScopeAssignmentRow
+                  >(table),
+                  $$UserScopeAssignmentsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.userId,
+                        referencedTable: $$UserScopeAssignmentsTableReferences
+                            ._userIdTable(db),
+                        referencedColumn: $$UserScopeAssignmentsTableReferences
+                            ._userIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$UserScopeAssignmentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UserScopeAssignmentsTable,
+      UserScopeAssignmentRow,
+      $$UserScopeAssignmentsTableFilterComposer,
+      $$UserScopeAssignmentsTableOrderingComposer,
+      $$UserScopeAssignmentsTableAnnotationComposer,
+      $$UserScopeAssignmentsTableCreateCompanionBuilder,
+      $$UserScopeAssignmentsTableUpdateCompanionBuilder,
+      (UserScopeAssignmentRow, $$UserScopeAssignmentsTableReferences),
+      UserScopeAssignmentRow,
+      PrefetchHooks Function({bool userId})
     >;
 typedef $$AuthSessionsTableCreateCompanionBuilder =
     AuthSessionsCompanion Function({
@@ -4331,6 +5890,378 @@ typedef $$AuditEntriesTableProcessedTableManager =
       AuditEntryRow,
       PrefetchHooks Function()
     >;
+typedef $$PinDevicesTableCreateCompanionBuilder = PinDevicesCompanion Function({
+  required String id,
+  required String userId,
+  required String tokenHash,
+  required String pinHash,
+  Value<String> label,
+  required int createdAt,
+  Value<int> lastUsedAt,
+  Value<int> failures,
+  Value<int> rowid,
+});
+typedef $$PinDevicesTableUpdateCompanionBuilder = PinDevicesCompanion Function({
+  Value<String> id,
+  Value<String> userId,
+  Value<String> tokenHash,
+  Value<String> pinHash,
+  Value<String> label,
+  Value<int> createdAt,
+  Value<int> lastUsedAt,
+  Value<int> failures,
+  Value<int> rowid,
+});
+
+final class $$PinDevicesTableReferences
+    extends BaseReferences<_$AppDatabase, $PinDevicesTable, PinDeviceRow> {
+  $$PinDevicesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $UsersTable _userIdTable(_$AppDatabase db) =>
+      db.users.createAlias('pin_devices__user_id__users__id');
+
+  $$UsersTableProcessedTableManager get userId {
+    final $_column = $_itemColumn<String>('user_id')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PinDevicesTableFilterComposer
+    extends Composer<_$AppDatabase, $PinDevicesTable> {
+  $$PinDevicesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tokenHash => $composableBuilder(
+    column: $table.tokenHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pinHash => $composableBuilder(
+    column: $table.pinHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get failures => $composableBuilder(
+    column: $table.failures,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get userId {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PinDevicesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PinDevicesTable> {
+  $$PinDevicesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tokenHash => $composableBuilder(
+    column: $table.tokenHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pinHash => $composableBuilder(
+    column: $table.pinHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get failures => $composableBuilder(
+    column: $table.failures,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get userId {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PinDevicesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PinDevicesTable> {
+  $$PinDevicesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get tokenHash =>
+      $composableBuilder(column: $table.tokenHash, builder: (column) => column);
+
+  GeneratedColumn<String> get pinHash =>
+      $composableBuilder(column: $table.pinHash, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get failures =>
+      $composableBuilder(column: $table.failures, builder: (column) => column);
+
+  $$UsersTableAnnotationComposer get userId {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PinDevicesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PinDevicesTable,
+          PinDeviceRow,
+          $$PinDevicesTableFilterComposer,
+          $$PinDevicesTableOrderingComposer,
+          $$PinDevicesTableAnnotationComposer,
+          $$PinDevicesTableCreateCompanionBuilder,
+          $$PinDevicesTableUpdateCompanionBuilder,
+          (PinDeviceRow, $$PinDevicesTableReferences),
+          PinDeviceRow,
+          PrefetchHooks Function({bool userId})
+        > {
+  $$PinDevicesTableTableManager(_$AppDatabase db, $PinDevicesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PinDevicesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PinDevicesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PinDevicesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> userId = const Value.absent(),
+                Value<String> tokenHash = const Value.absent(),
+                Value<String> pinHash = const Value.absent(),
+                Value<String> label = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> lastUsedAt = const Value.absent(),
+                Value<int> failures = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PinDevicesCompanion(
+                id: id,
+                userId: userId,
+                tokenHash: tokenHash,
+                pinHash: pinHash,
+                label: label,
+                createdAt: createdAt,
+                lastUsedAt: lastUsedAt,
+                failures: failures,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String userId,
+                required String tokenHash,
+                required String pinHash,
+                Value<String> label = const Value.absent(),
+                required int createdAt,
+                Value<int> lastUsedAt = const Value.absent(),
+                Value<int> failures = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PinDevicesCompanion.insert(
+                id: id,
+                userId: userId,
+                tokenHash: tokenHash,
+                pinHash: pinHash,
+                label: label,
+                createdAt: createdAt,
+                lastUsedAt: lastUsedAt,
+                failures: failures,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PinDevicesTable, PinDeviceRow>(table),
+                  $$PinDevicesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.userId,
+                        referencedTable: $$PinDevicesTableReferences
+                            ._userIdTable(db),
+                        referencedColumn: $$PinDevicesTableReferences
+                            ._userIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PinDevicesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PinDevicesTable,
+      PinDeviceRow,
+      $$PinDevicesTableFilterComposer,
+      $$PinDevicesTableOrderingComposer,
+      $$PinDevicesTableAnnotationComposer,
+      $$PinDevicesTableCreateCompanionBuilder,
+      $$PinDevicesTableUpdateCompanionBuilder,
+      (PinDeviceRow, $$PinDevicesTableReferences),
+      PinDeviceRow,
+      PrefetchHooks Function({bool userId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4343,8 +6274,12 @@ class $AppDatabaseManager {
       $$AppSettingsTableTableManager(_db, _db.appSettings);
   $$UsersTableTableManager get users =>
       $$UsersTableTableManager(_db, _db.users);
+  $$UserScopeAssignmentsTableTableManager get userScopeAssignments =>
+      $$UserScopeAssignmentsTableTableManager(_db, _db.userScopeAssignments);
   $$AuthSessionsTableTableManager get authSessions =>
       $$AuthSessionsTableTableManager(_db, _db.authSessions);
   $$AuditEntriesTableTableManager get auditEntries =>
       $$AuditEntriesTableTableManager(_db, _db.auditEntries);
+  $$PinDevicesTableTableManager get pinDevices =>
+      $$PinDevicesTableTableManager(_db, _db.pinDevices);
 }

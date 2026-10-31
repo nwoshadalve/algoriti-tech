@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -12,6 +19,10 @@ const owner: Account = {
   id: 'a1',
   username: 'owner',
   displayName: 'The Owner',
+  firstName: 'The',
+  lastName: 'Owner',
+  phone: '',
+  photoVersion: 0,
   email: 'owner@clinic.test',
   role: 'admin',
 }
@@ -24,8 +35,8 @@ function adminExists(registered = true) {
   })
 }
 
-async function signInWith(user: ReturnType<typeof userEvent.setup>, password = 'a-long-passphrase') {
-  await user.type(await screen.findByLabelText('Username'), 'Owner')
+async function signInWith(user: ReturnType<typeof userEvent.setup>, password = 'a-long-passphrase', who = 'Owner') {
+  await user.type(await screen.findByLabelText('Username or email'), who)
   await user.type(screen.getByLabelText('Password'), password)
   await user.click(screen.getByRole('button', { name: 'Sign in' }))
 }
@@ -45,9 +56,21 @@ describe('sign-in', () => {
     renderAppAt('/login')
     await signInWith(userEvent.setup())
 
-    expect(await screen.findByText('Welcome, The Owner')).toBeInTheDocument()
-    expect(login).toHaveBeenCalledWith('Owner', 'a-long-passphrase')
+    expect(await screen.findByRole('heading', { name: 'Welcome back, The' })).toBeInTheDocument()
+    expect(login).toHaveBeenCalledWith('Owner', 'a-long-passphrase', false)
     expect(readSession()).toBe('tok')
+  })
+
+  it('should sign in with an email address in place of the username', async () => {
+    const login = vi
+      .spyOn(authApi, 'login')
+      .mockResolvedValue({ token: 'tok', expiresAt: inOneHour(), account: owner })
+
+    renderAppAt('/login')
+    await signInWith(userEvent.setup(), 'a-long-passphrase', 'owner@clinic.test')
+
+    expect(await screen.findByRole('heading', { name: 'Welcome back, The' })).toBeInTheDocument()
+    expect(login).toHaveBeenCalledWith('owner@clinic.test', 'a-long-passphrase', false)
   })
 
   it('should say so when the username or password is wrong', async () => {
@@ -56,7 +79,7 @@ describe('sign-in', () => {
     renderAppAt('/login')
     await signInWith(userEvent.setup(), 'wrong-password-1')
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Wrong username or password.')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Wrong username, email or password.')
     expect(screen.getByLabelText('Password')).toHaveValue('')
   })
 
@@ -87,7 +110,7 @@ describe('sign-in', () => {
     const user = userEvent.setup()
     await user.click(await screen.findByRole('button', { name: 'Sign in' }))
 
-    expect(await screen.findByText('Enter your username and password.')).toBeInTheDocument()
+    expect(await screen.findByText('Enter your username or email and your password.')).toBeInTheDocument()
     expect(login).not.toHaveBeenCalled()
   })
 
@@ -131,7 +154,7 @@ describe('sign-in', () => {
 
     renderAppAt('/home')
 
-    expect(await screen.findByText('Welcome, The Owner')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Welcome back, The' })).toBeInTheDocument()
   })
 
   it('should drop a sign-in the tablet no longer accepts', async () => {
@@ -156,7 +179,9 @@ describe('sign-in', () => {
     const logout = vi.spyOn(authApi, 'logout').mockResolvedValue()
 
     renderAppAt('/home')
-    await userEvent.setup().click(await screen.findByRole('button', { name: 'Sign out' }))
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole('button', { name: 'Account menu' }))
+    await user.click(screen.getByRole('button', { name: 'Sign out' }))
 
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument()
     expect(logout).toHaveBeenCalledWith('tok')
@@ -259,7 +284,7 @@ describe('forgot password', () => {
     await giveUsername(user)
     await giveKey(user)
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Try again in 60 seconds.')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Try again in 1 minute.')
   })
 
   it('should reset the password and go back to sign-in with a notice', async () => {

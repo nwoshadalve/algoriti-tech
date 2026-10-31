@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 /** Client-safe configuration (VITE_* only). */
 
 const apiPath = import.meta.env.VITE_API_BASE_PATH ?? '/api/v1'

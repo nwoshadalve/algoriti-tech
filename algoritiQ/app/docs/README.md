@@ -41,6 +41,10 @@ Two kinds of docs:
 | [Local name](./features/local-name.md) | `algoritiq.local` on the clinic Wi-Fi, no internet needed |
 | [Authentication](./features/authentication.md) | Sign-in, session tokens (why not JWT), password reset with the activation key |
 | [Web app](./features/web-app.md) | The React site served by the tablet, how to build and bundle it |
+| [Connectivity](./features/connectivity.md) | The receptionist's printer page: pair once, automatic reconnect, battery and paper |
+| [Monitoring](./features/monitoring.md) | The admin monitoring page: tablet CPU, RAM, storage, Bluetooth, services, retry |
+
+Queue (patient entry, stats, TV audio) — accepted product decisions: [queue-product-decisions.md](../../docs/features/queue-product-decisions.md) (repo `docs/features/`).
 
 Guides: [Build the web app and deploy it on the tablet](./web-build-and-deploy.md) · [Dev setup](./dev-setup.md).
 

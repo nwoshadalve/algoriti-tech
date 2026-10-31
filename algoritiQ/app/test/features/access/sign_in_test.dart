@@ -1,6 +1,15 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
+import 'package:algoritiq_app/core/database/app_database.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:algoritiq_app/app/app.dart';
 import 'package:algoritiq_app/features/access/application/access_providers.dart';
 import 'package:algoritiq_app/features/access/application/access_service.dart';
+import 'package:algoritiq_app/features/access/application/tablet_session.dart';
+import 'package:algoritiq_app/features/access/domain/account.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,7 +30,7 @@ void main() {
 
   /// Real work (hashing) needs real time; the screen needs pumping.
   Future<void> settle(WidgetTester tester) async {
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 12; i++) {
       await tester.runAsync(() => Future<void>.delayed(Duration.zero));
       await tester.pump(const Duration(milliseconds: 100));
     }
@@ -66,6 +75,45 @@ void main() {
         password: password,
       ),
     );
+    await tester.runAsync(() async {
+      final hasher = await container.read(passwordHasherProvider.future);
+      await container
+          .read(accountRepositoryProvider)
+          .createManagedUser(
+            account: Account(
+              id: 'desk-1',
+              username: 'desk',
+              displayName: 'Front Desk',
+              email: 'desk@clinic.test',
+              role: Role.receptionist,
+              createdAt: DateTime.utc(2026, 1, 1),
+            ),
+            passwordHash: await hasher.hash(password),
+            actorId: 'owner',
+            at: DateTime.utc(2026, 1, 1),
+          );
+      final db = container.read(appDatabaseProvider);
+      await seedDoctor(db);
+      const chamberId = 'sign-in-chamber';
+      await db
+          .into(db.chambers)
+          .insertOnConflictUpdate(
+            ChambersCompanion.insert(
+              id: chamberId,
+              doctorId: 'seed-doctor',
+              name: 'Main chamber',
+              createdAt: testNow.millisecondsSinceEpoch,
+            ),
+          );
+      await container
+          .read(accountRepositoryProvider)
+          .setUserScopes(
+            userId: 'desk-1',
+            scopeIds: [chamberId],
+            actorId: 'owner',
+            at: DateTime.utc(2026, 1, 1),
+          );
+    });
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -81,12 +129,24 @@ void main() {
 
   Future<void> signIn(
     WidgetTester tester, {
-    String user = 'owner',
+    String user = 'desk',
     String pass = password,
   }) async {
     await tester.enterText(find.byType(TextField).at(0), user);
     await tester.enterText(find.byType(TextField).at(1), pass);
     await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
+    await settle(tester);
+  }
+
+  Future<void> tapSignOut(WidgetTester tester) async {
+    final menu = find.byTooltip('Open menu');
+    if (menu.evaluate().isNotEmpty) {
+      await tester.tap(menu);
+      await settle(tester);
+    }
+    await tester.tap(find.text('Front Desk'));
+    await settle(tester);
+    await tester.tap(find.text('Sign out'));
     await settle(tester);
   }
 
@@ -133,6 +193,87 @@ void main() {
     await settle(tester);
   }
 
+  group('admin on the tablet', () {
+    /// The tablet is closed and opened again: the app is still running.
+    Future<void> closeAndReopen(WidgetTester tester) async {
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.detached);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await settle(tester);
+    }
+
+    testWidgets('should point an admin to the web app instead of the app', (
+      tester,
+    ) async {
+      await open(tester);
+
+      await signIn(tester, user: 'owner');
+
+      expect(find.text('Admin sign-in is on the web'), findsOneWidget);
+      expect(
+        find.textContaining('only has the receptionist screen'),
+        findsOneWidget,
+      );
+      expect(find.text('https://192.168.0.20:8443'), findsWidgets);
+      expect(find.widgetWithText(FilledButton, 'OK'), findsOneWidget);
+      expect(find.byIcon(Icons.add), findsNothing);
+      await close(tester);
+    });
+
+    testWidgets('should show the sign-in screen when the admin presses OK', (
+      tester,
+    ) async {
+      await open(tester);
+      await signIn(tester, user: 'owner');
+
+      await tester.tap(find.widgetWithText(FilledButton, 'OK'));
+      await settle(tester);
+
+      expect(find.text('Admin sign-in is on the web'), findsNothing);
+      expect(find.byIcon(Icons.add), findsNothing);
+      expect(find.byType(TextField), findsNWidgets(2));
+      await close(tester);
+    });
+
+    testWidgets('should sign the admin out when the app is closed', (
+      tester,
+    ) async {
+      await open(tester);
+      await signIn(tester, user: 'owner');
+
+      await closeAndReopen(tester);
+
+      expect(find.text('Admin sign-in is on the web'), findsNothing);
+      expect(find.byType(TextField), findsNWidgets(2));
+      await close(tester);
+    });
+
+    testWidgets('should keep a receptionist signed in on the same close', (
+      tester,
+    ) async {
+      await open(tester);
+      await signIn(tester);
+
+      await closeAndReopen(tester);
+
+      expect(find.text('Patient queue'), findsOneWidget);
+      await close(tester);
+    });
+
+    testWidgets('should end the admin sign-in at OK, not keep it hidden', (
+      tester,
+    ) async {
+      final container = await open(tester);
+      await signIn(tester, user: 'owner');
+
+      await tester.tap(find.widgetWithText(FilledButton, 'OK'));
+      await settle(tester);
+
+      expect(container.read(tabletSessionProvider), isNull);
+      await close(tester);
+    });
+  });
+
   group('signing in on the tablet', () {
     testWidgets('should ask for the password once an admin exists', (
       tester,
@@ -150,7 +291,7 @@ void main() {
 
       await signIn(tester);
 
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.text('Patient queue'), findsOneWidget);
       await close(tester);
     });
 
@@ -159,9 +300,9 @@ void main() {
     ) async {
       await open(tester);
 
-      await signIn(tester, user: ' Owner ');
+      await signIn(tester, user: ' Desk ');
 
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.text('Patient queue'), findsOneWidget);
       await close(tester);
     });
 
@@ -170,7 +311,7 @@ void main() {
 
       await signIn(tester, pass: 'wrong-password-1');
 
-      expect(find.text('Wrong username or password.'), findsOneWidget);
+      expect(find.text('Wrong username, email or password.'), findsOneWidget);
       expect(find.byIcon(Icons.add), findsNothing);
       final field = tester.widget<TextField>(find.byType(TextField).at(1));
       expect(field.controller!.text, isEmpty);
@@ -183,7 +324,10 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
       await settle(tester);
 
-      expect(find.text('Enter your username and password.'), findsOneWidget);
+      expect(
+        find.text('Enter your username or email and your password.'),
+        findsOneWidget,
+      );
       await close(tester);
     });
 
@@ -217,10 +361,9 @@ void main() {
       await open(tester);
       await signIn(tester);
 
-      await tester.tap(find.byTooltip('Sign out'));
-      await settle(tester);
+      await tapSignOut(tester);
 
-      expect(find.byIcon(Icons.add), findsNothing);
+      expect(find.text('Patient queue'), findsNothing);
       expect(find.byType(TextField), findsNWidgets(2));
       await close(tester);
     });
@@ -230,7 +373,7 @@ void main() {
     ) async {
       final container = await open(tester);
       await signIn(tester);
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.text('Patient queue'), findsOneWidget);
       final service = await tester.runAsync(
         () => container.read(accessServiceProvider.future),
       );
@@ -238,7 +381,7 @@ void main() {
       // Someone resets the password from a laptop.
       await tester.runAsync(() async {
         final start = await service!.startReset(
-          username: 'owner',
+          username: 'desk',
           activationKey: licensed.token!,
           clientKey: 'laptop',
         );
@@ -372,8 +515,8 @@ void main() {
         find.text('Password changed. Sign in with your new password.'),
         findsOneWidget,
       );
-      await signIn(tester, pass: newPassword);
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      await signIn(tester, user: 'owner', pass: newPassword);
+      expect(find.text('Admin sign-in is on the web'), findsOneWidget);
       await close(tester);
     });
 

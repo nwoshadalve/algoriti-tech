@@ -65,6 +65,7 @@ The dev server forwards `/api` to the tablet, so you can change the UI with hot 
 | Symptom | Cause and fix |
 | --- | --- |
 | **Blank page** (just the dark blue background) | The app failed to start. Open the browser's console (F12). The 2026-10 incident: `Router basename="/./" is not able to match the URL`; the router was given Vite's relative `base` (`./`). Fixed in `web/src/app/routerBasename.ts` (with a test). Always check a **production** build (`npm run build`), not only `npm run dev`, before deploying. |
+| **Blank page after signing in on a phone** | The live connection (`new WebSocket`) threw in that browser (e.g. the Content-Security-Policy `connect-src 'self'` does not cover `wss:` in older Safari) and the error unmounted the app. Fixed in `LiveChannelProvider` (the connection chip shows offline instead; test in `DashboardLayout.test.tsx`). |
 | Old page after a deploy | Hard refresh (Ctrl+F5). `index.html` is revalidated on every visit, but a browser that registered the service worker may show its cache once. |
 | Console: *Failed to register a ServiceWorker* | Harmless. A browser refuses service workers on the tablet's own (self-signed) certificate. The site works without it. |
 | `Unable to find directory ... assets/web/...` when building the app | Run the copy step first (`python tool\bundle_web.py`), or a folder is missing in `pubspec.yaml`. |

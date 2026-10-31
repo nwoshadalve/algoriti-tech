@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'dart:async';
 import 'dart:ui';
 
@@ -11,6 +16,7 @@ import '../core/l10n/locale_controller.dart';
 import '../core/splash/native_splash.dart';
 import '../features/access/application/access_providers.dart';
 import '../features/clinic/application/clinic_providers.dart';
+import '../features/connectivity/application/printer_controller.dart';
 import '../features/licensing/application/license_controller.dart';
 import '../features/licensing/domain/license_payload.dart';
 import '../features/licensing/domain/license_state.dart';
@@ -25,15 +31,18 @@ import 'app.dart';
 /// The same code runs when the tablet has just restarted and nobody has
 /// opened the app: the background service starts this engine with no screen.
 /// Then only the local API is started, and the screen is built later, when
-/// the app is opened.
+/// the app is opened. The printer connection is kept the same way.
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
   final container = ProviderContainer();
   await preloadStartupState(container);
 
-  // An activated tablet serves its API from now on, screen or no screen.
+  // An activated tablet serves its API from now on, screen or no screen. The
+  // printer link is kept the same way: the controller reconnects by itself
+  // whenever the printer is on, even with the app closed or just after a restart.
   if (container.read(licenseControllerProvider).value is Licensed) {
     container.listen(serverControllerProvider, (_, _) {});
+    container.listen(printerControllerProvider, (_, _) {});
   }
 
   await waitForScreen(PlatformDispatcher.instance);

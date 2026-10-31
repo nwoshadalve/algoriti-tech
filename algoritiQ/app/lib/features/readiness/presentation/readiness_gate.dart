@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,8 +11,7 @@ import '../../../l10n/app_localizations.dart';
 import '../application/readiness_controller.dart';
 import 'readiness_page.dart';
 
-/// After first-time setup (or immediately on chamber licenses), shows the
-/// readiness guide until every required item is done. Re-reads the checklist
+/// After activation, shows the readiness guide until every required item is done.
 /// when the user returns from a system settings page, and returns here if a
 /// later change (for example a new screen lock) breaks a requirement.
 class ReadinessGate extends ConsumerStatefulWidget {

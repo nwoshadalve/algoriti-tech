@@ -692,6 +692,18 @@ abstract class AppLocalizations {
   /// **'A small notice tells Android this app must keep running.'**
   String get readinessNotificationsBody;
 
+  /// No description provided for @readinessBluetoothTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Bluetooth'**
+  String get readinessBluetoothTitle;
+
+  /// No description provided for @readinessBluetoothBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Lets the app see whether Bluetooth is on or off and ask to turn it on when needed for printing.'**
+  String get readinessBluetoothBody;
+
   /// No description provided for @readinessAutoStartTitle.
   ///
   /// In en, this message translates to:
@@ -770,6 +782,48 @@ abstract class AppLocalizations {
   /// **'Not confirmed'**
   String get readinessStateUnconfirmed;
 
+  /// No description provided for @clinicDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinic data'**
+  String get clinicDataTitle;
+
+  /// No description provided for @clinicDataIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Start fresh on this tablet, or bring back a zip you saved from Backup in the web app.'**
+  String get clinicDataIntro;
+
+  /// No description provided for @clinicDataStartNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Start new'**
+  String get clinicDataStartNew;
+
+  /// No description provided for @clinicDataRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from backup'**
+  String get clinicDataRestore;
+
+  /// No description provided for @clinicDataRestoreHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the zip file you downloaded from Backup on another session.'**
+  String get clinicDataRestoreHint;
+
+  /// No description provided for @clinicDataRestoreBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring…'**
+  String get clinicDataRestoreBusy;
+
+  /// No description provided for @clinicDataRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not restore this backup. Check the file and try again.'**
+  String get clinicDataRestoreFailed;
+
   /// No description provided for @signInTitle.
   ///
   /// In en, this message translates to:
@@ -779,8 +833,14 @@ abstract class AppLocalizations {
   /// No description provided for @signInIntro.
   ///
   /// In en, this message translates to:
-  /// **'Use the username and password of your admin account.'**
+  /// **'Use the username or email and the password of your admin account.'**
   String get signInIntro;
+
+  /// No description provided for @signInIdentifierLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username or email'**
+  String get signInIdentifierLabel;
 
   /// No description provided for @signInUsernameLabel.
   ///
@@ -812,16 +872,100 @@ abstract class AppLocalizations {
   /// **'Forgot password?'**
   String get signInForgot;
 
+  /// No description provided for @signInRemember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember me on this tablet'**
+  String get signInRemember;
+
+  /// No description provided for @signInRememberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay signed in for 30 days. Use only on your own device.'**
+  String get signInRememberHint;
+
+  /// No description provided for @pinLoginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, {name}'**
+  String pinLoginTitle(String name);
+
+  /// No description provided for @pinLoginIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your PIN to sign in on this tablet.'**
+  String get pinLoginIntro;
+
+  /// No description provided for @fieldPin.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN'**
+  String get fieldPin;
+
+  /// No description provided for @pinUsePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Use password instead'**
+  String get pinUsePassword;
+
+  /// No description provided for @pinUsePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Use PIN instead'**
+  String get pinUsePin;
+
+  /// No description provided for @pinWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That PIN is not correct. {count} tries left.'**
+  String pinWrong(int count);
+
+  /// No description provided for @pinLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many wrong PINs. Sign in with your password.'**
+  String get pinLocked;
+
+  /// No description provided for @pinRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your 6-digit PIN.'**
+  String get pinRequired;
+
+  /// No description provided for @adminNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin sign-in is on the web'**
+  String get adminNoticeTitle;
+
+  /// No description provided for @adminNoticeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This tablet only has the receptionist screen for now. To manage the clinic as an admin, open the address below in a web browser on your phone or laptop and sign in there. Admin sign-in on the tablet may come in a later update.'**
+  String get adminNoticeBody;
+
+  /// No description provided for @adminNoticeSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Press OK to go back to the sign-in screen. You are also signed out when this app is closed.'**
+  String get adminNoticeSignOut;
+
+  /// No description provided for @adminNoticeOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get adminNoticeOk;
+
   /// No description provided for @signInFieldsRequired.
   ///
   /// In en, this message translates to:
-  /// **'Enter your username and password.'**
+  /// **'Enter your username or email and your password.'**
   String get signInFieldsRequired;
 
   /// No description provided for @signInWrong.
   ///
   /// In en, this message translates to:
-  /// **'Wrong username or password.'**
+  /// **'Wrong username, email or password.'**
   String get signInWrong;
 
   /// No description provided for @signInWait.
@@ -1033,6 +1177,786 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This reset has expired. Enter the activation key again.'**
   String get resetExpired;
+
+  /// No description provided for @navPrimaryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard sections'**
+  String get navPrimaryLabel;
+
+  /// No description provided for @navBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Board'**
+  String get navBoard;
+
+  /// No description provided for @navCloseMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Close menu'**
+  String get navCloseMenu;
+
+  /// No description provided for @navOpenMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Open menu'**
+  String get navOpenMenu;
+
+  /// No description provided for @boardGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, {name}'**
+  String boardGreeting(String name);
+
+  /// No description provided for @workScopeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where are you working?'**
+  String get workScopeTitle;
+
+  /// No description provided for @workScopeIntroChamber.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a chamber to open the board and patient queue.'**
+  String get workScopeIntroChamber;
+
+  /// No description provided for @workScopeIntroDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a doctor to open the board and patient queue.'**
+  String get workScopeIntroDoctor;
+
+  /// No description provided for @workScopeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not assigned to any chamber yet. Ask your administrator to assign you.'**
+  String get workScopeEmpty;
+
+  /// No description provided for @workScopeActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Working at {name}. Run the counter from here.'**
+  String workScopeActive(String name);
+
+  /// No description provided for @workScopeSidebarLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Working at'**
+  String get workScopeSidebarLabel;
+
+  /// No description provided for @navChangeWorkScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Change chamber'**
+  String get navChangeWorkScope;
+
+  /// No description provided for @boardIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Run the counter from here. Live queue tools will appear on this board.'**
+  String get boardIntro;
+
+  /// No description provided for @boardServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinic server'**
+  String get boardServerTitle;
+
+  /// No description provided for @boardServerOk.
+  ///
+  /// In en, this message translates to:
+  /// **'This tablet is serving the web app and other devices.'**
+  String get boardServerOk;
+
+  /// No description provided for @boardServerStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting the clinic server…'**
+  String get boardServerStarting;
+
+  /// No description provided for @boardServerFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The clinic server could not start. Check readiness settings or restart the app.'**
+  String get boardServerFailed;
+
+  /// No description provided for @boardAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account'**
+  String get boardAccountTitle;
+
+  /// No description provided for @fieldRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get fieldRole;
+
+  /// No description provided for @fieldUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get fieldUsername;
+
+  /// No description provided for @fieldEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get fieldEmail;
+
+  /// No description provided for @roleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator'**
+  String get roleAdmin;
+
+  /// No description provided for @roleReceptionist.
+  ///
+  /// In en, this message translates to:
+  /// **'Receptionist'**
+  String get roleReceptionist;
+
+  /// No description provided for @boardQueueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient queue'**
+  String get boardQueueTitle;
+
+  /// No description provided for @boardQueueSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Live queue tools will appear here once they are ready.'**
+  String get boardQueueSoon;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to light theme'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to dark theme'**
+  String get themeDark;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get navSettings;
+
+  /// No description provided for @settingsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile photo, name, password, and PIN for this device.'**
+  String get settingsIntro;
+
+  /// No description provided for @userMenuLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account menu'**
+  String get userMenuLabel;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
+  /// No description provided for @signingOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing out…'**
+  String get signingOut;
+
+  /// No description provided for @fieldFirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get fieldFirstName;
+
+  /// No description provided for @fieldLastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get fieldLastName;
+
+  /// No description provided for @fieldPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get fieldPhone;
+
+  /// No description provided for @settingsPhotoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo'**
+  String get settingsPhotoTitle;
+
+  /// No description provided for @settingsPhotoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'JPEG, PNG or WebP. The picture is stored on this tablet.'**
+  String get settingsPhotoHelp;
+
+  /// No description provided for @settingsProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal information'**
+  String get settingsProfileTitle;
+
+  /// No description provided for @settingsProfileIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name and contact details.'**
+  String get settingsProfileIntro;
+
+  /// No description provided for @settingsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get settingsSave;
+
+  /// No description provided for @settingsSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get settingsSaving;
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your changes were saved.'**
+  String get settingsSaved;
+
+  /// No description provided for @settingsUsernameNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your username cannot be changed.'**
+  String get settingsUsernameNote;
+
+  /// No description provided for @settingsFixFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix the highlighted fields.'**
+  String get settingsFixFields;
+
+  /// No description provided for @settingsFirstNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your first name.'**
+  String get settingsFirstNameRequired;
+
+  /// No description provided for @settingsNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Use shorter names.'**
+  String get settingsNameTooLong;
+
+  /// No description provided for @settingsEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get settingsEmailInvalid;
+
+  /// No description provided for @settingsEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That email is already in use.'**
+  String get settingsEmailTaken;
+
+  /// No description provided for @settingsPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number.'**
+  String get settingsPhoneInvalid;
+
+  /// No description provided for @settingsPhotoSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo updated.'**
+  String get settingsPhotoSaved;
+
+  /// No description provided for @settingsPhotoRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo removed.'**
+  String get settingsPhotoRemoved;
+
+  /// No description provided for @settingsPhotoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo could not be saved. Try again.'**
+  String get settingsPhotoFailed;
+
+  /// No description provided for @securityCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Password and PIN'**
+  String get securityCardTitle;
+
+  /// No description provided for @securityCardIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your password or set a quick sign-in PIN on this tablet. Changing your password removes every PIN.'**
+  String get securityCardIntro;
+
+  /// No description provided for @passwordCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordCardTitle;
+
+  /// No description provided for @passwordCardIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password. Your other sign-ins will end.'**
+  String get passwordCardIntro;
+
+  /// No description provided for @passwordChangeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get passwordChangeButton;
+
+  /// No description provided for @passwordModalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your password'**
+  String get passwordModalTitle;
+
+  /// No description provided for @passwordCurrentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get passwordCurrentLabel;
+
+  /// No description provided for @passwordNewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get passwordNewLabel;
+
+  /// No description provided for @passwordConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get passwordConfirmLabel;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. Your other sign-ins were ended.'**
+  String get passwordChanged;
+
+  /// No description provided for @passwordCurrentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password is not correct.'**
+  String get passwordCurrentWrong;
+
+  /// No description provided for @passwordNewSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a different password.'**
+  String get passwordNewSame;
+
+  /// No description provided for @pinCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick sign-in PIN'**
+  String get pinCardTitle;
+
+  /// No description provided for @pinCardIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in on this tablet with a 6-digit PIN instead of your password.'**
+  String get pinCardIntro;
+
+  /// No description provided for @pinNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No PIN is set on this tablet yet.'**
+  String get pinNone;
+
+  /// No description provided for @pinThisTablet.
+  ///
+  /// In en, this message translates to:
+  /// **'This tablet'**
+  String get pinThisTablet;
+
+  /// No description provided for @pinSetButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Set PIN for this tablet'**
+  String get pinSetButton;
+
+  /// No description provided for @pinChangeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change PIN'**
+  String get pinChangeButton;
+
+  /// No description provided for @pinRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get pinRemove;
+
+  /// No description provided for @pinRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN removed.'**
+  String get pinRemoved;
+
+  /// No description provided for @pinSetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN saved for this tablet.'**
+  String get pinSetDone;
+
+  /// No description provided for @pinLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load PIN devices.'**
+  String get pinLoadFailed;
+
+  /// No description provided for @pinModalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a PIN'**
+  String get pinModalTitle;
+
+  /// No description provided for @pinModalPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password'**
+  String get pinModalPasswordLabel;
+
+  /// No description provided for @pinModalPinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New PIN'**
+  String get pinModalPinLabel;
+
+  /// No description provided for @pinModalConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm PIN'**
+  String get pinModalConfirmLabel;
+
+  /// No description provided for @pinModalSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Save PIN'**
+  String get pinModalSubmit;
+
+  /// No description provided for @pinModalBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get pinModalBusy;
+
+  /// No description provided for @pinFormatInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a 6-digit PIN.'**
+  String get pinFormatInvalid;
+
+  /// No description provided for @pinWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PIN that is not too easy to guess.'**
+  String get pinWeak;
+
+  /// No description provided for @pinPasswordWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is not correct.'**
+  String get pinPasswordWrong;
+
+  /// No description provided for @pinPinsDiffer.
+  ///
+  /// In en, this message translates to:
+  /// **'PINs do not match.'**
+  String get pinPinsDiffer;
+
+  /// No description provided for @navConnectivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Connectivity'**
+  String get navConnectivity;
+
+  /// No description provided for @toastDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss message'**
+  String get toastDismiss;
+
+  /// No description provided for @connectivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connectivity'**
+  String get connectivityTitle;
+
+  /// No description provided for @connectivityIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Check that the printer and the TV screen are connected.'**
+  String get connectivityIntro;
+
+  /// No description provided for @printerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer'**
+  String get printerTitle;
+
+  /// No description provided for @printerStatusConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get printerStatusConnected;
+
+  /// No description provided for @printerStatusConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get printerStatusConnecting;
+
+  /// No description provided for @printerStatusDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get printerStatusDisconnected;
+
+  /// No description provided for @printerStatusNotPaired.
+  ///
+  /// In en, this message translates to:
+  /// **'No printer set up'**
+  String get printerStatusNotPaired;
+
+  /// No description provided for @printerStatusBtOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is off'**
+  String get printerStatusBtOff;
+
+  /// No description provided for @printerStatusBtDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is not allowed'**
+  String get printerStatusBtDenied;
+
+  /// No description provided for @printerStatusBtMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'No Bluetooth on this tablet'**
+  String get printerStatusBtMissing;
+
+  /// No description provided for @printerBodyNotPaired.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch the printer on and choose it from the list. You only do this once.'**
+  String get printerBodyNotPaired;
+
+  /// No description provided for @printerBodyDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Trying to connect by itself. Make sure the printer is on and close by.'**
+  String get printerBodyDisconnected;
+
+  /// No description provided for @printerBodyConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to print tokens.'**
+  String get printerBodyConnected;
+
+  /// No description provided for @printerBodyBtOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Bluetooth on so the tablet can reach the printer.'**
+  String get printerBodyBtOff;
+
+  /// No description provided for @printerBodyBtDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Bluetooth for this app so the tablet can reach the printer.'**
+  String get printerBodyBtDenied;
+
+  /// No description provided for @printerBodyBtMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This tablet cannot connect to a Bluetooth printer.'**
+  String get printerBodyBtMissing;
+
+  /// No description provided for @printerRetryIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Trying again in {seconds} s'**
+  String printerRetryIn(int seconds);
+
+  /// No description provided for @printerActionChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose printer'**
+  String get printerActionChoose;
+
+  /// No description provided for @printerActionRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect now'**
+  String get printerActionRetry;
+
+  /// No description provided for @printerActionTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Test print'**
+  String get printerActionTest;
+
+  /// No description provided for @printerActionAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Bluetooth'**
+  String get printerActionAllow;
+
+  /// No description provided for @printerActionTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Bluetooth on'**
+  String get printerActionTurnOn;
+
+  /// No description provided for @printerPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your printer'**
+  String get printerPickerTitle;
+
+  /// No description provided for @printerPickerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch the printer on and keep it close. Printers nearby appear below.'**
+  String get printerPickerBody;
+
+  /// No description provided for @printerPickerPairHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Android may ask for a pairing code. For most printers it is 0000 or 1234.'**
+  String get printerPickerPairHint;
+
+  /// No description provided for @printerPickerEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No printer found yet.'**
+  String get printerPickerEmpty;
+
+  /// No description provided for @printerPickerScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for printers…'**
+  String get printerPickerScanning;
+
+  /// No description provided for @printerPickerScanAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Search again'**
+  String get printerPickerScanAgain;
+
+  /// No description provided for @printerPickerPairedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired'**
+  String get printerPickerPairedTag;
+
+  /// No description provided for @printerToastConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer connected.'**
+  String get printerToastConnected;
+
+  /// No description provided for @printerToastLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer disconnected. The tablet is reconnecting.'**
+  String get printerToastLost;
+
+  /// No description provided for @printerToastRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing was cancelled or the code was wrong.'**
+  String get printerToastRejected;
+
+  /// No description provided for @printerToastChooseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not connect to the printer. Check that it is on and close by.'**
+  String get printerToastChooseFailed;
+
+  /// No description provided for @printerToastConnectFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Still cannot reach the printer. The tablet will keep trying.'**
+  String get printerToastConnectFailed;
+
+  /// No description provided for @printerToastTestOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Test token printed.'**
+  String get printerToastTestOk;
+
+  /// No description provided for @printerToastTestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The test token did not print. Check paper and cover.'**
+  String get printerToastTestFailed;
+
+  /// No description provided for @tvTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'TV screen'**
+  String get tvTitle;
+
+  /// No description provided for @tvStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get tvStatus;
+
+  /// No description provided for @tvBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will check and connect the waiting-room TV here.'**
+  String get tvBody;
+
+  /// No description provided for @dialogClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get dialogClose;
+
+  /// No description provided for @printerTestConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print a test token?'**
+  String get printerTestConfirmTitle;
+
+  /// No description provided for @printerTestConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A sample token with a dummy number will print, using the chamber and doctor details set up here.'**
+  String get printerTestConfirmBody;
+
+  /// No description provided for @printerTestConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Print test token'**
+  String get printerTestConfirmAction;
+
+  /// No description provided for @printerToastNoDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'The chamber or doctor details for the token could not be found.'**
+  String get printerToastNoDetails;
 }
 
 class _AppLocalizationsDelegate

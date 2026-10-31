@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import {
   createContext,
   useCallback,
@@ -57,7 +64,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (preference !== 'system') {
       return
     }
-    const media = window.matchMedia('(prefers-color-scheme: dark)')
+    const media = window.matchMedia?.('(prefers-color-scheme: dark)')
+    if (!media?.addEventListener) {
+      return
+    }
     const onChange = () => applyResolved(media.matches ? 'dark' : 'light')
     media.addEventListener('change', onChange)
     return () => media.removeEventListener('change', onChange)

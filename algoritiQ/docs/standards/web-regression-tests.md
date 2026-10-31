@@ -64,3 +64,19 @@ npm run test:coverage # optional coverage report
 ```
 
 A task is not done until `npm run test:run` passes.
+
+## Toasts and popups in tests
+
+- `renderAppAt` and `renderWithRouter` already wrap `ToastProvider`. Assert a toast **inside its region**: `within(screen.getByLabelText('Notifications')).findByText('…')`.
+- When a refusal marks a field **and** raises a toast, the same words appear twice; assert both (`getAllByText(...)` has length 2, or one in the region and one under the field).
+- Open a popup with the button that opens it, then query **inside** it: `const dialog = await screen.findByRole('dialog', { name: '…' })`, then `within(dialog)`. A popup's footer button and the page's button can share a name.
+- Test that a popup stays open on failure, closes on success, and does not close while busy.
+- For infinite scroll, stub `IntersectionObserver` and call the captured callback; test the *Load more* fallback with it set to `undefined`.
+- Toaster timing tests use `vi.useFakeTimers({ shouldAdvanceTime: true })`.
+
+## Icon buttons and tooltips in tests
+
+- Find an icon button by its **accessible name** (`getByRole('button', { name: 'Edit: Desk Staff' })`), which includes who it is for.
+- The tooltip is `aria-hidden`: query it with `findByRole('tooltip', { hidden: true })` after `user.hover(...)` (it waits for the hover pause) or `user.tab()` (shown at once).
+- For a **disabled** icon button hover its wrapper (`button.parentElement`), since a disabled button receives no pointer events, and assert the reason text.
+- Tooltip timing tests use `vi.useFakeTimers({ shouldAdvanceTime: true })`, like toasts.

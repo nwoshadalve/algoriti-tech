@@ -1,6 +1,12 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import '../../../platform/keep_alive_gateway.dart';
+import '../../../platform/system_health_gateway.dart';
 
-enum ReadinessKind { background, notifications, autoStart }
+enum ReadinessKind { background, notifications, bluetooth, autoStart }
 
 enum ReadinessState {
   /// All good.
@@ -30,11 +36,16 @@ final class ReadinessItem {
   bool get isDone => state == ReadinessState.done;
 }
 
-/// The checklist for [status]. [autoStartConfirmed] is the user's own word
-/// for the vendor-specific auto-start page, which cannot be read.
-List<ReadinessItem> evaluateReadiness(KeepAliveStatus status) {
+/// The checklist for [status] and [bluetooth]. [autoStartConfirmed] is the
+/// user's own word for the vendor-specific auto-start page, which cannot be
+/// read.
+List<ReadinessItem> evaluateReadiness(
+  KeepAliveStatus status,
+  BluetoothState bluetooth,
+) {
   ReadinessState done(bool ok) =>
       ok ? ReadinessState.done : ReadinessState.needed;
+  final bluetoothRequired = bluetooth != BluetoothState.missing;
   return [
     ReadinessItem(
       kind: ReadinessKind.background,
@@ -45,6 +56,13 @@ List<ReadinessItem> evaluateReadiness(KeepAliveStatus status) {
       kind: ReadinessKind.notifications,
       state: done(status.notificationsGranted),
       isRequired: true,
+    ),
+    ReadinessItem(
+      kind: ReadinessKind.bluetooth,
+      state: bluetooth == BluetoothState.denied
+          ? ReadinessState.needed
+          : ReadinessState.done,
+      isRequired: bluetoothRequired,
     ),
     ReadinessItem(
       kind: ReadinessKind.autoStart,

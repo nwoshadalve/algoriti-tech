@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { SetupProgress } from '@/features/setup/SetupProgress'

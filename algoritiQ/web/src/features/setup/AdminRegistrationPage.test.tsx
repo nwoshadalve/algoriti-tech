@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -75,6 +82,10 @@ describe('AdminRegistrationPage', () => {
       id: '1',
       username: 'owner',
       displayName: 'The Owner',
+      firstName: 'The',
+      lastName: 'Owner',
+      phone: '',
+      photoVersion: 0,
       email: 'owner@clinic.test',
       role: 'admin',
     })
@@ -83,6 +94,7 @@ describe('AdminRegistrationPage', () => {
     await fillAndSubmit(userEvent.setup())
 
     expect(await screen.findByText('Admin account created')).toBeInTheDocument()
+    expect(screen.getByText('Admin account created. You can sign in now.')).toBeInTheDocument()
     expect(register).toHaveBeenCalledWith(
       expect.objectContaining({ username: 'owner', password: 'a-long-passphrase' }),
     )

@@ -1,8 +1,14 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../platform/keep_alive_gateway.dart';
+import '../../../platform/system_health_gateway.dart';
 import '../data/prefs_readiness_store.dart';
 import '../domain/readiness_item.dart';
 import '../domain/readiness_store.dart';
@@ -40,6 +46,7 @@ final readinessControllerProvider =
 /// comes back to the app (see `ReadinessGate`).
 class ReadinessController extends AsyncNotifier<ReadinessReport> {
   KeepAliveGateway get _gateway => ref.read(keepAliveGatewayProvider);
+  SystemHealthGateway get _health => ref.read(systemHealthGatewayProvider);
   ReadinessStore get _store => ref.read(readinessStoreProvider);
 
   @override
@@ -47,9 +54,10 @@ class ReadinessController extends AsyncNotifier<ReadinessReport> {
 
   Future<ReadinessReport> _read() async {
     final status = await _gateway.status();
+    final health = await _health.read();
     return ReadinessReport(
       status: status,
-      items: evaluateReadiness(status),
+      items: evaluateReadiness(status, health.bluetooth),
       acknowledged: await _store.isAcknowledged(),
     );
   }
@@ -76,6 +84,17 @@ class ReadinessController extends AsyncNotifier<ReadinessReport> {
   }
 
   Future<void> openAutoStartSettings() => _gateway.openAutoStartSettings();
+
+  /// Asks for Bluetooth access; after a refusal the settings page is the only way.
+  Future<void> allowBluetooth() async {
+    if (await _store.bluetoothAsked()) {
+      await _gateway.openAppSettings();
+      return;
+    }
+    await _store.setBluetoothAsked();
+    await _health.requestBluetoothConnect();
+    await refresh();
+  }
 
   /// The user finished every required step; start the background service and
   /// local HTTPS API (via [ServerHost] below this gate), then hide the guide.

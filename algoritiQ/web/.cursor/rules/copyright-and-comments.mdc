@@ -1,0 +1,15 @@
+---
+description: Copyright header and commenting standards for TypeScript/CSS in algoritiQ/web
+globs: "src/**/*.{ts,tsx,css}"
+alwaysApply: false
+---
+
+# Copyright & comments (web)
+
+When creating or editing files under `src/`:
+
+1. **Copyright** — Start with the block in [docs/standards/web-code.md](../../docs/standards/web-code.md) § Copyright header (TypeScript block comment; same for CSS).
+2. **Comments** — Code shows *what*; comments explain *why* (auth, work scope, live API, backup/restore). JSDoc on exported hooks, API helpers, and reusable UI in `core/`.
+3. **Avoid** — Commented-out code, JSX narration, lint/`any` without a one-line reason.
+
+Run `npm run lint` after substantive edits.

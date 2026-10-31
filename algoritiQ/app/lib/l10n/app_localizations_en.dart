@@ -373,6 +373,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'A small notice tells Android this app must keep running.';
 
   @override
+  String get readinessBluetoothTitle => 'Allow Bluetooth';
+
+  @override
+  String get readinessBluetoothBody =>
+      'Lets the app see whether Bluetooth is on or off and ask to turn it on when needed for printing.';
+
+  @override
   String get readinessAutoStartTitle => 'Start after a restart';
 
   @override
@@ -413,11 +420,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readinessStateUnconfirmed => 'Not confirmed';
 
   @override
+  String get clinicDataTitle => 'Clinic data';
+
+  @override
+  String get clinicDataIntro =>
+      'Start fresh on this tablet, or bring back a zip you saved from Backup in the web app.';
+
+  @override
+  String get clinicDataStartNew => 'Start new';
+
+  @override
+  String get clinicDataRestore => 'Restore from backup';
+
+  @override
+  String get clinicDataRestoreHint =>
+      'Choose the zip file you downloaded from Backup on another session.';
+
+  @override
+  String get clinicDataRestoreBusy => 'Restoring…';
+
+  @override
+  String get clinicDataRestoreFailed =>
+      'Could not restore this backup. Check the file and try again.';
+
+  @override
   String get signInTitle => 'Sign in';
 
   @override
   String get signInIntro =>
-      'Use the username and password of your admin account.';
+      'Use the username or email and the password of your admin account.';
+
+  @override
+  String get signInIdentifierLabel => 'Username or email';
 
   @override
   String get signInUsernameLabel => 'Username';
@@ -435,10 +469,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInForgot => 'Forgot password?';
 
   @override
-  String get signInFieldsRequired => 'Enter your username and password.';
+  String get signInRemember => 'Remember me on this tablet';
 
   @override
-  String get signInWrong => 'Wrong username or password.';
+  String get signInRememberHint =>
+      'Stay signed in for 30 days. Use only on your own device.';
+
+  @override
+  String pinLoginTitle(String name) {
+    return 'Welcome back, $name';
+  }
+
+  @override
+  String get pinLoginIntro => 'Enter your PIN to sign in on this tablet.';
+
+  @override
+  String get fieldPin => 'PIN';
+
+  @override
+  String get pinUsePassword => 'Use password instead';
+
+  @override
+  String get pinUsePin => 'Use PIN instead';
+
+  @override
+  String pinWrong(int count) {
+    return 'That PIN is not correct. $count tries left.';
+  }
+
+  @override
+  String get pinLocked => 'Too many wrong PINs. Sign in with your password.';
+
+  @override
+  String get pinRequired => 'Enter your 6-digit PIN.';
+
+  @override
+  String get adminNoticeTitle => 'Admin sign-in is on the web';
+
+  @override
+  String get adminNoticeBody =>
+      'This tablet only has the receptionist screen for now. To manage the clinic as an admin, open the address below in a web browser on your phone or laptop and sign in there. Admin sign-in on the tablet may come in a later update.';
+
+  @override
+  String get adminNoticeSignOut =>
+      'Press OK to go back to the sign-in screen. You are also signed out when this app is closed.';
+
+  @override
+  String get adminNoticeOk => 'OK';
+
+  @override
+  String get signInFieldsRequired =>
+      'Enter your username or email and your password.';
+
+  @override
+  String get signInWrong => 'Wrong username, email or password.';
 
   @override
   String signInWait(int seconds) {
@@ -556,4 +640,428 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get resetExpired =>
       'This reset has expired. Enter the activation key again.';
+
+  @override
+  String get navPrimaryLabel => 'Dashboard sections';
+
+  @override
+  String get navBoard => 'Board';
+
+  @override
+  String get navCloseMenu => 'Close menu';
+
+  @override
+  String get navOpenMenu => 'Open menu';
+
+  @override
+  String boardGreeting(String name) {
+    return 'Welcome back, $name';
+  }
+
+  @override
+  String get workScopeTitle => 'Where are you working?';
+
+  @override
+  String get workScopeIntroChamber =>
+      'Choose a chamber to open the board and patient queue.';
+
+  @override
+  String get workScopeIntroDoctor =>
+      'Choose a doctor to open the board and patient queue.';
+
+  @override
+  String get workScopeEmpty =>
+      'You are not assigned to any chamber yet. Ask your administrator to assign you.';
+
+  @override
+  String workScopeActive(String name) {
+    return 'Working at $name. Run the counter from here.';
+  }
+
+  @override
+  String get workScopeSidebarLabel => 'Working at';
+
+  @override
+  String get navChangeWorkScope => 'Change chamber';
+
+  @override
+  String get boardIntro =>
+      'Run the counter from here. Live queue tools will appear on this board.';
+
+  @override
+  String get boardServerTitle => 'Clinic server';
+
+  @override
+  String get boardServerOk =>
+      'This tablet is serving the web app and other devices.';
+
+  @override
+  String get boardServerStarting => 'Starting the clinic server…';
+
+  @override
+  String get boardServerFailed =>
+      'The clinic server could not start. Check readiness settings or restart the app.';
+
+  @override
+  String get boardAccountTitle => 'Your account';
+
+  @override
+  String get fieldRole => 'Role';
+
+  @override
+  String get fieldUsername => 'Username';
+
+  @override
+  String get fieldEmail => 'Email';
+
+  @override
+  String get roleAdmin => 'Administrator';
+
+  @override
+  String get roleReceptionist => 'Receptionist';
+
+  @override
+  String get boardQueueTitle => 'Patient queue';
+
+  @override
+  String get boardQueueSoon =>
+      'Live queue tools will appear here once they are ready.';
+
+  @override
+  String get themeLight => 'Switch to light theme';
+
+  @override
+  String get themeDark => 'Switch to dark theme';
+
+  @override
+  String get navSettings => 'Settings';
+
+  @override
+  String get settingsIntro =>
+      'Your profile photo, name, password, and PIN for this device.';
+
+  @override
+  String get userMenuLabel => 'Account menu';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String get signingOut => 'Signing out…';
+
+  @override
+  String get fieldFirstName => 'First name';
+
+  @override
+  String get fieldLastName => 'Last name';
+
+  @override
+  String get fieldPhone => 'Phone';
+
+  @override
+  String get settingsPhotoTitle => 'Profile photo';
+
+  @override
+  String get settingsPhotoHelp =>
+      'JPEG, PNG or WebP. The picture is stored on this tablet.';
+
+  @override
+  String get settingsProfileTitle => 'Personal information';
+
+  @override
+  String get settingsProfileIntro => 'Your name and contact details.';
+
+  @override
+  String get settingsSave => 'Save changes';
+
+  @override
+  String get settingsSaving => 'Saving…';
+
+  @override
+  String get settingsSaved => 'Your changes were saved.';
+
+  @override
+  String get settingsUsernameNote => 'Your username cannot be changed.';
+
+  @override
+  String get settingsFixFields => 'Fix the highlighted fields.';
+
+  @override
+  String get settingsFirstNameRequired => 'Enter your first name.';
+
+  @override
+  String get settingsNameTooLong => 'Use shorter names.';
+
+  @override
+  String get settingsEmailInvalid => 'Enter a valid email address.';
+
+  @override
+  String get settingsEmailTaken => 'That email is already in use.';
+
+  @override
+  String get settingsPhoneInvalid => 'Enter a valid phone number.';
+
+  @override
+  String get settingsPhotoSaved => 'Photo updated.';
+
+  @override
+  String get settingsPhotoRemoved => 'Photo removed.';
+
+  @override
+  String get settingsPhotoFailed => 'The photo could not be saved. Try again.';
+
+  @override
+  String get securityCardTitle => 'Password and PIN';
+
+  @override
+  String get securityCardIntro =>
+      'Change your password or set a quick sign-in PIN on this tablet. Changing your password removes every PIN.';
+
+  @override
+  String get passwordCardTitle => 'Password';
+
+  @override
+  String get passwordCardIntro =>
+      'Choose a new password. Your other sign-ins will end.';
+
+  @override
+  String get passwordChangeButton => 'Change password';
+
+  @override
+  String get passwordModalTitle => 'Change your password';
+
+  @override
+  String get passwordCurrentLabel => 'Current password';
+
+  @override
+  String get passwordNewLabel => 'New password';
+
+  @override
+  String get passwordConfirmLabel => 'Confirm new password';
+
+  @override
+  String get passwordChanged =>
+      'Password changed. Your other sign-ins were ended.';
+
+  @override
+  String get passwordCurrentWrong => 'Current password is not correct.';
+
+  @override
+  String get passwordNewSame => 'Choose a different password.';
+
+  @override
+  String get pinCardTitle => 'Quick sign-in PIN';
+
+  @override
+  String get pinCardIntro =>
+      'Sign in on this tablet with a 6-digit PIN instead of your password.';
+
+  @override
+  String get pinNone => 'No PIN is set on this tablet yet.';
+
+  @override
+  String get pinThisTablet => 'This tablet';
+
+  @override
+  String get pinSetButton => 'Set PIN for this tablet';
+
+  @override
+  String get pinChangeButton => 'Change PIN';
+
+  @override
+  String get pinRemove => 'Remove';
+
+  @override
+  String get pinRemoved => 'PIN removed.';
+
+  @override
+  String get pinSetDone => 'PIN saved for this tablet.';
+
+  @override
+  String get pinLoadFailed => 'Could not load PIN devices.';
+
+  @override
+  String get pinModalTitle => 'Set a PIN';
+
+  @override
+  String get pinModalPasswordLabel => 'Your password';
+
+  @override
+  String get pinModalPinLabel => 'New PIN';
+
+  @override
+  String get pinModalConfirmLabel => 'Confirm PIN';
+
+  @override
+  String get pinModalSubmit => 'Save PIN';
+
+  @override
+  String get pinModalBusy => 'Saving…';
+
+  @override
+  String get pinFormatInvalid => 'Enter a 6-digit PIN.';
+
+  @override
+  String get pinWeak => 'Choose a PIN that is not too easy to guess.';
+
+  @override
+  String get pinPasswordWrong => 'Password is not correct.';
+
+  @override
+  String get pinPinsDiffer => 'PINs do not match.';
+
+  @override
+  String get navConnectivity => 'Connectivity';
+
+  @override
+  String get toastDismiss => 'Dismiss message';
+
+  @override
+  String get connectivityTitle => 'Connectivity';
+
+  @override
+  String get connectivityIntro =>
+      'Check that the printer and the TV screen are connected.';
+
+  @override
+  String get printerTitle => 'Printer';
+
+  @override
+  String get printerStatusConnected => 'Connected';
+
+  @override
+  String get printerStatusConnecting => 'Connecting…';
+
+  @override
+  String get printerStatusDisconnected => 'Not connected';
+
+  @override
+  String get printerStatusNotPaired => 'No printer set up';
+
+  @override
+  String get printerStatusBtOff => 'Bluetooth is off';
+
+  @override
+  String get printerStatusBtDenied => 'Bluetooth is not allowed';
+
+  @override
+  String get printerStatusBtMissing => 'No Bluetooth on this tablet';
+
+  @override
+  String get printerBodyNotPaired =>
+      'Switch the printer on and choose it from the list. You only do this once.';
+
+  @override
+  String get printerBodyDisconnected =>
+      'Trying to connect by itself. Make sure the printer is on and close by.';
+
+  @override
+  String get printerBodyConnected => 'Ready to print tokens.';
+
+  @override
+  String get printerBodyBtOff =>
+      'Turn Bluetooth on so the tablet can reach the printer.';
+
+  @override
+  String get printerBodyBtDenied =>
+      'Allow Bluetooth for this app so the tablet can reach the printer.';
+
+  @override
+  String get printerBodyBtMissing =>
+      'This tablet cannot connect to a Bluetooth printer.';
+
+  @override
+  String printerRetryIn(int seconds) {
+    return 'Trying again in $seconds s';
+  }
+
+  @override
+  String get printerActionChoose => 'Choose printer';
+
+  @override
+  String get printerActionRetry => 'Connect now';
+
+  @override
+  String get printerActionTest => 'Test print';
+
+  @override
+  String get printerActionAllow => 'Allow Bluetooth';
+
+  @override
+  String get printerActionTurnOn => 'Turn Bluetooth on';
+
+  @override
+  String get printerPickerTitle => 'Choose your printer';
+
+  @override
+  String get printerPickerBody =>
+      'Switch the printer on and keep it close. Printers nearby appear below.';
+
+  @override
+  String get printerPickerPairHint =>
+      'Android may ask for a pairing code. For most printers it is 0000 or 1234.';
+
+  @override
+  String get printerPickerEmpty => 'No printer found yet.';
+
+  @override
+  String get printerPickerScanning => 'Looking for printers…';
+
+  @override
+  String get printerPickerScanAgain => 'Search again';
+
+  @override
+  String get printerPickerPairedTag => 'Paired';
+
+  @override
+  String get printerToastConnected => 'Printer connected.';
+
+  @override
+  String get printerToastLost =>
+      'Printer disconnected. The tablet is reconnecting.';
+
+  @override
+  String get printerToastRejected =>
+      'Pairing was cancelled or the code was wrong.';
+
+  @override
+  String get printerToastChooseFailed =>
+      'Could not connect to the printer. Check that it is on and close by.';
+
+  @override
+  String get printerToastConnectFailed =>
+      'Still cannot reach the printer. The tablet will keep trying.';
+
+  @override
+  String get printerToastTestOk => 'Test token printed.';
+
+  @override
+  String get printerToastTestFailed =>
+      'The test token did not print. Check paper and cover.';
+
+  @override
+  String get tvTitle => 'TV screen';
+
+  @override
+  String get tvStatus => 'Coming soon';
+
+  @override
+  String get tvBody => 'You will check and connect the waiting-room TV here.';
+
+  @override
+  String get dialogClose => 'Close';
+
+  @override
+  String get printerTestConfirmTitle => 'Print a test token?';
+
+  @override
+  String get printerTestConfirmBody =>
+      'A sample token with a dummy number will print, using the chamber and doctor details set up here.';
+
+  @override
+  String get printerTestConfirmAction => 'Print test token';
+
+  @override
+  String get printerToastNoDetails =>
+      'The chamber or doctor details for the token could not be found.';
 }

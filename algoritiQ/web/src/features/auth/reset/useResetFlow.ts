@@ -1,8 +1,16 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ApiError } from '@/core/api/client'
 import { finishPasswordReset, startPasswordReset } from '@/core/api/auth'
 import { useLocale } from '@/core/i18n/LocaleProvider'
+import { useToast } from '@/core/toast/toastContext'
 import { authError } from '@/features/auth/authErrors'
 import { useAuth } from '@/features/auth/authContext'
 
@@ -16,30 +24,28 @@ export type ResetStep = 1 | 2 | 3
  * answer for a wrong key and an unknown name.
  */
 export function useResetFlow() {
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
   const { signOut } = useAuth()
   const navigate = useNavigate()
+  const toast = useToast()
 
   const [step, setStep] = useState<ResetStep>(1)
   const [username, setUsername] = useState('')
   const [ticket, setTicket] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   function fail(cause: unknown) {
-    const { key, params } = authError(cause)
-    setError(t(key, params))
+    const { key, params } = authError(cause, locale)
+    toast.error(t(key, params))
   }
 
   function submitUsername(value: string) {
     setUsername(value.trim())
-    setError(null)
     setStep(2)
   }
 
   async function submitKey(activationKey: string) {
     setBusy(true)
-    setError(null)
     try {
       const result = await startPasswordReset(username, activationKey)
       setTicket(result.resetToken)
@@ -54,12 +60,12 @@ export function useResetFlow() {
   async function submitPassword(newPassword: string) {
     if (!ticket) return
     setBusy(true)
-    setError(null)
     try {
       await finishPasswordReset(ticket, newPassword)
       // The tablet ended every sign-in of the account; forget this one too.
       await signOut()
-      navigate('/login', { replace: true, state: { passwordReset: true } })
+      toast.success(t('noticePasswordReset'))
+      navigate('/login', { replace: true })
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'reset_token_invalid') {
         setTicket(null)
@@ -73,10 +79,9 @@ export function useResetFlow() {
 
   /** One step back; going back from the password step drops the ticket. */
   function back() {
-    setError(null)
     if (step === 3) setTicket(null)
     setStep((current) => (current > 1 ? ((current - 1) as ResetStep) : current))
   }
 
-  return { step, username, busy, error, submitUsername, submitKey, submitPassword, back }
+  return { step, username, busy, submitUsername, submitKey, submitPassword, back }
 }

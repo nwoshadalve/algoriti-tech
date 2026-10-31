@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { SetupLayout } from '@/app/SetupLayout'
@@ -13,6 +20,7 @@ import { validateActivationCode } from '@/features/setup/adminRegistrationValida
 import { saveVerifiedClaimCode, takeActivationFlash } from '@/features/setup/claimCodeSession'
 import { setupErrorKey, setupErrorParams } from '@/features/setup/setupErrorMessages'
 import type { MessageKey } from '@/core/i18n/messages/types'
+import { useToast } from '@/core/toast/toastContext'
 
 type Phase = { kind: 'loading' } | { kind: 'activate' }
 
@@ -22,7 +30,7 @@ export function ActivationCodePage() {
   const [phase, setPhase] = useState<Phase>({ kind: 'loading' })
   const [code, setCode] = useState('')
   const [errorKey, setErrorKey] = useState<MessageKey | null>(null)
-  const [banner, setBanner] = useState<string | null>(null)
+  const toast = useToast()
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -33,11 +41,11 @@ export function ActivationCodePage() {
         if (cancelled) return
         setPhase({ kind: 'activate' })
         const flash = takeActivationFlash()
-        if (flash) setBanner(flash)
+        if (flash) toast.error(flash)
       } catch {
         if (!cancelled) {
           setPhase({ kind: 'activate' })
-          setBanner(takeActivationFlash() ?? t('errorStatusCheck'))
+          toast.error(takeActivationFlash() ?? t('errorStatusCheck'))
         }
       }
     })()
@@ -57,7 +65,6 @@ export function ActivationCodePage() {
 
     setSubmitting(true)
     setErrorKey(null)
-    setBanner(null)
     try {
       await verifyClaimCode(code)
       saveVerifiedClaimCode(code)
@@ -68,7 +75,7 @@ export function ActivationCodePage() {
         navigate('/login', { replace: true })
         return
       }
-      setBanner(t(apiKey, setupErrorParams(error)))
+      toast.error(t(apiKey, setupErrorParams(error)))
     } finally {
       setSubmitting(false)
     }
@@ -88,15 +95,6 @@ export function ActivationCodePage() {
             {t('activationTitle')}
           </h1>
           <p className="mt-2 text-sm text-brand-navy/75 dark:text-white/75">{t('activationIntro')}</p>
-
-          {banner ? (
-            <div
-              role="status"
-              className="mt-4 rounded-xl border border-amber-300/80 bg-amber-50 px-3 py-2.5 text-sm text-amber-950 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-100"
-            >
-              {banner}
-            </div>
-          ) : null}
 
           <form className="mt-6 space-y-4" onSubmit={onSubmit} noValidate>
             <TextField

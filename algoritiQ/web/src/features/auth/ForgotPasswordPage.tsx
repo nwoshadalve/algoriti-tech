@@ -1,5 +1,11 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { SetupLayout } from '@/app/SetupLayout'
-import { NoticeBanner } from '@/core/ui/NoticeBanner'
 import { SetupCard } from '@/core/ui/SetupCard'
 import { StepAside } from '@/core/ui/StepAside'
 import { StepStrip } from '@/core/ui/StepStrip'
@@ -26,7 +32,6 @@ export function ForgotPasswordPage() {
       mobileHeader={<StepStrip label={t('resetProgressLabel')} steps={steps} activeStep={flow.step} />}
     >
       <SetupCard labelledBy="reset-heading">
-          {flow.error ? <NoticeBanner>{flow.error}</NoticeBanner> : null}
           {flow.step === 1 ? (
             <UsernameStep initial={flow.username} onSubmit={flow.submitUsername} />
           ) : null}

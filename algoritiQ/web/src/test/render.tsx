@@ -1,8 +1,16 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { render, type RenderOptions } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import type { ReactElement } from 'react'
 import { LocaleProvider } from '@/core/i18n/LocaleProvider'
 import { ThemeProvider } from '@/core/theme/ThemeProvider'
+import { ToastProvider } from '@/core/toast/ToastProvider'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { appRoutes } from '@/app/appRoutes'
 
@@ -14,7 +22,9 @@ function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <LocaleProvider>
-        <AuthProvider>{children}</AuthProvider>
+        <ToastProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ToastProvider>
       </LocaleProvider>
     </ThemeProvider>
   )

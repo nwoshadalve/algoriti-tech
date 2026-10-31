@@ -39,12 +39,43 @@ Suffixes: `*Page`/`*Screen` (route), `*View` (sub-UI), `*Controller`/`*Notifier`
 - Cancel/dispose timers, streams, controllers.
 - Don't use `BuildContext` after an `await` without `mounted` check.
 
+## Copyright header (required)
+
+Every **hand-written** source file starts with this block (before imports / `package`):
+
+```dart
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
+```
+
+| Include | Exclude |
+| --- | --- |
+| `lib/**/*.dart`, `test/**/*.dart` | `*.g.dart`, Flutter gen-l10n (`lib/l10n/app_localizations*.dart`) |
+| `android/.../kotlin/**/*.kt` | Generated, vendored, or third-party trees |
+
+Update the year only when creating a **new** file in a new calendar year; do not bulk-rewrite years on existing files.
+
 ## Comments & docs
 
-- Code explains *what*; comments explain *why* (constraints, trade-offs).
-- `///` doc comments on public API of `domain` and `core`.
+Principle: **code shows what happens; comments explain why** (business rules, platform limits, security, performance trade-offs, non-obvious invariants). Do not restate obvious identifiers or mirror the code line-for-line.
+
+| Layer / file kind | Expectation |
+| --- | --- |
+| `domain/`, `core/` | `///` on every public type and member that other layers call |
+| `application/` | `///` on notifiers/controllers/services; brief note when side effects touch disk, network, or native channels |
+| `presentation/` | `///` on route-level widgets (`*Page`, `*Gate`, `*Shell`) — one sentence on user-visible purpose |
+| `data/`, `platform/`, `api/` | `///` on adapters/gateways; inline `//` only for tricky wire formats or OS quirks |
+| Tests | `///` or a short `//` when the test name alone does not capture the regression |
+
+Also:
+
+- Prefer `///` doc comments over `//` for exported API; use `//` for local “why” inside functions.
 - No dead code, no commented-out code. `TODO(name): …` must link an issue.
 - No `print`/`debugPrint` — use the logger ([Errors & logging](../principles/errors-logging.md)).
+- Kotlin in `android/`: same copyright block in a `/* … */` header; KDoc (`/** … */`) on public types and channel entry points ([Android services](./android-services.md)).
 
 ## Imports
 

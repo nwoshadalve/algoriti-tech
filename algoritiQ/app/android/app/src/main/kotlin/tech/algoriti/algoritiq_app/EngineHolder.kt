@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 package tech.algoriti.algoritiq_app
 
 import android.app.Activity
@@ -35,6 +42,9 @@ object EngineHolder {
         DeviceIdChannel.register(engine, app)
         SplashChannel.register(engine) { SplashHold.release() }
         KeepAliveChannel.register(engine, app)
+        SystemHealthChannel.register(engine, app)
+        PrinterChannel.register(engine, app)
+        BackupChannel.register(engine, app)
         engine.dartExecutor.executeDartEntrypoint(
             DartExecutor.DartEntrypoint.createDefault(),
         )

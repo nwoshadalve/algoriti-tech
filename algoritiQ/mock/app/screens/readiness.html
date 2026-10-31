@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en" data-theme="light" class="device-view device-view--portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tablet readiness · AlgoritiQ mock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/app.css" />
+  </head>
+  <body>
+    <div class="app-root">
+      <div class="card-page">
+        <header class="card-page__top">
+          <div class="logo" aria-label="AlgoritiQ">
+            <div class="logo__mark" aria-hidden="true">
+              <span class="logo__bar logo__bar--1"></span>
+              <span class="logo__bar logo__bar--2"></span>
+              <span class="logo__bar logo__bar--3"></span>
+            </div>
+            <span class="logo__text">Algoriti<span>Q</span></span>
+          </div>
+          <div class="lang-switch" role="group" aria-label="Language">
+            <span class="lang-switch__track" aria-hidden="true"></span>
+            <button type="button" class="lang-switch__seg" data-lang="bn">বাংলা</button>
+            <button type="button" class="lang-switch__seg lang-switch__seg--on" data-lang="en">EN</button>
+          </div>
+        </header>
+        <div class="card-page__scroll">
+          <div class="card-page__inner card-page__inner--setup-wide">
+            <div class="card card--flat">
+              <div class="readiness-top-wide">
+                <h1 class="app-headline">Keep the tablet ready</h1>
+                <button type="button" class="btn btn--primary">Continue</button>
+              </div>
+              <div class="readiness-intro-narrow stack-md">
+                <h1 class="app-headline">Keep the tablet ready</h1>
+                <p class="text-intro">So the queue stays reachable for patients, the TV and the web app, even with the screen locked or after a restart.</p>
+              </div>
+              <div class="readiness-grid readiness-grid--wide">
+                <div class="readiness-row">
+                  <span class="status-dot status-dot--ok"></span>
+                  <div style="flex: 1">
+                    <strong style="font-size: 0.9375rem">Run in the background</strong>
+                    <p class="text-small" style="margin: 4px 0 0">Stops Android from pausing the server to save battery.</p>
+                  </div>
+                </div>
+                <div class="readiness-row">
+                  <span class="status-dot status-dot--ok"></span>
+                  <div style="flex: 1">
+                    <strong style="font-size: 0.9375rem">Show the running notice</strong>
+                    <p class="text-small" style="margin: 4px 0 0">A small notice tells Android this app must keep running.</p>
+                  </div>
+                </div>
+                <div class="readiness-row">
+                  <span class="status-dot status-dot--warn"></span>
+                  <div style="flex: 1">
+                    <strong style="font-size: 0.9375rem">Allow Bluetooth</strong>
+                    <p class="text-small" style="margin: 4px 0 0">Lets the app see whether Bluetooth is on or off and ask to turn it on when needed for printing.</p>
+                  </div>
+                  <span class="chip-btn">Allow</span>
+                </div>
+                <div class="readiness-row">
+                  <span class="status-dot status-dot--pending"></span>
+                  <div style="flex: 1">
+                    <strong style="font-size: 0.9375rem">Start after a restart</strong>
+                    <p class="text-small" style="margin: 4px 0 0">Restart the tablet once to check. This is ticked when the server starts by itself after the restart.</p>
+                  </div>
+                  <span class="chip-btn">Open settings</span>
+                </div>
+              </div>
+              <div class="readiness-continue-narrow" style="margin-top: var(--space-md)">
+                <button type="button" class="btn btn--primary">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/screen-frame.js"></script>
+  </body>
+</html>

@@ -1,7 +1,17 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/security/secure_storage_secret_store.dart';
+import '../features/home/application/receptionist_scope_service.dart';
+import '../features/home/application/receptionist_work.dart';
 import '../features/access/application/access_providers.dart';
+import '../features/clinic/application/clinic_providers.dart';
+import '../features/backup/application/backup_providers.dart';
+import '../features/monitoring/application/monitoring_providers.dart';
 import '../platform/keep_alive_gateway.dart';
 import 'local_api_server.dart';
 import 'mdns/local_name_responder.dart';
@@ -122,6 +132,12 @@ final apiHostProvider = Provider<ApiHost>((ref) {
     addresses: gateway.localAddresses,
     createServer: () async => LocalApiServer(
       access: () => ref.read(accessServiceProvider.future),
+      users: () => ref.read(userManagementServiceProvider.future),
+      doctor: () async => ref.read(doctorProfileServiceProvider),
+      chambers: () async => ref.read(chamberServiceProvider),
+      receptionistScope: () async => ref.read(receptionistScopeServiceProvider),
+      monitoring: ref.read(monitoringServiceProvider),
+      backup: () => ref.read(backupServiceProvider.future),
       web: WebSite(BundledWebFiles()),
     ),
     tls: TlsIdentityStore(ref.watch(secretStoreProvider)),

@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/features/access/application/login_throttle.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -24,28 +29,34 @@ void main() {
     expect(throttle.waitFor('user:a'), isNull);
   });
 
-  test('should make the fifth failure wait thirty seconds', () {
+  test('should make the sixth failure wait twenty seconds', () {
     fail('user:a', 5);
 
-    expect(throttle.waitFor('user:a'), const Duration(seconds: 30));
+    expect(throttle.waitFor('user:a'), const Duration(seconds: 20));
   });
 
   test('should double the wait with each further failure', () {
     fail('user:a', 6);
 
-    expect(throttle.waitFor('user:a'), const Duration(seconds: 60));
+    expect(throttle.waitFor('user:a'), const Duration(seconds: 40));
+
+    fail('user:a', 1);
+    expect(throttle.waitFor('user:a'), const Duration(seconds: 80));
+
+    fail('user:a', 1);
+    expect(throttle.waitFor('user:a'), const Duration(seconds: 160));
   });
 
-  test('should never wait longer than fifteen minutes', () {
-    fail('user:a', 40);
+  test('should cap further failures at one day', () {
+    fail('user:a', 25);
 
-    expect(throttle.waitFor('user:a'), const Duration(minutes: 15));
+    expect(throttle.waitFor('user:a'), const Duration(hours: 24));
   });
 
   test('should let the person try again after the wait', () {
     fail('user:a', 5);
 
-    clock.advance(const Duration(seconds: 31));
+    clock.advance(const Duration(seconds: 21));
 
     expect(throttle.waitFor('user:a'), isNull);
   });

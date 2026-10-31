@@ -2,7 +2,7 @@
 
 Before writing or changing any code in `algoritiQ/app`:
 
-1. Read [docs/README.md](docs/README.md) and the principle docs relevant to your task (`principles/`: architecture, data, errors, security, performance, testing, localization (Bengali-first); `standards/`: UI, Android services, code style, testing, git).
+1. Read [docs/README.md](docs/README.md) and the principle docs relevant to your task (`principles/`: architecture, data, errors, security, performance, testing, localization (Bengali-first); `standards/`: UI, Android services, [code style](docs/standards/code-style.md) — **copyright header + commenting rules**, testing, git).
 2. Follow them strictly. They are mandatory, not suggestions. Architecture docs in `../docs/architecture/` take precedence.
 3. Make the smallest change that solves the task. Don't add dependencies, change architecture, or touch unrelated files without asking.
 4. Don't invent packages or APIs — check `pubspec.yaml` and existing code.

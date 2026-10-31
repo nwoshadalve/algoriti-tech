@@ -17,17 +17,41 @@ Stolen database: the stored hashes cannot be turned back into tokens. Stolen tok
 ## Passwords
 
 - Argon2id with a per-password salt and a pepper held in the Android Keystore (`flutter_secure_storage`). At least 10 characters, at most 128, not containing the username.
-- Wrong guesses slow down per username *and* per client address (5 free tries, then 30 s doubling to 15 min).
+- Sign in with the **username or the email** of the account (the same `username` field of `POST /auth/login`; a value with `@` is looked up as an email, and usernames never contain `@`). Both give the same `invalid_credentials` answer, and the same throttling, when wrong.
+- Wrong guesses slow down per username *and* per client address (5 free tries, then **20 s**, doubling each time up to **24 h**).
 - Sign-ins, failures, resets and registrations go into the hash-chained audit trail. Passwords, tokens and the activation key are never written to it.
 
 ## Where the token lives
 
 | Client | Token | Why |
 | --- | --- | --- |
-| Tablet app | In memory only | Closing the app or restarting the tablet asks for the password again. Checked again when the app returns to the front, so a reset elsewhere signs it out. |
+| Tablet app | In memory, or secure storage when **Remember me** is checked | Closing the app asks for the password again unless remembered (30 days). Checked again when the app returns to the front, so a reset elsewhere signs it out. |
 | Website | `sessionStorage` of the tab | Gone when the tab closes. The tablet serves the site with a strict Content-Security-Policy (own origin only), which is the main defence against injected scripts. |
 
 An `HttpOnly` cookie would protect the token even from injected scripts, but it needs CSRF protection and does not suit the TV and other native clients that use bearer tokens. Revisit when the dashboard has more screens that show user-supplied text.
+
+## Remember this browser
+
+The sign-in form has **Remember this browser** (off by default).
+
+| | Not remembered | Remembered |
+| --- | --- | --- |
+| Session on the tablet | 12 hours | 30 days (`remember: true` on `POST /auth/login`) |
+| Token in the browser | `sessionStorage` (gone when the tab closes) | `localStorage` (survives restarts) |
+
+Either way the tablet ends the session at once when the password is changed or reset or the account is disabled, and **Sign out** removes it from both places and revokes it on the tablet. The website then asks for the password again. Only tick it on your own device: a token in `localStorage` is readable by script on the page, which is why the tablet serves the site with a strict Content-Security-Policy (own origin only) and why a remembered session still expires.
+
+## Sign in with a PIN
+
+A faster way back in on a browser you use often.
+
+- **Setting it** (Settings → *Quick sign-in PIN*, `POST /me/pin`): needs the account password, then **6 digits** (not one digit repeated, not a straight run like 123456 or 654321). The tablet returns a random secret, the **device token**, once. The browser keeps it in `localStorage` (never the PIN); the tablet keeps only a hash of it and an Argon2id hash of the PIN.
+- **Signing in** (`POST /auth/pin/login`): the PIN is checked **together with** the device token. A PIN alone, or a token alone, opens nothing, and the PIN is useless on any other browser. The login page offers the PIN first on a browser that has one, with *Use password instead*. The session is a normal 12-hour one for the tab.
+- **Lockout:** wrong PINs are slowed down per client and per address like passwords, and **3 wrong in a row remove that client's PIN**: the tablet answers `pin_locked`, the client forgets its token, and only the password works there until a new PIN is set (no “Use PIN” until then).
+- **Sign-in screen:** the person chooses PIN or password; that choice is remembered on the client. After three wrong PINs the PIN option is removed until a new PIN is set.
+- **Revoking:** each browser appears in the list in Settings (name, last used) and can be removed; the owner can do this from any signed-in browser. **Changing or resetting the password removes every PIN**, a disabled account's PINs stop working, and at most 5 browsers keep a PIN (the oldest is dropped).
+- **Audit:** `auth.pin_set`, `auth.pin_login`, `auth.pin_failed`, `auth.pin_locked`, `auth.pin_removed`, `auth.pin_set_refused`; never the PIN or the token.
+- **Why it is acceptable:** a 6-digit PIN has a million values, but it protects nothing without the 256-bit device token that never leaves the browser, and an attacker with the token gets five tries. Treat the browser holding the token like a saved password: only set a PIN on your own device.
 
 ## Forgotten password (admins)
 
@@ -46,9 +70,14 @@ Rules:
 
 Later: other users (doctor, receptionist) will ask an admin for a one-time reset code instead of using the key; see "Not yet".
 
+## Changing the password while signed in
+
+`POST /api/v1/me/password` with the current and the new password (Settings on the website). Wrong current passwords count towards the same slow-down as sign-in (per account), the new password follows the usual rules and must differ from the current one, and every other sign-in of the account ends while the caller's stays. Audited as `auth.password_changed` / `auth.password_change_refused`, never with a password.
+
 ## Screens
 
 - **Tablet** (`features/access/presentation/`): after the admin guide the tablet shows the sign-in screen (`SignInGate`); *Forgot password?* opens the three-step reset (`ResetPasswordCard`, with a "Step 2 of 3" bar); the app's top bar has a sign-out button. Landscape uses two columns.
+- **Admin on the tablet:** the tablet only has the receptionist screen for now. An admin who signs in sees `AdminTabletNotice` (the web address with QR code, and a note that admin sign-in on the tablet may come later). **OK** signs the admin out and the sign-in screen comes back. Closing the app does the same (`AppLifecycleState.detached`, because the engine outlives the screen), so an admin can never reach the receptionist screen. Receptionists go straight to the app.
 - **Website** (`algoritiQ/web`): `/login`, `/forgot-password` (three steps, `src/features/auth/reset/`) and `/home` after the setup steps; see [web app](./web-app.md).
 
 ## Code
@@ -58,4 +87,4 @@ Tests: `test/features/access/password_reset_test.dart`, `sign_in_test.dart`, `te
 
 ## Not yet
 
-More roles and users (the admin creates them from the website), **forgot password for other users** (they request a code, an admin generates a one-time code for them), changing a password while signed in, idle sign-out timer, `HttpOnly` cookie option.
+PIN sign-in for receptionists on the tablet app, more roles and users (the admin creates them from the website), **forgot password for other users** (they request a code, an admin generates a one-time code for them), changing a password from the tablet app, idle sign-out timer, `HttpOnly` cookie option.

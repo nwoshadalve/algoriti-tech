@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/features/readiness/domain/readiness_store.dart';
 import 'package:algoritiq_app/platform/keep_alive_gateway.dart';
 
@@ -21,6 +26,9 @@ class FakeKeepAliveGateway implements KeepAliveGateway {
 
   final calls = <String>[];
 
+  /// Runs when [startService] is called (a test can make the service come up).
+  void Function()? onStart;
+
   @override
   Future<KeepAliveStatus> status() async => KeepAliveStatus(
     manufacturer: manufacturer,
@@ -39,7 +47,10 @@ class FakeKeepAliveGateway implements KeepAliveGateway {
   Future<List<String>> localAddressesV6() async => const ['fe80::1'];
 
   @override
-  Future<void> startService() async => calls.add('startService');
+  Future<void> startService() async {
+    calls.add('startService');
+    onStart?.call();
+  }
 
   @override
   Future<bool> requestNotifications() async {
@@ -64,10 +75,15 @@ class FakeKeepAliveGateway implements KeepAliveGateway {
 }
 
 class MemoryReadinessStore implements ReadinessStore {
-  MemoryReadinessStore({this.acknowledged = false, this.asked = false});
+  MemoryReadinessStore({
+    this.acknowledged = false,
+    this.asked = false,
+    this.bluetoothDialogAsked = false,
+  });
 
   bool acknowledged;
   bool asked;
+  bool bluetoothDialogAsked;
 
   @override
   Future<bool> isAcknowledged() async => acknowledged;
@@ -80,4 +96,10 @@ class MemoryReadinessStore implements ReadinessStore {
 
   @override
   Future<void> setNotificationsAsked() async => asked = true;
+
+  @override
+  Future<bool> bluetoothAsked() async => bluetoothDialogAsked;
+
+  @override
+  Future<void> setBluetoothAsked() async => bluetoothDialogAsked = true;
 }

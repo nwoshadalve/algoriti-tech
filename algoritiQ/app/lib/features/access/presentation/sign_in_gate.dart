@@ -1,13 +1,20 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/widgets/card_page.dart';
+import '../../home/application/receptionist_work.dart';
 import '../application/tablet_session.dart';
+import 'admin_tablet_notice.dart';
 import 'reset_password_card.dart';
 import 'sign_in_card.dart';
 
 /// Past the admin guide, the tablet asks who is using it. Signed in: the app
-/// ([child]). Otherwise the sign-in screen, with a way to reset a forgotten
+/// ([child]); an admin first sees [AdminTabletNotice]. Otherwise the sign-in screen, with a way to reset a forgotten
 /// password.
 ///
 /// The sign-in is checked again when the app returns to the front, so a reset
@@ -27,6 +34,9 @@ class _SignInGateState extends ConsumerState<SignInGate>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(tabletSessionProvider.notifier).restoreRemembered();
+    });
   }
 
   @override
@@ -37,15 +47,32 @@ class _SignInGateState extends ConsumerState<SignInGate>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      ref.read(tabletSessionProvider.notifier).stillValid();
+    final session = ref.read(tabletSessionProvider.notifier);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        session.stillValid();
+      case AppLifecycleState.detached:
+        session.appClosed();
+      default:
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final signedIn = ref.watch(tabletSessionProvider) != null;
-    return signedIn ? widget.child : const SignInFlow();
+    ref.listen(tabletSessionProvider, (previous, next) {
+      if (next == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          ref.read(receptionistWorkProvider.notifier).syncSession(null);
+        });
+      }
+    });
+
+    final session = ref.watch(tabletSessionProvider);
+    if (session == null) return const SignInFlow();
+    if (session.showsAdminNotice) return const AdminTabletNotice();
+    return widget.child;
   }
 }
 

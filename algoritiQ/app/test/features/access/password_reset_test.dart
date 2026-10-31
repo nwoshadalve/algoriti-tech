@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/features/access/application/access_service.dart';
 import 'package:algoritiq_app/features/access/domain/access_policy.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -111,7 +116,7 @@ void main() {
       for (var i = 0; i < 5; i++) {
         await start(key: 'guess$i');
       }
-      kit.clock.advance(const Duration(minutes: 1));
+      kit.clock.advance(const Duration(seconds: 21));
 
       expect(await start(), isA<ResetTicketIssued>());
     });

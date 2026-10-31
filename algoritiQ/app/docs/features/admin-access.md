@@ -5,10 +5,10 @@ How the first admin gets into the system. The tablet hosts the backend; the web 
 ## Flow
 
 ```text
-Activate ──▶ First-time setup ──▶ Keep the tablet ready ──▶ Admin guide ──▶ (web) register + sign in ──▶ Home
+Activate ──▶ Keep the tablet ready ──▶ Restore or start new ──▶ First-time setup ──▶ Admin guide ──▶ (web) register + sign in ──▶ Home
 ```
 
-The HTTPS server starts as soon as the device is activated ([keep-alive](./keep-alive.md)). The **admin guide** (address, QR, claim code) appears only after setup and the readiness checklist are done.
+The HTTPS server starts once first-time setup is finished ([keep-alive](./keep-alive.md)). The **admin guide** (address, QR, claim code) appears only after setup is done.
 
 1. After activation the tablet shows the **admin guide**: the web address (`algoritiq.local` when the tablet has [claimed its name](./local-name.md), else the IP; always the IP in the QR code), a **claim code**, and the server status.
 2. On a laptop or phone on the same Wi-Fi, the admin opens the address and enters the claim code.
@@ -49,7 +49,7 @@ Rules: JSON only, bearer tokens (no cookies), 16 KB body limit, errors are `{err
 - Passwords: at least **10** characters (max 128), not containing the username. Username `a-z 0-9 . _ -`, 3–32.
 - Stored as **Argon2id** hashes with a random salt, mixed with a device secret kept in the Android Keystore. The password is never stored or logged.
 - Sign-in tokens are random, last **12 hours**, and only their hash is stored. Logout revokes them.
-- Guessing is slowed: after 5 failures a name (and a client address) waits 30 s, doubling up to 15 min (`429` + `Retry-After`).
+- Guessing is slowed: after 5 failures a name (and a client address) waits **20 s**, then the wait **doubles** each time up to **24 h** (`429` + `Retry-After`).
 
 ## Audit trail
 

@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 package tech.algoriti.algoritiq_app
 
 import android.app.Notification
@@ -12,6 +19,7 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 
@@ -44,6 +52,7 @@ class KeepAliveService : Service() {
         acquireLocks()
         // After a restart there is no screen yet: start the engine here.
         EngineHolder.ensure(this)
+        startedAt = SystemClock.elapsedRealtime()
         running = true
     }
 
@@ -54,6 +63,7 @@ class KeepAliveService : Service() {
 
     override fun onDestroy() {
         running = false
+        startedAt = null
         wakeLock?.takeIf { it.isHeld }?.release()
         wifiLock?.takeIf { it.isHeld }?.release()
         multicastLock?.takeIf { it.isHeld }?.release()
@@ -133,6 +143,11 @@ class KeepAliveService : Service() {
 
         @Volatile
         var running = false
+            private set
+
+        /** `SystemClock.elapsedRealtime()` when the service came up; null while stopped. */
+        @Volatile
+        var startedAt: Long? = null
             private set
 
         fun start(context: Context) {

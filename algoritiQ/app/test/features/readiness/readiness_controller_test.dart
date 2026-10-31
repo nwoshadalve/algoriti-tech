@@ -1,18 +1,27 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/features/readiness/application/readiness_controller.dart';
 import 'package:algoritiq_app/platform/keep_alive_gateway.dart';
+import 'package:algoritiq_app/platform/system_health_gateway.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/readiness_kit.dart';
+import '../../support/system_health_fake.dart';
 
 void main() {
   late FakeKeepAliveGateway gateway;
+  late FakeSystemHealth health;
   late MemoryReadinessStore store;
 
   ProviderContainer open() {
     final container = ProviderContainer(
       overrides: [
         keepAliveGatewayProvider.overrideWithValue(gateway),
+        systemHealthGatewayProvider.overrideWithValue(health),
         readinessStoreProvider.overrideWithValue(store),
       ],
     );
@@ -22,6 +31,7 @@ void main() {
 
   setUp(() {
     gateway = FakeKeepAliveGateway(batteryOptimizationIgnored: false);
+    health = FakeSystemHealth();
     store = MemoryReadinessStore();
   });
 
@@ -93,6 +103,27 @@ void main() {
     expect(gateway.calls, isNot(contains('requestNotifications')));
   });
 
+  test('should show the Bluetooth dialog the first time', () async {
+    health.bluetooth = BluetoothState.denied;
+    final controller = await start(open());
+
+    await controller.allowBluetooth();
+
+    expect(health.calls, contains('requestBluetoothConnect'));
+    expect(gateway.calls, isNot(contains('openAppSettings')));
+  });
+
+  test('should open settings when Bluetooth was already refused', () async {
+    health.bluetooth = BluetoothState.denied;
+    store.bluetoothDialogAsked = true;
+    final controller = await start(open());
+
+    await controller.allowBluetooth();
+
+    expect(gateway.calls, contains('openAppSettings'));
+    expect(health.calls, isNot(contains('requestBluetoothConnect')));
+  });
+
   test('should remember that the guide was seen', () async {
     final container = open();
     final controller = await start(container);
@@ -129,6 +160,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           keepAliveGatewayProvider.overrideWithValue(_RefusingGateway()),
+          systemHealthGatewayProvider.overrideWithValue(FakeSystemHealth()),
           readinessStoreProvider.overrideWithValue(store),
         ],
       );

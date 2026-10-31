@@ -1,0 +1,15 @@
+---
+description: Copyright header and commenting standards for Dart/Kotlin in algoritiQ/app
+globs: "{lib,test,android}/**/*.{dart,kt}"
+alwaysApply: false
+---
+
+# Copyright & comments (app)
+
+When creating or editing hand-written source:
+
+1. **Copyright** — First lines of the file must match [docs/standards/code-style.md](../docs/standards/code-style.md) § Copyright header. Never add to `*.g.dart` or gen-l10n under `lib/l10n/app_localizations*.dart`.
+2. **Comments** — Code shows *what*; comments explain *why* (platform limits, security, offline/data rules). Use `///` on public API in `domain/` and `core/`; route widgets (`*Page`, `*Gate`) get a one-line purpose doc.
+3. **Avoid** — Commented-out code, noise comments, `print`/`debugPrint`, `// ignore` without reason.
+
+Run `dart format .` after header changes.

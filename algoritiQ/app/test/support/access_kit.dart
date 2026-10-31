@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/core/database/app_database.dart';
 import 'package:algoritiq_app/features/access/application/access_service.dart';
 import 'package:algoritiq_app/features/access/application/claim_codes.dart';
@@ -29,6 +34,7 @@ class AccessKit {
     this.throttle,
     this.service,
     this.clock,
+    this.hasher,
   );
 
   static Future<AccessKit> create({
@@ -41,14 +47,15 @@ class AccessKit {
     final claimCodes = ClaimCodes(clock: clock.call);
     final throttle = LoginThrottle(clock: clock.call);
     var ids = 0;
+    // Far cheaper than production, so tests stay fast.
+    final hasher = await Argon2idPasswordHasher.create(
+      MemorySecretStore(),
+      memoryKiB: 64,
+      passes: 1,
+    );
     final service = AccessService(
       repository: repository,
-      // Far cheaper than production, so tests stay fast.
-      hasher: await Argon2idPasswordHasher.create(
-        MemorySecretStore(),
-        memoryKiB: 64,
-        passes: 1,
-      ),
+      hasher: hasher,
       claimCodes: claimCodes,
       throttle: throttle,
       clock: clock.call,
@@ -62,6 +69,7 @@ class AccessKit {
       throttle,
       service,
       clock,
+      hasher,
     );
   }
 
@@ -71,6 +79,10 @@ class AccessKit {
   final LoginThrottle throttle;
   final AccessService service;
   final TestClock clock;
+
+  /// The hasher the service uses; share it with other services so the
+  /// passwords they store can be checked at sign-in.
+  final Argon2idPasswordHasher hasher;
 
   static const password = 'a-long-passphrase';
 

@@ -25,3 +25,12 @@
 ## CORS and origins
 
 - The app is same-origin with the API when served by the tablet host. Do not hardcode absolute LAN IPs in source — use relative URLs and environment config for dev proxies only.
+
+## Remembered sign-in and PIN
+
+- **Remember this browser** is opt-in, off by default, and says to use it only on one's own device. A remembered session is a **bearer token in `localStorage`**, so it MUST be bounded (30 days), revocable by the server at once (password change or reset, account disabled, sign-out), and protected by the strict Content-Security-Policy. Without it the token stays in `sessionStorage` and ends with the tab.
+- Sign-out MUST remove the token from **both** storages and revoke it on the server.
+- A **PIN** is a convenience, never a replacement for the password. It MUST be tied to **one browser** by a server-issued secret (the PIN means nothing without it), stored only as hashes on the server, limited to a few wrong tries in a row (then the PIN is removed), slowed down per browser and per address, and refused for weak values (one repeated digit, straight runs).
+- Setting a PIN MUST need the **password**, so a borrowed, unlocked browser cannot add one. A password change or reset MUST remove every PIN.
+- The PIN and the device secret MUST NOT be logged, put in URLs, or written to the audit trail.
+- The browser MUST forget its PIN secret as soon as the server says it is gone (`pin_unavailable`, `pin_locked`), and never retry it silently.

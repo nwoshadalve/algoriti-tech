@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en" data-theme="light" class="device-view device-view--portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Setup ready · AlgoritiQ mock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/app.css" />
+  </head>
+  <body>
+    <div class="app-root">
+      <div class="card-page">
+        <header class="card-page__top">
+          <div class="logo" aria-label="AlgoritiQ">
+            <div class="logo__mark" aria-hidden="true">
+              <span class="logo__bar logo__bar--1"></span>
+              <span class="logo__bar logo__bar--2"></span>
+              <span class="logo__bar logo__bar--3"></span>
+            </div>
+            <span class="logo__text">Algoriti<span>Q</span></span>
+          </div>
+          <div class="lang-switch" role="group" aria-label="Language">
+            <span class="lang-switch__track" aria-hidden="true"></span>
+            <button type="button" class="lang-switch__seg" data-lang="bn">বাংলা</button>
+            <button type="button" class="lang-switch__seg lang-switch__seg--on" data-lang="en">EN</button>
+          </div>
+        </header>
+        <div class="card-page__scroll">
+          <div class="card-page__inner card-page__inner--setup-wide">
+            <div class="card card--flat">
+              <div class="setup-header-wide">
+                <h2>You're all set</h2>
+                <div class="step-progress">
+                  <div class="step-progress__item step-progress__item--done">Your profile</div>
+                  <div class="step-progress__item step-progress__item--done">Chambers</div>
+                  <div class="step-progress__item step-progress__item--current">Ready</div>
+                </div>
+              </div>
+              <div class="setup-header-narrow stack-md">
+                <h1 class="app-headline">You're all set</h1>
+                <p class="text-intro">Your profile and chambers are saved. You can change them later in settings.</p>
+                <div class="step-progress">
+                  <div class="step-progress__item step-progress__item--done">Your profile</div>
+                  <div class="step-progress__item step-progress__item--done">Chambers</div>
+                  <div class="step-progress__item step-progress__item--current">Ready</div>
+                </div>
+              </div>
+              <div class="two-col-form two-col-form--wide stack-lg" style="margin-top: var(--space-lg)">
+                <div class="doctor-summary">
+                  <div class="doctor-summary__photo">👩‍⚕️</div>
+                  <div>
+                    <strong>Dr. Farhana Rahman</strong>
+                    <p class="text-small">MBBS, FCPS (Cardiology)<br />Cardiology</p>
+                  </div>
+                </div>
+                <div>
+                  <div class="chamber-row"><strong>Main chamber</strong><span class="text-small">12 Mirpur Road, Dhaka</span></div>
+                  <div class="chamber-row"><strong>Evening chamber</strong><span class="text-small">5 Gulshan Ave, Dhaka</span></div>
+                  <div class="btn-row" style="margin-top: var(--space-md)">
+                    <button type="button" class="btn btn--outline" style="flex: 1">Back</button>
+                    <button type="button" class="btn btn--primary" style="flex: 2">Start</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/screen-frame.js"></script>
+  </body>
+</html>

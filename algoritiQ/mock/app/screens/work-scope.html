@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" data-theme="light" class="device-view device-view--portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Work scope · AlgoritiQ mock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/app.css" />
+  </head>
+  <body>
+    <div class="app-root">
+      <div class="card-page">
+        <header class="card-page__top">
+          <div class="logo" aria-label="AlgoritiQ">
+            <div class="logo__mark" aria-hidden="true">
+              <span class="logo__bar logo__bar--1"></span>
+              <span class="logo__bar logo__bar--2"></span>
+              <span class="logo__bar logo__bar--3"></span>
+            </div>
+            <span class="logo__text">Algoriti<span>Q</span></span>
+          </div>
+          <div class="lang-switch" role="group" aria-label="Language">
+            <span class="lang-switch__track" aria-hidden="true"></span>
+            <button type="button" class="lang-switch__seg" data-lang="bn">বাংলা</button>
+            <button type="button" class="lang-switch__seg lang-switch__seg--on" data-lang="en">EN</button>
+          </div>
+        </header>
+        <div class="card-page__scroll">
+          <div class="card-page__inner">
+            <div class="stack-lg">
+              <h1 class="app-headline">Where are you working?</h1>
+              <p class="text-intro">Choose a chamber to open the board and patient queue.</p>
+              <button type="button" class="scope-tile" style="width: 100%; border: none; text-align: left; font: inherit; color: inherit">
+                <span><strong>Main chamber</strong><br /><span class="text-small">12 Mirpur Road</span></span>
+                <span aria-hidden="true">›</span>
+              </button>
+              <button type="button" class="scope-tile" style="width: 100%; border: none; text-align: left; font: inherit; color: inherit">
+                <span><strong>Evening chamber</strong><br /><span class="text-small">5 Gulshan Ave</span></span>
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/screen-frame.js"></script>
+  </body>
+</html>

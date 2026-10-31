@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'dart:convert';
 import 'dart:math';
 
@@ -40,6 +45,133 @@ final class CredentialsRefused extends RegisterResult {
   const CredentialsRefused(this.problem);
 
   final CredentialProblem problem;
+}
+
+sealed class ProfileResult {
+  const ProfileResult();
+}
+
+final class ProfileSaved extends ProfileResult {
+  const ProfileSaved(this.account);
+
+  final Account account;
+}
+
+final class ProfileRefused extends ProfileResult {
+  const ProfileRefused(this.problem);
+
+  final ProfileProblem problem;
+}
+
+sealed class ChangePasswordResult {
+  const ChangePasswordResult();
+}
+
+final class PasswordChanged extends ChangePasswordResult {
+  const PasswordChanged();
+}
+
+/// The current password given was not the account's.
+final class CurrentPasswordWrong extends ChangePasswordResult {
+  const CurrentPasswordWrong();
+}
+
+final class NewPasswordRefused extends ChangePasswordResult {
+  const NewPasswordRefused(this.problem);
+
+  final CredentialProblem problem;
+}
+
+/// The new password is the one already in use.
+final class NewPasswordSame extends ChangePasswordResult {
+  const NewPasswordSame();
+}
+
+final class ChangeThrottled extends ChangePasswordResult {
+  const ChangeThrottled(this.retryAfter);
+
+  final Duration retryAfter;
+}
+
+sealed class PhotoResult {
+  const PhotoResult();
+}
+
+final class PhotoSaved extends PhotoResult {
+  const PhotoSaved(this.account);
+
+  final Account account;
+}
+
+/// Not a JPEG, PNG or WebP picture.
+final class PhotoUnsupported extends PhotoResult {
+  const PhotoUnsupported();
+}
+
+final class PhotoTooLarge extends PhotoResult {
+  const PhotoTooLarge();
+}
+
+sealed class SetPinResult {
+  const SetPinResult();
+}
+
+final class PinSet extends SetPinResult {
+  const PinSet({required this.deviceToken, required this.device});
+
+  /// Shown once. The browser keeps it; the tablet keeps only its hash.
+  final String deviceToken;
+  final PinDeviceInfo device;
+}
+
+final class PinPasswordWrong extends SetPinResult {
+  const PinPasswordWrong();
+}
+
+final class PinRefused extends SetPinResult {
+  const PinRefused(this.problem);
+
+  final PinProblem problem;
+}
+
+final class PinSetThrottled extends SetPinResult {
+  const PinSetThrottled(this.retryAfter);
+
+  final Duration retryAfter;
+}
+
+sealed class PinLoginResult {
+  const PinLoginResult();
+}
+
+final class PinLoggedIn extends PinLoginResult {
+  const PinLoggedIn(this.session);
+
+  final LoggedIn session;
+}
+
+/// A wrong PIN; [attemptsLeft] more and the browser's PIN is switched off.
+final class PinWrong extends PinLoginResult {
+  const PinWrong(this.attemptsLeft);
+
+  final int attemptsLeft;
+}
+
+/// Too many wrong PINs: this browser's PIN was just removed.
+final class PinLocked extends PinLoginResult {
+  const PinLocked();
+}
+
+/// Unknown or removed browser, or the account cannot sign in. The browser
+/// should forget its PIN and ask for the password.
+final class PinUnavailable extends PinLoginResult {
+  const PinUnavailable();
+}
+
+final class PinLoginThrottled extends PinLoginResult {
+  const PinLoginThrottled(this.retryAfter);
+
+  final Duration retryAfter;
 }
 
 sealed class VerifyClaimResult {
@@ -148,6 +280,7 @@ class AccessService {
     required this._licenseKey,
     Random? random,
     this.sessionLifetime = const Duration(hours: 12),
+    this.rememberLifetime = const Duration(days: 30),
     this.resetLifetime = const Duration(minutes: 10),
   }) : _random = random ?? Random.secure();
 
@@ -162,6 +295,15 @@ class AccessService {
   final Future<String?> Function() _licenseKey;
   final Random _random;
   final Duration sessionLifetime;
+
+  /// How long a sign-in lasts when the person asked to be remembered.
+  final Duration rememberLifetime;
+
+  /// Wrong PINs in a row before a browser's PIN is removed.
+  static const maxPinFailures = 3;
+
+  /// PIN browsers kept per person; setting another drops the oldest.
+  static const maxPinDevices = 5;
 
   /// How long the ticket from a verified activation key stays usable.
   final Duration resetLifetime;
@@ -219,6 +361,8 @@ class AccessService {
     final name = AccessPolicy.normalizeUsername(username);
     final displayName = '${firstName.trim()} ${lastName.trim()}'.trim();
     final account = Account(
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
       id: _newId(),
       username: name,
       displayName: displayName.isEmpty ? name : displayName,
@@ -235,19 +379,25 @@ class AccessService {
     return Registered(account);
   }
 
+  /// Signs in with the username or, when [username] holds an `@`, the email
+  /// address of the account (usernames never contain `@`).
   Future<LoginResult> login({
     required String username,
     required String password,
     required String clientKey,
+    bool remember = false,
   }) async {
     final name = AccessPolicy.normalizeUsername(username);
+    final byEmail = name.contains('@');
     final keys = ['user:$name', 'client:$clientKey'];
     for (final key in keys) {
       final wait = _throttle.waitFor(key);
       if (wait != null) return TooManyAttempts(wait);
     }
 
-    final stored = await _repository.findCredentials(name);
+    final stored = byEmail
+        ? await _repository.findCredentialsByEmail(name)
+        : await _repository.findCredentials(name);
     // Unknown names do the same work, so timing does not reveal them.
     final valid = await _hasher.verify(
       password,
@@ -264,27 +414,150 @@ class AccessService {
     }
 
     keys.forEach(_throttle.recordSuccess);
+    return _openSession(
+      stored.account,
+      remember: remember,
+      action: 'auth.login',
+    );
+  }
+
+  Future<LoggedIn> _openSession(
+    Account account, {
+    required bool remember,
+    required String action,
+  }) async {
     final token = _newToken();
     final now = _clock().toUtc();
-    final expiresAt = now.add(sessionLifetime);
+    final expiresAt = now.add(remember ? rememberLifetime : sessionLifetime);
     await _repository.saveSession(
       id: _newId(),
-      accountId: stored.account.id,
+      accountId: account.id,
       tokenHash: _hashToken(token),
       createdAt: now,
       expiresAt: expiresAt,
     );
-    await _repository.audit(
+    await _repository.audit(at: now, action: action, actorId: account.id);
+    return LoggedIn(token: token, expiresAt: expiresAt, account: account);
+  }
+
+  /// Lets the signed-in person sign in to **this browser** with a PIN. Needs
+  /// the password, so a borrowed, unlocked browser cannot set one. The tablet
+  /// returns a secret for the browser to keep; the PIN works only with it.
+  Future<SetPinResult> setPin({
+    required Account account,
+    required String password,
+    required String pin,
+    required String label,
+    String? replaceDeviceId,
+  }) async {
+    final limit = 'pin-set:${account.id}';
+    final wait = _throttle.waitFor(limit);
+    if (wait != null) return PinSetThrottled(wait);
+
+    final stored = await _repository.findCredentials(account.username);
+    final valid =
+        stored != null && await _hasher.verify(password, stored.passwordHash);
+    if (!valid) {
+      _throttle.recordFailure(limit);
+      await _repository.audit(
+        at: _clock(),
+        action: 'auth.pin_set_refused',
+        actorId: account.id,
+      );
+      return const PinPasswordWrong();
+    }
+    _throttle.recordSuccess(limit);
+    final problem = AccessPolicy.checkPin(pin);
+    if (problem != null) return PinRefused(problem);
+
+    final token = _newToken();
+    final id = _newId();
+    final now = _clock().toUtc();
+    final cleanLabel = label.trim();
+    await _repository.savePinDevice(
+      id: id,
+      accountId: account.id,
+      tokenHash: _hashToken(token),
+      pinHash: await _hasher.hash(pin),
+      label: cleanLabel.length > 80 ? cleanLabel.substring(0, 80) : cleanLabel,
       at: now,
-      action: 'auth.login',
-      actorId: stored.account.id,
+      keepAtMost: maxPinDevices,
+      replaceDeviceId: replaceDeviceId,
     );
-    return LoggedIn(
-      token: token,
-      expiresAt: expiresAt,
-      account: stored.account,
+    return PinSet(
+      deviceToken: token,
+      device: PinDeviceInfo(
+        id: id,
+        label: cleanLabel,
+        createdAt: now,
+        lastUsedAt: null,
+      ),
     );
   }
+
+  /// Signs in with a PIN from a browser that holds [deviceToken]. Wrong PINs
+  /// are slowed down, and [maxPinFailures] in a row remove the browser's PIN:
+  /// from then on only the password works there.
+  Future<PinLoginResult> loginWithPin({
+    required String deviceToken,
+    required String pin,
+    required String clientKey,
+  }) async {
+    final device = await _repository.findPinDevice(_hashToken(deviceToken));
+    if (device == null) {
+      // Same work as a real check, so timing does not tell the difference.
+      await _hasher.verify(pin, _decoyHash);
+      return const PinUnavailable();
+    }
+    final keys = ['pin:${device.id}', 'client:$clientKey'];
+    for (final key in keys) {
+      final wait = _throttle.waitFor(key);
+      if (wait != null) return PinLoginThrottled(wait);
+    }
+
+    if (!await _hasher.verify(pin, device.pinHash)) {
+      keys.forEach(_throttle.recordFailure);
+      final failures = await _repository.recordPinFailure(device.id);
+      await _repository.audit(
+        at: _clock(),
+        action: 'auth.pin_failed',
+        actorId: device.account.id,
+        detail: device.id,
+      );
+      if (failures >= maxPinFailures) {
+        await _repository.removePinDevice(
+          accountId: device.account.id,
+          deviceId: device.id,
+          reason: 'auth.pin_locked',
+          at: _clock().toUtc(),
+        );
+        return const PinLocked();
+      }
+      return PinWrong(maxPinFailures - failures);
+    }
+
+    keys.forEach(_throttle.recordSuccess);
+    await _repository.recordPinSuccess(device.id, _clock().toUtc());
+    return PinLoggedIn(
+      await _openSession(
+        device.account,
+        remember: false,
+        action: 'auth.pin_login',
+      ),
+    );
+  }
+
+  Future<List<PinDeviceInfo>> pinDevices(Account account) =>
+      _repository.listPinDevices(account.id);
+
+  /// False when the person has no such PIN browser.
+  Future<bool> removePinDevice(Account account, String deviceId) =>
+      _repository.removePinDevice(
+        accountId: account.id,
+        deviceId: deviceId,
+        reason: 'auth.pin_removed',
+        at: _clock().toUtc(),
+      );
 
   /// Step 1 of a forgotten-password reset. When [activationKey] is the key
   /// this tablet was activated with (the clinic owner or the vendor holds it)
@@ -399,6 +672,107 @@ class AccessService {
     if (!_clock().toUtc().isBefore(session.expiresAt)) return null;
     return session.account;
   }
+
+  /// Changes the signed-in person's own name, email and phone.
+  Future<ProfileResult> updateProfile({
+    required String accountId,
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String phone,
+  }) async {
+    final problem = AccessPolicy.checkProfile(
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      phone: phone,
+    );
+    if (problem != null) return ProfileRefused(problem);
+    final normalized = AccessPolicy.normalizeEmail(email);
+    if (await _repository.emailInUse(normalized, exceptAccountId: accountId)) {
+      return const ProfileRefused(ProfileProblem.emailTaken);
+    }
+    return ProfileSaved(
+      await _repository.updateProfile(
+        accountId: accountId,
+        firstName: firstName,
+        lastName: lastName,
+        email: normalized,
+        phone: phone,
+        at: _clock().toUtc(),
+      ),
+    );
+  }
+
+  /// Changes the signed-in person's own password. Needs the current one, so a
+  /// borrowed, unlocked browser cannot lock the owner out. Wrong guesses are
+  /// slowed down. Every other sign-in of the account ends; [token] stays.
+  Future<ChangePasswordResult> changePassword({
+    required Account account,
+    required String token,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final limit = 'password:${account.id}';
+    final wait = _throttle.waitFor(limit);
+    if (wait != null) return ChangeThrottled(wait);
+
+    final stored = await _repository.findCredentials(account.username);
+    final valid =
+        stored != null &&
+        await _hasher.verify(currentPassword, stored.passwordHash);
+    if (!valid) {
+      _throttle.recordFailure(limit);
+      await _repository.audit(
+        at: _clock(),
+        action: 'auth.password_change_refused',
+        actorId: account.id,
+      );
+      return const CurrentPasswordWrong();
+    }
+    _throttle.recordSuccess(limit);
+
+    final problem = AccessPolicy.check(
+      username: account.username,
+      password: newPassword,
+    );
+    if (problem != null) return NewPasswordRefused(problem);
+    if (newPassword == currentPassword) return const NewPasswordSame();
+
+    await _repository.changePassword(
+      accountId: account.id,
+      passwordHash: await _hasher.hash(newPassword),
+      keepTokenHash: _hashToken(token),
+      at: _clock().toUtc(),
+    );
+    return const PasswordChanged();
+  }
+
+  Future<PhotoResult> changePhoto({
+    required String accountId,
+    required List<int> bytes,
+  }) async {
+    if (bytes.length > AccessPolicy.maxPhotoBytes) {
+      return const PhotoTooLarge();
+    }
+    if (AccessPolicy.imageType(bytes) == null) return const PhotoUnsupported();
+    return PhotoSaved(
+      await _repository.setPhoto(
+        accountId: accountId,
+        bytes: bytes,
+        at: _clock().toUtc(),
+      ),
+    );
+  }
+
+  Future<Account> removePhoto(String accountId) => _repository.setPhoto(
+    accountId: accountId,
+    bytes: null,
+    at: _clock().toUtc(),
+  );
+
+  Future<List<int>?> photoOf(String accountId) =>
+      _repository.photoOf(accountId);
 
   Future<void> logout(String token) async {
     final account = await authenticate(token);

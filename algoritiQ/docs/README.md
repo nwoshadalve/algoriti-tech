@@ -32,10 +32,17 @@ Start with [principles/README.md](./principles/README.md) and [standards/README.
 
 If rules conflict or a task needs to break one, **stop and ask** — do not improvise.
 
+## Product features (planning)
+
+Normative **accepted decisions** for upcoming work:
+
+- [Queue: patient entry, analytics, announcements](./features/queue-product-decisions.md)
+
 ## Other folders
 
 | Folder | Contents |
 | --- | --- |
+| [features/](./features/) | Product decisions for cross-cutting features (queue, etc.) |
 | [dev-setup/](./dev-setup/README.md) | Flutter tablet + web dashboard local setup |
 | [prod-build-deploy/](./prod-build-deploy/README.md) | Release builds |
 | [discussions/](./discussions/) | R&D notes (non-normative) |

@@ -1,0 +1,67 @@
+/* Design tokens aligned with app/lib/core/theme (Material 3 + brand). */
+
+:root,
+[data-theme="light"] {
+  --navy: #0b1f3a;
+  --coral: #ff5c39;
+  --coral-action: #d23f1e;
+  --white: #ffffff;
+  --mist: #f4f6fa;
+  --positive: #1f9d63;
+  --health-ok: #10b981;
+
+  --page: var(--mist);
+  --surface: var(--white);
+  --surface-high: #e8ecf4;
+  --primary-container: #d6e3f5;
+  --on-surface: var(--navy);
+  --on-surface-variant: #5a6478;
+  --primary: var(--navy);
+  --on-primary: var(--white);
+  --outline: #c5cad4;
+  --outline-variant: #dde1e9;
+  --error: #b3261e;
+  --shadow: rgba(11, 31, 58, 0.12);
+
+  --nav-selected-bg: var(--navy);
+  --nav-selected-fg: var(--white);
+  --nav-fg: rgba(11, 31, 58, 0.75);
+  --logo-ink: var(--navy);
+}
+
+[data-theme="dark"] {
+  --page: var(--navy);
+  --surface: #12294a;
+  --surface-high: #1e3a66;
+  --primary-container: #1e3a66;
+  --on-surface: var(--white);
+  --on-surface-variant: #b8c4d9;
+  --primary: var(--white);
+  --on-primary: var(--navy);
+  --outline: #2e4a75;
+  --outline-variant: #2e4a75;
+  --error: #ffb4ab;
+  --shadow: rgba(0, 0, 0, 0.35);
+
+  --nav-selected-bg: var(--white);
+  --nav-selected-fg: var(--navy);
+  --nav-fg: rgba(255, 255, 255, 0.75);
+  --logo-ink: var(--white);
+}
+
+:root {
+  --font: "Plus Jakarta Sans", system-ui, sans-serif;
+  --radius-field: 12px;
+  --radius-card: 16px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --btn-height: 52px;
+  --card-max: 440px;
+  --card-wide: 880px;
+  --card-setup-wide: 1080px;
+  --content-max: 1152px;
+  --nav-rail: 256px;
+}

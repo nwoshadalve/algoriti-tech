@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 import { useState, type InputHTMLAttributes } from 'react'
 import { HiEye, HiEyeSlash } from 'react-icons/hi2'
 import { useLocale } from '@/core/i18n/LocaleProvider'

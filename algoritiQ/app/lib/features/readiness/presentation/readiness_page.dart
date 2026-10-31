@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -79,7 +84,7 @@ class ReadinessPage extends ConsumerWidget {
                       children: [
                         Expanded(child: _Column(checks.sublist(0, 2))),
                         const SizedBox(width: Spacing.md),
-                        Expanded(child: _Column(checks.sublist(2))),
+                        Expanded(child: _Column(checks.sublist(2, 4))),
                       ],
                     )
                   else
@@ -116,6 +121,12 @@ class ReadinessPage extends ConsumerWidget {
             icon: Icons.notifications_outlined,
             onPressed: controller.allowNotifications,
           );
+        case ReadinessKind.bluetooth:
+          action = ReadinessActionButton(
+            tooltip: l10n.readinessAllow,
+            icon: Icons.bluetooth_rounded,
+            onPressed: controller.allowBluetooth,
+          );
         case ReadinessKind.autoStart:
           action = ReadinessActionButton(
             tooltip: l10n.readinessOpenSettings,
@@ -138,6 +149,13 @@ class ReadinessPage extends ConsumerWidget {
           item: item,
           title: l10n.readinessNotificationsTitle,
           body: l10n.readinessNotificationsBody,
+          action: action,
+        );
+      case ReadinessKind.bluetooth:
+        return ReadinessRow(
+          item: item,
+          title: l10n.readinessBluetoothTitle,
+          body: l10n.readinessBluetoothBody,
           action: action,
         );
       case ReadinessKind.autoStart:

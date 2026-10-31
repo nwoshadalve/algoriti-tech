@@ -12,3 +12,5 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+# Local clinic backup for tablet restore testing (contains clinic data).
+/clinic-backup.zip

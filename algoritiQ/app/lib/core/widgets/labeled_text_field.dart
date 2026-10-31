@@ -1,4 +1,10 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/app_spacing.dart';
 
@@ -19,6 +25,8 @@ class LabeledTextField extends StatelessWidget {
     this.maxLines = 1,
     this.hint,
     this.autocorrect = true,
+    this.inputFormatters,
+    this.obscureText = false,
   });
 
   final String label;
@@ -42,6 +50,8 @@ class LabeledTextField extends StatelessWidget {
 
   /// Off for keys and codes, which no keyboard should "correct".
   final bool autocorrect;
+  final List<TextInputFormatter>? inputFormatters;
+  final bool obscureText;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +78,8 @@ class LabeledTextField extends StatelessWidget {
             autocorrect: autocorrect,
             enableSuggestions: autocorrect,
             keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
+            obscureText: obscureText,
             textInputAction: textInputAction,
             onSubmitted: onSubmitted == null ? null : (_) => onSubmitted!(),
             decoration: InputDecoration(

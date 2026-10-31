@@ -16,6 +16,7 @@ The queue server lives in the tablet app. It must answer with the screen locked,
 | --- | --- | --- |
 | Run in the background (battery) | Android may pause the app to save battery | **Required** |
 | Show the running notice | Android 13+ hides the service notice otherwise | **Required** |
+| Allow Bluetooth | Android 12+ needs runtime permission to read Bluetooth state and open the turn-on dialog (works whether the radio is off or on) | **Required** when the tablet has Bluetooth |
 | Start after a restart (auto-start) | Some makers (Honor, Xiaomi, Oppo…) block it by default; Android can't tell us (on the Honor Pad X7 the startup manager is listed but cannot be opened). Instead the app records each restart it was started for, only if the boot signal arrives within 10 minutes of power-on (a late re-sent signal does not count), and the row is ticked after one such restart (`AutoStartProbe`) | **Required** |
 
 The guide re-reads Android's state when the user returns from a settings page (including auto-start on Honor-style tablets, via `AutoStartProbe`). **Continue** stays disabled until every required row is done — there is no skip. Each row uses a compact settings-style icon button; nothing changes silently. If a requirement breaks later, the guide returns. A screen lock (PIN) is fine and recommended.

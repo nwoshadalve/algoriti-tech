@@ -1,16 +1,20 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import '../../../core/clock.dart';
 
 /// Slows down password guessing. After [freeAttempts] failures a key (a
-/// username or a client address) must wait, and the wait doubles with each
-/// further failure up to [maxDelay]. Kept in memory: a guesser cannot
-/// restart the tablet app.
+/// username or a client address) must wait; the wait starts at [baseDelay]
+/// and doubles with each further failure, up to [maxDelay].
 class LoginThrottle {
   LoginThrottle({
-    required this._clock,
+    required Clock clock,
     this.freeAttempts = 5,
-    this.baseDelay = const Duration(seconds: 30),
-    this.maxDelay = const Duration(minutes: 15),
-  });
+    this.baseDelay = const Duration(seconds: 20),
+    this.maxDelay = const Duration(hours: 24),
+  }) : _clock = clock;
 
   final Clock _clock;
   final int freeAttempts;

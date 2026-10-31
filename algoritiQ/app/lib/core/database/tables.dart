@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:drift/drift.dart';
 
 @DataClassName('DoctorRow')
@@ -65,6 +70,16 @@ class Users extends Table {
   TextColumn get username => text().unique()();
   TextColumn get displayName => text()();
   TextColumn get email => text().withDefault(const Constant(''))();
+  TextColumn get firstName => text().withDefault(const Constant(''))();
+  TextColumn get lastName => text().withDefault(const Constant(''))();
+  TextColumn get phone => text().withDefault(const Constant(''))();
+
+  /// Profile picture (a small JPEG, PNG or WebP), if one was uploaded.
+  BlobColumn get photo => blob().nullable()();
+
+  /// UTC epoch milliseconds of the last photo change; 0 when there is none.
+  /// Clients use it to know when to fetch the picture again.
+  IntColumn get photoVersion => integer().withDefault(const Constant(0))();
   TextColumn get role => text()();
 
   /// Self-describing slow hash; the password itself is never stored.
@@ -78,6 +93,17 @@ class Users extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+/// Which chambers (doctor licence) or doctors (chamber licence) a receptionist
+/// may work on.
+@DataClassName('UserScopeAssignmentRow')
+class UserScopeAssignments extends Table {
+  TextColumn get userId => text().references(Users, #id)();
+  TextColumn get scopeId => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {userId, scopeId};
+}
+
 /// Sign-in sessions. Only a hash of the token is kept.
 @DataClassName('AuthSessionRow')
 class AuthSessions extends Table {
@@ -87,6 +113,30 @@ class AuthSessions extends Table {
   IntColumn get createdAt => integer()();
   IntColumn get expiresAt => integer()();
   BoolColumn get revoked => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// A browser that may sign in with a PIN. The PIN means something only
+/// together with the secret kept in that browser (`tokenHash` is a hash of it),
+/// so a stolen PIN alone opens nothing. Both are stored only as hashes.
+@DataClassName('PinDeviceRow')
+class PinDevices extends Table {
+  TextColumn get id => text()();
+  TextColumn get userId => text().references(Users, #id)();
+  TextColumn get tokenHash => text().unique()();
+  TextColumn get pinHash => text()();
+
+  /// Which browser, for the person to recognise in their list.
+  TextColumn get label => text().withDefault(const Constant(''))();
+  IntColumn get createdAt => integer()();
+
+  /// UTC epoch milliseconds of the last PIN sign-in; 0 when never.
+  IntColumn get lastUsedAt => integer().withDefault(const Constant(0))();
+
+  /// Wrong PINs in a row. Reaching the limit removes the device.
+  IntColumn get failures => integer().withDefault(const Constant(0))();
 
   @override
   Set<Column<Object>> get primaryKey => {id};

@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
 package tech.algoriti.algoritiq_app
 
 import android.content.Context
@@ -48,6 +55,15 @@ class MainActivity : FlutterActivity() {
         KeepAliveChannel.onPermissionResult(
             requestCode,
             grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED,
+        )
+        SystemHealthChannel.onPermissionResult(
+            requestCode,
+            grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED,
+        )
+        PrinterChannel.onPermissionResult(
+            requestCode,
+            grantResults.isNotEmpty() &&
+                grantResults.all { it == PackageManager.PERMISSION_GRANTED },
         )
     }
 
