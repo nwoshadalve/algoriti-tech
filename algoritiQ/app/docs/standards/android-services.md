@@ -2,7 +2,9 @@
 
 Native services keep the clinic session alive and talk to hardware. Flutter owns product rules; services own **OS integration, device communication, process reliability**.
 
-Location: `android/app/src/main/kotlin/tech/algoriti/algoritiq_app/services/`.
+Location: `android/app/src/main/kotlin/tech/algoriti/algoritiq_app/` (channels and services live here, not under a separate `services/` package).
+
+Each `.kt` file uses the copyright header from [Code style — Copyright header](./code-style.md). Document channel contracts with KDoc; explain Android-version branches and permission flows in comments, not in Flutter.
 
 ## Responsibilities
 
@@ -33,6 +35,7 @@ Location: `android/app/src/main/kotlin/tech/algoriti/algoritiq_app/services/`.
 - Check permission before every call; catch `SecurityException`. Flutter shows the permission UX; services never prompt.
 - Print jobs: serial queue, per-job timeout, bounded retry with backoff, explicit result (`OK` / `FAILED(reason)`). A failed print never creates or loses a token; reprint is explicit.
 - Always close sockets/streams (`use {}` / `finally`).
+- Implemented in `PrinterChannel.kt`: one background thread owns the socket so commands never interleave; a reader thread detects a dropped link and tells Dart; connect tries the SPP service UUID, then channel 1. Reconnect policy lives in Dart, not here ([Connectivity](../features/connectivity.md)).
 
 ## Coroutines & threading
 

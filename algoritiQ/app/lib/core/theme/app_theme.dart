@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 
 import 'app_radii.dart';
@@ -36,6 +41,7 @@ abstract final class AppTheme {
       onTertiary: BrandColors.navy,
       surface: BrandColors.navyRaised,
       surfaceContainerHighest: BrandColors.navyTint,
+      outlineVariant: BrandColors.navyLine,
     ),
     page: BrandColors.navy,
   );
@@ -59,21 +65,40 @@ abstract final class AppTheme {
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        contentPadding: const EdgeInsets.all(Spacing.md),
+        // 48 dp tall fields: compact enough for a 533 dp-tall landscape screen.
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: Spacing.md,
+          vertical: Spacing.sm + Spacing.xs,
+        ),
         border: _outline(scheme.outline),
         enabledBorder: _outline(scheme.outline),
         focusedBorder: _outline(scheme.primary, width: 2),
         errorBorder: _outline(scheme.error),
         focusedErrorBorder: _outline(scheme.error, width: 2),
       ),
-      // Coral is the call-to-action colour (brand guide); navy text on coral
-      // keeps the contrast above 4.5:1 in both themes.
+      // Coral is the call-to-action colour (brand guide). Same button in both
+      // themes: white label on the deeper action coral (AA contrast).
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: scheme.tertiary,
-          foregroundColor: scheme.onTertiary,
+          backgroundColor: BrandColors.coralAction,
+          foregroundColor: BrandColors.white,
           minimumSize: const Size(64, _buttonHeight),
           shape: fieldShape,
+          textStyle: const TextStyle(
+            fontFamily: brandFontFamily,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      // Secondary actions (Back, Add, Change photo): same size and shape as
+      // the filled button, ink-coloured outline, in light and dark.
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: scheme.onSurface,
+          minimumSize: const Size(64, _buttonHeight),
+          shape: fieldShape,
+          side: BorderSide(color: scheme.outline),
           textStyle: const TextStyle(
             fontFamily: brandFontFamily,
             fontSize: 16,

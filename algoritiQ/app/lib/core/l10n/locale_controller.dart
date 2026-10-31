@@ -1,5 +1,8 @@
-import 'dart:async';
-
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,9 +22,12 @@ final localeControllerProvider = NotifierProvider<LocaleController, Locale?>(
 ///
 /// The choice survives restarts and needs no network.
 class LocaleController extends Notifier<Locale?> {
+  /// Completes once the saved language (if any) has been applied.
+  late Future<void> restored;
+
   @override
   Locale? build() {
-    unawaited(_restore());
+    restored = _restore();
     return null;
   }
 

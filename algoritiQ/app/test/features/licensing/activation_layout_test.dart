@@ -1,9 +1,13 @@
-import 'package:algoritiq_app/app/app.dart';
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/licensing_kit.dart';
+import '../../support/pump_app.dart';
 
 void main() {
   late LicensingKit kit;
@@ -17,12 +21,7 @@ void main() {
     'tablet landscape': Size(1280, 800),
   };
 
-  Future<void> openApp(WidgetTester tester) async {
-    await tester.pumpWidget(
-      ProviderScope(overrides: kit.overrides(), child: const AlgoritiqApp()),
-    );
-    await tester.pumpAndSettle();
-  }
+  Future<void> openApp(WidgetTester tester) => pumpApp(tester, kit.overrides());
 
   for (final MapEntry(key: name, value: size) in screens.entries) {
     for (final brightness in Brightness.values) {
@@ -56,7 +55,7 @@ void main() {
     await tester.tap(find.text('বাংলা'));
     await tester.pumpAndSettle();
 
-    expect(find.text('AlgoritiQ সক্রিয় করুন'), findsOneWidget);
-    expect(find.text('Activate AlgoritiQ'), findsNothing);
+    expect(find.text('এই ডিভাইসটি সক্রিয় করুন'), findsOneWidget);
+    expect(find.text('Activate this device'), findsNothing);
   });
 }

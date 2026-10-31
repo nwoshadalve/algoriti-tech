@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" data-theme="light" class="device-view device-view--portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin notice · AlgoritiQ mock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/app.css" />
+  </head>
+  <body>
+    <div class="app-root">
+      <div class="card-page">
+        <header class="card-page__top">
+          <div class="logo" aria-label="AlgoritiQ">
+            <div class="logo__mark" aria-hidden="true">
+              <span class="logo__bar logo__bar--1"></span>
+              <span class="logo__bar logo__bar--2"></span>
+              <span class="logo__bar logo__bar--3"></span>
+            </div>
+            <span class="logo__text">Algoriti<span>Q</span></span>
+          </div>
+          <div class="lang-switch" role="group" aria-label="Language">
+            <span class="lang-switch__track" aria-hidden="true"></span>
+            <button type="button" class="lang-switch__seg" data-lang="bn">বাংলা</button>
+            <button type="button" class="lang-switch__seg lang-switch__seg--on" data-lang="en">EN</button>
+          </div>
+        </header>
+        <div class="card-page__scroll">
+          <div class="card-page__inner card-page__inner--two-col">
+            <div class="card card--flat stack-lg">
+              <h1 class="app-headline">Admin sign-in is on the web</h1>
+              <p class="text-intro">This tablet only has the receptionist screen for now. To manage the clinic as an admin, open the address below in a web browser on your phone or laptop and sign in there.</p>
+              <div class="address-panel">https://algoritiq.local:8443</div>
+              <p class="text-small">Press OK to go back to the sign-in screen. You are also signed out when this app is closed.</p>
+              <button type="button" class="btn btn--primary">OK</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/screen-frame.js"></script>
+  </body>
+</html>

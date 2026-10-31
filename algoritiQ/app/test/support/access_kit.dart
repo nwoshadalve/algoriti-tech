@@ -1,0 +1,129 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
+import 'package:algoritiq_app/core/database/app_database.dart';
+import 'package:algoritiq_app/features/access/application/access_service.dart';
+import 'package:algoritiq_app/features/access/application/claim_codes.dart';
+import 'package:algoritiq_app/features/access/application/login_throttle.dart';
+import 'package:algoritiq_app/features/access/data/argon2id_password_hasher.dart';
+import 'package:algoritiq_app/features/access/data/drift_account_repository.dart';
+import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/native.dart';
+
+import 'memory_secret_store.dart';
+
+/// A fake clock the test can move forward.
+class TestClock {
+  TestClock([DateTime? start]) : now = start ?? DateTime.utc(2026, 10, 27, 9);
+
+  DateTime now;
+
+  DateTime call() => now;
+
+  void advance(Duration by) => now = now.add(by);
+}
+
+/// Accounts wired to an in-memory database with cheap password hashing.
+class AccessKit {
+  AccessKit._(
+    this.database,
+    this.repository,
+    this.claimCodes,
+    this.throttle,
+    this.service,
+    this.clock,
+    this.hasher,
+  );
+
+  static Future<AccessKit> create({
+    String? activationKey = AccessKit.activationKey,
+  }) async {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    final clock = TestClock();
+    final database = AppDatabase(NativeDatabase.memory());
+    final repository = DriftAccountRepository(database);
+    final claimCodes = ClaimCodes(clock: clock.call);
+    final throttle = LoginThrottle(clock: clock.call);
+    var ids = 0;
+    // Far cheaper than production, so tests stay fast.
+    final hasher = await Argon2idPasswordHasher.create(
+      MemorySecretStore(),
+      memoryKiB: 64,
+      passes: 1,
+    );
+    final service = AccessService(
+      repository: repository,
+      hasher: hasher,
+      claimCodes: claimCodes,
+      throttle: throttle,
+      clock: clock.call,
+      newId: () => 'id${ids++}',
+      licenseKey: () async => activationKey,
+    );
+    return AccessKit._(
+      database,
+      repository,
+      claimCodes,
+      throttle,
+      service,
+      clock,
+      hasher,
+    );
+  }
+
+  final AppDatabase database;
+  final DriftAccountRepository repository;
+  final ClaimCodes claimCodes;
+  final LoginThrottle throttle;
+  final AccessService service;
+  final TestClock clock;
+
+  /// The hasher the service uses; share it with other services so the
+  /// passwords they store can be checked at sign-in.
+  final Argon2idPasswordHasher hasher;
+
+  static const password = 'a-long-passphrase';
+
+  /// The activation key this tablet pretends to hold.
+  static const activationKey = '040G2-08501-8H1ZZ-ZQ00N';
+
+  /// Resets [username]'s password the whole way (both steps).
+  Future<ResetFinishResult> resetPassword({
+    String username = 'owner',
+    String key = activationKey,
+    required String password,
+    String client = 'laptop',
+  }) async {
+    final start = await service.startReset(
+      username: username,
+      activationKey: key,
+      clientKey: client,
+    );
+    if (start case ResetTicketIssued(:final ticket)) {
+      return service.finishReset(
+        ticket: ticket,
+        newPassword: password,
+        clientKey: client,
+      );
+    }
+    return start is ResetThrottled ? start : const ResetTicketInvalid();
+  }
+
+  /// Registers the first admin with the code currently on screen.
+  Future<RegisterResult> registerAdmin({
+    String username = 'owner',
+    String? claimCode,
+    String pass = password,
+  }) => service.registerAdmin(
+    claimCode: claimCode ?? claimCodes.current().code,
+    username: username,
+    firstName: 'The',
+    lastName: 'Owner',
+    email: 'owner@clinic.test',
+    password: pass,
+  );
+
+  Future<void> close() => database.close();
+}

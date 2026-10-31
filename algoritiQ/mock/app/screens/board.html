@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en" data-theme="light" class="device-view device-view--portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Board · AlgoritiQ mock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/app.css" />
+  </head>
+  <body>
+    <div class="app-root">
+      <div class="dashboard">
+        <button type="button" class="dashboard__scrim" data-drawer-scrim hidden aria-label="Close menu"></button>
+        <aside class="dashboard__drawer side-nav" aria-label="Dashboard sections" aria-hidden="true">
+          <div class="side-nav__head">
+            <div class="logo" aria-label="AlgoritiQ">
+              <div class="logo__mark" aria-hidden="true">
+                <span class="logo__bar logo__bar--1"></span>
+                <span class="logo__bar logo__bar--2"></span>
+                <span class="logo__bar logo__bar--3"></span>
+              </div>
+              <span class="logo__text">Algoriti<span>Q</span></span>
+            </div>
+            <button type="button" class="side-nav__close" data-drawer-close aria-label="Close menu">×</button>
+          </div>
+          <div class="side-nav__list">
+            <button type="button" class="nav-tile nav-tile--selected" aria-current="page">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 4h6v16H4V4zm10 0h6v10h-6V4zM4 20h16v2H4v-2z"/></svg>
+              Board
+            </button>
+            <button type="button" class="nav-tile">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+              Connectivity
+            </button>
+          </div>
+          <div class="side-nav__user">
+            <button type="button" class="user-menu-trigger" aria-haspopup="menu" aria-label="Account menu">
+              <span class="avatar">R</span>
+              <span class="user-menu-trigger__text">
+                <strong>Rina Karim</strong>
+                <span class="text-small">Receptionist</span>
+              </span>
+              <svg class="user-menu-trigger__chev" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 10l5 5 5-5H7z"/></svg>
+            </button>
+          </div>
+        </aside>
+        <div class="dashboard__main">
+          <header class="dashboard__top">
+            <button type="button" class="nav-menu-btn" data-drawer-open aria-label="Open menu" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/></svg>
+            </button>
+            <div class="dashboard__top-logo">
+              <div class="logo" aria-label="AlgoritiQ">
+                <div class="logo__mark" aria-hidden="true">
+                  <span class="logo__bar logo__bar--1"></span>
+                  <span class="logo__bar logo__bar--2"></span>
+                  <span class="logo__bar logo__bar--3"></span>
+                </div>
+                <span class="logo__text">Algoriti<span>Q</span></span>
+              </div>
+            </div>
+            <div class="work-scope--compact">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+              <span>Main chamber</span>
+            </div>
+            <div class="dashboard-toolbar">
+              <div class="lang-switch" role="group" aria-label="Language">
+                <span class="lang-switch__track" aria-hidden="true"></span>
+                <button type="button" class="lang-switch__seg" data-lang="bn">বাংলা</button>
+                <button type="button" class="lang-switch__seg lang-switch__seg--on" data-lang="en">EN</button>
+              </div>
+              <button type="button" class="theme-toggle" data-mock-theme-toggle aria-label="Switch to dark theme"></button>
+            </div>
+          </header>
+          <main class="dashboard__content">
+            <div style="max-width: var(--content-max); margin: 0 auto">
+              <header class="page-header">
+                <h2>Welcome back, Rina</h2>
+                <p>Working at Main chamber. Run the counter from here.</p>
+              </header>
+              <div class="grid-2 grid-2--compact">
+                <div class="info-card">
+                  <p class="info-card__title">Clinic server</p>
+                  <div class="health-row">
+                    <span class="status-dot status-dot--ok"></span>
+                    <p class="health-row__msg">This tablet is serving the web app and other devices.</p>
+                  </div>
+                </div>
+                <div class="info-card">
+                  <p class="info-card__title">Your account</p>
+                  <dl>
+                    <div class="kv-row"><dt>Role</dt><dd>Receptionist</dd></div>
+                    <div class="kv-row"><dt>Username</dt><dd>rina.reception</dd></div>
+                    <div class="kv-row"><dt>Email</dt><dd>rina@cityheart.example</dd></div>
+                  </dl>
+                </div>
+              </div>
+              <div class="info-card stack-sm" style="margin-top: var(--space-lg)">
+                <h3 style="margin: 0; font-size: 1.0625rem">Patient queue</h3>
+                <p class="text-intro">Live queue tools will appear here once they are ready.</p>
+              </div>
+              <div class="license-foot" style="margin-top: var(--space-lg)">
+                <p>Doctor license · up to 3 chambers</p>
+                <p>Valid until 31 Dec 2027</p>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/screen-frame.js"></script>
+  </body>
+</html>

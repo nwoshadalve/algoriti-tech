@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
+import 'app/bootstrap.dart';
 
-import 'app/app.dart';
-
-void main() => runApp(const ProviderScope(child: AlgoritiqApp()));
+void main() => bootstrap();

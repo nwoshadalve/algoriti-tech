@@ -1,6 +1,10 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 
-import '../theme/app_spacing.dart';
 import 'brand_loader.dart';
 
 /// Primary call-to-action button that swaps its label for [BrandLoader]
@@ -16,7 +20,6 @@ class LoadingButton extends StatelessWidget {
     required this.onPressed,
     this.isLoading = false,
     this.loadingLabel,
-    this.icon,
   });
 
   final String label;
@@ -27,13 +30,15 @@ class LoadingButton extends StatelessWidget {
 
   /// Announced to screen readers while loading, e.g. "Activating…".
   final String? loadingLabel;
-  final IconData? icon;
 
   static void _ignore() {}
 
   @override
   Widget build(BuildContext context) {
-    final icon = this.icon;
+    // The button's label colour, so the dots follow the theme's button style.
+    final foreground =
+        FilledButtonTheme.of(context).style?.foregroundColor?.resolve({}) ??
+        Theme.of(context).colorScheme.onPrimary;
     return FilledButton(
       onPressed: isLoading && onPressed != null ? _ignore : onPressed,
       child: Stack(
@@ -45,19 +50,14 @@ class LoadingButton extends StatelessWidget {
             maintainSize: true,
             maintainAnimation: true,
             maintainState: true,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(child: Text(label, textAlign: TextAlign.center)),
-                if (icon != null) ...[
-                  const SizedBox(width: Spacing.sm),
-                  Icon(icon, size: 20),
-                ],
-              ],
-            ),
+            child: Text(label, textAlign: TextAlign.center),
           ),
           if (isLoading)
-            BrandLoader(size: 24, semanticLabel: loadingLabel ?? label),
+            BrandLoader(
+              color: foreground,
+              idleColor: foreground.withValues(alpha: 0.4),
+              semanticLabel: loadingLabel ?? label,
+            ),
         ],
       ),
     );

@@ -1,0 +1,16 @@
+{
+  "deviceId": "AJ5EJK6609C03364",
+  "measuredAt": "2026-03-31",
+  "source": "adb shell wm size; dumpsys display",
+  "densityDpi": 240,
+  "portrait": {
+    "widthPx": 800,
+    "heightPx": 1340,
+    "note": "Rotation 0 — physical panel 800×1340"
+  },
+  "landscape": {
+    "widthPx": 1340,
+    "heightPx": 800,
+    "note": "Rotation 90 — app usable area 1340×800"
+  }
+}

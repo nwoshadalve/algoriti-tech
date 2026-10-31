@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,8 +10,11 @@ import '../../l10n/app_localizations.dart';
 import '../l10n/locale_controller.dart';
 import '../theme/app_spacing.dart';
 
-/// Bengali / English toggle. Language names are shown in their own language
-/// on purpose, so a user can always find theirs.
+/// Bengali / English toggle, sized to sit beside the logo in a top bar.
+/// Language names are shown in their own language on purpose, so a user can
+/// always find theirs.
+///
+/// The pill is 32 dp tall; each segment's touch area is 48 dp.
 class LanguageSwitcher extends ConsumerWidget {
   const LanguageSwitcher({super.key});
 
@@ -14,6 +22,9 @@ class LanguageSwitcher extends ConsumerWidget {
     _Option(Locale('bn'), 'বাংলা', 'বাংলা'),
     _Option(Locale('en'), 'EN', 'English'),
   ];
+
+  static const _pillHeight = 32.0;
+  static const _touchHeight = 48.0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,26 +34,40 @@ class LanguageSwitcher extends ConsumerWidget {
     return Semantics(
       container: true,
       label: AppLocalizations.of(context).languageLabel,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(Spacing.xl),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(Spacing.xs / 2),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final option in _options)
-                _Segment(
-                  option: option,
-                  selected: option.locale.languageCode == current,
-                  onTap: () => ref
-                      .read(localeControllerProvider.notifier)
-                      .select(option.locale),
+      child: SizedBox(
+        height: _touchHeight,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // The visible track, centred inside the taller touch area.
+            Positioned.fill(
+              child: Center(
+                child: SizedBox(
+                  height: _pillHeight,
+                  width: double.infinity,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: scheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(_pillHeight / 2),
+                    ),
+                  ),
                 ),
-            ],
-          ),
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final option in _options)
+                  _Segment(
+                    option: option,
+                    selected: option.locale.languageCode == current,
+                    onTap: () => ref
+                        .read(localeControllerProvider.notifier)
+                        .select(option.locale),
+                  ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -70,29 +95,45 @@ class _Segment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return Semantics(
       button: true,
       selected: selected,
       label: option.spokenName,
       excludeSemantics: true,
-      child: Material(
-        color: selected ? scheme.primary : Colors.transparent,
-        borderRadius: BorderRadius.circular(Spacing.xl),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(Spacing.xl),
-          onTap: selected ? null : onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 48, minHeight: 44),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
-                child: Text(
-                  option.text,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: selected
-                        ? scheme.onPrimary
-                        : scheme.onSurfaceVariant,
+      // The 48 dp touch area is the outer detector; the ripple, hover and
+      // focus effects belong to the 32 dp pill the user actually sees.
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: selected ? null : onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: LanguageSwitcher._touchHeight,
+            minHeight: LanguageSwitcher._touchHeight,
+          ),
+          child: Center(
+            child: Material(
+              color: selected ? scheme.primary : Colors.transparent,
+              shape: const StadiumBorder(),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: selected ? null : onTap,
+                child: SizedBox(
+                  height: LanguageSwitcher._pillHeight,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
+                    child: Center(
+                      child: Text(
+                        option.text,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: selected
+                              ? scheme.onPrimary
+                              : scheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

@@ -1,0 +1,73 @@
+/**
+ * Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+ * All rights reserved.
+ *
+ * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+ * or distribution is prohibited.
+ */
+/* Three dots light in turn — matches Flutter `BrandLoader`. */
+
+.brand-loader {
+  --brand-loader-dot: 8px;
+  --brand-loader-lit: var(--color-brand-coral, #ff5c39);
+  --brand-loader-idle: color-mix(in srgb, var(--color-brand-navy, #0b1f3a) 25%, transparent);
+  display: flex;
+  align-items: flex-end;
+  gap: calc(var(--brand-loader-dot) * 0.8);
+  height: calc(var(--brand-loader-dot) * 1.5);
+}
+
+.dark .brand-loader {
+  --brand-loader-idle: color-mix(in srgb, white 35%, transparent);
+}
+
+.brand-loader__dot {
+  width: var(--brand-loader-dot);
+  height: var(--brand-loader-dot);
+  border-radius: 9999px;
+  background-color: var(--brand-loader-idle);
+  animation: brand-loader-call 1.2s ease-in-out infinite;
+}
+
+.brand-loader__dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.brand-loader__dot:nth-child(2) {
+  animation-delay: -0.8s;
+}
+
+.brand-loader__dot:nth-child(3) {
+  animation-delay: -0.4s;
+}
+
+@keyframes brand-loader-call {
+  0%,
+  100% {
+    transform: translateY(0);
+    background-color: var(--brand-loader-idle);
+  }
+  16.67% {
+    transform: translateY(calc(var(--brand-loader-dot) * -0.4));
+    background-color: var(--brand-loader-lit);
+  }
+  33.33% {
+    transform: translateY(calc(var(--brand-loader-dot) * -0.4));
+    background-color: var(--brand-loader-lit);
+  }
+  50% {
+    transform: translateY(0);
+    background-color: var(--brand-loader-idle);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-loader__dot {
+    animation: none;
+  }
+
+  .brand-loader__dot:nth-child(2) {
+    background-color: var(--brand-loader-lit);
+    transform: translateY(calc(var(--brand-loader-dot) * -0.4));
+  }
+}

@@ -1,0 +1,1418 @@
+openapi: 3.0.3
+info:
+  title: AlgoritiQ local API
+  version: 0.1.0
+  description: |
+    Backend API hosted by the clinic tablet, for the web app, TV and other
+    clients on the chamber Wi-Fi. Works with no Internet.
+
+    **Transport.** HTTPS on port 8443 with a self-signed certificate. Browsers
+    warn on first visit; the tablet shows the certificate's SHA-256
+    fingerprint so the admin can confirm they reached the right tablet.
+
+    **Authentication.** `POST /auth/login` returns a bearer token (valid 12
+    hours). Send `Authorization: Bearer <token>`. No cookies.
+
+    **First admin.** Until an admin exists, `POST /setup/admin` is open to
+    anyone holding the *claim code* shown on the tablet screen (one use,
+    expires in 15 minutes, locked after 5 wrong tries). Afterwards it always
+    answers `409`.
+
+    **Errors** are `{ "error": { "code", "message", ... } }`. Clients should
+    show their own (translated) text chosen by `code`.
+servers:
+  - url: https://{tabletAddress}:8443/api/v1
+    variables:
+      tabletAddress:
+        default: 192.168.0.20
+        description: The tablet's address, shown on its screen (also as a QR).
+security: []
+paths:
+  /health:
+    get:
+      summary: Is the server up?
+      operationId: getHealth
+      responses:
+        '200':
+          description: Up.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, enum: [ok] }
+  /setup/status:
+    get:
+      summary: Has the first admin been registered?
+      description: Use on first load to show either the registration form or the sign-in form.
+      operationId: getSetupStatus
+      responses:
+        '200':
+          description: Current setup state.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [adminRegistered, claimCodeRequired]
+                properties:
+                  adminRegistered: { type: boolean }
+                  claimCodeRequired: { type: boolean }
+  /setup/claim/verify:
+    post:
+      summary: Check the claim code before registration
+      description: >
+        Confirms the code matches the tablet. Does not use the code up; wrong
+        tries count toward lockout like `POST /setup/admin`.
+      operationId: verifyClaimCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [claimCode]
+              properties:
+                claimCode:
+                  type: string
+                  description: Code shown on the tablet. Case, spaces and dashes are ignored.
+                  example: 7K4M-9XQ2
+      responses:
+        '200':
+          description: Code accepted for registration.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valid]
+                properties:
+                  valid: { type: boolean, enum: [true] }
+        '403':
+          description: >
+            Claim code refused. Codes: `claim_code_invalid` (see
+            `attemptsLeft`), `claim_code_expired`, `claim_code_locked`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: An admin already exists (`admin_already_registered`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '413': { description: Body larger than 16 KB. }
+        '415': { description: Body is not application/json. }
+  /setup/admin:
+    post:
+      summary: Register the first admin
+      operationId: registerAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [claimCode, username, firstName, lastName, email, password]
+              properties:
+                claimCode:
+                  type: string
+                  description: Code shown on the tablet. Case, spaces and dashes are ignored.
+                  example: 7K4M-9XQ2
+                username:
+                  type: string
+                  pattern: '^[a-zA-Z0-9._-]{3,32}$'
+                  description: Not case sensitive; stored lower-case.
+                firstName: { type: string, minLength: 1, maxLength: 64 }
+                lastName: { type: string, minLength: 1, maxLength: 64 }
+                email: { type: string, format: email, maxLength: 254 }
+                password:
+                  type: string
+                  minLength: 8
+                  maxLength: 128
+                  format: password
+      responses:
+        '201':
+          description: Admin created. Sign in next.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [account]
+                properties:
+                  account: { $ref: '#/components/schemas/Account' }
+        '400':
+          description: >
+            Invalid input. Codes: `invalid_request`, `username_invalid`,
+            `email_invalid`, `password_too_short`, `password_too_long`,
+            `password_contains_username`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: >
+            Claim code refused. Codes: `claim_code_invalid` (see
+            `attemptsLeft`), `claim_code_expired`, `claim_code_locked`. The
+            tablet then shows a new code.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: An admin already exists (`admin_already_registered`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '413': { description: Body larger than 16 KB. }
+        '415': { description: Body is not application/json. }
+  /auth/login:
+    post:
+      summary: Sign in
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  description: >
+                    Username, or the account's email address (anything
+                    containing `@` is looked up as an email).
+                password: { type: string, format: password }
+                remember:
+                  type: boolean
+                  default: false
+                  description: >-
+                    Remember this browser: the session lasts 30 days instead of
+                    12 hours. The browser keeps the token across restarts.
+      responses:
+        '200':
+          description: Signed in.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, expiresAt, account]
+                properties:
+                  token: { type: string }
+                  expiresAt: { type: string, format: date-time }
+                  account: { $ref: '#/components/schemas/Account' }
+        '401':
+          description: Wrong username, email or password (`invalid_credentials`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429':
+          description: >
+            Too many failures (`too_many_attempts`). Wait `Retry-After`
+            seconds. The wait grows with each further failure.
+          headers:
+            Retry-After:
+              schema: { type: integer }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /auth/pin/login:
+    post:
+      summary: Sign in with a PIN, from a browser that has one
+      description: >-
+        The PIN works only together with the `deviceToken` the tablet gave to
+        that browser when the PIN was set, so a PIN alone opens nothing. Three
+        wrong PINs in a row remove the client's PIN (`pin_locked`); from then on
+        only the password works there. The session lasts 12 hours.
+      operationId: loginWithPin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [deviceToken, pin]
+              properties:
+                deviceToken: { type: string }
+                pin: { type: string, pattern: '^[0-9]{6}$' }
+      responses:
+        '200':
+          description: Signed in.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, expiresAt, account]
+                properties:
+                  token: { type: string }
+                  expiresAt: { type: string, format: date-time }
+                  account: { $ref: '#/components/schemas/Account' }
+        '401':
+          description: >-
+            `invalid_pin` (with `attemptsLeft`), or `pin_unavailable`: this
+            browser's PIN is unknown, removed, or its account cannot sign in. The
+            browser should forget its PIN and ask for the password.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Too many wrong PINs; the PIN was just removed (`pin_locked`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429':
+          description: Slowed down (`too_many_attempts`, with `Retry-After`).
+  /auth/logout:
+    post:
+      summary: Sign out (ends the session)
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        '204': { description: Signed out. }
+  /auth/password/reset/start:
+    post:
+      summary: Reset a forgotten admin password, step 1 - prove the activation key
+      description: |
+        Works offline. Whoever holds the activation key this tablet was
+        activated with (the clinic owner or the vendor) gets a one-time reset
+        token for the account. Nothing changes yet. The answer never says
+        whether the username exists: a wrong key and an unknown username are
+        both `reset_refused`. Failures are throttled per client and for the
+        whole tablet.
+      operationId: startPasswordReset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, activationKey]
+              properties:
+                username: { type: string }
+                activationKey:
+                  type: string
+                  description: The full activation key. Case, spaces and dashes are ignored.
+      responses:
+        '200':
+          description: The key is right. Use `resetToken` in step 2 within 10 minutes.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resetToken, expiresAt]
+                properties:
+                  resetToken: { type: string, description: Single use. Held in the tablet's memory only. }
+                  expiresAt: { type: string, format: date-time }
+        '403':
+          description: The key or the username was not accepted (`reset_refused`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429':
+          description: Too many failures (`too_many_attempts`). Wait `Retry-After` seconds.
+          headers:
+            Retry-After:
+              schema: { type: integer }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '413': { description: Body larger than 16 KB. }
+        '415': { description: Body is not application/json. }
+  /auth/password/reset:
+    post:
+      summary: Reset a forgotten admin password, step 2 - choose the new password
+      description: |
+        Uses the token from step 1. Every sign-in of the account ends, and any
+        lockout on it is lifted. The token works once; a refused password keeps
+        it, so another can be tried until it expires.
+      operationId: finishPasswordReset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [resetToken, newPassword]
+              properties:
+                resetToken: { type: string }
+                newPassword:
+                  type: string
+                  minLength: 10
+                  maxLength: 128
+                  format: password
+      responses:
+        '204': { description: Password changed. Sign in with it. }
+        '400':
+          description: >
+            The new password was refused. Codes: `password_too_short`,
+            `password_too_long`, `password_contains_username`, `invalid_request`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: The token is unknown, used or expired (`reset_token_invalid`). Start again.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429':
+          description: Too many failures (`too_many_attempts`). Wait `Retry-After` seconds.
+          headers:
+            Retry-After:
+              schema: { type: integer }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '413': { description: Body larger than 16 KB. }
+        '415': { description: Body is not application/json. }
+  /me:
+    get:
+      summary: Who is signed in?
+      operationId: getMe
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The signed-in account.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [account]
+                properties:
+                  account: { $ref: '#/components/schemas/Account' }
+        '401':
+          description: No token, or it expired or was revoked (`unauthorized`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    patch:
+      summary: Change my name, email and phone
+      operationId: updateMe
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firstName, email]
+              properties:
+                firstName: { type: string, minLength: 1, maxLength: 64 }
+                lastName: { type: string, maxLength: 64 }
+                email: { type: string, format: email }
+                phone:
+                  type: string
+                  maxLength: 32
+                  description: Digits, spaces and `+ - ( ) .` only. May be empty.
+      responses:
+        '200':
+          description: The account as saved.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [account]
+                properties:
+                  account: { $ref: '#/components/schemas/Account' }
+        '400':
+          description: >-
+            `first_name_missing`, `name_too_long`, `email_invalid` or
+            `phone_invalid`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Not signed in (`unauthorized`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: Another account uses the email (`email_taken`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /me/work-scopes:
+    get:
+      summary: Chambers or doctors assigned to me
+      description: Receptionists only. Lists where they may run the counter today.
+      operationId: getMyWorkScopes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Assignments resolved to names.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [assignmentTarget, options]
+                properties:
+                  assignmentTarget:
+                    type: string
+                    enum: [chamber, doctor]
+                  options:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, name, detail]
+                      properties:
+                        id: { type: string }
+                        name: { type: string }
+                        detail: { type: string }
+        '401':
+          description: Not signed in (`unauthorized`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Signed in but not a receptionist (`forbidden`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /me/pin:
+    get:
+      summary: My browsers that can sign in with a PIN
+      operationId: listPinDevices
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The browsers, oldest first. Secrets are never listed.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [devices]
+                properties:
+                  devices:
+                    type: array
+                    items: { $ref: '#/components/schemas/PinDevice' }
+        '401':
+          description: Not signed in (`unauthorized`).
+    post:
+      summary: Set a PIN for the browser making the call
+      description: >-
+        Needs the account password. Returns a secret **once**; the browser keeps
+        it and the tablet keeps only a hash. At most 5 browsers per person: the
+        oldest is dropped. `replaceDeviceId` replaces this browser's earlier
+        entry. Wrong passwords are slowed down like a sign-in. A PIN is exactly 6
+        digits and not all the same digit or a straight run (123456, 654321).
+        Changing or resetting the password removes every PIN.
+      operationId: setPin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password, pin]
+              properties:
+                password: { type: string, format: password }
+                pin: { type: string, pattern: '^[0-9]{6}$' }
+                label: { type: string, maxLength: 80, description: A name for the browser. }
+                replaceDeviceId: { type: string }
+      responses:
+        '201':
+          description: PIN set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deviceToken, device]
+                properties:
+                  deviceToken: { type: string }
+                  device: { $ref: '#/components/schemas/PinDevice' }
+        '400':
+          description: '`pin_invalid` or `pin_too_easy`.'
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: The password is wrong (`current_password_wrong`).
+        '429':
+          description: Too many wrong passwords (`too_many_attempts`).
+  /me/pin/{deviceId}:
+    delete:
+      summary: Remove the PIN of one of my browsers
+      operationId: removePinDevice
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: deviceId
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Removed. }
+        '401':
+          description: Not signed in (`unauthorized`).
+        '404':
+          description: Not one of my browsers (`not_found`).
+  /me/password:
+    post:
+      summary: Change my password
+      description: >-
+        Needs the current password. Wrong current passwords are slowed down (5
+        free tries, then waits that double). On success every other sign-in of
+        the account ends; the one making the call stays.
+      operationId: changeMyPassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword: { type: string }
+                newPassword: { type: string, minLength: 8, maxLength: 128 }
+      responses:
+        '204': { description: Password changed. }
+        '400':
+          description: >-
+            `password_too_short`, `password_too_long`,
+            `password_contains_username` or `password_unchanged`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: The current password is wrong (`current_password_wrong`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429':
+          description: Too many wrong attempts (`too_many_attempts`, with `Retry-After`).
+  /me/photo:
+    get:
+      summary: My profile picture
+      description: >-
+        The picture bytes. An `<img>` cannot send the token, so web clients
+        fetch it with `Authorization` and show it from a `blob:` URL.
+      operationId: getMyPhoto
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The picture.
+          content:
+            image/jpeg: { schema: { type: string, format: binary } }
+            image/png: { schema: { type: string, format: binary } }
+            image/webp: { schema: { type: string, format: binary } }
+        '401':
+          description: Not signed in (`unauthorized`).
+        '404':
+          description: No picture uploaded (`not_found`).
+    put:
+      summary: Set my profile picture
+      description: >-
+        A JPEG, PNG or WebP of at most 512 KiB, checked by its first bytes. The
+        website shrinks it to 256 px first.
+      operationId: putMyPhoto
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          image/jpeg: { schema: { type: string, format: binary } }
+          image/png: { schema: { type: string, format: binary } }
+          image/webp: { schema: { type: string, format: binary } }
+      responses:
+        '200':
+          description: The account, with a new `photoVersion`.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [account]
+                properties:
+                  account: { $ref: '#/components/schemas/Account' }
+        '401':
+          description: Not signed in (`unauthorized`).
+        '413':
+          description: Over 512 KiB (`body_too_large`). The connection may close early.
+        '415':
+          description: Not a JPEG, PNG or WebP (`unsupported_media_type`).
+    delete:
+      summary: Remove my profile picture
+      operationId: deleteMyPhoto
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The account, with `photoVersion` 0.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [account]
+                properties:
+                  account: { $ref: '#/components/schemas/Account' }
+        '401':
+          description: Not signed in (`unauthorized`).
+  /users/context:
+    get:
+      summary: User-management context for admins
+      description: >-
+        Licence type, which clinic records receptionists may be assigned to
+        (chambers on a doctor licence, doctors on a chamber licence), and
+        whether onboarding still needs attention.
+      operationId: getUsersContext
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Context for the user-management screen.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsersContext' }
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: Signed in but not an admin (`forbidden`).
+  /users:
+    get:
+      summary: List users (searched, filtered, sorted and paged by the tablet)
+      description: >-
+        Admins and receptionists, **except the account asking**: admins manage
+        other people, and their own details are in `/me`. The total leaves the
+        asking account out too. One page per call; pass `nextCursor` back as
+        `cursor` for the next. Ties are broken by id, so a row never moves
+        between pages. Unknown values are a 400.
+      operationId: listUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: search
+          description: >-
+            Part of the name, username, email or phone, in any case. `%` and `_`
+            mean themselves. At most 100 characters.
+          schema: { type: string, maxLength: 100 }
+        - in: query
+          name: role
+          schema: { type: string, enum: [admin, receptionist] }
+        - in: query
+          name: status
+          schema: { type: string, enum: [active, inactive] }
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [name, username, role, status, created]
+            default: name
+        - in: query
+          name: dir
+          schema: { type: string, enum: [asc, desc], default: asc }
+        - in: query
+          name: limit
+          description: Page size; 20 by default, at most 50.
+          schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+        - in: query
+          name: cursor
+          description: Opaque; the `nextCursor` of the previous page.
+          schema: { type: string }
+      responses:
+        '200':
+          description: One page of users.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [users, total, nextCursor]
+                properties:
+                  users:
+                    type: array
+                    items: { $ref: '#/components/schemas/ManagedUser' }
+                  total:
+                    type: integer
+                    description: Everything that matches, not only this page.
+                  nextCursor:
+                    type: string
+                    nullable: true
+                    description: Null on the last page.
+        '400':
+          description: A query value is not accepted (`invalid_request`).
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: Admins only (`forbidden`).
+    post:
+      summary: Create a user (an admin or a receptionist)
+      operationId: createUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, firstName, lastName, email, password]
+              properties:
+                role:
+                  type: string
+                  enum: [admin, receptionist]
+                  default: receptionist
+                  description: Admins work for the whole clinic and have no scopes.
+                username:
+                  type: string
+                  pattern: '^[a-zA-Z0-9._-]{3,32}$'
+                firstName: { type: string, minLength: 1, maxLength: 64 }
+                lastName: { type: string, minLength: 1, maxLength: 64 }
+                email: { type: string, format: email, maxLength: 254 }
+                password:
+                  type: string
+                  minLength: 8
+                  maxLength: 128
+                  format: password
+                scopeIds:
+                  type: array
+                  items: { type: string }
+                  description: >-
+                    Chamber or doctor ids a receptionist may access. Ignored
+                    for an admin.
+      responses:
+        '201':
+          description: User created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user]
+                properties:
+                  user: { $ref: '#/components/schemas/ManagedUser' }
+        '400':
+          description: >-
+            Invalid input. Codes include `invalid_request`, `username_invalid`,
+            `email_invalid`, `password_too_short`, `password_too_long`,
+            `password_contains_username`, `scope_invalid`. An unknown `role`
+            is `invalid_request`.
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: Admins only (`forbidden`).
+        '409':
+          description: '`username_taken` or `email_taken`.'
+  /users/{userId}:
+    patch:
+      summary: Change a user's details, or disable or enable them
+      description: >-
+        Works for admins and receptionists. Disabling ends the person's
+        sign-ins. An admin cannot disable themselves, and the last active admin
+        cannot be disabled.
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firstName, email]
+              properties:
+                firstName: { type: string, minLength: 1, maxLength: 64 }
+                lastName: { type: string, maxLength: 64 }
+                email: { type: string, format: email, maxLength: 254 }
+                phone:
+                  type: string
+                  maxLength: 32
+                status:
+                  type: string
+                  enum: [active, inactive]
+                  description: Deactivate instead of deleting the account.
+                scopeIds:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: User as saved.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user]
+                properties:
+                  user: { $ref: '#/components/schemas/ManagedUser' }
+        '400':
+          description: >-
+            `invalid_request`, `scope_invalid`, or profile validation errors.
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: Admins only (`forbidden`).
+        '404':
+          description: Unknown user (`not_found`).
+        '409':
+          description: >-
+            `email_taken`, `cannot_disable_self` or `last_admin`.
+  /clinic:
+    get:
+      summary: What the clinic is licensed for
+      description: Any signed-in person. Decides which pages the website shows.
+      operationId: getClinic
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The license type, or null when no valid license is stored.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [licenseType]
+                properties:
+                  licenseType:
+                    type: string
+                    enum: [doctor, chamber]
+                    nullable: true
+        '401':
+          description: Not signed in (`unauthorized`).
+  /monitoring:
+    get:
+      summary: Tablet health and service status
+      description: >
+        Admins only. CPU is this app's own share of the processor (Android
+        does not let apps read the total). Every `reason` is a short code the
+        web app words for the person.
+      operationId: getMonitoring
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A reading taken now.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Monitoring' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+  /monitoring/services/{id}/retry:
+    post:
+      summary: Try a failed or unavailable part again
+      description: >
+        Starts up to three tries a couple of seconds apart and returns at
+        once; poll `GET /monitoring` to follow the `retry` progress. A retry
+        already running is left alone. The API and the live channel cannot be
+        retried from here.
+      operationId: retryService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, enum: [androidService, printer, tv] }
+      responses:
+        '202':
+          description: Started (or already running); the current reading.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Monitoring' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+        '404': { description: Unknown service (`not_found`). }
+        '409': { description: This part cannot be retried (`not_retryable`). }
+  /monitoring/bluetooth/enable:
+    post:
+      summary: Ask to turn Bluetooth on
+      description: >
+        Admins only. Opens Android's own enable dialog or Bluetooth settings on
+        the **tablet screen**; the person confirms there. Returns a fresh
+        monitoring reading plus `outcome` (`already_on`, `dialog_shown`,
+        `settings_opened`, `need_app_open`, `missing`, `denied`).
+      operationId: enableBluetooth
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: What happened on the tablet and the reading now.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required: [outcome]
+                    properties:
+                      outcome:
+                        type: string
+                        enum:
+                          - already_on
+                          - dialog_shown
+                          - settings_opened
+                          - need_app_open
+                          - missing
+                          - denied
+                  - { $ref: '#/components/schemas/Monitoring' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+  /license:
+    get:
+      summary: The license and how much of it is used
+      description: Admins only; a doctor license (404 `license_unavailable` otherwise).
+      operationId: getLicense
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The license summary.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [license]
+                properties:
+                  license: { $ref: '#/components/schemas/LicenseSummary' }
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: Admins only (`forbidden`).
+        '404':
+          description: No doctor license, or no doctor set up yet (`license_unavailable`).
+  /chambers:
+    get:
+      summary: The chambers of the doctor
+      description: Admins only; a doctor license.
+      operationId: listChambers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Chambers in the order they were added.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [chambers]
+                properties:
+                  chambers:
+                    type: array
+                    items: { $ref: '#/components/schemas/Chamber' }
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: Admins only (`forbidden`).
+        '404':
+          description: Not a doctor license (`license_unavailable`).
+    post:
+      summary: Add a chamber (up to the license's limit)
+      description: >-
+        Counted and written in one transaction, so two requests cannot both
+        take the last place.
+      operationId: createChamber
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChamberInput' }
+      responses:
+        '201':
+          description: The chamber.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [chamber]
+                properties:
+                  chamber: { $ref: '#/components/schemas/Chamber' }
+        '400':
+          description: >-
+            `chamber_name_missing`, `chamber_location_missing`,
+            `chamber_phone_missing`, `chamber_phone_invalid` or `chamber_too_long`.
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: Admins only (`forbidden`).
+        '409':
+          description: The license allows no more chambers (`chamber_limit_reached`).
+  /chambers/{chamberId}:
+    patch:
+      summary: Change a chamber's name, address and phone
+      operationId: updateChamber
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChamberInput' }
+      responses:
+        '200':
+          description: The chamber as saved.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [chamber]
+                properties:
+                  chamber: { $ref: '#/components/schemas/Chamber' }
+        '400':
+          description: Same codes as when adding.
+        '404':
+          description: Unknown chamber (`not_found`).
+    delete:
+      summary: Delete a chamber
+      description: >-
+        Receptionists assigned to it lose that assignment. The last chamber
+        cannot be deleted.
+      operationId: deleteChamber
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Deleted. }
+        '404':
+          description: Unknown chamber (`not_found`).
+        '409':
+          description: It is the only chamber (`last_chamber`).
+  /doctor:
+    get:
+      summary: The doctor of a doctor license
+      description: Admins only. 404 `doctor_unavailable` for another license or before setup.
+      operationId: getDoctor
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The doctor.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [doctor]
+                properties:
+                  doctor: { $ref: '#/components/schemas/Doctor' }
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: Admins only (`forbidden`).
+        '404':
+          description: No single doctor to edit (`doctor_unavailable`).
+    put:
+      summary: Change the doctor's details
+      operationId: putDoctor
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 1, maxLength: 120 }
+                degrees:
+                  type: array
+                  maxItems: 12
+                  items: { type: string, maxLength: 60 }
+                designation: { type: string, maxLength: 200 }
+                workplace: { type: string, maxLength: 200 }
+                registrationNumber: { type: string, maxLength: 200 }
+                specialty: { type: string, maxLength: 200 }
+      responses:
+        '200':
+          description: The doctor as saved.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [doctor]
+                properties:
+                  doctor: { $ref: '#/components/schemas/Doctor' }
+        '400':
+          description: '`doctor_name_missing`, `doctor_too_long` or `doctor_too_many_degrees`.'
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: Admins only (`forbidden`).
+        '404':
+          description: No single doctor to edit (`doctor_unavailable`).
+  /doctor/photo:
+    get:
+      summary: The doctor's photo
+      operationId: getDoctorPhoto
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The picture.
+          content:
+            image/jpeg: { schema: { type: string, format: binary } }
+            image/png: { schema: { type: string, format: binary } }
+            image/webp: { schema: { type: string, format: binary } }
+        '404':
+          description: No photo (`not_found`) or no doctor (`doctor_unavailable`).
+    put:
+      summary: Set the doctor's photo
+      description: A JPEG, PNG or WebP of at most 512 KiB, checked by its first bytes.
+      operationId: putDoctorPhoto
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          image/jpeg: { schema: { type: string, format: binary } }
+          image/png: { schema: { type: string, format: binary } }
+          image/webp: { schema: { type: string, format: binary } }
+      responses:
+        '200':
+          description: The doctor, with a new `photoVersion`.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [doctor]
+                properties:
+                  doctor: { $ref: '#/components/schemas/Doctor' }
+        '413':
+          description: Over 512 KiB (`body_too_large`).
+        '415':
+          description: Not a JPEG, PNG or WebP (`unsupported_media_type`).
+    delete:
+      summary: Remove the doctor's photo
+      operationId: deleteDoctorPhoto
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The doctor, with `photoVersion` 0.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [doctor]
+                properties:
+                  doctor: { $ref: '#/components/schemas/Doctor' }
+  /ws/live:
+    get:
+      summary: Live event stream (WebSocket)
+      description: |
+        **WebSocket upgrade** on this URL (same host and TLS as REST).
+
+        Browsers cannot send `Authorization` on the handshake, so pass the
+        bearer token as the `token` query parameter (clinic LAN only). Native
+        clients may send `Authorization: Bearer` instead.
+
+        **Frames** (JSON text):
+
+        | `type` | Direction | Meaning |
+        | --- | --- | --- |
+        | `hello` | server → client | Connected; includes `serverTime` and `eventSequence`. |
+        | `snapshot` | server → client | Full state after connect or reconnect (apply before incremental events). |
+        | `event` | server → client | Named change (`name` + `payload`) with monotonic `eventSequence`. |
+        | `ping` | server → client | Heartbeat; reply with `{"type":"pong"}`. |
+        | `pong` | client → server | Acknowledges `ping`. |
+
+        Queue events (`token.created`, `queue.updated`, …) will use `type: event`
+        when the queue API ships. If the client detects a sequence gap, fetch
+        a fresh REST snapshot before applying further events.
+      operationId: connectLiveWebSocket
+      parameters:
+        - in: query
+          name: token
+          schema: { type: string }
+          description: Session token (same value as REST bearer token).
+      responses:
+        '101':
+          description: Switching Protocols — WebSocket established.
+        '401':
+          description: Missing or invalid token.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    HealthStatus:
+      type: string
+      enum: [ok, warning, failed, unavailable, retrying]
+    HealthResource:
+      type: object
+      required: [status]
+      properties:
+        status: { $ref: '#/components/schemas/HealthStatus' }
+        reason:
+          type: string
+          description: >
+            cpu_high, ram_high, storage_low, bluetooth_off, bluetooth_missing,
+            bluetooth_denied or reading_failed.
+        percent: { type: number }
+        usedBytes: { type: integer }
+        totalBytes: { type: integer }
+        detail: { type: string, description: 'Bluetooth `on`/`off`, or the CPU core count.' }
+    HealthService:
+      type: object
+      required: [id, status, retryable]
+      properties:
+        id: { type: string, enum: [api, websocket, androidService, printer, tv] }
+        status: { $ref: '#/components/schemas/HealthStatus' }
+        reason:
+          type: string
+          description: >
+            service_stopped, battery_restricted, printer_not_set_up,
+            tv_not_connected or reading_failed.
+        uptimeSeconds: { type: integer }
+        clients: { type: integer, description: Connected live clients (websocket only). }
+        retryable: { type: boolean }
+        retry:
+          type: object
+          required: [attempt, max]
+          properties:
+            attempt: { type: integer }
+            max: { type: integer }
+    Monitoring:
+      type: object
+      required: [generatedAt, deviceUptimeSeconds, resources, services]
+      properties:
+        generatedAt: { type: string, format: date-time }
+        deviceUptimeSeconds: { type: integer }
+        resources:
+          type: object
+          required: [cpu, ram, storage, bluetooth]
+          properties:
+            cpu: { $ref: '#/components/schemas/HealthResource' }
+            ram: { $ref: '#/components/schemas/HealthResource' }
+            storage: { $ref: '#/components/schemas/HealthResource' }
+            bluetooth: { $ref: '#/components/schemas/HealthResource' }
+        services:
+          type: array
+          items: { $ref: '#/components/schemas/HealthService' }
+    Account:
+      type: object
+      required: [id, username, displayName, firstName, lastName, phone, photoVersion, email, role]
+      properties:
+        id: { type: string, format: uuid }
+        username: { type: string }
+        displayName: { type: string, description: First and last name together. }
+        firstName: { type: string }
+        lastName: { type: string }
+        phone: { type: string, description: Empty when not given. }
+        photoVersion:
+          type: integer
+          description: >-
+            0 when there is no picture; otherwise changes whenever the picture
+            does, so clients know when to fetch it again.
+        email: { type: string, format: email }
+        role: { type: string, enum: [admin, receptionist] }
+    ManagedUser:
+      allOf:
+        - $ref: '#/components/schemas/Account'
+        - type: object
+          required: [status, scopeIds, createdAt]
+          properties:
+            createdAt: { type: string, format: date-time }
+            status:
+              type: string
+              enum: [active, inactive]
+            scopeIds:
+              type: array
+              items: { type: string }
+    PinDevice:
+      type: object
+      required: [id, label, createdAt, lastUsedAt]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        createdAt: { type: string, format: date-time }
+        lastUsedAt: { type: string, format: date-time, nullable: true }
+    LicenseSummary:
+      type: object
+      required: [type, maxDoctors, maxChambers, chambersUsed, issuedAt, expiresAt, status]
+      properties:
+        type: { type: string, enum: [doctor, chamber] }
+        maxDoctors: { type: integer }
+        maxChambers: { type: integer }
+        chambersUsed: { type: integer }
+        issuedAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time, nullable: true, description: Null when the license has no end date. }
+        status:
+          type: string
+          enum: [active, grace, expired]
+          description: '`grace` is expired but inside the grace period.'
+    ChamberInput:
+      type: object
+      required: [name, location, phone]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        location: { type: string, minLength: 1, maxLength: 200, description: The address. }
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 32
+          description: Digits, spaces and `+ - ( ) .` only.
+    Chamber:
+      allOf:
+        - $ref: '#/components/schemas/ChamberInput'
+        - type: object
+          required: [id]
+          properties:
+            id: { type: string }
+    Doctor:
+      type: object
+      required: [id, name, degrees, designation, workplace, registrationNumber, specialty, photoVersion]
+      properties:
+        id: { type: string }
+        name: { type: string, description: With title, as shown on the TV. }
+        degrees: { type: array, items: { type: string }, description: In display order. }
+        designation: { type: string }
+        workplace: { type: string }
+        registrationNumber: { type: string }
+        specialty: { type: string }
+        photoVersion:
+          type: integer
+          description: 0 when there is no photo; changes whenever the photo does.
+    UsersContext:
+      type: object
+      required: [assignmentTarget, targets, onboarding]
+      properties:
+        licenseType:
+          type: string
+          enum: [doctor, chamber]
+          nullable: true
+        assignmentTarget:
+          type: string
+          enum: [chamber, doctor]
+        targets:
+          type: array
+          items:
+            type: object
+            required: [id, name]
+            properties:
+              id: { type: string }
+              name: { type: string }
+        onboarding:
+          type: object
+          required: [needsAttention]
+          properties:
+            needsAttention: { type: boolean }
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string, description: English, for developers. }
+            attemptsLeft: { type: integer }

@@ -1,12 +1,19 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/toast/toast_controller.dart';
 import '../../../core/widgets/loading_button.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/license_controller.dart';
 import '../domain/license_state.dart';
+import 'activation_key_field.dart';
 import 'activation_steps.dart';
 import 'device_code_row.dart';
 import 'license_problem_text.dart';
@@ -60,13 +67,13 @@ class _ActivationCardState extends ConsumerState<ActivationCard> {
 
   Future<void> _copyDeviceCode() async {
     final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
+    final toaster = ref.read(toastControllerProvider.notifier);
     await Clipboard.setData(
       ClipboardData(text: widget.state.deviceCode.toString()),
     );
     if (!mounted) return;
     setState(() => _copied = true);
-    messenger.showSnackBar(SnackBar(content: Text(l10n.deviceCodeCopied)));
+    toaster.success(l10n.deviceCodeCopied);
   }
 
   @override
@@ -196,7 +203,11 @@ class _KeyForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _KeyField(controller: controller, enabled: !busy),
+        ActivationKeyField(
+          controller: controller,
+          enabled: !busy,
+          onSubmitted: onActivate,
+        ),
         if (problem != null) ...[
           const SizedBox(height: Spacing.md),
           _ProblemMessage(text: licenseProblemText(l10n, problem)),
@@ -205,48 +216,10 @@ class _KeyForm extends StatelessWidget {
         LoadingButton(
           label: l10n.activateButton,
           loadingLabel: l10n.activating,
-          icon: Icons.arrow_forward_rounded,
           isLoading: busy,
           onPressed: onActivate,
         ),
       ],
-    );
-  }
-}
-
-class _KeyField extends StatelessWidget {
-  const _KeyField({required this.controller, required this.enabled});
-
-  final TextEditingController controller;
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    return MergeSemantics(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.activationKeyLabel,
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: Spacing.sm),
-          TextField(
-            controller: controller,
-            minLines: 3,
-            maxLines: 5,
-            enabled: enabled,
-            autocorrect: false,
-            enableSuggestions: false,
-            textCapitalization: TextCapitalization.characters,
-            decoration: InputDecoration(hintText: l10n.activationKeyHint),
-          ),
-        ],
-      ),
     );
   }
 }

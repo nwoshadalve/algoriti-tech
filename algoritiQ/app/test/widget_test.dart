@@ -1,11 +1,15 @@
-import 'package:algoritiq_app/app/app.dart';
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:algoritiq_app/core/theme/app_theme.dart';
 import 'package:algoritiq_app/core/widgets/brand_logo.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/licensing_kit.dart';
+import 'support/pump_app.dart';
 
 void main() {
   late LicensingKit kit;
@@ -16,15 +20,8 @@ void main() {
     licensed = MemoryLicenseStore(await kit.issue());
   });
 
-  Future<void> openLicensedApp(WidgetTester tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: kit.overrides(store: licensed),
-        child: const AlgoritiqApp(),
-      ),
-    );
-    await tester.pumpAndSettle();
-  }
+  Future<void> openLicensedApp(WidgetTester tester) =>
+      pumpApp(tester, kit.overrides(store: licensed));
 
   group('theme', () {
     for (final mode in [ThemeMode.light, ThemeMode.dark]) {
@@ -46,12 +43,9 @@ void main() {
     }
   });
 
-  testWidgets('home counter increments', (tester) async {
+  testWidgets('home shows the receptionist board', (tester) async {
     await openLicensedApp(tester);
 
-    expect(find.text('0'), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Patient queue'), findsOneWidget);
   });
 }

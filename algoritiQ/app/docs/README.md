@@ -30,6 +30,24 @@ Two kinds of docs:
 | [Testing](./standards/testing.md) | How to write regression tests |
 | [Git & delivery](./standards/git-delivery.md) | Commits, PRs, dependencies, docs, versioning |
 
+## Features ([features/](./features/))
+
+| Doc | Covers |
+| --- | --- |
+| [Activation](./features/activation.md) | Offline license key, device code, expiry |
+| [First-time setup](./features/setup.md) | Doctor profile, chambers, ready |
+| [Admin access](./features/admin-access.md) | Claim code, first admin, local HTTPS API, passwords, audit |
+| [Keep-alive](./features/keep-alive.md) | Background service, boot start, permission guide |
+| [Local name](./features/local-name.md) | `algoritiq.local` on the clinic Wi-Fi, no internet needed |
+| [Authentication](./features/authentication.md) | Sign-in, session tokens (why not JWT), password reset with the activation key |
+| [Web app](./features/web-app.md) | The React site served by the tablet, how to build and bundle it |
+| [Connectivity](./features/connectivity.md) | The receptionist's printer page: pair once, automatic reconnect, battery and paper |
+| [Monitoring](./features/monitoring.md) | The admin monitoring page: tablet CPU, RAM, storage, Bluetooth, services, retry |
+
+Queue (patient entry, stats, TV audio) — accepted product decisions: [queue-product-decisions.md](../../docs/features/queue-product-decisions.md) (repo `docs/features/`).
+
+Guides: [Build the web app and deploy it on the tablet](./web-build-and-deploy.md) · [Dev setup](./dev-setup.md).
+
 Source of truth for *what* the system is: [../../../docs/architecture/](../../docs/architecture/).
 
 ## Precedence

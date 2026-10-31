@@ -1,3 +1,8 @@
+// Copyright (c) 2026 MD Nwoshad Alam Chowdhury, Founder AlgoritiQ.
+// All rights reserved.
+//
+// Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
+// or distribution is prohibited.
 import 'package:flutter/material.dart';
 
 /// AlgoritiQ brand palette. Source: `branding/README.md`.
@@ -5,6 +10,10 @@ abstract final class BrandColors {
   static const navy = Color(0xFF0B1F3A);
   static const coral = Color(0xFFFF5C39);
   static const white = Color(0xFFFFFFFF);
+
+  /// Deeper coral for filled buttons: white text on it is 4.7:1 (WCAG AA).
+  /// White on [coral] itself is only 3.1:1, too low for button labels.
+  static const coralAction = Color(0xFFD23F1E);
 
   /// Light page background, one step off white so cards lift.
   static const mist = Color(0xFFF4F6FA);
@@ -14,4 +23,11 @@ abstract final class BrandColors {
 
   /// Dark tinted fill (code rows, chips) on top of [navyRaised].
   static const navyTint = Color(0xFF1E3A66);
+
+  /// Dark hairlines and idle indicators (card borders, loader dots).
+  static const navyLine = Color(0xFF2E4A75);
+
+  /// "Working" dot (server running). Visible on both the light and the dark
+  /// surfaces; never the only sign of the state (a label always comes with it).
+  static const positive = Color(0xFF1F9D63);
 }

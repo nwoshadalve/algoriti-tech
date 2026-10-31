@@ -22,16 +22,14 @@ Local development for the **counter tablet** (Flutter) and **dashboard** (React)
 
 Detailed SDK package list: [minimal-android-sdk.md](./minimal-android-sdk.md).
 
-## Repo layout (planned)
+## Repo layout
 
 ```text
 algoritiQ/
-  apps/tablet/          # Flutter host app
-  apps/dashboard/       # React SPA → bundled into tablet assets for release
-  docs/
+  app/                  # Flutter tablet host app
+  web/                  # React SPA (admin + doctor) → bundled for tablet release
+  docs/                 # Architecture + web principles/standards
 ```
-
-Until apps exist, only docs and architecture live under `algoritiQ/`.
 
 ## Daily workflow
 
@@ -42,7 +40,7 @@ flutter devices
 flutter run
 
 # Terminal 2 — dashboard (browser against local dev server; tablet TLS host later)
-cd algoritiQ\apps\dashboard
+cd algoritiQ\web
 npm install
 npm run dev
 ```

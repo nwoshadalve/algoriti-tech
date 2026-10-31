@@ -7,6 +7,8 @@
 - MUST NOT swallow errors: no empty `catch`, no `catch (e) {}`. Catch **specific** types; add context when rethrowing.
 - Presentation maps a failure → **localized, actionable** message. Never show stack traces or raw exception text.
 - Always provide a recovery path in UI (retry, reprint, reconnect).
+- **Ask before anything that cannot be undone or that uses a shared resource** (print, send, delete, end a session): a confirmation in the reusable popup (`AppDialog`, [UI standards](../standards/ui.md)) with a clear verb on the button, never a bare "OK". Dismissing the popup, or Cancel, does nothing.
+- Tell the person the **result** of what they did, in the toaster (`core/toast`, [UI standards](../standards/ui.md)): success when it worked, a human, actionable error when it did not. Silence after a tap is a defect. Toasts are never the only record of a failure that needs action.
 
 ## Global handlers (set once in `main.dart`)
 
@@ -17,7 +19,7 @@
 - Printer failure → token stays created, print status `FAILED`, explicit reprint. Never blocks the queue.
 - TV/laptop disconnect → tablet continues; clients recover via snapshot.
 - Announcement/audio failure → show visually; never delay a queue command.
-- Retries: bounded count, exponential backoff + jitter, then surface the failure.
+- Retries: bounded count, exponential backoff + jitter, then surface the failure. One deliberate exception: the **printer link** keeps reconnecting forever with waits capped at 60 s, because the counter must heal by itself when the printer is switched on again; the failure stays visible on the Connectivity page the whole time ([Connectivity](../features/connectivity.md)).
 
 ## Logging
 
