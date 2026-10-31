@@ -78,11 +78,11 @@
   }
 
   body {
-    @apply m-0 min-h-full bg-brand-mist font-sans text-brand-navy dark:bg-brand-navy dark:text-white;
+    @apply m-0 min-h-full overflow-x-clip bg-brand-mist font-sans text-brand-navy dark:bg-brand-navy dark:text-white;
   }
 
   #root {
-    @apply min-h-full;
+    @apply min-h-full overflow-x-clip;
   }
 
   /* A long username, key or message wraps instead of widening the page. */
@@ -90,7 +90,8 @@
   h2,
   p,
   label,
-  li {
+  li,
+  dd {
     overflow-wrap: anywhere;
   }
 

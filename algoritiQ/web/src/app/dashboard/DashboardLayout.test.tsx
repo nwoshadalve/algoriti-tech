@@ -69,6 +69,18 @@ describe('dashboard shell', () => {
 
     await screen.findByRole('heading', { name: 'Welcome back, Rafi' })
     const nav = screen.getByRole('navigation', { name: 'Dashboard sections' })
+    await user.click(within(nav).getByRole('button', { name: 'Conf' }))
+    await user.click(within(nav).getByRole('link', { name: 'Queue configuration' }))
+
+    expect(await screen.findByRole('heading', { name: 'Queue configuration' })).toBeInTheDocument()
+  })
+
+  it('should keep monitoring as a top-level link', async () => {
+    renderAppAt('/home')
+    const user = userEvent.setup()
+
+    await screen.findByRole('heading', { name: 'Welcome back, Rafi' })
+    const nav = screen.getByRole('navigation', { name: 'Dashboard sections' })
     await user.click(within(nav).getByRole('link', { name: 'Services monitoring' }))
 
     expect(await screen.findByRole('heading', { name: 'Services monitoring' })).toBeInTheDocument()

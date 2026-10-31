@@ -62,6 +62,18 @@ class TestTokenService {
   Future<TestTokenOutcome> run() async {
     final slip = await buildSlip();
     if (slip == null) return TestTokenOutcome.noDetails;
+    return _printSlip(slip);
+  }
+
+  /// Same as [run], but uses the first doctor and chamber when no receptionist
+  /// scope is selected (admin monitoring on the web).
+  Future<TestTokenOutcome> runForAdmin() async {
+    final slip = await buildSlip() ?? await _fallbackSlip();
+    if (slip == null) return TestTokenOutcome.noDetails;
+    return _printSlip(slip);
+  }
+
+  Future<TestTokenOutcome> _printSlip(TokenSlip slip) async {
     final job = await _render(slip);
     return switch (await _print(job)) {
       PrintOutcome.printed => TestTokenOutcome.printed,
@@ -90,6 +102,29 @@ class TestTokenService {
     }
     if (doctor == null) return null;
 
+    return TokenSlip(
+      chamberName: chamber?.name ?? doctor.workplace ?? '',
+      doctorName: doctor.name,
+      queueType: QueueType.regular,
+      tokenNumber: testTokenNumber,
+      registrationId: testRegistrationId,
+      issuedAt: _now(),
+    );
+  }
+
+  Future<TokenSlip?> _fallbackSlip() async {
+    final doctors = await _clinic.watchDoctors().first;
+    if (doctors.isEmpty) return null;
+    final doctor = doctors.first;
+    final chambers = await _clinic.watchChambers().first;
+    Chamber? chamber;
+    for (final c in chambers) {
+      if (c.doctorId == doctor.id) {
+        chamber = c;
+        break;
+      }
+    }
+    chamber ??= chambers.isNotEmpty ? chambers.first : null;
     return TokenSlip(
       chamberName: chamber?.name ?? doctor.workplace ?? '',
       doctorName: doctor.name,

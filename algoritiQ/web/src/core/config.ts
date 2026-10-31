@@ -11,10 +11,10 @@ const apiPath = import.meta.env.VITE_API_BASE_PATH ?? '/api/v1'
 
 /**
  * API root for `fetch`. Production uses a relative path (SPA and API share the
- * tablet host). Local `npm run dev` defaults to the tablet at
- * `https://algoritiq.local:8443` so calls do not go to `localhost:5173`.
+ * tablet host). Local `npm run dev` defaults to `/api/v1` on the Vite dev server
+ * (proxied to the tablet) so the browser stays same-origin and avoids CORS.
  *
- * Override with `VITE_API_ORIGIN` (set to empty to use `/api/v1` + Vite proxy).
+ * Set `VITE_API_ORIGIN=https://algoritiq.local:8443` to call the tablet directly.
  */
 export function resolveApiBase(): string {
   const configured = import.meta.env.VITE_API_ORIGIN as string | undefined
@@ -22,7 +22,7 @@ export function resolveApiBase(): string {
     configured !== undefined
       ? configured.trim() || null
       : import.meta.env.DEV
-        ? 'https://algoritiq.local:8443'
+        ? null
         : null
 
   if (!origin) return apiPath

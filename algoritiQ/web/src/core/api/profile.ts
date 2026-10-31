@@ -50,8 +50,12 @@ export async function changePassword(
 }
 
 /** The picture bytes. An `<img>` cannot send the token, so it is fetched here. */
-export async function fetchPhoto(token: string): Promise<Blob> {
-  const response = await fetch(`${config.apiBasePath}/me/photo`, { headers: bearer(token) })
+export async function fetchPhoto(token: string, photoVersion: number): Promise<Blob> {
+  const query = new URLSearchParams({ v: String(photoVersion) })
+  const response = await fetch(`${config.apiBasePath}/me/photo?${query}`, {
+    headers: bearer(token),
+    cache: 'no-store',
+  })
   if (!response.ok) throw new Error('photo_unavailable')
   return response.blob()
 }

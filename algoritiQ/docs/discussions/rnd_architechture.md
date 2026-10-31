@@ -242,11 +242,13 @@ Minimum records:
 Token state flow:
 
 ```text
-WAITING -> CALLED -> IN_CONSULTATION -> COMPLETED
-   |          |
-   +-> CANCELLED
-   +-> SKIPPED -> CALLED
+WAITING -> CALLED -> ENTERED
+WAITING -> CANCELLED
+CALLED  -> CANCELLED
+CALLED  -> SKIPPED -> CALLED
 ```
+
+`ENTERED` means the patient entered the doctor's chamber and is the queue's successful terminal state. Consultation completion is outside the queue system's scope. This accepted rule is detailed in [Patient entry and queue operations](../features/patient-entry-and-queue-operations.md).
 
 Rules:
 

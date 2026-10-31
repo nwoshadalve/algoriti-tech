@@ -50,6 +50,19 @@ final class DriftAccountRepository implements AccountRepository {
   }
 
   @override
+  Future<String?> firstAdminId() async {
+    final query = _db.select(_db.users)
+      ..where((u) => u.role.equals(Role.admin.name))
+      ..orderBy([
+        (u) => OrderingTerm.asc(u.createdAt),
+        (u) => OrderingTerm.asc(u.id),
+      ])
+      ..limit(1);
+    final row = await query.getSingleOrNull();
+    return row?.id;
+  }
+
+  @override
   Stream<int> watchAdminCount() {
     final count = _db.users.id.count();
     final query = _db.selectOnly(_db.users)
@@ -276,6 +289,30 @@ final class DriftAccountRepository implements AccountRepository {
       _db.pinDevices,
     )..where((d) => d.userId.equals(accountId))).go();
     await audit(at: at, action: 'auth.password_changed', actorId: accountId);
+  });
+
+  @override
+  Future<void> setPasswordByAdmin({
+    required String accountId,
+    required String passwordHash,
+    required String actorId,
+    required DateTime at,
+  }) => _db.transaction(() async {
+    await (_db.update(_db.users)..where((u) => u.id.equals(accountId))).write(
+      UsersCompanion(passwordHash: Value(passwordHash)),
+    );
+    await (_db.update(_db.authSessions)
+          ..where((s) => s.userId.equals(accountId)))
+        .write(const AuthSessionsCompanion(revoked: Value(true)));
+    await (_db.delete(
+      _db.pinDevices,
+    )..where((d) => d.userId.equals(accountId))).go();
+    await audit(
+      at: at,
+      action: 'user.password_set',
+      actorId: actorId,
+      detail: accountId,
+    );
   });
 
   @override

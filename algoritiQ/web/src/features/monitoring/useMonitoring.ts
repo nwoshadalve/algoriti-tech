@@ -5,8 +5,19 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
-import { useCallback, useEffect, useState } from 'react'
-import { getMonitoring, retryService, type Monitoring, type ServiceId } from '@/core/api/monitoring'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useState } from 'react'
+import {
+  enableBluetooth,
+  getMonitoring,
+  retryService,
+  testPrinter,
+  type BluetoothEnableOutcome,
+  type Monitoring,
+  type PrinterTestOutcome,
+  type ServiceId,
+} from '@/core/api/monitoring'
+import { monitoringQueryKeys } from '@/features/monitoring/monitoringQueryKeys'
 import { readSession } from '@/features/auth/session'
 
 const slowPollMs = 5_000
@@ -21,54 +32,110 @@ export type MonitoringState = {
   retry: (id: ServiceId) => Promise<void>
   /** Reads again now (after a failed first load). */
   reload: () => void
+  /** Asks the tablet to turn Bluetooth on (confirm on the tablet screen). */
+  turnBluetoothOn: () => Promise<BluetoothEnableOutcome | null>
+  /** True while waiting for the tablet after turnBluetoothOn. */
+  bluetoothBusy: boolean
+  /** Sends a test token to the POS printer; returns the outcome or null on failure. */
+  testPrint: () => Promise<PrinterTestOutcome | null>
+  testPrintBusy: boolean
+}
+
+function requireSessionToken(): string {
+  const token = readSession()
+  if (!token) throw new Error('signed_out')
+  return token
 }
 
 /** Keeps the tablet's health reading fresh: every few seconds, faster while a retry runs. */
 export function useMonitoring(): MonitoringState {
-  const [data, setData] = useState<Monitoring | null>(null)
-  const [failed, setFailed] = useState(false)
-  const [reloads, setReloads] = useState(0)
-  const retrying = data?.services.some((s) => s.status === 'retrying') ?? false
+  const queryClient = useQueryClient()
+  const [actionFailed, setActionFailed] = useState(false)
 
-  useEffect(() => {
-    const token = readSession()
-    if (!token) return
-    const controller = new AbortController()
-    let timer: ReturnType<typeof setTimeout> | undefined
+  const snapshotQuery = useQuery({
+    queryKey: monitoringQueryKeys.snapshot(),
+    queryFn: ({ signal }) => getMonitoring(requireSessionToken(), signal),
+    retry: false,
+    refetchInterval: (query) => {
+      const retrying =
+        query.state.data?.services.some((service) => service.status === 'retrying') ?? false
+      return retrying ? fastPollMs : slowPollMs
+    },
+    refetchIntervalInBackground: false,
+  })
 
-    async function load(signedIn: string) {
-      try {
-        const next = await getMonitoring(signedIn, controller.signal)
-        setData(next)
-        setFailed(false)
-      } catch {
-        if (controller.signal.aborted) return
-        setFailed(true)
-      }
-      if (!controller.signal.aborted) {
-        timer = setTimeout(() => void load(signedIn), retrying ? fastPollMs : slowPollMs)
-      }
-    }
+  const setSnapshot = useCallback(
+    (next: Monitoring) => {
+      queryClient.setQueryData(monitoringQueryKeys.snapshot(), next)
+      setActionFailed(false)
+    },
+    [queryClient],
+  )
 
-    void load(token)
-    return () => {
-      controller.abort()
-      if (timer) clearTimeout(timer)
-    }
-  }, [retrying, reloads])
+  const retryMutation = useMutation({
+    mutationFn: async (id: ServiceId) => retryService(requireSessionToken(), id),
+    onSuccess: setSnapshot,
+    onError: () => setActionFailed(true),
+  })
 
-  const retry = useCallback(async (id: ServiceId) => {
-    const token = readSession()
-    if (!token) return
+  const bluetoothMutation = useMutation({
+    mutationFn: async () => enableBluetooth(requireSessionToken()),
+    onSuccess: (result) => setSnapshot(result),
+    onError: () => setActionFailed(true),
+  })
+
+  const testPrintMutation = useMutation({
+    mutationFn: async () => testPrinter(requireSessionToken()),
+    onSuccess: (result) => setSnapshot(result),
+    onError: () => setActionFailed(true),
+  })
+
+  const retry = useCallback(
+    async (id: ServiceId) => {
+      await retryMutation.mutateAsync(id)
+    },
+    [retryMutation],
+  )
+
+  const reload = useCallback(() => {
+    setActionFailed(false)
+    void snapshotQuery.refetch()
+  }, [snapshotQuery])
+
+  const turnBluetoothOn = useCallback(async () => {
+    if (bluetoothMutation.isPending) return null
     try {
-      setData(await retryService(token, id))
-      setFailed(false)
+      const result = await bluetoothMutation.mutateAsync()
+      return result.outcome
     } catch {
-      setFailed(true)
+      return null
     }
-  }, [])
+  }, [bluetoothMutation])
 
-  const reload = useCallback(() => setReloads((n) => n + 1), [])
+  const testPrint = useCallback(async () => {
+    if (testPrintMutation.isPending) return null
+    try {
+      const result = await testPrintMutation.mutateAsync()
+      return result.outcome
+    } catch {
+      return null
+    }
+  }, [testPrintMutation])
 
-  return { data, failed, retry, reload }
+  const data = snapshotQuery.data ?? null
+  const failed =
+    actionFailed ||
+    snapshotQuery.isError ||
+    snapshotQuery.isRefetchError
+
+  return {
+    data,
+    failed,
+    retry,
+    reload,
+    turnBluetoothOn,
+    bluetoothBusy: bluetoothMutation.isPending,
+    testPrint,
+    testPrintBusy: testPrintMutation.isPending,
+  }
 }

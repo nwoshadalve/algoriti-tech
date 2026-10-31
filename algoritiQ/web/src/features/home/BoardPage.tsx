@@ -11,7 +11,9 @@ import { roleLabelKey } from '@/core/i18n/roleLabel'
 import type { MessageKey } from '@/core/i18n/messages/types'
 import { Card } from '@/core/ui/Card'
 import { PageHeader } from '@/core/ui/PageHeader'
+import type { Account } from '@/core/api/types'
 import { useAuth } from '@/features/auth/authContext'
+import { AdminQueueBoardPage } from '@/features/board/AdminQueueBoardPage'
 import { useWorkScope } from '@/features/work/workScopeContext'
 
 const statusStyle = {
@@ -20,14 +22,29 @@ const statusStyle = {
   offline: 'bg-brand-coral',
 } as const
 
-/** Receptionist home: server status, account, and the patient queue board. */
+/** Home board: admin queue operations or receptionist counter overview. */
 export function BoardPage() {
   const { t } = useLocale()
   const { state } = useAuth()
+  const account = state.status === 'signedIn' ? state.account : null
+
+  if (account?.role === 'admin') {
+    return <AdminQueueBoardPage />
+  }
+
+  return <ReceptionistBoardPlaceholder account={account} t={t} />
+}
+
+function ReceptionistBoardPlaceholder({
+  account,
+  t,
+}: {
+  account: Account | null
+  t: (key: MessageKey, params?: Record<string, string | number>) => string
+}) {
   const { state: liveState } = useLiveChannel()
   const { state: workScope } = useWorkScope()
   const health = liveStateToHealth(liveState)
-  const account = state.status === 'signedIn' ? state.account : null
   const name = account ? account.firstName || account.displayName || account.username : ''
   const description =
     workScope.status === 'ready'
@@ -42,10 +59,10 @@ export function BoardPage() {
         : 'overviewServerChecking'
 
   return (
-    <div>
+    <div className="min-w-0">
       <PageHeader title={t('homeGreeting', { name })} description={description} />
 
-      <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+      <div className="grid min-w-0 gap-4 sm:gap-6 md:grid-cols-2">
         <Card as="section" labelledBy="board-server">
           <h2 id="board-server" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
             {t('overviewServerTitle')}
@@ -55,7 +72,9 @@ export function BoardPage() {
               className={`mt-1.5 h-3 w-3 shrink-0 rounded-full ${statusStyle[health]}`}
               aria-hidden="true"
             />
-            <span role="status">{t(serverMessage)}</span>
+            <span className="min-w-0 flex-1" role="status">
+              {t(serverMessage)}
+            </span>
           </p>
         </Card>
 
@@ -64,13 +83,13 @@ export function BoardPage() {
             <h2 id="board-account" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
               {t('overviewAccountTitle')}
             </h2>
-            <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+            <dl className="mt-3 grid min-w-0 grid-cols-[minmax(0,auto)_minmax(0,1fr)] gap-x-4 gap-y-1.5 text-sm">
               <dt className="text-brand-navy/60 dark:text-white/60">{t('fieldRole')}</dt>
-              <dd className="font-medium">{t(roleLabelKey[account.role])}</dd>
+              <dd className="min-w-0 font-medium">{t(roleLabelKey[account.role])}</dd>
               <dt className="text-brand-navy/60 dark:text-white/60">{t('fieldUsername')}</dt>
-              <dd className="font-medium">{account.username}</dd>
+              <dd className="min-w-0 font-medium">{account.username}</dd>
               <dt className="text-brand-navy/60 dark:text-white/60">{t('fieldEmail')}</dt>
-              <dd className="font-medium">{account.email}</dd>
+              <dd className="min-w-0 font-medium">{account.email}</dd>
             </dl>
           </Card>
         ) : null}

@@ -19,11 +19,13 @@ The tablet's SQLite database is the single source of truth. The system MUST work
 - Token state changes go through the domain state machine; illegal transitions throw:
 
 ```text
-WAITING -> CALLED -> IN_CONSULTATION -> COMPLETED
-   |          |
-   +-> CANCELLED
-   +-> SKIPPED -> CALLED
+WAITING -> CALLED -> ENTERED
+WAITING -> CANCELLED
+CALLED  -> CANCELLED
+CALLED  -> SKIPPED -> CALLED
 ```
+
+`ENTERED` is the successful terminal state for the queue: an authorized person confirmed that the patient entered the doctor's chamber. The queue system does not claim that consultation, treatment, or medical service was completed.
 
 - Append-only audit trail for: create, call, skip, cancel, reprint, session start/end, settings change.
 - Restore the open session from SQLite on app restart and resume the same `eventSequence`.

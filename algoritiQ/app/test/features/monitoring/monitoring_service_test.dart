@@ -5,6 +5,8 @@
 // or distribution is prohibited.
 import 'package:algoritiq_app/features/monitoring/application/monitoring_service.dart';
 import 'package:algoritiq_app/features/monitoring/domain/health_snapshot.dart';
+import 'package:algoritiq_app/features/connectivity/application/printer_controller.dart';
+import 'package:algoritiq_app/features/connectivity/domain/printer.dart';
 import 'package:algoritiq_app/platform/system_health_gateway.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -148,6 +150,44 @@ void main() {
         expect(part(s, ServiceId.tv).reason, HealthReason.tvNotConnected);
       },
     );
+
+    test('should warn while the printer is connecting', () async {
+      final device = PrinterDevice(name: 'POS', address: '00:11:22:33:44:55');
+      final monitoring = MonitoringService(
+        health: health,
+        keepAlive: keepAlive,
+        clock: () => now,
+        printerState: () => PrinterState(
+          loaded: true,
+          link: PrinterLink.connecting,
+          saved: device,
+        ),
+      );
+
+      final printer = part(await snapshot(monitoring), ServiceId.printer);
+
+      expect(printer.status, HealthStatus.warning);
+      expect(printer.reason, HealthReason.printerConnecting);
+    });
+
+    test('should fail when the printer is disconnected', () async {
+      final device = PrinterDevice(name: 'POS', address: '00:11:22:33:44:55');
+      final monitoring = MonitoringService(
+        health: health,
+        keepAlive: keepAlive,
+        clock: () => now,
+        printerState: () => PrinterState(
+          loaded: true,
+          link: PrinterLink.disconnected,
+          saved: device,
+        ),
+      );
+
+      final printer = part(await snapshot(monitoring), ServiceId.printer);
+
+      expect(printer.status, HealthStatus.failed);
+      expect(printer.reason, HealthReason.printerDisconnected);
+    });
   });
 
   group('retry', () {

@@ -12,6 +12,9 @@ import '../features/access/application/access_providers.dart';
 import '../features/clinic/application/clinic_providers.dart';
 import '../features/backup/application/backup_providers.dart';
 import '../features/monitoring/application/monitoring_providers.dart';
+import '../features/queue/application/queue_providers.dart';
+import '../features/queue_board/application/queue_board_providers.dart';
+import '../features/audit/application/audit_query_service.dart';
 import '../platform/keep_alive_gateway.dart';
 import 'local_api_server.dart';
 import 'mdns/local_name_responder.dart';
@@ -62,6 +65,9 @@ abstract interface class ApiHost {
 
   /// Looks at the network again (Wi-Fi may have changed).
   Future<List<String>> currentAddresses();
+
+  /// Re-reads addresses and re-announces the local name (call when Wi-Fi changes).
+  Future<void> refreshLocalNetwork();
 
   /// The local network name, each time it is claimed or lost.
   Stream<String?> get localNames;
@@ -116,6 +122,10 @@ final class LocalApiHost implements ApiHost {
   Future<List<String>> currentAddresses() => _addresses();
 
   @override
+  Future<void> refreshLocalNetwork() =>
+      _names?.refreshAfterNetworkChange() ?? Future<void>.value();
+
+  @override
   Stream<String?> get localNames => _names?.names ?? const Stream.empty();
 
   @override
@@ -138,6 +148,9 @@ final apiHostProvider = Provider<ApiHost>((ref) {
       receptionistScope: () async => ref.read(receptionistScopeServiceProvider),
       monitoring: ref.read(monitoringServiceProvider),
       backup: () => ref.read(backupServiceProvider.future),
+      queue: () async => ref.read(queueServiceProvider),
+      queueBoard: () async => ref.read(queueBoardServiceProvider),
+      auditQuery: ref.read(auditQueryServiceProvider),
       web: WebSite(BundledWebFiles()),
     ),
     tls: TlsIdentityStore(ref.watch(secretStoreProvider)),

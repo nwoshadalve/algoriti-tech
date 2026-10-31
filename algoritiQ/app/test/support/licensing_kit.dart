@@ -288,6 +288,9 @@ class FakeApiHost implements ApiHost {
   Future<List<String>> currentAddresses() async => addresses;
 
   @override
+  Future<void> refreshLocalNetwork() async {}
+
+  @override
   Future<void> stop() async {}
 }
 

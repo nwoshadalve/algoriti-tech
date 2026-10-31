@@ -5,11 +5,19 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
-import { describe, expect, it } from 'vitest'
-import { parseLiveFrame, resolveLiveWebSocketUrl } from '@/core/api/live'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { parseLiveFrame } from '@/core/api/live'
 
 describe('resolveLiveWebSocketUrl', () => {
-  it('should build wss url with token query on https api base', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
+
+  it('should build wss url with token query on https api base', async () => {
+    vi.stubEnv('VITE_API_ORIGIN', 'https://algoritiq.local:8443')
+    vi.stubEnv('VITE_API_BASE_PATH', '/api/v1')
+    const { resolveLiveWebSocketUrl } = await import('@/core/api/live')
     const url = resolveLiveWebSocketUrl('abc')
     expect(url).toMatch(/^wss:\/\//)
     expect(url).toContain('/api/v1/ws/live')

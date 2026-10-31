@@ -27,7 +27,8 @@ export function BrandWordmark({ height = 28, className }: BrandWordmarkProps) {
       viewBox="0 0 370 100"
       width={width}
       height={height}
-      className={className}
+      className={['max-w-full', className].filter(Boolean).join(' ')}
+      preserveAspectRatio="xMinYMid meet"
       role="img"
       aria-label="AlgoritiQ"
     >

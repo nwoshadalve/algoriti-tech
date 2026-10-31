@@ -31,6 +31,14 @@ class FakeClinic implements ClinicRepository {
   Stream<List<Chamber>> watchChambers() => Stream.value(chambers);
 
   @override
+  Future<Chamber?> chamberById(String id) async {
+    for (final chamber in chambers) {
+      if (chamber.id == id) return chamber;
+    }
+    return null;
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw UnimplementedError('${invocation.memberName}');
 }

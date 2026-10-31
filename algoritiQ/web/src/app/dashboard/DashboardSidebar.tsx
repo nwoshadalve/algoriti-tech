@@ -6,9 +6,9 @@
  * or distribution is prohibited.
  */
 import { Link } from 'react-router-dom'
-import { DashboardNavItem } from '@/app/dashboard/DashboardNavItem'
+import { DashboardNavList } from '@/app/dashboard/DashboardNavList'
 import { dashboardHomePath } from '@/app/dashboard/dashboardHome'
-import { visibleDashboardNavItems } from '@/app/dashboard/dashboardNav'
+import { visibleDashboardNavEntries } from '@/app/dashboard/dashboardNav'
 import { useClinic } from '@/core/clinic/clinicContext'
 import { UserMenu } from '@/app/dashboard/UserMenu'
 import type { Account } from '@/core/api/types'
@@ -46,7 +46,7 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const { t } = useLocale()
   const { licenseType } = useClinic()
-  const items = visibleDashboardNavItems(licenseType ?? null, account?.role)
+  const entries = visibleDashboardNavEntries(licenseType, account?.role)
   const home = account ? dashboardHomePath(account.role) : '/home'
 
   return (
@@ -93,9 +93,7 @@ export function DashboardSidebar({
           aria-label={t('navPrimaryLabel')}
           className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-3"
         >
-          {items.map((item) => (
-            <DashboardNavItem key={item.to} item={item} onNavigate={onCloseMobile} />
-          ))}
+          <DashboardNavList entries={entries} onNavigate={onCloseMobile} />
         </nav>
 
         <div className="shrink-0 space-y-2 border-t border-brand-navy/10 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:border-white/10">

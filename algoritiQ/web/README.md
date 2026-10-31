@@ -11,6 +11,7 @@ React + TypeScript single-page application for **admin** and **doctor** clinic w
 - **Tailwind CSS v4** for styling (component CSS only when Tailwind is insufficient).
 - **Offline-capable app shell** via service worker (`vite-plugin-pwa`) — icons and wordmarks from `branding/logo/algoritiq/web` in `public/`.
 - API client uses relative paths (`/api/v1`) against the tablet host.
+- **TanStack Query** for dashboard server state (`src/core/query/`); cache clears on sign-out.
 - **Loading UI:** `BrandLoader`, `PagePreloader`, `LoadingButton` in `src/core/ui/` (aligned with Flutter `BrandLoader`).
 
 ## Prerequisites
@@ -58,7 +59,7 @@ web/
   public/           # Static assets (fonts, favicon) — copied verbatim to dist
   src/
     app/            # Router, AppShell, providers
-    core/           # config, API client, shared UI
+    core/           # config, API client, query client, shared UI
     features/       # Route-level feature modules
     test/           # Test setup and render helpers
   dist/             # Production build output (consumed by tablet host)

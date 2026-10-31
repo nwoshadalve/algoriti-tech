@@ -148,6 +148,15 @@ describe('sign-in', () => {
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument()
   })
 
+  it('should send the site root to home when a saved session is still valid', async () => {
+    saveSession('tok', inOneHour(), true)
+    vi.spyOn(authApi, 'getMe').mockResolvedValue(owner)
+
+    renderAppAt('/')
+
+    expect(await screen.findByRole('heading', { name: 'Welcome back, The' })).toBeInTheDocument()
+  })
+
   it('should keep the visitor signed in after a reload', async () => {
     saveSession('tok', inOneHour())
     vi.spyOn(authApi, 'getMe').mockResolvedValue(owner)

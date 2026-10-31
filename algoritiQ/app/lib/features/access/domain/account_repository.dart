@@ -10,6 +10,9 @@ import 'user_query.dart';
 abstract interface class AccountRepository {
   Future<int> adminCount();
 
+  /// The admin registered first (earliest `createdAt`), used for password policy.
+  Future<String?> firstAdminId();
+
   Stream<int> watchAdminCount();
 
   /// Creates [account] as the first admin, with its audit entry, in one
@@ -70,6 +73,15 @@ abstract interface class AccountRepository {
     required String accountId,
     required String passwordHash,
     required String keepTokenHash,
+    required DateTime at,
+  });
+
+  /// Sets a new password for [accountId], revokes every session and PIN, and
+  /// records [actorId] as the admin who did it.
+  Future<void> setPasswordByAdmin({
+    required String accountId,
+    required String passwordHash,
+    required String actorId,
     required DateTime at,
   });
 

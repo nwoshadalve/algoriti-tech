@@ -3,6 +3,8 @@
 //
 // Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
 // or distribution is prohibited.
+import 'dart:async';
+
 import 'package:algoritiq_app/features/readiness/domain/readiness_store.dart';
 import 'package:algoritiq_app/platform/keep_alive_gateway.dart';
 
@@ -28,6 +30,14 @@ class FakeKeepAliveGateway implements KeepAliveGateway {
 
   /// Runs when [startService] is called (a test can make the service come up).
   void Function()? onStart;
+
+  final _networkChanges = StreamController<void>.broadcast();
+
+  @override
+  Stream<void> get networkChanges => _networkChanges.stream;
+
+  /// Simulates Android reporting a Wi-Fi or IP change.
+  void notifyNetworkChanged() => _networkChanges.add(null);
 
   @override
   Future<KeepAliveStatus> status() async => KeepAliveStatus(

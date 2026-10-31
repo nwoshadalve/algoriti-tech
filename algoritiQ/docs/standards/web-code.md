@@ -34,6 +34,24 @@ TypeScript + React in `algoritiQ/web`.
 - Side effects in `useEffect` with cleanup; abort `fetch` via `AbortController`.
 - Prefer `useMemo`/`useCallback` only when profiling or stable child memoization requires it — not by default.
 
+## TanStack Query (server state)
+
+```text
+core/query/
+  queryClient.ts    # shared QueryClient defaults
+  QueryProvider.tsx # QueryClientProvider; clears cache on sign-out
+features/<name>/
+  <name>QueryKeys.ts
+  use<Name>LiveQuerySync.ts   # optional: WebSocket → invalidateQueries
+```
+
+- **MUST NOT** hand-roll module-level fetch caches for API data that multiple routes or filters share — use `useQuery` with stable keys.
+- Export query keys as small factories (e.g. `queueQueryKeys.chamber(id)`) so mutations and live sync invalidate the same entries.
+- Default client options live in `queryClient.ts` (`staleTime`, `refetchOnWindowFocus: false`). Override per query only when product requires fresher data.
+- Mutations: on success, prefer `queryClient.setQueryData` from the response; use `invalidateQueries` when the server shape is unknown or many keys are affected.
+- Live WebSocket events: subscribe once (e.g. in `QueryProvider` via a feature hook), call `invalidateQueries` for affected keys — see [web-interaction.md](../principles/web-interaction.md).
+- Tests: wrap with `QueryProvider` (see `src/test/render.tsx`) or a fresh `QueryClient` per test when asserting cache behaviour.
+
 ## API layer
 
 ```text

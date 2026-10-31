@@ -10,6 +10,7 @@ Strategy for this project: **regression testing**. We protect behavior that alre
 4. **Fast and deterministic.** No real network, clock, randomness or Bluetooth in automated tests. Flaky tests are fixed or deleted.
 5. **A red test blocks the change.** Never skip or delete a failing test to get green — fix the code or consciously update the test with a reason.
 6. **Hardware can't be faked fully.** Printer, TV and router behavior is verified on real devices with the acceptance checklist.
+7. **App code runs on the tablet, not on the laptop.** Any change under `algoritiQ/app` (Dart, Kotlin, assets, bundled web, database schema) is **not done** until it is built and installed on the physical tablet with **`adb`**. Use `adb install -r` so clinic data is kept ([web-build-and-deploy](../web-build-and-deploy.md), [dev-setup](../dev-setup.md) § AI / agent shells). Web-only edits still need `npm run build`, `python tool/bundle_web.py`, then the same APK install. Hot reload from `flutter run` is for local iteration; reporting work complete still requires an install + smoke test on the device.
 
 ## Critical paths (always covered by regression tests)
 

@@ -119,7 +119,110 @@ export type Messages = {
   navOverview: string
   navBoard: string
   navUsers: string
+  navConf: string
+  navHelp: string
+  helpIntro: string
+  helpConnectTitle: string
+  helpConnectBody: string
+  helpAccountTitle: string
+  helpAccountBody: string
+  helpAdminNavTitle: string
+  helpAdminNavIntro: string
+  helpLinkOverview: string
+  helpLinkUsers: string
+  helpReceptionistTitle: string
+  helpReceptionistBody: string
   navBackup: string
+  navQueue: string
+  navAudit: string
+  queueIntro: string
+  queueAutoStopSummary: string
+  queueAutoStopEdit: string
+  queueAutoStopModalTitle: string
+  queueAutoStopModalHelp: string
+  queueAutoStopTime: string
+  queueAutoStopNextDayNote: string
+  queueAutoStopChambersLabel: string
+  queueAutoStopSelectChamber: string
+  queueAutoStopHour: string
+  queueAutoStopMinute: string
+  queueAutoStopPeriod: string
+  queueAutoStopAm: string
+  queueAutoStopPm: string
+  queueAutoStopSave: string
+  queueAutoStopSaved: string
+  queueAutoStopTimeInvalid: string
+  queuePolicyTimezone: string
+  queueTypesTitle: string
+  queueFieldEnglishName: string
+  queueFieldBengaliName: string
+  queueFieldStart: string
+  queueFieldEnd: string
+  queueFieldEnabled: string
+  queueChamberTitle: string
+  queueChamberHelp: string
+  queueChamberSelect: string
+  queueChamberInherit: string
+  queueChamberCustom: string
+  queueCustomizeChamber: string
+  queueClearOverride: string
+  queueClearOverrideTitle: string
+  queueClearOverrideBody: string
+  queueOverrideCleared: string
+  queueSessionTitle: string
+  queueSessionNone: string
+  queueSessionStart: string
+  queueSessionClose: string
+  queueSessionForceClose: string
+  queueForceCloseReason: string
+  queueUsageLabel: string
+  queueStatusOpen: string
+  queueStatusClosed: string
+  queueErrorForbidden: string
+  queueTimezoneFootnote: string
+  queueYes: string
+  queueNo: string
+  queueTableLabel: string
+  queueColName: string
+  queueColRange: string
+  queueStatusEnabled: string
+  queueStatusDisabled: string
+  queueTypeAdd: string
+  queueTypeAddTitle: string
+  queueTypeEditTitle: string
+  queueTypeEdit: string
+  queueTypeEnable: string
+  queueTypeDisable: string
+  queueTypeSave: string
+  queueTypeSaved: string
+  queueConfigUpdatedLive: string
+  queueTypesEmpty: string
+  queueNoChamber: string
+  queueErrorEnglishName: string
+  queueErrorBengaliName: string
+  queueErrorStart: string
+  queueErrorEnd: string
+  queueErrorRange: string
+  queueErrorDuplicateName: string
+  queueErrorOverlap: string
+  queueErrorValidation: string
+  queueErrorSessionOpen: string
+  queueErrorInheritDefaults: string
+  auditIntro: string
+  auditFilterAction: string
+  auditFilterOutcome: string
+  auditFilterApply: string
+  auditEmpty: string
+  auditEmptyFiltered: string
+  auditLoadMore: string
+  auditColumnWhen: string
+  auditColumnAction: string
+  auditColumnActor: string
+  auditColumnOutcome: string
+  auditDetails: string
+  auditOutcomeSuccess: string
+  auditOutcomeFailed: string
+  auditOutcomeRefused: string
   backupIntro: string
   backupAutomaticTitle: string
   backupAutomaticHelp: string
@@ -215,6 +318,17 @@ export type Messages = {
   monitorReasonServiceStopped: string
   monitorReasonBatteryRestricted: string
   monitorReasonPrinterNotSetUp: string
+  monitorReasonPrinterConnecting: string
+  monitorReasonPrinterDisconnected: string
+  monitorReasonPrinterReady: string
+  monitorPrinterTest: string
+  monitorPrinterTestConfirmTitle: string
+  monitorPrinterTestConfirmBody: string
+  monitorPrinterTestConfirmAction: string
+  monitorPrinterTestPrinted: string
+  monitorPrinterTestFailed: string
+  monitorPrinterTestNotConnected: string
+  monitorPrinterTestNoDetails: string
   monitorReasonTvNotConnected: string
   monitorReasonBluetoothOff: string
   monitorReasonBluetoothMissing: string
@@ -224,6 +338,7 @@ export type Messages = {
   monitorReasonStorageLow: string
   monitorReasonReadingFailed: string
   monitorReasonLiveOffline: string
+  monitorReasonLiveConnecting: string
   monitorBluetoothTurnOn: string
   monitorBluetoothTurningOn: string
   monitorBluetoothAlreadyOn: string
@@ -319,6 +434,7 @@ export type Messages = {
   errorFixFields: string
 
   navDoctor: string
+  navChamber: string
   usersAddUser: string
   usersSearchLabel: string
   usersSearchPlaceholder: string
@@ -342,6 +458,12 @@ export type Messages = {
   usersLoadFailed: string
   usersRetry: string
   usersEdit: string
+  usersPassword: string
+  usersPasswordTitle: string
+  usersPasswordIntro: string
+  usersPasswordSave: string
+  usersPasswordSaving: string
+  usersPasswordSaved: string
   usersDisable: string
   usersEnable: string
   usersCreateTitle: string
@@ -355,6 +477,7 @@ export type Messages = {
   usersEnabled: string
   usersErrorSelf: string
   usersErrorLastAdmin: string
+  usersErrorInitialAdmin: string
   usersYou: string
   doctorIntro: string
   doctorPhotoTitle: string
@@ -493,11 +616,115 @@ export type Messages = {
   usersDeactivateConfirm: string
   usersReactivate: string
   usersErrorForbidden: string
+  usersErrorPasswordForbidden: string
   usersErrorUsernameTaken: string
   usersErrorScopeInvalid: string
 
   successTitle: string
   successBody: string
+
+  boardAdminIntro: string
+  boardAdminIntroNamed: string
+  boardErrorForbidden: string
+  boardErrorChamberNotFound: string
+  boardErrorSessionClosed: string
+  boardErrorDuplicatePhone: string
+  boardErrorActiveToken: string
+  boardErrorRangeExhausted: string
+  boardErrorNoWaiting: string
+  boardErrorNoCalled: string
+  boardErrorUnresolvedCall: string
+  boardErrorValidation: string
+  boardPatientActionsTitle: string
+  boardNewPatient: string
+  boardExistingPatient: string
+  boardSearchLabel: string
+  boardSearchHint: string
+  boardSearching: string
+  boardSearchResults: string
+  boardSearchEmpty: string
+  boardRegisterNew: string
+  boardRegisterTitle: string
+  boardRegisterIntro: string
+  boardRegisterSave: string
+  boardDuplicatePhoneConfirm: string
+  boardPatientRegistered: string
+  boardIssueFor: string
+  boardChooseQueue: string
+  boardIssuePreview: string
+  boardIssueConfirmTitle: string
+  boardIssueConfirmIntro: string
+  boardIssueBack: string
+  boardIssueConfirmPrint: string
+  boardIssueSuccess: string
+  boardFieldPatient: string
+  boardFieldChamber: string
+  boardFieldQueue: string
+  boardFieldPreviewSerial: string
+  boardPreviewHint: string
+  boardFieldFee: string
+  boardFieldBengaliName: string
+  boardFieldEnglishName: string
+  boardFieldGender: string
+  boardFieldLocality: string
+  boardFieldPaperFile: string
+  boardFieldLegacyFile: string
+  boardGenderUnset: string
+  boardGenderMale: string
+  boardGenderFemale: string
+  boardGenderOther: string
+  boardGenderNotStated: string
+  boardSessionRequired: string
+  boardChamberLabel: string
+  boardNoChambers: string
+  boardSessionClosedTitle: string
+  boardSessionClosedHelp: string
+  boardStartSession: string
+  boardSessionStarted: string
+  boardQueueControlsTitle: string
+  boardWaitingCount: string
+  boardNextSerial: string
+  boardCallNext: string
+  boardRecall: string
+  boardCallBlocked: string
+  boardCallNextSuccess: string
+  boardRecallSent: string
+  boardNoQueueTypes: string
+  boardCurrentCallTitle: string
+  boardCurrentCallEmpty: string
+  boardPatientEntered: string
+  boardPatientMissed: string
+  boardCancelToken: string
+  boardEnteredToast: string
+  boardSkippedToast: string
+  boardSessionTableTitle: string
+  boardSessionTableLabel: string
+  boardSessionEmpty: string
+  boardColSerial: string
+  boardColQueue: string
+  boardColPatientId: string
+  boardColName: string
+  boardColWaiting: string
+  boardColStatus: string
+  boardTokenWaiting: string
+  boardTokenCalled: string
+  boardTokenEntered: string
+  boardTokenSkipped: string
+  boardTokenCancelled: string
+  boardPrintAttention: string
+  boardReprint: string
+  boardPrinterBusy: string
+  boardReprintTitle: string
+  boardReprintIntro: string
+  boardReprintReason: string
+  boardReprintConfirm: string
+  boardReprintSent: string
+  boardCancelTitle: string
+  boardCancelIntro: string
+  boardCancelReason: string
+  boardCancelConfirm: string
+  boardTokenCancelledToast: string
+  boardWorking: string
 }
 
 export type Locale = 'en' | 'bn'

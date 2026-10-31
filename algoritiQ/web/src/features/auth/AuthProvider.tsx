@@ -7,7 +7,9 @@
  */
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { getMe, login, loginWithPin, logout } from '@/core/api/auth'
+import { getLicenseType } from '@/core/api/doctor'
 import type { Account } from '@/core/api/types'
+import { writeLicenseCache, clearLicenseCache } from '@/core/clinic/clinicLicenseCache'
 import { AuthContext, type AuthState } from '@/features/auth/authContext'
 import { readPinBrowser } from '@/features/auth/pinDevice'
 import { clearSession, readSession, saveSession } from '@/features/auth/session'
@@ -25,11 +27,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false
     void getMe(token).then(
       (account) => {
-        if (!cancelled) setState({ status: 'signedIn', account })
+        if (cancelled) return
+        setState({ status: 'signedIn', account })
+        void getLicenseType(token).then(
+          (type) => writeLicenseCache(type),
+          () => writeLicenseCache(null),
+        )
       },
       () => {
         // Ended on the tablet (expired, signed out, password reset).
         clearSession()
+        clearLicenseCache()
         if (!cancelled) setState({ status: 'signedOut' })
       },
     )
@@ -42,6 +50,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const result = await login(username, password, remember)
     saveSession(result.token, result.expiresAt, remember)
     setState({ status: 'signedIn', account: result.account })
+    void getLicenseType(result.token).then(
+      (type) => writeLicenseCache(type),
+      () => writeLicenseCache(null),
+    )
   }, [])
 
   const signInWithPin = useCallback(async (pin: string) => {
@@ -51,11 +63,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // A PIN sign-in lasts as a normal one: this tab, twelve hours.
     saveSession(result.token, result.expiresAt, false)
     setState({ status: 'signedIn', account: result.account })
+    void getLicenseType(result.token).then(
+      (type) => writeLicenseCache(type),
+      () => writeLicenseCache(null),
+    )
   }, [])
 
   const signOut = useCallback(async () => {
     const token = readSession()
     clearSession()
+    clearLicenseCache()
     setState({ status: 'signedOut' })
     if (token) {
       // Best effort: the token is forgotten here either way.

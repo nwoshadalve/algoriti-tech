@@ -21,6 +21,21 @@ Pointer and affordance rules for `algoritiQ/web`.
 
 Standards detail: [../standards/web-ui.md](../standards/web-ui.md#pointer-and-cursor).
 
+## After a successful save (partial UI updates)
+
+React screens MUST feel stable: a small edit updates only what changed, not the whole page.
+
+- When one control or section is saved (modal, toggle, row action), MUST update **only the state** that changed — from the API response or the value just submitted.
+- MUST NOT flip a page-level `loading` flag or replace the route with a preloader after a **successful** mutation. The list, header, and surrounding copy stay mounted.
+- A **first visit** to a screen and an explicit **Retry** after load failure MAY show a full-page loader. Routine saves MUST NOT reuse that path.
+- Refetching an entire screen after every save is an anti-pattern. If extra fields must be reconciled, fetch in the background **without** clearing visible content, or patch local state from the save response.
+- Example: changing automatic session stop updates the stop-time summary (and effective time for the active chamber) and closes the modal — it does not reload queue types or chamber lists.
+- The callback that sets page-level `loading` MUST NOT depend on filters, tabs, or selected ids (e.g. selected chamber). Put those in a **separate** fetch with section-only loading (or none). Otherwise changing a selection recreates the callback, re-runs the mount `useEffect`, and flashes the full-page preloader.
+- Overlapping fetches MUST ignore stale responses (sequence counter or abort) when a newer request or a save has superseded them.
+- **Server state (TanStack Query):** Read-mostly API data (e.g. queue defaults, chamber lists, per-chamber queue snapshots) MUST go through **TanStack Query** (`useQuery` / `useMutation`) with stable keys in `features/<name>/…QueryKeys.ts`. Revisiting a route or switching a filter MUST show cached data immediately while a background refetch runs when the entry is stale — not a full-page preloader.
+- **After local saves:** Mutations MUST patch the query cache from the API response (`setQueryData`) or invalidate only the affected keys. Do not refetch the whole screen on every save.
+- **Live channel:** When the tablet publishes a named WebSocket event (e.g. `queue.configuration.changed`), invalidate the matching query keys and let TanStack Query refetch in the background; show a short toast when **remote** clinic-wide changes arrive. Local saves still patch from the response without a full-page reload.
+
 ## Feedback: toasts
 
 - The **result of an action** (saved, created, changed, signed in, failed) MUST be shown in a **toast**, not in a banner inside the form. One place to look, the same on every screen.

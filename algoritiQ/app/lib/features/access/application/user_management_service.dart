@@ -41,12 +41,16 @@ final class UsersContext {
     required this.assignmentTarget,
     required this.targets,
     required this.onboarding,
+    required this.firstAdminId,
   });
 
   final LicenseType? licenseType;
   final AssignmentTarget assignmentTarget;
   final List<ScopeTarget> targets;
   final UsersOnboarding onboarding;
+
+  /// The admin who registered with the claim code (earliest admin account).
+  final String firstAdminId;
 }
 
 final class ManagedUser {
@@ -131,7 +135,26 @@ enum UpdateUserProblem {
 
   /// The last active admin cannot be disabled: nobody could sign in to fix it.
   lastAdmin,
+
+  /// The first admin (claim-code registration) cannot be disabled.
+  cannotDisableInitialAdmin,
 }
+
+sealed class SetUserPasswordResult {
+  const SetUserPasswordResult();
+}
+
+final class UserPasswordSet extends SetUserPasswordResult {
+  const UserPasswordSet();
+}
+
+final class SetUserPasswordRefused extends SetUserPasswordResult {
+  const SetUserPasswordRefused(this.problem);
+
+  final SetUserPasswordProblem problem;
+}
+
+enum SetUserPasswordProblem { notFound, forbidden, credentialsInvalid }
 
 /// Admin-only creation and maintenance of accounts (admins and receptionists).
 class UserManagementService {
@@ -178,11 +201,13 @@ class UserManagementService {
         targets.isNotEmpty &&
         (!hasActiveReceptionist ||
             receptionists.any((u) => u.scopeIds.isEmpty));
+    final firstAdminId = await _repository.firstAdminId();
     return UsersContext(
       licenseType: payload?.type,
       assignmentTarget: assignmentTarget,
       targets: targets,
       onboarding: UsersOnboarding(needsAttention: needsAttention),
+      firstAdminId: firstAdminId ?? admin.id,
     );
   }
 
@@ -314,6 +339,14 @@ class UserManagementService {
       if (userId == admin.id) {
         return const UpdateUserRefused(UpdateUserProblem.cannotDisableSelf);
       }
+      final firstAdminId = await _repository.firstAdminId();
+      if (firstAdminId != null &&
+          userId == firstAdminId &&
+          admin.id != firstAdminId) {
+        return const UpdateUserRefused(
+          UpdateUserProblem.cannotDisableInitialAdmin,
+        );
+      }
       if (stored.account.role == Role.admin &&
           await _repository.adminCount() <= 1) {
         return const UpdateUserRefused(UpdateUserProblem.lastAdmin);
@@ -372,6 +405,51 @@ class UserManagementService {
         scopeIds: scopes,
       ),
     );
+  }
+
+  /// Sets a new password for another person. Receptionists: any admin. Other
+  /// admins: only the first admin (claim-code registration).
+  Future<SetUserPasswordResult> setUserPassword({
+    required Account admin,
+    required String userId,
+    required String password,
+  }) async {
+    requireAdmin(admin);
+    final stored = await _repository.findAccountById(userId);
+    if (stored == null) {
+      return const SetUserPasswordRefused(SetUserPasswordProblem.notFound);
+    }
+    final target = stored.account;
+    if (target.role == Role.admin) {
+      final firstAdminId = await _repository.firstAdminId();
+      if (admin.id != firstAdminId) {
+        return const SetUserPasswordRefused(SetUserPasswordProblem.forbidden);
+      }
+    } else if (target.role != Role.receptionist) {
+      return const SetUserPasswordRefused(SetUserPasswordProblem.forbidden);
+    }
+    final credentialProblem = AccessPolicy.check(
+      username: target.username,
+      password: password,
+    );
+    if (credentialProblem != null) {
+      return const SetUserPasswordRefused(
+        SetUserPasswordProblem.credentialsInvalid,
+      );
+    }
+    final now = _clock().toUtc();
+    await _repository.setPasswordByAdmin(
+      accountId: userId,
+      passwordHash: await _hasher.hash(password),
+      actorId: admin.id,
+      at: now,
+    );
+    return const UserPasswordSet();
+  }
+
+  /// Username for API error mapping when a password is refused.
+  Future<String?> usernameOf(String userId) async {
+    return (await _repository.findAccountById(userId))?.account.username;
   }
 
   bool _scopesValid(List<String> scopeIds, UsersContext context) {

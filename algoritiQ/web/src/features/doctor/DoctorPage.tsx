@@ -5,6 +5,7 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
 import { ApiError } from '@/core/api/client'
@@ -28,6 +29,9 @@ import { PageHeader } from '@/core/ui/PageHeader'
 import { PagePreloader } from '@/core/ui/PagePreloader'
 import { TextField } from '@/core/ui/TextField'
 import { readSession } from '@/features/auth/session'
+import { doctorQueryKeys } from '@/features/doctor/doctorQueryKeys'
+import { avatarQueryKeys } from '@/core/query/avatarQueryKeys'
+import { dropAvatarObjectUrls } from '@/core/ui/avatarObjectUrlCache'
 import {
   parseDegrees,
   validateDoctor,
@@ -53,49 +57,51 @@ const fieldsOf = (doctor: Doctor): Fields => ({
   specialty: doctor.specialty,
 })
 
+function requireSessionToken(): string {
+  const token = readSession()
+  if (!token) throw new Error('signed_out')
+  return token
+}
+
 /** The doctor of a doctor license: details and photo, as shown to patients. */
 export function DoctorPage() {
   const { t } = useLocale()
   const toast = useToast()
+  const queryClient = useQueryClient()
   const { licenseType } = useClinic()
-  const [doctor, setDoctor] = useState<Doctor | null>(null)
-  const [failed, setFailed] = useState(false)
+  const queriesEnabled = licenseType === 'doctor'
+
+  const doctorQuery = useQuery({
+    queryKey: doctorQueryKeys.detail(),
+    queryFn: async () => getDoctor(requireSessionToken()),
+    enabled: queriesEnabled,
+    retry: false,
+  })
 
   useEffect(() => {
-    const token = readSession()
-    if (!token || licenseType !== 'doctor') return
-    let cancelled = false
-    getDoctor(token).then(
-      (loaded) => {
-        if (!cancelled) setDoctor(loaded)
-      },
-      () => {
-        if (cancelled) return
-        setFailed(true)
-        toast.error(t('doctorLoadFailed'))
-      },
-    )
-    return () => {
-      cancelled = true
-    }
-    // Asked once per visit; the toast function is stable.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [licenseType])
+    if (!doctorQuery.isError) return
+    toast.error(t('doctorLoadFailed'))
+  }, [doctorQuery.isError, t, toast])
 
   // A clinic that is not licensed for one doctor has no such page.
   if (licenseType === null || licenseType === 'chamber') return <Navigate to="/home" replace />
+
+  const doctor = doctorQuery.data
+  const loading = doctorQuery.isPending && doctor === undefined
+  const failed = doctorQuery.isError && doctor === undefined
 
   return (
     <div>
       <PageHeader title={t('navDoctor')} description={t('doctorIntro')} />
       {failed ? (
         <Card className="text-center text-sm">{t('doctorLoadFailed')}</Card>
-      ) : !doctor ? (
+      ) : loading || !doctor ? (
         <PagePreloader label={t('loadingLabel')} />
       ) : (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:items-start">
           <PhotoCard
             title={t('doctorPhotoTitle')}
+            photoScope="doctor"
             person={{
               firstName: doctor.name,
               displayName: doctor.name,
@@ -104,26 +110,29 @@ export function DoctorPage() {
             }}
             source={fetchDoctorPhoto}
             onUpload={async (square) => {
-              const token = readSession()
-              if (!token) throw new Error('signed_out')
-              setDoctor(await uploadDoctorPhoto(token, square))
+              const updated = await uploadDoctorPhoto(requireSessionToken(), square)
+              dropAvatarObjectUrls('doctor')
+              void queryClient.invalidateQueries({ queryKey: [...avatarQueryKeys.all, 'doctor'] })
+              queryClient.setQueryData(doctorQueryKeys.detail(), updated)
             }}
             onRemove={async () => {
-              const token = readSession()
-              if (!token) throw new Error('signed_out')
-              setDoctor(await removeDoctorPhoto(token))
+              const updated = await removeDoctorPhoto(requireSessionToken())
+              dropAvatarObjectUrls('doctor')
+              void queryClient.invalidateQueries({ queryKey: [...avatarQueryKeys.all, 'doctor'] })
+              queryClient.setQueryData(doctorQueryKeys.detail(), updated)
             }}
           />
-          <DetailsCard doctor={doctor} onSaved={setDoctor} />
+          <DetailsCard doctor={doctor} />
         </div>
       )}
     </div>
   )
 }
 
-function DetailsCard({ doctor, onSaved }: { doctor: Doctor; onSaved: (doctor: Doctor) => void }) {
+function DetailsCard({ doctor }: { doctor: Doctor }) {
   const { t } = useLocale()
   const toast = useToast()
+  const queryClient = useQueryClient()
   const saved = fieldsOf(doctor)
   const [fields, setFields] = useState<Fields>(saved)
   const [errors, setErrors] = useState<DoctorErrors>({})
@@ -145,12 +154,10 @@ function DetailsCard({ doctor, onSaved }: { doctor: Doctor; onSaved: (doctor: Do
       toast.error(t('errorFixFields'))
       return
     }
-    const token = readSession()
-    if (!token) return
 
     setBusy(true)
     try {
-      const updated = await saveDoctor(token, {
+      const updated = await saveDoctor(requireSessionToken(), {
         name: fields.name.trim(),
         degrees: parseDegrees(fields.degrees),
         designation: fields.designation.trim(),
@@ -158,7 +165,7 @@ function DetailsCard({ doctor, onSaved }: { doctor: Doctor; onSaved: (doctor: Do
         registrationNumber: fields.registrationNumber.trim(),
         specialty: fields.specialty.trim(),
       })
-      onSaved(updated)
+      queryClient.setQueryData(doctorQueryKeys.detail(), updated)
       setFields(fieldsOf(updated))
       toast.success(t('doctorSaved'))
     } catch (error) {

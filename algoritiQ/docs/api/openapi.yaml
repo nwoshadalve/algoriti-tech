@@ -854,7 +854,51 @@ paths:
           description: Unknown user (`not_found`).
         '409':
           description: >-
-            `email_taken`, `cannot_disable_self` or `last_admin`.
+            `email_taken`, `cannot_disable_self`, `cannot_disable_initial_admin`
+            or `last_admin`.
+  /users/{userId}/password:
+    post:
+      summary: Set another person's password (admin)
+      description: >-
+        Admins may set a new password for any receptionist. Only the first admin
+        (registered with the claim code) may set another admin's password. Ends
+        every sign-in and PIN for that person.
+      operationId: setUserPassword
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  maxLength: 128
+      responses:
+        '204':
+          description: Password saved.
+        '400':
+          description: >-
+            `password_too_short`, `password_too_long`,
+            `password_contains_username` or `invalid_request`.
+        '401':
+          description: Not signed in (`unauthorized`).
+        '403':
+          description: >-
+            Admins only (`forbidden`), or this admin may not change this person's
+            password (`password_change_forbidden`).
+        '404':
+          description: Unknown user (`not_found`).
   /clinic:
     get:
       summary: What the clinic is licensed for
@@ -921,6 +965,32 @@ paths:
         '403': { description: Not an admin (`forbidden`). }
         '404': { description: Unknown service (`not_found`). }
         '409': { description: This part cannot be retried (`not_retryable`). }
+  /monitoring/services/printer/test:
+    post:
+      summary: Print a test token on the POS printer
+      description: >
+        Admins only. Sends the same sample token slip as the receptionist
+        "Test print" action. Requires a paired printer that is connected.
+      operationId: testPrinter
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Outcome plus a fresh monitoring reading.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Monitoring' }
+                  - type: object
+                    required: [outcome]
+                    properties:
+                      outcome:
+                        type: string
+                        enum: [printed, failed, not_connected, no_details]
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+        '404': { description: Monitoring or printer test is unavailable (`not_found`). }
   /monitoring/bluetooth/enable:
     post:
       summary: Ask to turn Bluetooth on
@@ -1084,6 +1154,312 @@ paths:
           description: Unknown chamber (`not_found`).
         '409':
           description: It is the only chamber (`last_chamber`).
+  /queue/defaults:
+    get:
+      summary: Clinic-wide queue policy and types
+      description: Admins only. Seeds defaults on first read when none exist.
+      operationId: getQueueDefaults
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Policy and queue type definitions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [policy, types]
+                properties:
+                  policy: { $ref: '#/components/schemas/QueuePolicy' }
+                  types:
+                    type: array
+                    items: { $ref: '#/components/schemas/QueueTypeConfig' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+        '404': { description: Queue service unavailable (`not_found`). }
+    patch:
+      summary: Save clinic queue policy (and optional template types)
+      description: >-
+        Updates clinic-wide queue policy (time zone, day boundary, auto-start).
+        When `types` is included, replaces the **clinic template** only. Chambers
+        that still inherit (`useClinicDefaults: true`) see those template types until
+        they save their own override. Does **not** replace per-chamber override rows.
+        Admin UI for editing a chamber's queue list must use
+        `PATCH /queue/chambers/{chamberId}` instead.
+      operationId: updateQueueDefaults
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timeZone: { type: string }
+                dayBoundary: { type: string, description: Local time HH:mm when the queue day starts. }
+                autoStart: { type: boolean }
+                types:
+                  type: array
+                  items: { $ref: '#/components/schemas/QueueTypeConfig' }
+      responses:
+        '200':
+          description: Saved policy and types.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [policy, types]
+                properties:
+                  policy: { $ref: '#/components/schemas/QueuePolicy' }
+                  types:
+                    type: array
+                    items: { $ref: '#/components/schemas/QueueTypeConfig' }
+        '400':
+          description: Validation failed (`queue_validation_failed`).
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+        '409':
+          description: An open session blocks the change (`queue_session_open`).
+  /queue/chambers/{chamberId}:
+    get:
+      summary: Queue setup and session for one chamber
+      operationId: getChamberQueueConfig
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Effective policy, types, and optional open session.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [settings, effectivePolicy, types, session]
+                properties:
+                  settings: { $ref: '#/components/schemas/ChamberQueueSettings' }
+                  effectivePolicy: { $ref: '#/components/schemas/QueuePolicy' }
+                  types:
+                    type: array
+                    items: { $ref: '#/components/schemas/QueueTypeConfig' }
+                  session:
+                    nullable: true
+                    allOf: [{ $ref: '#/components/schemas/QueueSession' }]
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+        '404': { description: Unknown chamber or queue unavailable (`not_found`). }
+    patch:
+      summary: Save queue types for one chamber
+      description: >-
+        Replaces the selected chamber's queue types only. Other chambers are unchanged.
+        When the chamber still inherits the clinic template (`useClinicDefaults: true`),
+        the server copies the template into a chamber-specific override on this save,
+        sets `useClinicDefaults` to false, then stores the submitted types. Emits
+        `queue.configuration.changed` with scope `chamber`.
+      operationId: updateChamberQueueTypes
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [types]
+              properties:
+                types:
+                  type: array
+                  items: { $ref: '#/components/schemas/QueueTypeConfig' }
+      responses:
+        '200':
+          description: Saved chamber settings and types.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [settings, types]
+                properties:
+                  settings: { $ref: '#/components/schemas/ChamberQueueSettings' }
+                  types:
+                    type: array
+                    items: { $ref: '#/components/schemas/QueueTypeConfig' }
+        '400':
+          description: Validation failed (`queue_validation_failed`).
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+        '404': { description: Unknown chamber or queue unavailable (`not_found`). }
+        '409':
+          description: An open session blocks the change (`queue_session_open`).
+  /queue/chambers/{chamberId}/customize:
+    post:
+      summary: Copy clinic defaults into a chamber-specific override
+      operationId: customizeChamberQueue
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Updated chamber settings.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [settings]
+                properties:
+                  settings: { $ref: '#/components/schemas/ChamberQueueSettings' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+  /queue/chambers/{chamberId}/clear-override:
+    post:
+      summary: Make a chamber inherit clinic defaults again
+      operationId: clearChamberQueueOverride
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Updated chamber settings.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [settings]
+                properties:
+                  settings: { $ref: '#/components/schemas/ChamberQueueSettings' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+        '409': { description: Close the open session first (`queue_session_open`). }
+  /queue/chambers/{chamberId}/session/start:
+    post:
+      summary: Open today's queue session for a chamber
+      operationId: startQueueSession
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: The open session, or null when none was started.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [session]
+                properties:
+                  session:
+                    nullable: true
+                    allOf: [{ $ref: '#/components/schemas/QueueSession' }]
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+  /queue/chambers/{chamberId}/session/close:
+    post:
+      summary: Close the open queue session normally
+      operationId: closeQueueSession
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Closed. }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+        '404': { description: No open session (`queue_session_missing`). }
+  /queue/chambers/{chamberId}/session/force-close:
+    post:
+      summary: Force-close the open session with a reason
+      operationId: forceCloseQueueSession
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, minLength: 1 }
+      responses:
+        '204': { description: Closed. }
+        '400': { description: Reason missing (`queue_reason_required`). }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+        '404': { description: No open session (`queue_session_missing`). }
+  /audit:
+    get:
+      summary: Paginated audit log for admins
+      description: >
+        Admins only. Newest first. Optional filters: ISO8601 `from` / `to`,
+        `actionPrefix` (e.g. `queue.`), and `outcome` (`success`, `failure`,
+        `denied`). Page size is fixed on the tablet (25 rows); use `offset`
+        and `nextOffset` from the response.
+      operationId: listAuditLog
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+        - in: query
+          name: from
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          schema: { type: string, format: date-time }
+        - in: query
+          name: actionPrefix
+          schema: { type: string }
+        - in: query
+          name: outcome
+          schema: { type: string, enum: [success, failure, denied] }
+      responses:
+        '200':
+          description: A page of audit entries.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [entries, total, nextOffset]
+                properties:
+                  entries:
+                    type: array
+                    items: { $ref: '#/components/schemas/AuditLogEntry' }
+                  total: { type: integer }
+                  nextOffset:
+                    type: integer
+                    nullable: true
+                    description: Pass as `offset` for the next page, or null when done.
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
+        '404': { description: Audit listing unavailable (`not_found`). }
   /doctor:
     get:
       summary: The doctor of a doctor license
@@ -1269,8 +1645,7 @@ components:
         reason:
           type: string
           description: >
-            service_stopped, battery_restricted, printer_not_set_up,
-            tv_not_connected or reading_failed.
+            service_stopped, battery_restricted,             printer_not_set_up, printer_connecting, printer_disconnected, tv_not_connected or reading_failed.
         uptimeSeconds: { type: integer }
         clients: { type: integer, description: Connected live clients (websocket only). }
         retryable: { type: boolean }
@@ -1367,6 +1742,69 @@ components:
           required: [id]
           properties:
             id: { type: string }
+    QueuePolicy:
+      type: object
+      required: [timeZone, dayBoundary, autoStart]
+      properties:
+        timeZone: { type: string, example: Asia/Dhaka }
+        dayBoundary: { type: string, example: '06:00' }
+        autoStart: { type: boolean }
+    QueueTypeConfig:
+      type: object
+      required: [id, englishName, bengaliName, startNumber, endNumber, displayOrder, enabled]
+      properties:
+        id: { type: string }
+        englishName: { type: string }
+        bengaliName: { type: string }
+        startNumber: { type: integer }
+        endNumber: { type: integer }
+        displayOrder: { type: integer }
+        enabled: { type: boolean }
+    ChamberQueueSettings:
+      type: object
+      required: [useClinicDefaults]
+      properties:
+        useClinicDefaults: { type: boolean }
+        dayBoundaryOverride: { type: string, nullable: true }
+        autoStartOverride: { type: boolean, nullable: true }
+    QueueSession:
+      type: object
+      required: [id, chamberId, businessDate, status, openedAt, openedByAccountId, usage]
+      properties:
+        id: { type: string }
+        chamberId: { type: string }
+        businessDate: { type: string, description: Local queue business date (YYYY-MM-DD). }
+        status: { type: string, enum: [open, closed] }
+        openedAt: { type: string, format: date-time }
+        openedByAccountId: { type: string }
+        usage:
+          type: array
+          items:
+            type: object
+            required: [queueTypeId, englishName, bengaliName, startNumber, endNumber, issuedCount, nextNumber, enabled, capacity]
+            properties:
+              queueTypeId: { type: string }
+              englishName: { type: string }
+              bengaliName: { type: string }
+              startNumber: { type: integer }
+              endNumber: { type: integer }
+              issuedCount: { type: integer }
+              nextNumber: { type: integer }
+              enabled: { type: boolean }
+              capacity: { type: integer }
+    AuditLogEntry:
+      type: object
+      required: [id, occurredAt, action, category, outcome, actorDisplayName, actorRole, safeMetadata, detail]
+      properties:
+        id: { type: string }
+        occurredAt: { type: string, format: date-time }
+        action: { type: string }
+        category: { type: string }
+        outcome: { type: string, enum: [success, failure, denied] }
+        actorDisplayName: { type: string }
+        actorRole: { type: string }
+        safeMetadata: { type: object, additionalProperties: true }
+        detail: { type: string, nullable: true, description: JSON payload when the event stored structured detail. }
     Doctor:
       type: object
       required: [id, name, degrees, designation, workplace, registrationNumber, specialty, photoVersion]
@@ -1383,7 +1821,7 @@ components:
           description: 0 when there is no photo; changes whenever the photo does.
     UsersContext:
       type: object
-      required: [assignmentTarget, targets, onboarding]
+      required: [assignmentTarget, targets, onboarding, firstAdminId]
       properties:
         licenseType:
           type: string
@@ -1405,6 +1843,11 @@ components:
           required: [needsAttention]
           properties:
             needsAttention: { type: boolean }
+        firstAdminId:
+          type: string
+          description: >-
+            The admin who registered first with the claim code. Only this account
+            may set another admin's password.
     Error:
       type: object
       required: [error]

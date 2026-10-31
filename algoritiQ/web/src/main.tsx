@@ -14,6 +14,7 @@ import { ThemeProvider } from '@/core/theme/ThemeProvider'
 import { ErrorBoundary } from '@/app/ErrorBoundary'
 import { ToastProvider } from '@/core/toast/ToastProvider'
 import { AuthProvider } from '@/features/auth/AuthProvider'
+import { QueryProvider } from '@/core/query/QueryProvider'
 import './index.css'
 import App from './App.tsx'
 
@@ -24,7 +25,9 @@ createRoot(document.getElementById('root')!).render(
         <ErrorBoundary>
           <ToastProvider>
             <AuthProvider>
-              <App />
+              <QueryProvider>
+                <App />
+              </QueryProvider>
             </AuthProvider>
           </ToastProvider>
         </ErrorBoundary>

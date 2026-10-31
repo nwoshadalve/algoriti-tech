@@ -50,6 +50,7 @@ class KeepAliveService : Service() {
             return
         }
         acquireLocks()
+        KeepAliveNetworkEvents.start(this) { ensureLocksHeld() }
         // After a restart there is no screen yet: start the engine here.
         EngineHolder.ensure(this)
         startedAt = SystemClock.elapsedRealtime()
@@ -64,6 +65,7 @@ class KeepAliveService : Service() {
     override fun onDestroy() {
         running = false
         startedAt = null
+        KeepAliveNetworkEvents.stop()
         wakeLock?.takeIf { it.isHeld }?.release()
         wifiLock?.takeIf { it.isHeld }?.release()
         multicastLock?.takeIf { it.isHeld }?.release()
@@ -122,10 +124,12 @@ class KeepAliveService : Service() {
         }
         val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         @Suppress("DEPRECATION")
-        wifiLock = wifi.createWifiLock(
-            WifiManager.WIFI_MODE_FULL_HIGH_PERF,
-            "algoritiq:server",
-        ).apply {
+        val wifiMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            WifiManager.WIFI_MODE_FULL_LOW_LATENCY
+        } else {
+            WifiManager.WIFI_MODE_FULL_HIGH_PERF
+        }
+        wifiLock = wifi.createWifiLock(wifiMode, "algoritiq:server").apply {
             setReferenceCounted(false)
             acquire()
         }
@@ -135,6 +139,13 @@ class KeepAliveService : Service() {
             setReferenceCounted(false)
             acquire()
         }
+    }
+
+    /** Some tablets release locks during deep sleep; grab them again before work. */
+    private fun ensureLocksHeld() {
+        wakeLock?.takeIf { !it.isHeld }?.acquire()
+        wifiLock?.takeIf { !it.isHeld }?.acquire()
+        multicastLock?.takeIf { !it.isHeld }?.acquire()
     }
 
     companion object {

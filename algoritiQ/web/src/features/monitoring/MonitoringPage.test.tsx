@@ -14,6 +14,7 @@ import type { HealthService, Monitoring } from '@/core/api/monitoring'
 import * as setupApi from '@/core/api/setup'
 import type { Account } from '@/core/api/types'
 import { saveSession } from '@/features/auth/session'
+import { queryClient } from '@/core/query/queryClient'
 import { renderAppAt } from '@/test/render'
 
 const owner: Account = {
@@ -63,6 +64,7 @@ async function systemSection() {
 
 describe('monitoring page', () => {
   beforeEach(() => {
+    queryClient.clear()
     vi.spyOn(setupApi, 'getSetupStatus').mockResolvedValue({
       adminRegistered: true,
       claimCodeRequired: false,
@@ -107,7 +109,8 @@ describe('monitoring page', () => {
     )
     expect(screen.getByText('Memory is almost full.')).toBeInTheDocument()
     expect(screen.getByText('7.7 GB of 8 GB used')).toBeInTheDocument()
-    expect(screen.queryByText('Bluetooth is turned off.')).not.toBeInTheDocument()
+    expect(screen.getByText('Bluetooth is turned off.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Turn on Bluetooth' })).toBeInTheDocument()
   })
 
   it('should list server services with uptime and connected clients', async () => {

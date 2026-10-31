@@ -19,7 +19,7 @@ routes/pages  →  features  →  core
 | --- | --- |
 | **routes / app shell** | Router, layout, auth gate, error boundaries |
 | **features** | Admin vs doctor flows; feature-specific components and hooks |
-| **core** | API client, WebSocket client, design tokens, shared UI, i18n, logging |
+| **core** | API client, WebSocket client, TanStack Query client/providers, design tokens, shared UI, i18n, logging |
 
 - **MUST NOT** import one feature's internals from another feature — share via `core` or explicit `features/<x>/public` exports.
 - **MUST NOT** call `fetch` from leaf components — use typed clients/hooks in `core/api` or feature `data` modules.
@@ -29,7 +29,7 @@ routes/pages  →  features  →  core
 ```text
 src/
   app/           # bootstrap, router, providers, shell layout
-  core/          # api, theme, ui primitives, i18n, config
+  core/          # api, query, theme, ui primitives, i18n, config
   features/      # <feature>/components, hooks, types
   test/          # shared test helpers
 ```
@@ -56,4 +56,5 @@ Role checks are enforced **server-side**; the UI only hides or disables routes f
 | Routing | `react-router-dom` |
 | Styling | Tailwind CSS v4 first; component CSS only when Tailwind is insufficient |
 | Unit / component tests | Vitest + Testing Library |
+| Server state | TanStack Query v5 (`@tanstack/react-query`) |
 | Offline shell | `vite-plugin-pwa` (Workbox) |

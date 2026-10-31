@@ -7,10 +7,11 @@
  */
 import { useCallback, useEffect, useId, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import { BootstrapScreen } from '@/app/BootstrapScreen'
 import { DashboardNavbar } from '@/app/dashboard/DashboardNavbar'
 import { DashboardSidebar } from '@/app/dashboard/DashboardSidebar'
 import { LiveChannelProvider } from '@/core/api/LiveChannelProvider'
-import { ClinicProvider } from '@/core/clinic/ClinicProvider'
+import { useClinic } from '@/core/clinic/clinicContext'
 import { useAuth } from '@/features/auth/authContext'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import { useWorkScope } from '@/features/work/workScopeContext'
@@ -24,7 +25,8 @@ export function DashboardLayout() {
   const { pathname } = useLocation()
   const { t } = useLocale()
   const { state, signOut } = useAuth()
-  const { canChangeWorkScope, reopenChoice } = useWorkScope()
+  const { licenseType } = useClinic()
+  const { canChangeWorkScope, reopenChoice, state: workScope } = useWorkScope()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
 
@@ -54,11 +56,19 @@ export function DashboardLayout() {
   }
 
   const account = state.status === 'signedIn' ? state.account : null
+  const shellReady =
+    state.status === 'signedIn' &&
+    licenseType !== undefined &&
+    (account?.role !== 'receptionist' ||
+      (workScope.status !== 'idle' && workScope.status !== 'loading'))
+
+  if (!shellReady) {
+    return <BootstrapScreen />
+  }
 
   return (
     <LiveChannelProvider>
-      <ClinicProvider>
-      <div className="min-h-dvh bg-brand-mist text-brand-navy dark:bg-brand-navy dark:text-white">
+      <div className="min-h-dvh overflow-x-clip bg-brand-mist text-brand-navy dark:bg-brand-navy dark:text-white">
         <a
           href="#dashboard-main"
           className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-brand-navy focus:shadow-lg dark:focus:bg-brand-navy-raised dark:focus:text-white"
@@ -92,7 +102,6 @@ export function DashboardLayout() {
           </main>
         </div>
       </div>
-      </ClinicProvider>
     </LiveChannelProvider>
   )
 }

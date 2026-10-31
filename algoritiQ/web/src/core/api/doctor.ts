@@ -48,8 +48,12 @@ export async function removeDoctorPhoto(token: string): Promise<Doctor> {
   return result.doctor
 }
 
-export async function fetchDoctorPhoto(token: string): Promise<Blob> {
-  const response = await fetch(`${config.apiBasePath}/doctor/photo`, { headers: bearer(token) })
+export async function fetchDoctorPhoto(token: string, photoVersion: number): Promise<Blob> {
+  const query = new URLSearchParams({ v: String(photoVersion) })
+  const response = await fetch(`${config.apiBasePath}/doctor/photo?${query}`, {
+    headers: bearer(token),
+    cache: 'no-store',
+  })
   if (!response.ok) throw new Error('photo_unavailable')
   return response.blob()
 }

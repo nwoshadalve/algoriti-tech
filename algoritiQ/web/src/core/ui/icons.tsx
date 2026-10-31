@@ -92,6 +92,33 @@ export function ChevronUpDownIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
+export function ChevronDownIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M6 9l6 6 6-6" />
+    </Icon>
+  )
+}
+
+export function ConfigIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+    </Icon>
+  )
+}
+
+export function HelpIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.9.5-1.5 1.2-1.5 2.2" />
+      <path d="M12 17h.01" />
+    </Icon>
+  )
+}
+
 export function MenuIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon width={22} height={22} strokeWidth={2} {...props}>
@@ -214,6 +241,15 @@ export function KeyIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
+export function LockIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </Icon>
+  )
+}
+
 export function MapPinIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon {...props}>
@@ -302,6 +338,25 @@ export function HardDriveIcon(props: SVGProps<SVGSVGElement>) {
       <path d="M4 14.5 6.5 5h11L20 14.5" />
       <rect x="4" y="14.5" width="16" height="5" rx="1.8" />
       <path d="M16.5 17h.01" />
+    </Icon>
+  )
+}
+
+export function QueueIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M5 7h14M5 12h10M5 17h6" />
+      <circle cx="18" cy="12" r="2" />
+      <circle cx="14" cy="17" r="2" />
+    </Icon>
+  )
+}
+
+export function AuditIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M8 4h8l2 2v14H6V4z" />
+      <path d="M9 11h6M9 15h4" />
     </Icon>
   )
 }

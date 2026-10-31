@@ -6,7 +6,6 @@
  * or distribution is prohibited.
  */
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { PagePreloader } from '@/core/ui/PagePreloader'
 import { useAuth } from '@/features/auth/authContext'
 import { useWorkScope, workScopeBlocksDashboard } from '@/features/work/workScopeContext'
 
@@ -25,11 +24,7 @@ export function RequireWorkScopeReady() {
   }
 
   if (state.status === 'idle' || state.status === 'loading') {
-    return (
-      <div className="flex min-h-dvh items-center justify-center bg-brand-mist dark:bg-brand-navy">
-        <PagePreloader className="py-10" />
-      </div>
-    )
+    return <Outlet />
   }
 
   if (workScopeBlocksDashboard(state) && pathname !== '/work') {

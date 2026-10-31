@@ -59,13 +59,13 @@ export function OverviewPage() {
         : 'overviewServerChecking'
 
   return (
-    <div>
+    <div className="min-w-0">
       <PageHeader
         title={t('homeGreeting', { name })}
         description={t('overviewIntro')}
       />
 
-      <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+      <div className="grid min-w-0 gap-4 sm:gap-6 md:grid-cols-2">
         <Card as="section" labelledBy="overview-server">
           <h2 id="overview-server" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
             {t('overviewServerTitle')}
@@ -75,7 +75,7 @@ export function OverviewPage() {
               className={`mt-1.5 h-3 w-3 shrink-0 rounded-full ${statusStyle[health]}`}
               aria-hidden="true"
             />
-            <span role="status">{t(serverMessage)}</span>
+            <span className="min-w-0 flex-1" role="status">{t(serverMessage)}</span>
           </p>
         </Card>
 
@@ -84,13 +84,13 @@ export function OverviewPage() {
             <h2 id="overview-account" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
               {t('overviewAccountTitle')}
             </h2>
-            <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+            <dl className="mt-3 grid min-w-0 grid-cols-[minmax(0,auto)_minmax(0,1fr)] gap-x-4 gap-y-1.5 text-sm">
               <dt className="text-brand-navy/60 dark:text-white/60">{t('fieldRole')}</dt>
-              <dd className="font-medium">{t(roleLabelKey[account.role])}</dd>
+              <dd className="min-w-0 font-medium">{t(roleLabelKey[account.role])}</dd>
               <dt className="text-brand-navy/60 dark:text-white/60">{t('fieldUsername')}</dt>
-              <dd className="font-medium">{account.username}</dd>
+              <dd className="min-w-0 font-medium">{account.username}</dd>
               <dt className="text-brand-navy/60 dark:text-white/60">{t('fieldEmail')}</dt>
-              <dd className="font-medium">{account.email}</dd>
+              <dd className="min-w-0 font-medium">{account.email}</dd>
             </dl>
           </Card>
         ) : null}

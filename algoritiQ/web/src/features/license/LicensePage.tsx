@@ -5,10 +5,12 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { getLicense, listChambers } from '@/core/api/chambers'
-import type { Chamber, LicenseStatus, LicenseSummary } from '@/core/api/types'
+import type { Chamber, LicenseStatus } from '@/core/api/types'
+import { chambersQueryKeys } from '@/core/query/chambersQueryKeys'
 import { useClinic } from '@/core/clinic/clinicContext'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import type { MessageKey } from '@/core/i18n/messages/types'
@@ -25,8 +27,8 @@ import { readSession } from '@/features/auth/session'
 import { ChamberFormModal } from '@/features/license/ChamberFormModal'
 import { ChambersTable } from '@/features/license/ChambersTable'
 import { DeleteChamberModal } from '@/features/license/DeleteChamberModal'
+import { licenseQueryKeys } from '@/features/license/licenseQueryKeys'
 
-type Loaded = { license: LicenseSummary; chambers: Chamber[] }
 type Dialog = { kind: 'add' } | { kind: 'edit'; chamber: Chamber } | { kind: 'delete'; chamber: Chamber } | null
 
 const statusKey: Record<LicenseStatus, MessageKey> = {
@@ -41,38 +43,82 @@ const statusStyle: Record<LicenseStatus, string> = {
   expired: 'bg-red-100 text-red-900 dark:bg-red-950/50 dark:text-red-100',
 }
 
+function requireSessionToken(): string {
+  const token = readSession()
+  if (!token) throw new Error('signed_out')
+  return token
+}
+
 /** The license and the chambers it allows: add, edit and delete up to the limit. */
 export function LicensePage() {
   const { t, locale } = useLocale()
   const toast = useToast()
+  const queryClient = useQueryClient()
   const { state } = useAuth()
   const { licenseType } = useClinic()
-  const [loaded, setLoaded] = useState<Loaded | null>(null)
-  const [failed, setFailed] = useState(false)
   const [dialog, setDialog] = useState<Dialog>(null)
   const isAdmin = state.status === 'signedIn' && state.account.role === 'admin'
+  const queriesEnabled = licenseType === 'doctor' && isAdmin
 
-  const load = useCallback(async () => {
-    const token = readSession()
-    if (!token) return
-    try {
-      const [license, chambers] = await Promise.all([getLicense(token), listChambers(token)])
-      setLoaded({ license, chambers })
-      setFailed(false)
-    } catch {
-      setFailed(true)
-      toast.error(t('licenseLoadFailed'))
-    }
-    // The toast and translate functions are stable for the page's life.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const licenseQuery = useQuery({
+    queryKey: licenseQueryKeys.summary(),
+    queryFn: async () => getLicense(requireSessionToken()),
+    enabled: queriesEnabled,
+    retry: false,
+  })
+
+  const chambersQuery = useQuery({
+    queryKey: chambersQueryKeys.list(),
+    queryFn: async () => listChambers(requireSessionToken()),
+    enabled: queriesEnabled,
+    retry: false,
+  })
+
+  const license = licenseQuery.data
+  const chambers = chambersQuery.data ?? []
+  const loading =
+    (licenseQuery.isPending && license === undefined) ||
+    (chambersQuery.isPending && chambersQuery.data === undefined)
+  const failed =
+    (licenseQuery.isError && license === undefined) || (chambersQuery.isError && chambersQuery.data === undefined)
 
   useEffect(() => {
-    if (licenseType !== 'doctor' || !isAdmin) return
-    // Fetch on arrival; the answer sets the state.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load()
-  }, [licenseType, isAdmin, load])
+    if (!queriesEnabled || !licenseQuery.isFetched || !chambersQuery.isFetched || !failed) return
+    toast.error(t('licenseLoadFailed'))
+  }, [
+    queriesEnabled,
+    licenseQuery.isFetched,
+    chambersQuery.isFetched,
+    failed,
+    t,
+    toast,
+  ])
+
+  function refreshLicenseSummary() {
+    void queryClient.invalidateQueries({ queryKey: licenseQueryKeys.summary() })
+  }
+
+  function mergeChamber(saved: Chamber, created: boolean) {
+    queryClient.setQueryData(chambersQueryKeys.list(), (current: Chamber[] | undefined) => {
+      if (created) return [...(current ?? []), saved]
+      if (!current) return current
+      return current.map((row) => (row.id === saved.id ? saved : row))
+    })
+    refreshLicenseSummary()
+  }
+
+  function dropChamber(chamberId: string) {
+    queryClient.setQueryData(chambersQueryKeys.list(), (current: Chamber[] | undefined) => {
+      if (!current) return current
+      return current.filter((row) => row.id !== chamberId)
+    })
+    refreshLicenseSummary()
+  }
+
+  async function retryLoad() {
+    const results = await Promise.all([licenseQuery.refetch(), chambersQuery.refetch()])
+    if (results.some((result) => result.isError)) toast.error(t('licenseLoadFailed'))
+  }
 
   // A clinic that is not licensed for one doctor has no such page.
   if (licenseType === null || licenseType === 'chamber') return <Navigate to="/home" replace />
@@ -81,30 +127,49 @@ export function LicensePage() {
   }
 
   const date = new Intl.DateTimeFormat(locale === 'bn' ? 'bn-BD' : 'en-GB', { dateStyle: 'long' })
-  const full = loaded !== null && loaded.license.chambersUsed >= loaded.license.maxChambers
+  const full = license !== undefined && license.chambersUsed >= license.maxChambers
 
   return (
-    <div>
-      <PageHeader title={t('navLicense')} description={t('licenseIntro')} />
+    <div className="min-w-0">
+      <PageHeader
+        title={t('navChamber')}
+        description={t('licenseIntro')}
+        actions={
+          license ? (
+            <Tooltip label={t('chambersLimitReached', { max: license.maxChambers })}>
+              <LoadingButton
+                disabled={full}
+                onClick={() => setDialog({ kind: 'add' })}
+                className="inline-flex w-full min-w-0 items-center justify-center gap-2 !min-h-11 !py-2 sm:w-auto"
+              >
+                <span className="inline-flex min-w-0 items-center justify-center gap-2">
+                  <PlusIcon />
+                  <span className="truncate">{t('chambersAdd')}</span>
+                </span>
+              </LoadingButton>
+            </Tooltip>
+          ) : undefined
+        }
+      />
 
-      {failed && !loaded ? (
+      {failed ? (
         <Card className="text-center">
           <p className="text-sm">{t('licenseLoadFailed')}</p>
-          <button type="button" className={`${secondaryButton} mt-4`} onClick={() => void load()}>
+          <button type="button" className={`${secondaryButton} mt-4`} onClick={() => void retryLoad()}>
             {t('usersRetry')}
           </button>
         </Card>
-      ) : !loaded ? (
+      ) : loading || !license ? (
         <PagePreloader label={t('loadingLabel')} />
       ) : (
-        <div className="space-y-6">
-          <Card as="section" labelledBy="license-summary">
+        <div className="min-w-0 space-y-6">
+          <Card as="section" labelledBy="license-summary" className="min-w-0">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 id="license-summary" className="text-lg font-semibold">
                 {t('licenseSummaryTitle')}
               </h2>
-              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyle[loaded.license.status]}`}>
-                {t(statusKey[loaded.license.status])}
+              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyle[license.status]}`}>
+                {t(statusKey[license.status])}
               </span>
             </div>
             <dl className="mt-5 grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
@@ -114,16 +179,16 @@ export function LicensePage() {
               </div>
               <div>
                 <dt className="text-brand-navy/60 dark:text-white/60">{t('licenseDoctorsLabel')}</dt>
-                <dd className="mt-0.5 font-medium">{loaded.license.maxDoctors}</dd>
+                <dd className="mt-0.5 font-medium">{license.maxDoctors}</dd>
               </div>
               <div>
                 <dt className="text-brand-navy/60 dark:text-white/60">{t('licenseIssuedLabel')}</dt>
-                <dd className="mt-0.5 font-medium">{date.format(new Date(loaded.license.issuedAt))}</dd>
+                <dd className="mt-0.5 font-medium">{date.format(new Date(license.issuedAt))}</dd>
               </div>
               <div>
                 <dt className="text-brand-navy/60 dark:text-white/60">{t('licenseExpiresLabel')}</dt>
                 <dd className="mt-0.5 font-medium">
-                  {loaded.license.expiresAt ? date.format(new Date(loaded.license.expiresAt)) : t('licensePerpetual')}
+                  {license.expiresAt ? date.format(new Date(license.expiresAt)) : t('licensePerpetual')}
                 </dd>
               </div>
             </dl>
@@ -131,7 +196,7 @@ export function LicensePage() {
               <p className="flex items-baseline justify-between gap-3 text-sm">
                 <span className="text-brand-navy/60 dark:text-white/60">{t('licenseChambersLabel')}</span>
                 <span className="font-medium" data-testid="chambers-used">
-                  {t('licenseChambersUsed', { used: loaded.license.chambersUsed, max: loaded.license.maxChambers })}
+                  {t('licenseChambersUsed', { used: license.chambersUsed, max: license.maxChambers })}
                 </span>
               </p>
               <div
@@ -139,40 +204,26 @@ export function LicensePage() {
                 role="progressbar"
                 aria-label={t('licenseChambersLabel')}
                 aria-valuemin={0}
-                aria-valuemax={loaded.license.maxChambers}
-                aria-valuenow={loaded.license.chambersUsed}
+                aria-valuemax={license.maxChambers}
+                aria-valuenow={license.chambersUsed}
               >
                 <div
                   className={`h-full rounded-full ${full ? 'bg-brand-coral' : 'bg-emerald-500'}`}
-                  style={{ width: `${Math.min(100, (loaded.license.chambersUsed / loaded.license.maxChambers) * 100)}%` }}
+                  style={{ width: `${Math.min(100, (license.chambersUsed / license.maxChambers) * 100)}%` }}
                 />
               </div>
             </div>
           </Card>
 
-          <Card as="section" labelledBy="license-chambers" className="p-0 sm:p-0">
-            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4">
-              <h2 id="license-chambers" className="text-lg font-semibold">
-                {t('chambersTitle')}
-              </h2>
-              <Tooltip label={t('chambersLimitReached', { max: loaded.license.maxChambers })}>
-                <LoadingButton
-                  disabled={full}
-                  onClick={() => setDialog({ kind: 'add' })}
-                  className="inline-flex w-auto items-center justify-center gap-2 !min-h-11 !py-2"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <PlusIcon />
-                    {t('chambersAdd')}
-                  </span>
-                </LoadingButton>
-              </Tooltip>
-            </div>
-            {loaded.chambers.length === 0 ? (
-              <p className="px-4 pb-6 text-sm text-brand-navy/70 dark:text-white/70">{t('chambersEmpty')}</p>
+          <Card as="section" labelledBy="license-chambers" className="min-w-0 p-0 sm:p-0">
+            <h2 id="license-chambers" className="px-4 pt-4 text-lg font-semibold sm:px-6 sm:pt-6">
+              {t('chambersTitle')}
+            </h2>
+            {chambers.length === 0 ? (
+              <p className="px-4 pb-6 pt-2 text-sm text-brand-navy/70 sm:px-6 dark:text-white/70">{t('chambersEmpty')}</p>
             ) : (
               <ChambersTable
-                chambers={loaded.chambers}
+                chambers={chambers}
                 onEdit={(chamber) => setDialog({ kind: 'edit', chamber })}
                 onDelete={(chamber) => setDialog({ kind: 'delete', chamber })}
               />
@@ -184,10 +235,10 @@ export function LicensePage() {
       {dialog?.kind === 'add' ? (
         <ChamberFormModal
           onClose={() => setDialog(null)}
-          onLimit={() => void load()}
-          onSaved={() => {
+          onLimit={refreshLicenseSummary}
+          onSaved={(saved, created) => {
             setDialog(null)
-            void load()
+            mergeChamber(saved, created)
           }}
         />
       ) : null}
@@ -195,10 +246,10 @@ export function LicensePage() {
         <ChamberFormModal
           chamber={dialog.chamber}
           onClose={() => setDialog(null)}
-          onLimit={() => void load()}
-          onSaved={() => {
+          onLimit={refreshLicenseSummary}
+          onSaved={(saved, created) => {
             setDialog(null)
-            void load()
+            mergeChamber(saved, created)
           }}
         />
       ) : null}
@@ -208,7 +259,7 @@ export function LicensePage() {
           onClose={() => setDialog(null)}
           onDeleted={() => {
             setDialog(null)
-            void load()
+            dropChamber(dialog.chamber.id)
           }}
         />
       ) : null}

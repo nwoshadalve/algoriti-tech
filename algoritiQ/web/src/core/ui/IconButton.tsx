@@ -60,12 +60,14 @@ export function IconButton({
         className={[
           base,
           tones[tone],
-          labelOnSmall ? 'min-h-11 min-w-11 px-3 md:px-0' : 'min-h-11 min-w-11 md:min-h-10 md:min-w-10',
+          labelOnSmall
+            ? 'min-h-11 w-full min-w-0 justify-start px-3 md:w-auto md:min-w-11 md:justify-center md:px-0'
+            : 'min-h-11 min-w-11 md:min-h-10 md:min-w-10',
         ].join(' ')}
       >
         <Icon className="shrink-0" />
         {labelOnSmall ? (
-          <span aria-hidden="true" className="md:hidden">
+          <span aria-hidden="true" className="min-w-0 truncate text-left md:hidden">
             {label}
           </span>
         ) : null}

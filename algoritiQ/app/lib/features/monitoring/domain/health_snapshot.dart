@@ -12,6 +12,8 @@ enum HealthReason {
   serviceStopped('service_stopped'),
   batteryRestricted('battery_restricted'),
   printerNotSetUp('printer_not_set_up'),
+  printerConnecting('printer_connecting'),
+  printerDisconnected('printer_disconnected'),
   tvNotConnected('tv_not_connected'),
   bluetoothOff('bluetooth_off'),
   bluetoothMissing('bluetooth_missing'),

@@ -79,6 +79,21 @@ final class DriftClinicRepository implements ClinicRepository {
   }
 
   @override
+  Future<Chamber?> chamberById(String id) async {
+    final row = await (_db.select(
+      _db.chambers,
+    )..where((c) => c.id.equals(id))).getSingleOrNull();
+    if (row == null) return null;
+    return Chamber(
+      id: row.id,
+      doctorId: row.doctorId,
+      name: row.name,
+      location: row.location,
+      phone: row.phone,
+    );
+  }
+
+  @override
   Future<int> chamberCount() async {
     final count = _db.chambers.id.count();
     final query = _db.selectOnly(_db.chambers)..addColumns([count]);

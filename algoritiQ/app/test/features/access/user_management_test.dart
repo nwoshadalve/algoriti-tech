@@ -142,4 +142,119 @@ void main() {
     expect(await accounts.findCredentials('desk'), isNull);
     expect(await accounts.findAccountById(userId), isNotNull);
   });
+
+  test('should let any admin set a receptionist password', () async {
+    final created = await service.createUser(
+      admin: admin,
+      role: Role.receptionist,
+      username: 'desk',
+      firstName: 'Front',
+      lastName: 'Desk',
+      email: 'desk@clinic.test',
+      password: 'a-long-passphrase',
+      scopeIds: ['c1'],
+    );
+    final userId = (created as UserCreated).user.account.id;
+
+    final result = await service.setUserPassword(
+      admin: admin,
+      userId: userId,
+      password: 'another-long-pass',
+    );
+
+    expect(result, isA<UserPasswordSet>());
+    expect(await accounts.findCredentials('desk'), isNotNull);
+  });
+
+  test('should let the first admin set another admin password', () async {
+    final second = await service.createUser(
+      admin: admin,
+      role: Role.admin,
+      username: 'second',
+      firstName: 'Second',
+      lastName: 'Admin',
+      email: 'second@clinic.test',
+      password: 'a-long-passphrase',
+      scopeIds: [],
+    );
+    final userId = (second as UserCreated).user.account.id;
+
+    final result = await service.setUserPassword(
+      admin: admin,
+      userId: userId,
+      password: 'replacement-pass',
+    );
+
+    expect(result, isA<UserPasswordSet>());
+  });
+
+  test(
+    'should refuse when a later admin sets another admin password',
+    () async {
+      final second = await service.createUser(
+        admin: admin,
+        role: Role.admin,
+        username: 'second',
+        firstName: 'Second',
+        lastName: 'Admin',
+        email: 'second@clinic.test',
+        password: 'a-long-passphrase',
+        scopeIds: [],
+      );
+      final userId = (second as UserCreated).user.account.id;
+      final third = await service.createUser(
+        admin: admin,
+        role: Role.admin,
+        username: 'third',
+        firstName: 'Third',
+        lastName: 'Admin',
+        email: 'third@clinic.test',
+        password: 'a-long-passphrase',
+        scopeIds: [],
+      );
+      final laterAdmin = (third as UserCreated).user.account;
+
+      final result = await service.setUserPassword(
+        admin: laterAdmin,
+        userId: userId,
+        password: 'replacement-pass',
+      );
+
+      expect(result, isA<SetUserPasswordRefused>());
+      expect(
+        (result as SetUserPasswordRefused).problem,
+        SetUserPasswordProblem.forbidden,
+      );
+    },
+  );
+
+  test('should refuse disabling the first administrator', () async {
+    final second = await service.createUser(
+      admin: admin,
+      role: Role.admin,
+      username: 'second',
+      firstName: 'Second',
+      lastName: 'Admin',
+      email: 'second@clinic.test',
+      password: 'a-long-passphrase',
+      scopeIds: [],
+    );
+    final laterAdmin = (second as UserCreated).user.account;
+
+    final result = await service.updateUser(
+      admin: laterAdmin,
+      userId: admin.id,
+      firstName: admin.firstName,
+      lastName: admin.lastName,
+      email: admin.email,
+      phone: admin.phone,
+      status: 'inactive',
+    );
+
+    expect(result, isA<UpdateUserRefused>());
+    expect(
+      (result as UpdateUserRefused).problem,
+      UpdateUserProblem.cannotDisableInitialAdmin,
+    );
+  });
 }

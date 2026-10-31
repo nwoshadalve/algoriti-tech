@@ -15,6 +15,7 @@ import * as usersApi from '@/core/api/users'
 import * as workScopeApi from '@/core/api/workScope'
 import type { Account, ManagedUser, UsersContext, UsersPageResult } from '@/core/api/types'
 import { saveSession } from '@/features/auth/session'
+import { queryClient } from '@/core/query/queryClient'
 import { renderAppAt } from '@/test/render'
 
 const owner: Account = {
@@ -34,6 +35,7 @@ const context: UsersContext = {
   assignmentTarget: 'chamber',
   targets: [{ id: 'c1', name: 'Main chamber' }],
   onboarding: { needsAttention: true },
+  firstAdminId: 'a1',
 }
 
 function person(over: Partial<ManagedUser> & Pick<ManagedUser, 'id' | 'username'>): ManagedUser {
@@ -80,6 +82,7 @@ describe('users page', () => {
   let list: MockInstance<typeof usersApi.listUsers>
 
   beforeEach(() => {
+    queryClient.clear()
     vi.spyOn(setupApi, 'getSetupStatus').mockResolvedValue({
       adminRegistered: true,
       claimCodeRequired: false,
@@ -193,8 +196,8 @@ describe('users page', () => {
       list.mockResolvedValue(page([ownerRow, desk]))
       await user.click(screen.getByRole('button', { name: 'Clear filters' }))
 
-      await waitFor(() => expect(lastQuery().status).toBe(''))
       expect(await screen.findByText('Desk Staff')).toBeInTheDocument()
+      expect(screen.getByLabelText('Status', { selector: 'select' })).toHaveValue('')
     })
 
     it('should offer a retry when the list cannot be loaded', async () => {
@@ -408,6 +411,41 @@ describe('users page', () => {
       const dialog = await screen.findByRole('dialog', { name: 'Edit user' })
 
       expect(within(dialog).queryByRole('checkbox')).toBeNull()
+    })
+  })
+
+  describe('changing a password (popup)', () => {
+    it('should set a receptionist password and toast success', async () => {
+      const setPassword = vi.spyOn(usersApi, 'setUserPassword').mockResolvedValue(undefined)
+      const user = await open()
+
+      await user.click(screen.getByRole('button', { name: 'Change password: Desk Staff' }))
+      const dialog = await screen.findByRole('dialog', { name: 'Change password' })
+      await user.type(within(dialog).getByLabelText('New password'), 'long-passphrase')
+      await user.type(within(dialog).getByLabelText('Confirm new password'), 'long-passphrase')
+      await user.click(within(dialog).getByRole('button', { name: 'Save password' }))
+
+      await waitFor(() =>
+        expect(setPassword).toHaveBeenCalledWith('tok', 'r1', 'long-passphrase'),
+      )
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(
+        within(screen.getByLabelText('Notifications')).getByText('Password changed.'),
+      ).toBeInTheDocument()
+    })
+
+    it('should not offer change password for another admin when not the first admin', async () => {
+      vi.spyOn(authApi, 'getMe').mockResolvedValue({
+        ...owner,
+        id: 'a2',
+        username: 'second',
+      })
+      list.mockResolvedValue(page([person({ id: 'a3', username: 'third', role: 'admin' })]))
+      await open()
+
+      expect(
+        screen.queryByRole('button', { name: 'Change password: third' }),
+      ).not.toBeInTheDocument()
     })
   })
 

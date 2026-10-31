@@ -10,6 +10,7 @@ import type { Account } from '@/core/api/types'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import { useToast } from '@/core/toast/toastContext'
 import { Avatar } from '@/core/ui/Avatar'
+import type { PhotoSource } from '@/core/ui/useAvatarUrl'
 import { Card } from '@/core/ui/Card'
 import { CameraIcon, TrashIcon } from '@/core/ui/icons'
 import { IconButton } from '@/core/ui/IconButton'
@@ -21,7 +22,9 @@ type PhotoCardProps = {
   /** Who the picture is of: the initial shown while there is none. */
   person: Pick<Account, 'firstName' | 'displayName' | 'username' | 'photoVersion'>
   /** Where the picture is fetched from; the signed-in person's own by default. */
-  source?: (token: string) => Promise<Blob>
+  source?: PhotoSource
+  /** TanStack Query scope for the blob cache (default: signed-in account). */
+  photoScope?: string
   /** Sends the chosen square. Throws when it could not be saved. */
   onUpload: (square: Blob) => Promise<void>
   /** Throws when it could not be removed. */
@@ -29,7 +32,7 @@ type PhotoCardProps = {
 }
 
 /** A round photo with upload (through the crop popup) and remove, reporting in toasts. */
-export function PhotoCard({ title, person, source, onUpload, onRemove }: PhotoCardProps) {
+export function PhotoCard({ title, person, source, photoScope, onUpload, onRemove }: PhotoCardProps) {
   const { t } = useLocale()
   const toast = useToast()
   const headingId = useId()
@@ -91,7 +94,7 @@ export function PhotoCard({ title, person, source, onUpload, onRemove }: PhotoCa
         {title}
       </h2>
       <div className="mt-5 flex justify-center">
-        <Avatar account={person} size="xl" source={source} />
+        <Avatar account={person} size="xl" source={source} photoScope={photoScope} />
       </div>
       <p className="mt-4 text-sm text-brand-navy/70 dark:text-white/70">{t('settingsPhotoHelp')}</p>
 

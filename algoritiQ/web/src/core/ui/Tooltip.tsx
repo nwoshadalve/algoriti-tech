@@ -19,6 +19,22 @@ const HOVER_DELAY_MS = 350
 const GAP = 8
 const EDGE = 8
 
+/** Keyboard focus only — mouse clicks must not flash a tooltip when opening a popup. */
+function focusTargetShowsTooltip(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false
+  const el = target.matches('button, a, input, select, textarea, [tabindex]')
+    ? target
+    : target.querySelector<HTMLElement>('button, a, input, select, textarea, [tabindex]')
+  try {
+    return el?.matches(':focus-visible') ?? false
+  } catch {
+    return false
+  }
+}
+
+/** Every [Tooltip] listens; [Modal] fires this on open so nothing stays on screen. */
+export const TOOLTIP_DISMISS_EVENT = 'algoritiq:tooltip-dismiss'
+
 /**
  * A small label above (or below) a control, shown on hover after a short pause
  * and at once on keyboard focus. Escape, leaving, clicking or scrolling hides it.
@@ -33,6 +49,7 @@ export function Tooltip({ label, children, placement = 'top' }: TooltipProps) {
   const anchor = useRef<HTMLSpanElement>(null)
   const bubble = useRef<HTMLDivElement>(null)
   const timer = useRef<number | undefined>(undefined)
+  const blockHover = useRef(false)
   const [open, setOpen] = useState(false)
   const [position, setPosition] = useState<{ left: number; top: number } | null>(null)
 
@@ -48,6 +65,12 @@ export function Tooltip({ label, children, placement = 'top' }: TooltipProps) {
   }, [])
 
   useEffect(() => () => window.clearTimeout(timer.current), [])
+
+  useEffect(() => {
+    const dismiss = () => hide()
+    document.addEventListener(TOOLTIP_DISMISS_EVENT, dismiss)
+    return () => document.removeEventListener(TOOLTIP_DISMISS_EVENT, dismiss)
+  }, [hide])
 
   useEffect(() => {
     if (!open) return
@@ -85,9 +108,21 @@ export function Tooltip({ label, children, placement = 'top' }: TooltipProps) {
     <span
       ref={anchor}
       className="inline-flex"
-      onMouseEnter={() => show(HOVER_DELAY_MS)}
-      onMouseLeave={hide}
-      onFocus={() => show(0)}
+      onMouseEnter={() => {
+        if (blockHover.current) return
+        show(HOVER_DELAY_MS)
+      }}
+      onMouseLeave={() => {
+        blockHover.current = false
+        hide()
+      }}
+      onMouseDown={() => {
+        hide()
+        blockHover.current = true
+      }}
+      onFocus={(event) => {
+        if (focusTargetShowsTooltip(event.target)) show(0)
+      }}
       onBlur={hide}
       onClick={hide}
     >

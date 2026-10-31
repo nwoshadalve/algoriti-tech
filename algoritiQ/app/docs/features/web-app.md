@@ -60,6 +60,10 @@ The **theme** and **language** switches are in the fixed top bar on desktop and 
 - **Delete** asks first and says receptionists assigned to the chamber lose it. The **last chamber cannot be deleted**: its delete icon is disabled, with the reason in the tooltip.
 - A chamber license (one chamber, several doctors) has no such page; its screens come later together with diagnostic licenses.
 
+## Queue configuration
+
+`/config/queue` (admins only): choose a **chamber**, then add, edit, enable, or disable **that chamber's** queue types. New clinics start with three inherited template types (Regular, Report, Dressing and their default ranges — see [queue-configuration.md](../../../docs/features/queue-configuration.md)). The first save for a chamber creates a **chamber override**; other chambers are not changed. The page shows **Uses clinic defaults** or **Customized for this chamber**. Saves call `PATCH /queue/chambers/{chamberId}` with a `types` body, not clinic-wide defaults. Automatic stop time can differ per chamber via the policy editor. The web UI does not offer “use clinic defaults again”.
+
 ## Doctor page
 
 Only for a clinic licensed for **one doctor** (`GET /clinic` says `doctor`); the menu item and the `/doctor` route do not exist for a chamber license. An admin edits the doctor's name with title, degrees (one line, separated by commas, in the order to show), specialty, designation, workplace, registration number, and the photo (same crop popup as the profile photo; upload, change and remove are icon buttons with tooltips, and so is *discard changes*). The details are what the waiting-room screen shows. Diagnostic licenses will get their own pages later.

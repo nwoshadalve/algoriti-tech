@@ -9,7 +9,7 @@ import { useLocale } from '@/core/i18n/LocaleProvider'
 import { roleLabelKey } from '@/core/i18n/roleLabel'
 import type { MessageKey } from '@/core/i18n/messages/types'
 import { Avatar } from '@/core/ui/Avatar'
-import { ArrowUpIcon, BanIcon, CheckCircleIcon, PencilIcon } from '@/core/ui/icons'
+import { ArrowUpIcon, BanIcon, CheckCircleIcon, LockIcon, PencilIcon } from '@/core/ui/icons'
 import { IconButton } from '@/core/ui/IconButton'
 import type { ManagedUser, UserSort, UsersQuery } from '@/core/api/types'
 
@@ -18,6 +18,9 @@ type UsersTableProps = {
   query: UsersQuery
   onSort: (sort: UserSort) => void
   onEdit: (user: ManagedUser) => void
+  onSetPassword: (user: ManagedUser) => void
+  canSetPassword: (user: ManagedUser) => boolean
+  canDisable: (user: ManagedUser) => boolean
   onToggle: (user: ManagedUser) => void
 }
 
@@ -36,7 +39,7 @@ const cell =
  * The users as a table from `md` up. Below that the same markup stacks into
  * one card per person, and each value is labelled by its column.
  */
-export function UsersTable({ users, query, onSort, onEdit, onToggle }: UsersTableProps) {
+export function UsersTable({ users, query, onSort, onEdit, onSetPassword, canSetPassword, canDisable, onToggle }: UsersTableProps) {
   const { t, locale } = useLocale()
   const date = new Intl.DateTimeFormat(locale === 'bn' ? 'bn-BD' : 'en-GB', { dateStyle: 'medium' })
 
@@ -129,15 +132,26 @@ export function UsersTable({ users, query, onSort, onEdit, onToggle }: UsersTabl
                       labelOnSmall
                       onClick={() => onEdit(user)}
                     />
-                    {user.status === 'active' ? (
+                    {canSetPassword(user) ? (
                       <IconButton
-                        label={t('usersDisable')}
-                        ariaLabel={`${t('usersDisable')}: ${name}`}
-                        icon={BanIcon}
-                        tone="danger"
+                        label={t('usersPassword')}
+                        ariaLabel={`${t('usersPassword')}: ${name}`}
+                        icon={LockIcon}
                         labelOnSmall
-                        onClick={() => onToggle(user)}
+                        onClick={() => onSetPassword(user)}
                       />
+                    ) : null}
+                    {user.status === 'active' ? (
+                      canDisable(user) ? (
+                        <IconButton
+                          label={t('usersDisable')}
+                          ariaLabel={`${t('usersDisable')}: ${name}`}
+                          icon={BanIcon}
+                          tone="danger"
+                          labelOnSmall
+                          onClick={() => onToggle(user)}
+                        />
+                      ) : null
                     ) : (
                       <IconButton
                         label={t('usersEnable')}

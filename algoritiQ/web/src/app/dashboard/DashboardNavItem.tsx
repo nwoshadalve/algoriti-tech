@@ -6,15 +6,17 @@
  * or distribution is prohibited.
  */
 import { NavLink } from 'react-router-dom'
+import { dashboardNavLinkClass } from '@/app/dashboard/dashboardNavLinkStyles'
+import type { DashboardNavLink } from '@/app/dashboard/dashboardNav'
 import { useLocale } from '@/core/i18n/LocaleProvider'
-import type { DashboardNavItem as NavItemConfig } from '@/app/dashboard/dashboardNav'
 
 type DashboardNavItemProps = {
-  item: NavItemConfig
+  item: DashboardNavLink
+  nested?: boolean
   onNavigate?: () => void
 }
 
-export function DashboardNavItem({ item, onNavigate }: DashboardNavItemProps) {
+export function DashboardNavItem({ item, nested = false, onNavigate }: DashboardNavItemProps) {
   const { t } = useLocale()
   const Icon = item.icon
 
@@ -23,17 +25,9 @@ export function DashboardNavItem({ item, onNavigate }: DashboardNavItemProps) {
       to={item.to}
       end={item.end}
       onClick={onNavigate}
-      className={({ isActive }) =>
-        [
-          'group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
-          'focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:outline-none',
-          isActive
-            ? 'bg-brand-navy text-white dark:bg-white dark:text-brand-navy'
-            : 'text-brand-navy/75 hover:bg-brand-navy/5 hover:text-brand-navy dark:text-white/75 dark:hover:bg-white/10 dark:hover:text-white',
-        ].join(' ')
-      }
+      className={({ isActive }) => dashboardNavLinkClass(isActive, nested)}
     >
-      <Icon className="shrink-0" />
+      <Icon className={nested ? 'size-[18px] shrink-0 opacity-80' : 'shrink-0'} aria-hidden />
       <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span>
     </NavLink>
   )

@@ -3515,6 +3515,4043 @@ class PinDevicesCompanion extends UpdateCompanion<PinDeviceRow> {
   }
 }
 
+class $QueueTypesTable extends QueueTypes
+    with TableInfo<$QueueTypesTable, QueueTypeRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $QueueTypesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ownerKeyMeta = const VerificationMeta(
+    'ownerKey',
+  );
+  @override
+  late final GeneratedColumn<String> ownerKey = GeneratedColumn<String>(
+    'owner_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _englishNameMeta = const VerificationMeta(
+    'englishName',
+  );
+  @override
+  late final GeneratedColumn<String> englishName = GeneratedColumn<String>(
+    'english_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bengaliNameMeta = const VerificationMeta(
+    'bengaliName',
+  );
+  @override
+  late final GeneratedColumn<String> bengaliName = GeneratedColumn<String>(
+    'bengali_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startNumberMeta = const VerificationMeta(
+    'startNumber',
+  );
+  @override
+  late final GeneratedColumn<int> startNumber = GeneratedColumn<int>(
+    'start_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endNumberMeta = const VerificationMeta(
+    'endNumber',
+  );
+  @override
+  late final GeneratedColumn<int> endNumber = GeneratedColumn<int>(
+    'end_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _displayOrderMeta = const VerificationMeta(
+    'displayOrder',
+  );
+  @override
+  late final GeneratedColumn<int> displayOrder = GeneratedColumn<int>(
+    'display_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enabledMeta = const VerificationMeta(
+    'enabled',
+  );
+  @override
+  late final GeneratedColumn<bool> enabled = GeneratedColumn<bool>(
+    'enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    ownerKey,
+    englishName,
+    bengaliName,
+    startNumber,
+    endNumber,
+    displayOrder,
+    enabled,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'queue_types';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<QueueTypeRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('owner_key')) {
+      context.handle(
+        _ownerKeyMeta,
+        ownerKey.isAcceptableOrUnknown(data['owner_key']!, _ownerKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ownerKeyMeta);
+    }
+    if (data.containsKey('english_name')) {
+      context.handle(
+        _englishNameMeta,
+        englishName.isAcceptableOrUnknown(
+          data['english_name']!,
+          _englishNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_englishNameMeta);
+    }
+    if (data.containsKey('bengali_name')) {
+      context.handle(
+        _bengaliNameMeta,
+        bengaliName.isAcceptableOrUnknown(
+          data['bengali_name']!,
+          _bengaliNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_bengaliNameMeta);
+    }
+    if (data.containsKey('start_number')) {
+      context.handle(
+        _startNumberMeta,
+        startNumber.isAcceptableOrUnknown(
+          data['start_number']!,
+          _startNumberMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_startNumberMeta);
+    }
+    if (data.containsKey('end_number')) {
+      context.handle(
+        _endNumberMeta,
+        endNumber.isAcceptableOrUnknown(data['end_number']!, _endNumberMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endNumberMeta);
+    }
+    if (data.containsKey('display_order')) {
+      context.handle(
+        _displayOrderMeta,
+        displayOrder.isAcceptableOrUnknown(
+          data['display_order']!,
+          _displayOrderMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_displayOrderMeta);
+    }
+    if (data.containsKey('enabled')) {
+      context.handle(
+        _enabledMeta,
+        enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id, ownerKey};
+  @override
+  QueueTypeRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return QueueTypeRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      ownerKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_key'],
+      )!,
+      englishName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}english_name'],
+      )!,
+      bengaliName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bengali_name'],
+      )!,
+      startNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_number'],
+      )!,
+      endNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}end_number'],
+      )!,
+      displayOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}display_order'],
+      )!,
+      enabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}enabled'],
+      )!,
+    );
+  }
+
+  @override
+  $QueueTypesTable createAlias(String alias) {
+    return $QueueTypesTable(attachedDatabase, alias);
+  }
+}
+
+class QueueTypeRow extends DataClass implements Insertable<QueueTypeRow> {
+  final String id;
+  final String ownerKey;
+  final String englishName;
+  final String bengaliName;
+  final int startNumber;
+  final int endNumber;
+  final int displayOrder;
+  final bool enabled;
+  const QueueTypeRow({
+    required this.id,
+    required this.ownerKey,
+    required this.englishName,
+    required this.bengaliName,
+    required this.startNumber,
+    required this.endNumber,
+    required this.displayOrder,
+    required this.enabled,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['owner_key'] = Variable<String>(ownerKey);
+    map['english_name'] = Variable<String>(englishName);
+    map['bengali_name'] = Variable<String>(bengaliName);
+    map['start_number'] = Variable<int>(startNumber);
+    map['end_number'] = Variable<int>(endNumber);
+    map['display_order'] = Variable<int>(displayOrder);
+    map['enabled'] = Variable<bool>(enabled);
+    return map;
+  }
+
+  QueueTypesCompanion toCompanion(bool nullToAbsent) {
+    return QueueTypesCompanion(
+      id: Value(id),
+      ownerKey: Value(ownerKey),
+      englishName: Value(englishName),
+      bengaliName: Value(bengaliName),
+      startNumber: Value(startNumber),
+      endNumber: Value(endNumber),
+      displayOrder: Value(displayOrder),
+      enabled: Value(enabled),
+    );
+  }
+
+  factory QueueTypeRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return QueueTypeRow(
+      id: serializer.fromJson<String>(json['id']),
+      ownerKey: serializer.fromJson<String>(json['ownerKey']),
+      englishName: serializer.fromJson<String>(json['englishName']),
+      bengaliName: serializer.fromJson<String>(json['bengaliName']),
+      startNumber: serializer.fromJson<int>(json['startNumber']),
+      endNumber: serializer.fromJson<int>(json['endNumber']),
+      displayOrder: serializer.fromJson<int>(json['displayOrder']),
+      enabled: serializer.fromJson<bool>(json['enabled']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'ownerKey': serializer.toJson<String>(ownerKey),
+      'englishName': serializer.toJson<String>(englishName),
+      'bengaliName': serializer.toJson<String>(bengaliName),
+      'startNumber': serializer.toJson<int>(startNumber),
+      'endNumber': serializer.toJson<int>(endNumber),
+      'displayOrder': serializer.toJson<int>(displayOrder),
+      'enabled': serializer.toJson<bool>(enabled),
+    };
+  }
+
+  QueueTypeRow copyWith({
+    String? id,
+    String? ownerKey,
+    String? englishName,
+    String? bengaliName,
+    int? startNumber,
+    int? endNumber,
+    int? displayOrder,
+    bool? enabled,
+  }) => QueueTypeRow(
+    id: id ?? this.id,
+    ownerKey: ownerKey ?? this.ownerKey,
+    englishName: englishName ?? this.englishName,
+    bengaliName: bengaliName ?? this.bengaliName,
+    startNumber: startNumber ?? this.startNumber,
+    endNumber: endNumber ?? this.endNumber,
+    displayOrder: displayOrder ?? this.displayOrder,
+    enabled: enabled ?? this.enabled,
+  );
+  QueueTypeRow copyWithCompanion(QueueTypesCompanion data) {
+    return QueueTypeRow(
+      id: data.id.present ? data.id.value : this.id,
+      ownerKey: data.ownerKey.present ? data.ownerKey.value : this.ownerKey,
+      englishName: data.englishName.present
+          ? data.englishName.value
+          : this.englishName,
+      bengaliName: data.bengaliName.present
+          ? data.bengaliName.value
+          : this.bengaliName,
+      startNumber: data.startNumber.present
+          ? data.startNumber.value
+          : this.startNumber,
+      endNumber: data.endNumber.present ? data.endNumber.value : this.endNumber,
+      displayOrder: data.displayOrder.present
+          ? data.displayOrder.value
+          : this.displayOrder,
+      enabled: data.enabled.present ? data.enabled.value : this.enabled,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('QueueTypeRow(')
+          ..write('id: $id, ')
+          ..write('ownerKey: $ownerKey, ')
+          ..write('englishName: $englishName, ')
+          ..write('bengaliName: $bengaliName, ')
+          ..write('startNumber: $startNumber, ')
+          ..write('endNumber: $endNumber, ')
+          ..write('displayOrder: $displayOrder, ')
+          ..write('enabled: $enabled')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    ownerKey,
+    englishName,
+    bengaliName,
+    startNumber,
+    endNumber,
+    displayOrder,
+    enabled,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is QueueTypeRow &&
+          other.id == this.id &&
+          other.ownerKey == this.ownerKey &&
+          other.englishName == this.englishName &&
+          other.bengaliName == this.bengaliName &&
+          other.startNumber == this.startNumber &&
+          other.endNumber == this.endNumber &&
+          other.displayOrder == this.displayOrder &&
+          other.enabled == this.enabled);
+}
+
+class QueueTypesCompanion extends UpdateCompanion<QueueTypeRow> {
+  final Value<String> id;
+  final Value<String> ownerKey;
+  final Value<String> englishName;
+  final Value<String> bengaliName;
+  final Value<int> startNumber;
+  final Value<int> endNumber;
+  final Value<int> displayOrder;
+  final Value<bool> enabled;
+  final Value<int> rowid;
+  const QueueTypesCompanion({
+    this.id = const Value.absent(),
+    this.ownerKey = const Value.absent(),
+    this.englishName = const Value.absent(),
+    this.bengaliName = const Value.absent(),
+    this.startNumber = const Value.absent(),
+    this.endNumber = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.enabled = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  QueueTypesCompanion.insert({
+    required String id,
+    required String ownerKey,
+    required String englishName,
+    required String bengaliName,
+    required int startNumber,
+    required int endNumber,
+    required int displayOrder,
+    this.enabled = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       ownerKey = Value(ownerKey),
+       englishName = Value(englishName),
+       bengaliName = Value(bengaliName),
+       startNumber = Value(startNumber),
+       endNumber = Value(endNumber),
+       displayOrder = Value(displayOrder);
+  static Insertable<QueueTypeRow> custom({
+    Expression<String>? id,
+    Expression<String>? ownerKey,
+    Expression<String>? englishName,
+    Expression<String>? bengaliName,
+    Expression<int>? startNumber,
+    Expression<int>? endNumber,
+    Expression<int>? displayOrder,
+    Expression<bool>? enabled,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ownerKey != null) 'owner_key': ownerKey,
+      if (englishName != null) 'english_name': englishName,
+      if (bengaliName != null) 'bengali_name': bengaliName,
+      if (startNumber != null) 'start_number': startNumber,
+      if (endNumber != null) 'end_number': endNumber,
+      if (displayOrder != null) 'display_order': displayOrder,
+      if (enabled != null) 'enabled': enabled,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  QueueTypesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? ownerKey,
+    Value<String>? englishName,
+    Value<String>? bengaliName,
+    Value<int>? startNumber,
+    Value<int>? endNumber,
+    Value<int>? displayOrder,
+    Value<bool>? enabled,
+    Value<int>? rowid,
+  }) {
+    return QueueTypesCompanion(
+      id: id ?? this.id,
+      ownerKey: ownerKey ?? this.ownerKey,
+      englishName: englishName ?? this.englishName,
+      bengaliName: bengaliName ?? this.bengaliName,
+      startNumber: startNumber ?? this.startNumber,
+      endNumber: endNumber ?? this.endNumber,
+      displayOrder: displayOrder ?? this.displayOrder,
+      enabled: enabled ?? this.enabled,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ownerKey.present) {
+      map['owner_key'] = Variable<String>(ownerKey.value);
+    }
+    if (englishName.present) {
+      map['english_name'] = Variable<String>(englishName.value);
+    }
+    if (bengaliName.present) {
+      map['bengali_name'] = Variable<String>(bengaliName.value);
+    }
+    if (startNumber.present) {
+      map['start_number'] = Variable<int>(startNumber.value);
+    }
+    if (endNumber.present) {
+      map['end_number'] = Variable<int>(endNumber.value);
+    }
+    if (displayOrder.present) {
+      map['display_order'] = Variable<int>(displayOrder.value);
+    }
+    if (enabled.present) {
+      map['enabled'] = Variable<bool>(enabled.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('QueueTypesCompanion(')
+          ..write('id: $id, ')
+          ..write('ownerKey: $ownerKey, ')
+          ..write('englishName: $englishName, ')
+          ..write('bengaliName: $bengaliName, ')
+          ..write('startNumber: $startNumber, ')
+          ..write('endNumber: $endNumber, ')
+          ..write('displayOrder: $displayOrder, ')
+          ..write('enabled: $enabled, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $QueueSessionsTable extends QueueSessions
+    with TableInfo<$QueueSessionsTable, QueueSessionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $QueueSessionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _chamberIdMeta = const VerificationMeta(
+    'chamberId',
+  );
+  @override
+  late final GeneratedColumn<String> chamberId = GeneratedColumn<String>(
+    'chamber_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES chambers (id)',
+    ),
+  );
+  static const VerificationMeta _businessDateMeta = const VerificationMeta(
+    'businessDate',
+  );
+  @override
+  late final GeneratedColumn<String> businessDate = GeneratedColumn<String>(
+    'business_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _openedAtMeta = const VerificationMeta(
+    'openedAt',
+  );
+  @override
+  late final GeneratedColumn<int> openedAt = GeneratedColumn<int>(
+    'opened_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _openedByAccountIdMeta = const VerificationMeta(
+    'openedByAccountId',
+  );
+  @override
+  late final GeneratedColumn<String> openedByAccountId =
+      GeneratedColumn<String>(
+        'opened_by_account_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _closedAtMeta = const VerificationMeta(
+    'closedAt',
+  );
+  @override
+  late final GeneratedColumn<int> closedAt = GeneratedColumn<int>(
+    'closed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _closedByAccountIdMeta = const VerificationMeta(
+    'closedByAccountId',
+  );
+  @override
+  late final GeneratedColumn<String> closedByAccountId =
+      GeneratedColumn<String>(
+        'closed_by_account_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _closeReasonMeta = const VerificationMeta(
+    'closeReason',
+  );
+  @override
+  late final GeneratedColumn<String> closeReason = GeneratedColumn<String>(
+    'close_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _configSnapshotJsonMeta =
+      const VerificationMeta('configSnapshotJson');
+  @override
+  late final GeneratedColumn<String> configSnapshotJson =
+      GeneratedColumn<String>(
+        'config_snapshot_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    chamberId,
+    businessDate,
+    status,
+    openedAt,
+    openedByAccountId,
+    closedAt,
+    closedByAccountId,
+    closeReason,
+    configSnapshotJson,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'queue_sessions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<QueueSessionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('chamber_id')) {
+      context.handle(
+        _chamberIdMeta,
+        chamberId.isAcceptableOrUnknown(data['chamber_id']!, _chamberIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_chamberIdMeta);
+    }
+    if (data.containsKey('business_date')) {
+      context.handle(
+        _businessDateMeta,
+        businessDate.isAcceptableOrUnknown(
+          data['business_date']!,
+          _businessDateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_businessDateMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('opened_at')) {
+      context.handle(
+        _openedAtMeta,
+        openedAt.isAcceptableOrUnknown(data['opened_at']!, _openedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_openedAtMeta);
+    }
+    if (data.containsKey('opened_by_account_id')) {
+      context.handle(
+        _openedByAccountIdMeta,
+        openedByAccountId.isAcceptableOrUnknown(
+          data['opened_by_account_id']!,
+          _openedByAccountIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('closed_at')) {
+      context.handle(
+        _closedAtMeta,
+        closedAt.isAcceptableOrUnknown(data['closed_at']!, _closedAtMeta),
+      );
+    }
+    if (data.containsKey('closed_by_account_id')) {
+      context.handle(
+        _closedByAccountIdMeta,
+        closedByAccountId.isAcceptableOrUnknown(
+          data['closed_by_account_id']!,
+          _closedByAccountIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('close_reason')) {
+      context.handle(
+        _closeReasonMeta,
+        closeReason.isAcceptableOrUnknown(
+          data['close_reason']!,
+          _closeReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('config_snapshot_json')) {
+      context.handle(
+        _configSnapshotJsonMeta,
+        configSnapshotJson.isAcceptableOrUnknown(
+          data['config_snapshot_json']!,
+          _configSnapshotJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_configSnapshotJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  QueueSessionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return QueueSessionRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      chamberId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}chamber_id'],
+      )!,
+      businessDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}business_date'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      openedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}opened_at'],
+      )!,
+      openedByAccountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}opened_by_account_id'],
+      ),
+      closedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}closed_at'],
+      ),
+      closedByAccountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}closed_by_account_id'],
+      ),
+      closeReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}close_reason'],
+      ),
+      configSnapshotJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}config_snapshot_json'],
+      )!,
+    );
+  }
+
+  @override
+  $QueueSessionsTable createAlias(String alias) {
+    return $QueueSessionsTable(attachedDatabase, alias);
+  }
+}
+
+class QueueSessionRow extends DataClass implements Insertable<QueueSessionRow> {
+  final String id;
+  final String chamberId;
+  final String businessDate;
+  final String status;
+  final int openedAt;
+  final String? openedByAccountId;
+  final int? closedAt;
+  final String? closedByAccountId;
+  final String? closeReason;
+
+  /// Effective queue types and policy at open time (JSON).
+  final String configSnapshotJson;
+  const QueueSessionRow({
+    required this.id,
+    required this.chamberId,
+    required this.businessDate,
+    required this.status,
+    required this.openedAt,
+    this.openedByAccountId,
+    this.closedAt,
+    this.closedByAccountId,
+    this.closeReason,
+    required this.configSnapshotJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['chamber_id'] = Variable<String>(chamberId);
+    map['business_date'] = Variable<String>(businessDate);
+    map['status'] = Variable<String>(status);
+    map['opened_at'] = Variable<int>(openedAt);
+    if (!nullToAbsent || openedByAccountId != null) {
+      map['opened_by_account_id'] = Variable<String>(openedByAccountId);
+    }
+    if (!nullToAbsent || closedAt != null) {
+      map['closed_at'] = Variable<int>(closedAt);
+    }
+    if (!nullToAbsent || closedByAccountId != null) {
+      map['closed_by_account_id'] = Variable<String>(closedByAccountId);
+    }
+    if (!nullToAbsent || closeReason != null) {
+      map['close_reason'] = Variable<String>(closeReason);
+    }
+    map['config_snapshot_json'] = Variable<String>(configSnapshotJson);
+    return map;
+  }
+
+  QueueSessionsCompanion toCompanion(bool nullToAbsent) {
+    return QueueSessionsCompanion(
+      id: Value(id),
+      chamberId: Value(chamberId),
+      businessDate: Value(businessDate),
+      status: Value(status),
+      openedAt: Value(openedAt),
+      openedByAccountId: openedByAccountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(openedByAccountId),
+      closedAt: closedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(closedAt),
+      closedByAccountId: closedByAccountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(closedByAccountId),
+      closeReason: closeReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(closeReason),
+      configSnapshotJson: Value(configSnapshotJson),
+    );
+  }
+
+  factory QueueSessionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return QueueSessionRow(
+      id: serializer.fromJson<String>(json['id']),
+      chamberId: serializer.fromJson<String>(json['chamberId']),
+      businessDate: serializer.fromJson<String>(json['businessDate']),
+      status: serializer.fromJson<String>(json['status']),
+      openedAt: serializer.fromJson<int>(json['openedAt']),
+      openedByAccountId: serializer.fromJson<String?>(
+        json['openedByAccountId'],
+      ),
+      closedAt: serializer.fromJson<int?>(json['closedAt']),
+      closedByAccountId: serializer.fromJson<String?>(
+        json['closedByAccountId'],
+      ),
+      closeReason: serializer.fromJson<String?>(json['closeReason']),
+      configSnapshotJson: serializer.fromJson<String>(
+        json['configSnapshotJson'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'chamberId': serializer.toJson<String>(chamberId),
+      'businessDate': serializer.toJson<String>(businessDate),
+      'status': serializer.toJson<String>(status),
+      'openedAt': serializer.toJson<int>(openedAt),
+      'openedByAccountId': serializer.toJson<String?>(openedByAccountId),
+      'closedAt': serializer.toJson<int?>(closedAt),
+      'closedByAccountId': serializer.toJson<String?>(closedByAccountId),
+      'closeReason': serializer.toJson<String?>(closeReason),
+      'configSnapshotJson': serializer.toJson<String>(configSnapshotJson),
+    };
+  }
+
+  QueueSessionRow copyWith({
+    String? id,
+    String? chamberId,
+    String? businessDate,
+    String? status,
+    int? openedAt,
+    Value<String?> openedByAccountId = const Value.absent(),
+    Value<int?> closedAt = const Value.absent(),
+    Value<String?> closedByAccountId = const Value.absent(),
+    Value<String?> closeReason = const Value.absent(),
+    String? configSnapshotJson,
+  }) => QueueSessionRow(
+    id: id ?? this.id,
+    chamberId: chamberId ?? this.chamberId,
+    businessDate: businessDate ?? this.businessDate,
+    status: status ?? this.status,
+    openedAt: openedAt ?? this.openedAt,
+    openedByAccountId: openedByAccountId.present
+        ? openedByAccountId.value
+        : this.openedByAccountId,
+    closedAt: closedAt.present ? closedAt.value : this.closedAt,
+    closedByAccountId: closedByAccountId.present
+        ? closedByAccountId.value
+        : this.closedByAccountId,
+    closeReason: closeReason.present ? closeReason.value : this.closeReason,
+    configSnapshotJson: configSnapshotJson ?? this.configSnapshotJson,
+  );
+  QueueSessionRow copyWithCompanion(QueueSessionsCompanion data) {
+    return QueueSessionRow(
+      id: data.id.present ? data.id.value : this.id,
+      chamberId: data.chamberId.present ? data.chamberId.value : this.chamberId,
+      businessDate: data.businessDate.present
+          ? data.businessDate.value
+          : this.businessDate,
+      status: data.status.present ? data.status.value : this.status,
+      openedAt: data.openedAt.present ? data.openedAt.value : this.openedAt,
+      openedByAccountId: data.openedByAccountId.present
+          ? data.openedByAccountId.value
+          : this.openedByAccountId,
+      closedAt: data.closedAt.present ? data.closedAt.value : this.closedAt,
+      closedByAccountId: data.closedByAccountId.present
+          ? data.closedByAccountId.value
+          : this.closedByAccountId,
+      closeReason: data.closeReason.present
+          ? data.closeReason.value
+          : this.closeReason,
+      configSnapshotJson: data.configSnapshotJson.present
+          ? data.configSnapshotJson.value
+          : this.configSnapshotJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('QueueSessionRow(')
+          ..write('id: $id, ')
+          ..write('chamberId: $chamberId, ')
+          ..write('businessDate: $businessDate, ')
+          ..write('status: $status, ')
+          ..write('openedAt: $openedAt, ')
+          ..write('openedByAccountId: $openedByAccountId, ')
+          ..write('closedAt: $closedAt, ')
+          ..write('closedByAccountId: $closedByAccountId, ')
+          ..write('closeReason: $closeReason, ')
+          ..write('configSnapshotJson: $configSnapshotJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    chamberId,
+    businessDate,
+    status,
+    openedAt,
+    openedByAccountId,
+    closedAt,
+    closedByAccountId,
+    closeReason,
+    configSnapshotJson,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is QueueSessionRow &&
+          other.id == this.id &&
+          other.chamberId == this.chamberId &&
+          other.businessDate == this.businessDate &&
+          other.status == this.status &&
+          other.openedAt == this.openedAt &&
+          other.openedByAccountId == this.openedByAccountId &&
+          other.closedAt == this.closedAt &&
+          other.closedByAccountId == this.closedByAccountId &&
+          other.closeReason == this.closeReason &&
+          other.configSnapshotJson == this.configSnapshotJson);
+}
+
+class QueueSessionsCompanion extends UpdateCompanion<QueueSessionRow> {
+  final Value<String> id;
+  final Value<String> chamberId;
+  final Value<String> businessDate;
+  final Value<String> status;
+  final Value<int> openedAt;
+  final Value<String?> openedByAccountId;
+  final Value<int?> closedAt;
+  final Value<String?> closedByAccountId;
+  final Value<String?> closeReason;
+  final Value<String> configSnapshotJson;
+  final Value<int> rowid;
+  const QueueSessionsCompanion({
+    this.id = const Value.absent(),
+    this.chamberId = const Value.absent(),
+    this.businessDate = const Value.absent(),
+    this.status = const Value.absent(),
+    this.openedAt = const Value.absent(),
+    this.openedByAccountId = const Value.absent(),
+    this.closedAt = const Value.absent(),
+    this.closedByAccountId = const Value.absent(),
+    this.closeReason = const Value.absent(),
+    this.configSnapshotJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  QueueSessionsCompanion.insert({
+    required String id,
+    required String chamberId,
+    required String businessDate,
+    required String status,
+    required int openedAt,
+    this.openedByAccountId = const Value.absent(),
+    this.closedAt = const Value.absent(),
+    this.closedByAccountId = const Value.absent(),
+    this.closeReason = const Value.absent(),
+    required String configSnapshotJson,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       chamberId = Value(chamberId),
+       businessDate = Value(businessDate),
+       status = Value(status),
+       openedAt = Value(openedAt),
+       configSnapshotJson = Value(configSnapshotJson);
+  static Insertable<QueueSessionRow> custom({
+    Expression<String>? id,
+    Expression<String>? chamberId,
+    Expression<String>? businessDate,
+    Expression<String>? status,
+    Expression<int>? openedAt,
+    Expression<String>? openedByAccountId,
+    Expression<int>? closedAt,
+    Expression<String>? closedByAccountId,
+    Expression<String>? closeReason,
+    Expression<String>? configSnapshotJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (chamberId != null) 'chamber_id': chamberId,
+      if (businessDate != null) 'business_date': businessDate,
+      if (status != null) 'status': status,
+      if (openedAt != null) 'opened_at': openedAt,
+      if (openedByAccountId != null) 'opened_by_account_id': openedByAccountId,
+      if (closedAt != null) 'closed_at': closedAt,
+      if (closedByAccountId != null) 'closed_by_account_id': closedByAccountId,
+      if (closeReason != null) 'close_reason': closeReason,
+      if (configSnapshotJson != null)
+        'config_snapshot_json': configSnapshotJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  QueueSessionsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? chamberId,
+    Value<String>? businessDate,
+    Value<String>? status,
+    Value<int>? openedAt,
+    Value<String?>? openedByAccountId,
+    Value<int?>? closedAt,
+    Value<String?>? closedByAccountId,
+    Value<String?>? closeReason,
+    Value<String>? configSnapshotJson,
+    Value<int>? rowid,
+  }) {
+    return QueueSessionsCompanion(
+      id: id ?? this.id,
+      chamberId: chamberId ?? this.chamberId,
+      businessDate: businessDate ?? this.businessDate,
+      status: status ?? this.status,
+      openedAt: openedAt ?? this.openedAt,
+      openedByAccountId: openedByAccountId ?? this.openedByAccountId,
+      closedAt: closedAt ?? this.closedAt,
+      closedByAccountId: closedByAccountId ?? this.closedByAccountId,
+      closeReason: closeReason ?? this.closeReason,
+      configSnapshotJson: configSnapshotJson ?? this.configSnapshotJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (chamberId.present) {
+      map['chamber_id'] = Variable<String>(chamberId.value);
+    }
+    if (businessDate.present) {
+      map['business_date'] = Variable<String>(businessDate.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (openedAt.present) {
+      map['opened_at'] = Variable<int>(openedAt.value);
+    }
+    if (openedByAccountId.present) {
+      map['opened_by_account_id'] = Variable<String>(openedByAccountId.value);
+    }
+    if (closedAt.present) {
+      map['closed_at'] = Variable<int>(closedAt.value);
+    }
+    if (closedByAccountId.present) {
+      map['closed_by_account_id'] = Variable<String>(closedByAccountId.value);
+    }
+    if (closeReason.present) {
+      map['close_reason'] = Variable<String>(closeReason.value);
+    }
+    if (configSnapshotJson.present) {
+      map['config_snapshot_json'] = Variable<String>(configSnapshotJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('QueueSessionsCompanion(')
+          ..write('id: $id, ')
+          ..write('chamberId: $chamberId, ')
+          ..write('businessDate: $businessDate, ')
+          ..write('status: $status, ')
+          ..write('openedAt: $openedAt, ')
+          ..write('openedByAccountId: $openedByAccountId, ')
+          ..write('closedAt: $closedAt, ')
+          ..write('closedByAccountId: $closedByAccountId, ')
+          ..write('closeReason: $closeReason, ')
+          ..write('configSnapshotJson: $configSnapshotJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SessionQueueCountersTable extends SessionQueueCounters
+    with TableInfo<$SessionQueueCountersTable, SessionQueueCounterRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SessionQueueCountersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  @override
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES queue_sessions (id)',
+    ),
+  );
+  static const VerificationMeta _queueTypeIdMeta = const VerificationMeta(
+    'queueTypeId',
+  );
+  @override
+  late final GeneratedColumn<String> queueTypeId = GeneratedColumn<String>(
+    'queue_type_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nextNumberMeta = const VerificationMeta(
+    'nextNumber',
+  );
+  @override
+  late final GeneratedColumn<int> nextNumber = GeneratedColumn<int>(
+    'next_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _issuedCountMeta = const VerificationMeta(
+    'issuedCount',
+  );
+  @override
+  late final GeneratedColumn<int> issuedCount = GeneratedColumn<int>(
+    'issued_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    sessionId,
+    queueTypeId,
+    nextNumber,
+    issuedCount,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'session_queue_counters';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SessionQueueCounterRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('queue_type_id')) {
+      context.handle(
+        _queueTypeIdMeta,
+        queueTypeId.isAcceptableOrUnknown(
+          data['queue_type_id']!,
+          _queueTypeIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_queueTypeIdMeta);
+    }
+    if (data.containsKey('next_number')) {
+      context.handle(
+        _nextNumberMeta,
+        nextNumber.isAcceptableOrUnknown(data['next_number']!, _nextNumberMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nextNumberMeta);
+    }
+    if (data.containsKey('issued_count')) {
+      context.handle(
+        _issuedCountMeta,
+        issuedCount.isAcceptableOrUnknown(
+          data['issued_count']!,
+          _issuedCountMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {sessionId, queueTypeId};
+  @override
+  SessionQueueCounterRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SessionQueueCounterRow(
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}session_id'],
+      )!,
+      queueTypeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}queue_type_id'],
+      )!,
+      nextNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}next_number'],
+      )!,
+      issuedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}issued_count'],
+      )!,
+    );
+  }
+
+  @override
+  $SessionQueueCountersTable createAlias(String alias) {
+    return $SessionQueueCountersTable(attachedDatabase, alias);
+  }
+}
+
+class SessionQueueCounterRow extends DataClass
+    implements Insertable<SessionQueueCounterRow> {
+  final String sessionId;
+  final String queueTypeId;
+  final int nextNumber;
+  final int issuedCount;
+  const SessionQueueCounterRow({
+    required this.sessionId,
+    required this.queueTypeId,
+    required this.nextNumber,
+    required this.issuedCount,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['session_id'] = Variable<String>(sessionId);
+    map['queue_type_id'] = Variable<String>(queueTypeId);
+    map['next_number'] = Variable<int>(nextNumber);
+    map['issued_count'] = Variable<int>(issuedCount);
+    return map;
+  }
+
+  SessionQueueCountersCompanion toCompanion(bool nullToAbsent) {
+    return SessionQueueCountersCompanion(
+      sessionId: Value(sessionId),
+      queueTypeId: Value(queueTypeId),
+      nextNumber: Value(nextNumber),
+      issuedCount: Value(issuedCount),
+    );
+  }
+
+  factory SessionQueueCounterRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SessionQueueCounterRow(
+      sessionId: serializer.fromJson<String>(json['sessionId']),
+      queueTypeId: serializer.fromJson<String>(json['queueTypeId']),
+      nextNumber: serializer.fromJson<int>(json['nextNumber']),
+      issuedCount: serializer.fromJson<int>(json['issuedCount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'sessionId': serializer.toJson<String>(sessionId),
+      'queueTypeId': serializer.toJson<String>(queueTypeId),
+      'nextNumber': serializer.toJson<int>(nextNumber),
+      'issuedCount': serializer.toJson<int>(issuedCount),
+    };
+  }
+
+  SessionQueueCounterRow copyWith({
+    String? sessionId,
+    String? queueTypeId,
+    int? nextNumber,
+    int? issuedCount,
+  }) => SessionQueueCounterRow(
+    sessionId: sessionId ?? this.sessionId,
+    queueTypeId: queueTypeId ?? this.queueTypeId,
+    nextNumber: nextNumber ?? this.nextNumber,
+    issuedCount: issuedCount ?? this.issuedCount,
+  );
+  SessionQueueCounterRow copyWithCompanion(SessionQueueCountersCompanion data) {
+    return SessionQueueCounterRow(
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      queueTypeId: data.queueTypeId.present
+          ? data.queueTypeId.value
+          : this.queueTypeId,
+      nextNumber: data.nextNumber.present
+          ? data.nextNumber.value
+          : this.nextNumber,
+      issuedCount: data.issuedCount.present
+          ? data.issuedCount.value
+          : this.issuedCount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SessionQueueCounterRow(')
+          ..write('sessionId: $sessionId, ')
+          ..write('queueTypeId: $queueTypeId, ')
+          ..write('nextNumber: $nextNumber, ')
+          ..write('issuedCount: $issuedCount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(sessionId, queueTypeId, nextNumber, issuedCount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SessionQueueCounterRow &&
+          other.sessionId == this.sessionId &&
+          other.queueTypeId == this.queueTypeId &&
+          other.nextNumber == this.nextNumber &&
+          other.issuedCount == this.issuedCount);
+}
+
+class SessionQueueCountersCompanion
+    extends UpdateCompanion<SessionQueueCounterRow> {
+  final Value<String> sessionId;
+  final Value<String> queueTypeId;
+  final Value<int> nextNumber;
+  final Value<int> issuedCount;
+  final Value<int> rowid;
+  const SessionQueueCountersCompanion({
+    this.sessionId = const Value.absent(),
+    this.queueTypeId = const Value.absent(),
+    this.nextNumber = const Value.absent(),
+    this.issuedCount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SessionQueueCountersCompanion.insert({
+    required String sessionId,
+    required String queueTypeId,
+    required int nextNumber,
+    this.issuedCount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : sessionId = Value(sessionId),
+       queueTypeId = Value(queueTypeId),
+       nextNumber = Value(nextNumber);
+  static Insertable<SessionQueueCounterRow> custom({
+    Expression<String>? sessionId,
+    Expression<String>? queueTypeId,
+    Expression<int>? nextNumber,
+    Expression<int>? issuedCount,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (sessionId != null) 'session_id': sessionId,
+      if (queueTypeId != null) 'queue_type_id': queueTypeId,
+      if (nextNumber != null) 'next_number': nextNumber,
+      if (issuedCount != null) 'issued_count': issuedCount,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SessionQueueCountersCompanion copyWith({
+    Value<String>? sessionId,
+    Value<String>? queueTypeId,
+    Value<int>? nextNumber,
+    Value<int>? issuedCount,
+    Value<int>? rowid,
+  }) {
+    return SessionQueueCountersCompanion(
+      sessionId: sessionId ?? this.sessionId,
+      queueTypeId: queueTypeId ?? this.queueTypeId,
+      nextNumber: nextNumber ?? this.nextNumber,
+      issuedCount: issuedCount ?? this.issuedCount,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    if (queueTypeId.present) {
+      map['queue_type_id'] = Variable<String>(queueTypeId.value);
+    }
+    if (nextNumber.present) {
+      map['next_number'] = Variable<int>(nextNumber.value);
+    }
+    if (issuedCount.present) {
+      map['issued_count'] = Variable<int>(issuedCount.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SessionQueueCountersCompanion(')
+          ..write('sessionId: $sessionId, ')
+          ..write('queueTypeId: $queueTypeId, ')
+          ..write('nextNumber: $nextNumber, ')
+          ..write('issuedCount: $issuedCount, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PatientsTable extends Patients
+    with TableInfo<$PatientsTable, PatientRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PatientsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _patientNumberMeta = const VerificationMeta(
+    'patientNumber',
+  );
+  @override
+  late final GeneratedColumn<int> patientNumber = GeneratedColumn<int>(
+    'patient_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _bengaliNameMeta = const VerificationMeta(
+    'bengaliName',
+  );
+  @override
+  late final GeneratedColumn<String> bengaliName = GeneratedColumn<String>(
+    'bengali_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _englishNameMeta = const VerificationMeta(
+    'englishName',
+  );
+  @override
+  late final GeneratedColumn<String> englishName = GeneratedColumn<String>(
+    'english_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _phoneNormalizedMeta = const VerificationMeta(
+    'phoneNormalized',
+  );
+  @override
+  late final GeneratedColumn<String> phoneNormalized = GeneratedColumn<String>(
+    'phone_normalized',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _genderMeta = const VerificationMeta('gender');
+  @override
+  late final GeneratedColumn<String> gender = GeneratedColumn<String>(
+    'gender',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dateOfBirthMsMeta = const VerificationMeta(
+    'dateOfBirthMs',
+  );
+  @override
+  late final GeneratedColumn<int> dateOfBirthMs = GeneratedColumn<int>(
+    'date_of_birth_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _birthYearMeta = const VerificationMeta(
+    'birthYear',
+  );
+  @override
+  late final GeneratedColumn<int> birthYear = GeneratedColumn<int>(
+    'birth_year',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _approximateAgeYearsMeta =
+      const VerificationMeta('approximateAgeYears');
+  @override
+  late final GeneratedColumn<int> approximateAgeYears = GeneratedColumn<int>(
+    'approximate_age_years',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _approximateAgeRecordedAtMeta =
+      const VerificationMeta('approximateAgeRecordedAt');
+  @override
+  late final GeneratedColumn<int> approximateAgeRecordedAt =
+      GeneratedColumn<int>(
+        'approximate_age_recorded_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _localityMeta = const VerificationMeta(
+    'locality',
+  );
+  @override
+  late final GeneratedColumn<String> locality = GeneratedColumn<String>(
+    'locality',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _legacyFileNumberMeta = const VerificationMeta(
+    'legacyFileNumber',
+  );
+  @override
+  late final GeneratedColumn<String> legacyFileNumber = GeneratedColumn<String>(
+    'legacy_file_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _adminNoteMeta = const VerificationMeta(
+    'adminNote',
+  );
+  @override
+  late final GeneratedColumn<String> adminNote = GeneratedColumn<String>(
+    'admin_note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hasPaperFileMeta = const VerificationMeta(
+    'hasPaperFile',
+  );
+  @override
+  late final GeneratedColumn<bool> hasPaperFile = GeneratedColumn<bool>(
+    'has_paper_file',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("has_paper_file" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    patientNumber,
+    bengaliName,
+    englishName,
+    phoneNormalized,
+    gender,
+    dateOfBirthMs,
+    birthYear,
+    approximateAgeYears,
+    approximateAgeRecordedAt,
+    locality,
+    legacyFileNumber,
+    adminNote,
+    hasPaperFile,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'patients';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PatientRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('patient_number')) {
+      context.handle(
+        _patientNumberMeta,
+        patientNumber.isAcceptableOrUnknown(
+          data['patient_number']!,
+          _patientNumberMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_patientNumberMeta);
+    }
+    if (data.containsKey('bengali_name')) {
+      context.handle(
+        _bengaliNameMeta,
+        bengaliName.isAcceptableOrUnknown(
+          data['bengali_name']!,
+          _bengaliNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_bengaliNameMeta);
+    }
+    if (data.containsKey('english_name')) {
+      context.handle(
+        _englishNameMeta,
+        englishName.isAcceptableOrUnknown(
+          data['english_name']!,
+          _englishNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('phone_normalized')) {
+      context.handle(
+        _phoneNormalizedMeta,
+        phoneNormalized.isAcceptableOrUnknown(
+          data['phone_normalized']!,
+          _phoneNormalizedMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_phoneNormalizedMeta);
+    }
+    if (data.containsKey('gender')) {
+      context.handle(
+        _genderMeta,
+        gender.isAcceptableOrUnknown(data['gender']!, _genderMeta),
+      );
+    }
+    if (data.containsKey('date_of_birth_ms')) {
+      context.handle(
+        _dateOfBirthMsMeta,
+        dateOfBirthMs.isAcceptableOrUnknown(
+          data['date_of_birth_ms']!,
+          _dateOfBirthMsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('birth_year')) {
+      context.handle(
+        _birthYearMeta,
+        birthYear.isAcceptableOrUnknown(data['birth_year']!, _birthYearMeta),
+      );
+    }
+    if (data.containsKey('approximate_age_years')) {
+      context.handle(
+        _approximateAgeYearsMeta,
+        approximateAgeYears.isAcceptableOrUnknown(
+          data['approximate_age_years']!,
+          _approximateAgeYearsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('approximate_age_recorded_at')) {
+      context.handle(
+        _approximateAgeRecordedAtMeta,
+        approximateAgeRecordedAt.isAcceptableOrUnknown(
+          data['approximate_age_recorded_at']!,
+          _approximateAgeRecordedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('locality')) {
+      context.handle(
+        _localityMeta,
+        locality.isAcceptableOrUnknown(data['locality']!, _localityMeta),
+      );
+    }
+    if (data.containsKey('legacy_file_number')) {
+      context.handle(
+        _legacyFileNumberMeta,
+        legacyFileNumber.isAcceptableOrUnknown(
+          data['legacy_file_number']!,
+          _legacyFileNumberMeta,
+        ),
+      );
+    }
+    if (data.containsKey('admin_note')) {
+      context.handle(
+        _adminNoteMeta,
+        adminNote.isAcceptableOrUnknown(data['admin_note']!, _adminNoteMeta),
+      );
+    }
+    if (data.containsKey('has_paper_file')) {
+      context.handle(
+        _hasPaperFileMeta,
+        hasPaperFile.isAcceptableOrUnknown(
+          data['has_paper_file']!,
+          _hasPaperFileMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PatientRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PatientRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      patientNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}patient_number'],
+      )!,
+      bengaliName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bengali_name'],
+      )!,
+      englishName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}english_name'],
+      ),
+      phoneNormalized: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phone_normalized'],
+      )!,
+      gender: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}gender'],
+      ),
+      dateOfBirthMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}date_of_birth_ms'],
+      ),
+      birthYear: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}birth_year'],
+      ),
+      approximateAgeYears: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}approximate_age_years'],
+      ),
+      approximateAgeRecordedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}approximate_age_recorded_at'],
+      ),
+      locality: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}locality'],
+      ),
+      legacyFileNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}legacy_file_number'],
+      ),
+      adminNote: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}admin_note'],
+      ),
+      hasPaperFile: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}has_paper_file'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PatientsTable createAlias(String alias) {
+    return $PatientsTable(attachedDatabase, alias);
+  }
+}
+
+class PatientRow extends DataClass implements Insertable<PatientRow> {
+  final String id;
+  final int patientNumber;
+  final String bengaliName;
+  final String? englishName;
+  final String phoneNormalized;
+  final String? gender;
+  final int? dateOfBirthMs;
+  final int? birthYear;
+  final int? approximateAgeYears;
+  final int? approximateAgeRecordedAt;
+  final String? locality;
+  final String? legacyFileNumber;
+  final String? adminNote;
+  final bool hasPaperFile;
+  final int createdAt;
+  const PatientRow({
+    required this.id,
+    required this.patientNumber,
+    required this.bengaliName,
+    this.englishName,
+    required this.phoneNormalized,
+    this.gender,
+    this.dateOfBirthMs,
+    this.birthYear,
+    this.approximateAgeYears,
+    this.approximateAgeRecordedAt,
+    this.locality,
+    this.legacyFileNumber,
+    this.adminNote,
+    required this.hasPaperFile,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['patient_number'] = Variable<int>(patientNumber);
+    map['bengali_name'] = Variable<String>(bengaliName);
+    if (!nullToAbsent || englishName != null) {
+      map['english_name'] = Variable<String>(englishName);
+    }
+    map['phone_normalized'] = Variable<String>(phoneNormalized);
+    if (!nullToAbsent || gender != null) {
+      map['gender'] = Variable<String>(gender);
+    }
+    if (!nullToAbsent || dateOfBirthMs != null) {
+      map['date_of_birth_ms'] = Variable<int>(dateOfBirthMs);
+    }
+    if (!nullToAbsent || birthYear != null) {
+      map['birth_year'] = Variable<int>(birthYear);
+    }
+    if (!nullToAbsent || approximateAgeYears != null) {
+      map['approximate_age_years'] = Variable<int>(approximateAgeYears);
+    }
+    if (!nullToAbsent || approximateAgeRecordedAt != null) {
+      map['approximate_age_recorded_at'] = Variable<int>(
+        approximateAgeRecordedAt,
+      );
+    }
+    if (!nullToAbsent || locality != null) {
+      map['locality'] = Variable<String>(locality);
+    }
+    if (!nullToAbsent || legacyFileNumber != null) {
+      map['legacy_file_number'] = Variable<String>(legacyFileNumber);
+    }
+    if (!nullToAbsent || adminNote != null) {
+      map['admin_note'] = Variable<String>(adminNote);
+    }
+    map['has_paper_file'] = Variable<bool>(hasPaperFile);
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  PatientsCompanion toCompanion(bool nullToAbsent) {
+    return PatientsCompanion(
+      id: Value(id),
+      patientNumber: Value(patientNumber),
+      bengaliName: Value(bengaliName),
+      englishName: englishName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(englishName),
+      phoneNormalized: Value(phoneNormalized),
+      gender: gender == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gender),
+      dateOfBirthMs: dateOfBirthMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dateOfBirthMs),
+      birthYear: birthYear == null && nullToAbsent
+          ? const Value.absent()
+          : Value(birthYear),
+      approximateAgeYears: approximateAgeYears == null && nullToAbsent
+          ? const Value.absent()
+          : Value(approximateAgeYears),
+      approximateAgeRecordedAt: approximateAgeRecordedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(approximateAgeRecordedAt),
+      locality: locality == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locality),
+      legacyFileNumber: legacyFileNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(legacyFileNumber),
+      adminNote: adminNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(adminNote),
+      hasPaperFile: Value(hasPaperFile),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PatientRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PatientRow(
+      id: serializer.fromJson<String>(json['id']),
+      patientNumber: serializer.fromJson<int>(json['patientNumber']),
+      bengaliName: serializer.fromJson<String>(json['bengaliName']),
+      englishName: serializer.fromJson<String?>(json['englishName']),
+      phoneNormalized: serializer.fromJson<String>(json['phoneNormalized']),
+      gender: serializer.fromJson<String?>(json['gender']),
+      dateOfBirthMs: serializer.fromJson<int?>(json['dateOfBirthMs']),
+      birthYear: serializer.fromJson<int?>(json['birthYear']),
+      approximateAgeYears: serializer.fromJson<int?>(
+        json['approximateAgeYears'],
+      ),
+      approximateAgeRecordedAt: serializer.fromJson<int?>(
+        json['approximateAgeRecordedAt'],
+      ),
+      locality: serializer.fromJson<String?>(json['locality']),
+      legacyFileNumber: serializer.fromJson<String?>(json['legacyFileNumber']),
+      adminNote: serializer.fromJson<String?>(json['adminNote']),
+      hasPaperFile: serializer.fromJson<bool>(json['hasPaperFile']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'patientNumber': serializer.toJson<int>(patientNumber),
+      'bengaliName': serializer.toJson<String>(bengaliName),
+      'englishName': serializer.toJson<String?>(englishName),
+      'phoneNormalized': serializer.toJson<String>(phoneNormalized),
+      'gender': serializer.toJson<String?>(gender),
+      'dateOfBirthMs': serializer.toJson<int?>(dateOfBirthMs),
+      'birthYear': serializer.toJson<int?>(birthYear),
+      'approximateAgeYears': serializer.toJson<int?>(approximateAgeYears),
+      'approximateAgeRecordedAt': serializer.toJson<int?>(
+        approximateAgeRecordedAt,
+      ),
+      'locality': serializer.toJson<String?>(locality),
+      'legacyFileNumber': serializer.toJson<String?>(legacyFileNumber),
+      'adminNote': serializer.toJson<String?>(adminNote),
+      'hasPaperFile': serializer.toJson<bool>(hasPaperFile),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  PatientRow copyWith({
+    String? id,
+    int? patientNumber,
+    String? bengaliName,
+    Value<String?> englishName = const Value.absent(),
+    String? phoneNormalized,
+    Value<String?> gender = const Value.absent(),
+    Value<int?> dateOfBirthMs = const Value.absent(),
+    Value<int?> birthYear = const Value.absent(),
+    Value<int?> approximateAgeYears = const Value.absent(),
+    Value<int?> approximateAgeRecordedAt = const Value.absent(),
+    Value<String?> locality = const Value.absent(),
+    Value<String?> legacyFileNumber = const Value.absent(),
+    Value<String?> adminNote = const Value.absent(),
+    bool? hasPaperFile,
+    int? createdAt,
+  }) => PatientRow(
+    id: id ?? this.id,
+    patientNumber: patientNumber ?? this.patientNumber,
+    bengaliName: bengaliName ?? this.bengaliName,
+    englishName: englishName.present ? englishName.value : this.englishName,
+    phoneNormalized: phoneNormalized ?? this.phoneNormalized,
+    gender: gender.present ? gender.value : this.gender,
+    dateOfBirthMs: dateOfBirthMs.present
+        ? dateOfBirthMs.value
+        : this.dateOfBirthMs,
+    birthYear: birthYear.present ? birthYear.value : this.birthYear,
+    approximateAgeYears: approximateAgeYears.present
+        ? approximateAgeYears.value
+        : this.approximateAgeYears,
+    approximateAgeRecordedAt: approximateAgeRecordedAt.present
+        ? approximateAgeRecordedAt.value
+        : this.approximateAgeRecordedAt,
+    locality: locality.present ? locality.value : this.locality,
+    legacyFileNumber: legacyFileNumber.present
+        ? legacyFileNumber.value
+        : this.legacyFileNumber,
+    adminNote: adminNote.present ? adminNote.value : this.adminNote,
+    hasPaperFile: hasPaperFile ?? this.hasPaperFile,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  PatientRow copyWithCompanion(PatientsCompanion data) {
+    return PatientRow(
+      id: data.id.present ? data.id.value : this.id,
+      patientNumber: data.patientNumber.present
+          ? data.patientNumber.value
+          : this.patientNumber,
+      bengaliName: data.bengaliName.present
+          ? data.bengaliName.value
+          : this.bengaliName,
+      englishName: data.englishName.present
+          ? data.englishName.value
+          : this.englishName,
+      phoneNormalized: data.phoneNormalized.present
+          ? data.phoneNormalized.value
+          : this.phoneNormalized,
+      gender: data.gender.present ? data.gender.value : this.gender,
+      dateOfBirthMs: data.dateOfBirthMs.present
+          ? data.dateOfBirthMs.value
+          : this.dateOfBirthMs,
+      birthYear: data.birthYear.present ? data.birthYear.value : this.birthYear,
+      approximateAgeYears: data.approximateAgeYears.present
+          ? data.approximateAgeYears.value
+          : this.approximateAgeYears,
+      approximateAgeRecordedAt: data.approximateAgeRecordedAt.present
+          ? data.approximateAgeRecordedAt.value
+          : this.approximateAgeRecordedAt,
+      locality: data.locality.present ? data.locality.value : this.locality,
+      legacyFileNumber: data.legacyFileNumber.present
+          ? data.legacyFileNumber.value
+          : this.legacyFileNumber,
+      adminNote: data.adminNote.present ? data.adminNote.value : this.adminNote,
+      hasPaperFile: data.hasPaperFile.present
+          ? data.hasPaperFile.value
+          : this.hasPaperFile,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PatientRow(')
+          ..write('id: $id, ')
+          ..write('patientNumber: $patientNumber, ')
+          ..write('bengaliName: $bengaliName, ')
+          ..write('englishName: $englishName, ')
+          ..write('phoneNormalized: $phoneNormalized, ')
+          ..write('gender: $gender, ')
+          ..write('dateOfBirthMs: $dateOfBirthMs, ')
+          ..write('birthYear: $birthYear, ')
+          ..write('approximateAgeYears: $approximateAgeYears, ')
+          ..write('approximateAgeRecordedAt: $approximateAgeRecordedAt, ')
+          ..write('locality: $locality, ')
+          ..write('legacyFileNumber: $legacyFileNumber, ')
+          ..write('adminNote: $adminNote, ')
+          ..write('hasPaperFile: $hasPaperFile, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    patientNumber,
+    bengaliName,
+    englishName,
+    phoneNormalized,
+    gender,
+    dateOfBirthMs,
+    birthYear,
+    approximateAgeYears,
+    approximateAgeRecordedAt,
+    locality,
+    legacyFileNumber,
+    adminNote,
+    hasPaperFile,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PatientRow &&
+          other.id == this.id &&
+          other.patientNumber == this.patientNumber &&
+          other.bengaliName == this.bengaliName &&
+          other.englishName == this.englishName &&
+          other.phoneNormalized == this.phoneNormalized &&
+          other.gender == this.gender &&
+          other.dateOfBirthMs == this.dateOfBirthMs &&
+          other.birthYear == this.birthYear &&
+          other.approximateAgeYears == this.approximateAgeYears &&
+          other.approximateAgeRecordedAt == this.approximateAgeRecordedAt &&
+          other.locality == this.locality &&
+          other.legacyFileNumber == this.legacyFileNumber &&
+          other.adminNote == this.adminNote &&
+          other.hasPaperFile == this.hasPaperFile &&
+          other.createdAt == this.createdAt);
+}
+
+class PatientsCompanion extends UpdateCompanion<PatientRow> {
+  final Value<String> id;
+  final Value<int> patientNumber;
+  final Value<String> bengaliName;
+  final Value<String?> englishName;
+  final Value<String> phoneNormalized;
+  final Value<String?> gender;
+  final Value<int?> dateOfBirthMs;
+  final Value<int?> birthYear;
+  final Value<int?> approximateAgeYears;
+  final Value<int?> approximateAgeRecordedAt;
+  final Value<String?> locality;
+  final Value<String?> legacyFileNumber;
+  final Value<String?> adminNote;
+  final Value<bool> hasPaperFile;
+  final Value<int> createdAt;
+  final Value<int> rowid;
+  const PatientsCompanion({
+    this.id = const Value.absent(),
+    this.patientNumber = const Value.absent(),
+    this.bengaliName = const Value.absent(),
+    this.englishName = const Value.absent(),
+    this.phoneNormalized = const Value.absent(),
+    this.gender = const Value.absent(),
+    this.dateOfBirthMs = const Value.absent(),
+    this.birthYear = const Value.absent(),
+    this.approximateAgeYears = const Value.absent(),
+    this.approximateAgeRecordedAt = const Value.absent(),
+    this.locality = const Value.absent(),
+    this.legacyFileNumber = const Value.absent(),
+    this.adminNote = const Value.absent(),
+    this.hasPaperFile = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PatientsCompanion.insert({
+    required String id,
+    required int patientNumber,
+    required String bengaliName,
+    this.englishName = const Value.absent(),
+    required String phoneNormalized,
+    this.gender = const Value.absent(),
+    this.dateOfBirthMs = const Value.absent(),
+    this.birthYear = const Value.absent(),
+    this.approximateAgeYears = const Value.absent(),
+    this.approximateAgeRecordedAt = const Value.absent(),
+    this.locality = const Value.absent(),
+    this.legacyFileNumber = const Value.absent(),
+    this.adminNote = const Value.absent(),
+    this.hasPaperFile = const Value.absent(),
+    required int createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       patientNumber = Value(patientNumber),
+       bengaliName = Value(bengaliName),
+       phoneNormalized = Value(phoneNormalized),
+       createdAt = Value(createdAt);
+  static Insertable<PatientRow> custom({
+    Expression<String>? id,
+    Expression<int>? patientNumber,
+    Expression<String>? bengaliName,
+    Expression<String>? englishName,
+    Expression<String>? phoneNormalized,
+    Expression<String>? gender,
+    Expression<int>? dateOfBirthMs,
+    Expression<int>? birthYear,
+    Expression<int>? approximateAgeYears,
+    Expression<int>? approximateAgeRecordedAt,
+    Expression<String>? locality,
+    Expression<String>? legacyFileNumber,
+    Expression<String>? adminNote,
+    Expression<bool>? hasPaperFile,
+    Expression<int>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (patientNumber != null) 'patient_number': patientNumber,
+      if (bengaliName != null) 'bengali_name': bengaliName,
+      if (englishName != null) 'english_name': englishName,
+      if (phoneNormalized != null) 'phone_normalized': phoneNormalized,
+      if (gender != null) 'gender': gender,
+      if (dateOfBirthMs != null) 'date_of_birth_ms': dateOfBirthMs,
+      if (birthYear != null) 'birth_year': birthYear,
+      if (approximateAgeYears != null)
+        'approximate_age_years': approximateAgeYears,
+      if (approximateAgeRecordedAt != null)
+        'approximate_age_recorded_at': approximateAgeRecordedAt,
+      if (locality != null) 'locality': locality,
+      if (legacyFileNumber != null) 'legacy_file_number': legacyFileNumber,
+      if (adminNote != null) 'admin_note': adminNote,
+      if (hasPaperFile != null) 'has_paper_file': hasPaperFile,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PatientsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? patientNumber,
+    Value<String>? bengaliName,
+    Value<String?>? englishName,
+    Value<String>? phoneNormalized,
+    Value<String?>? gender,
+    Value<int?>? dateOfBirthMs,
+    Value<int?>? birthYear,
+    Value<int?>? approximateAgeYears,
+    Value<int?>? approximateAgeRecordedAt,
+    Value<String?>? locality,
+    Value<String?>? legacyFileNumber,
+    Value<String?>? adminNote,
+    Value<bool>? hasPaperFile,
+    Value<int>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return PatientsCompanion(
+      id: id ?? this.id,
+      patientNumber: patientNumber ?? this.patientNumber,
+      bengaliName: bengaliName ?? this.bengaliName,
+      englishName: englishName ?? this.englishName,
+      phoneNormalized: phoneNormalized ?? this.phoneNormalized,
+      gender: gender ?? this.gender,
+      dateOfBirthMs: dateOfBirthMs ?? this.dateOfBirthMs,
+      birthYear: birthYear ?? this.birthYear,
+      approximateAgeYears: approximateAgeYears ?? this.approximateAgeYears,
+      approximateAgeRecordedAt:
+          approximateAgeRecordedAt ?? this.approximateAgeRecordedAt,
+      locality: locality ?? this.locality,
+      legacyFileNumber: legacyFileNumber ?? this.legacyFileNumber,
+      adminNote: adminNote ?? this.adminNote,
+      hasPaperFile: hasPaperFile ?? this.hasPaperFile,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (patientNumber.present) {
+      map['patient_number'] = Variable<int>(patientNumber.value);
+    }
+    if (bengaliName.present) {
+      map['bengali_name'] = Variable<String>(bengaliName.value);
+    }
+    if (englishName.present) {
+      map['english_name'] = Variable<String>(englishName.value);
+    }
+    if (phoneNormalized.present) {
+      map['phone_normalized'] = Variable<String>(phoneNormalized.value);
+    }
+    if (gender.present) {
+      map['gender'] = Variable<String>(gender.value);
+    }
+    if (dateOfBirthMs.present) {
+      map['date_of_birth_ms'] = Variable<int>(dateOfBirthMs.value);
+    }
+    if (birthYear.present) {
+      map['birth_year'] = Variable<int>(birthYear.value);
+    }
+    if (approximateAgeYears.present) {
+      map['approximate_age_years'] = Variable<int>(approximateAgeYears.value);
+    }
+    if (approximateAgeRecordedAt.present) {
+      map['approximate_age_recorded_at'] = Variable<int>(
+        approximateAgeRecordedAt.value,
+      );
+    }
+    if (locality.present) {
+      map['locality'] = Variable<String>(locality.value);
+    }
+    if (legacyFileNumber.present) {
+      map['legacy_file_number'] = Variable<String>(legacyFileNumber.value);
+    }
+    if (adminNote.present) {
+      map['admin_note'] = Variable<String>(adminNote.value);
+    }
+    if (hasPaperFile.present) {
+      map['has_paper_file'] = Variable<bool>(hasPaperFile.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PatientsCompanion(')
+          ..write('id: $id, ')
+          ..write('patientNumber: $patientNumber, ')
+          ..write('bengaliName: $bengaliName, ')
+          ..write('englishName: $englishName, ')
+          ..write('phoneNormalized: $phoneNormalized, ')
+          ..write('gender: $gender, ')
+          ..write('dateOfBirthMs: $dateOfBirthMs, ')
+          ..write('birthYear: $birthYear, ')
+          ..write('approximateAgeYears: $approximateAgeYears, ')
+          ..write('approximateAgeRecordedAt: $approximateAgeRecordedAt, ')
+          ..write('locality: $locality, ')
+          ..write('legacyFileNumber: $legacyFileNumber, ')
+          ..write('adminNote: $adminNote, ')
+          ..write('hasPaperFile: $hasPaperFile, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $IdempotentCommandsTable extends IdempotentCommands
+    with TableInfo<$IdempotentCommandsTable, IdempotentCommandRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $IdempotentCommandsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _commandIdMeta = const VerificationMeta(
+    'commandId',
+  );
+  @override
+  late final GeneratedColumn<String> commandId = GeneratedColumn<String>(
+    'command_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resultJsonMeta = const VerificationMeta(
+    'resultJson',
+  );
+  @override
+  late final GeneratedColumn<String> resultJson = GeneratedColumn<String>(
+    'result_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [commandId, resultJson, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'idempotent_commands';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<IdempotentCommandRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('command_id')) {
+      context.handle(
+        _commandIdMeta,
+        commandId.isAcceptableOrUnknown(data['command_id']!, _commandIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_commandIdMeta);
+    }
+    if (data.containsKey('result_json')) {
+      context.handle(
+        _resultJsonMeta,
+        resultJson.isAcceptableOrUnknown(data['result_json']!, _resultJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_resultJsonMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {commandId};
+  @override
+  IdempotentCommandRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return IdempotentCommandRow(
+      commandId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}command_id'],
+      )!,
+      resultJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result_json'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $IdempotentCommandsTable createAlias(String alias) {
+    return $IdempotentCommandsTable(attachedDatabase, alias);
+  }
+}
+
+class IdempotentCommandRow extends DataClass
+    implements Insertable<IdempotentCommandRow> {
+  final String commandId;
+  final String resultJson;
+  final int createdAt;
+  const IdempotentCommandRow({
+    required this.commandId,
+    required this.resultJson,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['command_id'] = Variable<String>(commandId);
+    map['result_json'] = Variable<String>(resultJson);
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  IdempotentCommandsCompanion toCompanion(bool nullToAbsent) {
+    return IdempotentCommandsCompanion(
+      commandId: Value(commandId),
+      resultJson: Value(resultJson),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory IdempotentCommandRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return IdempotentCommandRow(
+      commandId: serializer.fromJson<String>(json['commandId']),
+      resultJson: serializer.fromJson<String>(json['resultJson']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'commandId': serializer.toJson<String>(commandId),
+      'resultJson': serializer.toJson<String>(resultJson),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  IdempotentCommandRow copyWith({
+    String? commandId,
+    String? resultJson,
+    int? createdAt,
+  }) => IdempotentCommandRow(
+    commandId: commandId ?? this.commandId,
+    resultJson: resultJson ?? this.resultJson,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  IdempotentCommandRow copyWithCompanion(IdempotentCommandsCompanion data) {
+    return IdempotentCommandRow(
+      commandId: data.commandId.present ? data.commandId.value : this.commandId,
+      resultJson: data.resultJson.present
+          ? data.resultJson.value
+          : this.resultJson,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IdempotentCommandRow(')
+          ..write('commandId: $commandId, ')
+          ..write('resultJson: $resultJson, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(commandId, resultJson, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is IdempotentCommandRow &&
+          other.commandId == this.commandId &&
+          other.resultJson == this.resultJson &&
+          other.createdAt == this.createdAt);
+}
+
+class IdempotentCommandsCompanion
+    extends UpdateCompanion<IdempotentCommandRow> {
+  final Value<String> commandId;
+  final Value<String> resultJson;
+  final Value<int> createdAt;
+  final Value<int> rowid;
+  const IdempotentCommandsCompanion({
+    this.commandId = const Value.absent(),
+    this.resultJson = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  IdempotentCommandsCompanion.insert({
+    required String commandId,
+    required String resultJson,
+    required int createdAt,
+    this.rowid = const Value.absent(),
+  }) : commandId = Value(commandId),
+       resultJson = Value(resultJson),
+       createdAt = Value(createdAt);
+  static Insertable<IdempotentCommandRow> custom({
+    Expression<String>? commandId,
+    Expression<String>? resultJson,
+    Expression<int>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (commandId != null) 'command_id': commandId,
+      if (resultJson != null) 'result_json': resultJson,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  IdempotentCommandsCompanion copyWith({
+    Value<String>? commandId,
+    Value<String>? resultJson,
+    Value<int>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return IdempotentCommandsCompanion(
+      commandId: commandId ?? this.commandId,
+      resultJson: resultJson ?? this.resultJson,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (commandId.present) {
+      map['command_id'] = Variable<String>(commandId.value);
+    }
+    if (resultJson.present) {
+      map['result_json'] = Variable<String>(resultJson.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IdempotentCommandsCompanion(')
+          ..write('commandId: $commandId, ')
+          ..write('resultJson: $resultJson, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $QueueTokensTable extends QueueTokens
+    with TableInfo<$QueueTokensTable, QueueTokenRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $QueueTokensTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  @override
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES queue_sessions (id)',
+    ),
+  );
+  static const VerificationMeta _chamberIdMeta = const VerificationMeta(
+    'chamberId',
+  );
+  @override
+  late final GeneratedColumn<String> chamberId = GeneratedColumn<String>(
+    'chamber_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES chambers (id)',
+    ),
+  );
+  static const VerificationMeta _patientIdMeta = const VerificationMeta(
+    'patientId',
+  );
+  @override
+  late final GeneratedColumn<String> patientId = GeneratedColumn<String>(
+    'patient_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES patients (id)',
+    ),
+  );
+  static const VerificationMeta _queueTypeIdMeta = const VerificationMeta(
+    'queueTypeId',
+  );
+  @override
+  late final GeneratedColumn<String> queueTypeId = GeneratedColumn<String>(
+    'queue_type_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serialMeta = const VerificationMeta('serial');
+  @override
+  late final GeneratedColumn<int> serial = GeneratedColumn<int>(
+    'serial',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _feeBdtMeta = const VerificationMeta('feeBdt');
+  @override
+  late final GeneratedColumn<int> feeBdt = GeneratedColumn<int>(
+    'fee_bdt',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _issuedAtMeta = const VerificationMeta(
+    'issuedAt',
+  );
+  @override
+  late final GeneratedColumn<int> issuedAt = GeneratedColumn<int>(
+    'issued_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _firstCalledAtMeta = const VerificationMeta(
+    'firstCalledAt',
+  );
+  @override
+  late final GeneratedColumn<int> firstCalledAt = GeneratedColumn<int>(
+    'first_called_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _enteredAtMeta = const VerificationMeta(
+    'enteredAt',
+  );
+  @override
+  late final GeneratedColumn<int> enteredAt = GeneratedColumn<int>(
+    'entered_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cancelledAtMeta = const VerificationMeta(
+    'cancelledAt',
+  );
+  @override
+  late final GeneratedColumn<int> cancelledAt = GeneratedColumn<int>(
+    'cancelled_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cancelReasonMeta = const VerificationMeta(
+    'cancelReason',
+  );
+  @override
+  late final GeneratedColumn<String> cancelReason = GeneratedColumn<String>(
+    'cancel_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _latestPrintStatusMeta = const VerificationMeta(
+    'latestPrintStatus',
+  );
+  @override
+  late final GeneratedColumn<String> latestPrintStatus =
+      GeneratedColumn<String>(
+        'latest_print_status',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    sessionId,
+    chamberId,
+    patientId,
+    queueTypeId,
+    serial,
+    status,
+    feeBdt,
+    issuedAt,
+    firstCalledAt,
+    enteredAt,
+    cancelledAt,
+    cancelReason,
+    latestPrintStatus,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'queue_tokens';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<QueueTokenRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('chamber_id')) {
+      context.handle(
+        _chamberIdMeta,
+        chamberId.isAcceptableOrUnknown(data['chamber_id']!, _chamberIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_chamberIdMeta);
+    }
+    if (data.containsKey('patient_id')) {
+      context.handle(
+        _patientIdMeta,
+        patientId.isAcceptableOrUnknown(data['patient_id']!, _patientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_patientIdMeta);
+    }
+    if (data.containsKey('queue_type_id')) {
+      context.handle(
+        _queueTypeIdMeta,
+        queueTypeId.isAcceptableOrUnknown(
+          data['queue_type_id']!,
+          _queueTypeIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_queueTypeIdMeta);
+    }
+    if (data.containsKey('serial')) {
+      context.handle(
+        _serialMeta,
+        serial.isAcceptableOrUnknown(data['serial']!, _serialMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_serialMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('fee_bdt')) {
+      context.handle(
+        _feeBdtMeta,
+        feeBdt.isAcceptableOrUnknown(data['fee_bdt']!, _feeBdtMeta),
+      );
+    }
+    if (data.containsKey('issued_at')) {
+      context.handle(
+        _issuedAtMeta,
+        issuedAt.isAcceptableOrUnknown(data['issued_at']!, _issuedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_issuedAtMeta);
+    }
+    if (data.containsKey('first_called_at')) {
+      context.handle(
+        _firstCalledAtMeta,
+        firstCalledAt.isAcceptableOrUnknown(
+          data['first_called_at']!,
+          _firstCalledAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('entered_at')) {
+      context.handle(
+        _enteredAtMeta,
+        enteredAt.isAcceptableOrUnknown(data['entered_at']!, _enteredAtMeta),
+      );
+    }
+    if (data.containsKey('cancelled_at')) {
+      context.handle(
+        _cancelledAtMeta,
+        cancelledAt.isAcceptableOrUnknown(
+          data['cancelled_at']!,
+          _cancelledAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cancel_reason')) {
+      context.handle(
+        _cancelReasonMeta,
+        cancelReason.isAcceptableOrUnknown(
+          data['cancel_reason']!,
+          _cancelReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('latest_print_status')) {
+      context.handle(
+        _latestPrintStatusMeta,
+        latestPrintStatus.isAcceptableOrUnknown(
+          data['latest_print_status']!,
+          _latestPrintStatusMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  QueueTokenRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return QueueTokenRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}session_id'],
+      )!,
+      chamberId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}chamber_id'],
+      )!,
+      patientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}patient_id'],
+      )!,
+      queueTypeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}queue_type_id'],
+      )!,
+      serial: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}serial'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      feeBdt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}fee_bdt'],
+      ),
+      issuedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}issued_at'],
+      )!,
+      firstCalledAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}first_called_at'],
+      ),
+      enteredAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}entered_at'],
+      ),
+      cancelledAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}cancelled_at'],
+      ),
+      cancelReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cancel_reason'],
+      ),
+      latestPrintStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}latest_print_status'],
+      ),
+    );
+  }
+
+  @override
+  $QueueTokensTable createAlias(String alias) {
+    return $QueueTokensTable(attachedDatabase, alias);
+  }
+}
+
+class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
+  final String id;
+  final String sessionId;
+  final String chamberId;
+  final String patientId;
+  final String queueTypeId;
+  final int serial;
+  final String status;
+  final int? feeBdt;
+  final int issuedAt;
+  final int? firstCalledAt;
+  final int? enteredAt;
+  final int? cancelledAt;
+  final String? cancelReason;
+  final String? latestPrintStatus;
+  const QueueTokenRow({
+    required this.id,
+    required this.sessionId,
+    required this.chamberId,
+    required this.patientId,
+    required this.queueTypeId,
+    required this.serial,
+    required this.status,
+    this.feeBdt,
+    required this.issuedAt,
+    this.firstCalledAt,
+    this.enteredAt,
+    this.cancelledAt,
+    this.cancelReason,
+    this.latestPrintStatus,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['session_id'] = Variable<String>(sessionId);
+    map['chamber_id'] = Variable<String>(chamberId);
+    map['patient_id'] = Variable<String>(patientId);
+    map['queue_type_id'] = Variable<String>(queueTypeId);
+    map['serial'] = Variable<int>(serial);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || feeBdt != null) {
+      map['fee_bdt'] = Variable<int>(feeBdt);
+    }
+    map['issued_at'] = Variable<int>(issuedAt);
+    if (!nullToAbsent || firstCalledAt != null) {
+      map['first_called_at'] = Variable<int>(firstCalledAt);
+    }
+    if (!nullToAbsent || enteredAt != null) {
+      map['entered_at'] = Variable<int>(enteredAt);
+    }
+    if (!nullToAbsent || cancelledAt != null) {
+      map['cancelled_at'] = Variable<int>(cancelledAt);
+    }
+    if (!nullToAbsent || cancelReason != null) {
+      map['cancel_reason'] = Variable<String>(cancelReason);
+    }
+    if (!nullToAbsent || latestPrintStatus != null) {
+      map['latest_print_status'] = Variable<String>(latestPrintStatus);
+    }
+    return map;
+  }
+
+  QueueTokensCompanion toCompanion(bool nullToAbsent) {
+    return QueueTokensCompanion(
+      id: Value(id),
+      sessionId: Value(sessionId),
+      chamberId: Value(chamberId),
+      patientId: Value(patientId),
+      queueTypeId: Value(queueTypeId),
+      serial: Value(serial),
+      status: Value(status),
+      feeBdt: feeBdt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feeBdt),
+      issuedAt: Value(issuedAt),
+      firstCalledAt: firstCalledAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firstCalledAt),
+      enteredAt: enteredAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(enteredAt),
+      cancelledAt: cancelledAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cancelledAt),
+      cancelReason: cancelReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cancelReason),
+      latestPrintStatus: latestPrintStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(latestPrintStatus),
+    );
+  }
+
+  factory QueueTokenRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return QueueTokenRow(
+      id: serializer.fromJson<String>(json['id']),
+      sessionId: serializer.fromJson<String>(json['sessionId']),
+      chamberId: serializer.fromJson<String>(json['chamberId']),
+      patientId: serializer.fromJson<String>(json['patientId']),
+      queueTypeId: serializer.fromJson<String>(json['queueTypeId']),
+      serial: serializer.fromJson<int>(json['serial']),
+      status: serializer.fromJson<String>(json['status']),
+      feeBdt: serializer.fromJson<int?>(json['feeBdt']),
+      issuedAt: serializer.fromJson<int>(json['issuedAt']),
+      firstCalledAt: serializer.fromJson<int?>(json['firstCalledAt']),
+      enteredAt: serializer.fromJson<int?>(json['enteredAt']),
+      cancelledAt: serializer.fromJson<int?>(json['cancelledAt']),
+      cancelReason: serializer.fromJson<String?>(json['cancelReason']),
+      latestPrintStatus: serializer.fromJson<String?>(
+        json['latestPrintStatus'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'sessionId': serializer.toJson<String>(sessionId),
+      'chamberId': serializer.toJson<String>(chamberId),
+      'patientId': serializer.toJson<String>(patientId),
+      'queueTypeId': serializer.toJson<String>(queueTypeId),
+      'serial': serializer.toJson<int>(serial),
+      'status': serializer.toJson<String>(status),
+      'feeBdt': serializer.toJson<int?>(feeBdt),
+      'issuedAt': serializer.toJson<int>(issuedAt),
+      'firstCalledAt': serializer.toJson<int?>(firstCalledAt),
+      'enteredAt': serializer.toJson<int?>(enteredAt),
+      'cancelledAt': serializer.toJson<int?>(cancelledAt),
+      'cancelReason': serializer.toJson<String?>(cancelReason),
+      'latestPrintStatus': serializer.toJson<String?>(latestPrintStatus),
+    };
+  }
+
+  QueueTokenRow copyWith({
+    String? id,
+    String? sessionId,
+    String? chamberId,
+    String? patientId,
+    String? queueTypeId,
+    int? serial,
+    String? status,
+    Value<int?> feeBdt = const Value.absent(),
+    int? issuedAt,
+    Value<int?> firstCalledAt = const Value.absent(),
+    Value<int?> enteredAt = const Value.absent(),
+    Value<int?> cancelledAt = const Value.absent(),
+    Value<String?> cancelReason = const Value.absent(),
+    Value<String?> latestPrintStatus = const Value.absent(),
+  }) => QueueTokenRow(
+    id: id ?? this.id,
+    sessionId: sessionId ?? this.sessionId,
+    chamberId: chamberId ?? this.chamberId,
+    patientId: patientId ?? this.patientId,
+    queueTypeId: queueTypeId ?? this.queueTypeId,
+    serial: serial ?? this.serial,
+    status: status ?? this.status,
+    feeBdt: feeBdt.present ? feeBdt.value : this.feeBdt,
+    issuedAt: issuedAt ?? this.issuedAt,
+    firstCalledAt: firstCalledAt.present
+        ? firstCalledAt.value
+        : this.firstCalledAt,
+    enteredAt: enteredAt.present ? enteredAt.value : this.enteredAt,
+    cancelledAt: cancelledAt.present ? cancelledAt.value : this.cancelledAt,
+    cancelReason: cancelReason.present ? cancelReason.value : this.cancelReason,
+    latestPrintStatus: latestPrintStatus.present
+        ? latestPrintStatus.value
+        : this.latestPrintStatus,
+  );
+  QueueTokenRow copyWithCompanion(QueueTokensCompanion data) {
+    return QueueTokenRow(
+      id: data.id.present ? data.id.value : this.id,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      chamberId: data.chamberId.present ? data.chamberId.value : this.chamberId,
+      patientId: data.patientId.present ? data.patientId.value : this.patientId,
+      queueTypeId: data.queueTypeId.present
+          ? data.queueTypeId.value
+          : this.queueTypeId,
+      serial: data.serial.present ? data.serial.value : this.serial,
+      status: data.status.present ? data.status.value : this.status,
+      feeBdt: data.feeBdt.present ? data.feeBdt.value : this.feeBdt,
+      issuedAt: data.issuedAt.present ? data.issuedAt.value : this.issuedAt,
+      firstCalledAt: data.firstCalledAt.present
+          ? data.firstCalledAt.value
+          : this.firstCalledAt,
+      enteredAt: data.enteredAt.present ? data.enteredAt.value : this.enteredAt,
+      cancelledAt: data.cancelledAt.present
+          ? data.cancelledAt.value
+          : this.cancelledAt,
+      cancelReason: data.cancelReason.present
+          ? data.cancelReason.value
+          : this.cancelReason,
+      latestPrintStatus: data.latestPrintStatus.present
+          ? data.latestPrintStatus.value
+          : this.latestPrintStatus,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('QueueTokenRow(')
+          ..write('id: $id, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('chamberId: $chamberId, ')
+          ..write('patientId: $patientId, ')
+          ..write('queueTypeId: $queueTypeId, ')
+          ..write('serial: $serial, ')
+          ..write('status: $status, ')
+          ..write('feeBdt: $feeBdt, ')
+          ..write('issuedAt: $issuedAt, ')
+          ..write('firstCalledAt: $firstCalledAt, ')
+          ..write('enteredAt: $enteredAt, ')
+          ..write('cancelledAt: $cancelledAt, ')
+          ..write('cancelReason: $cancelReason, ')
+          ..write('latestPrintStatus: $latestPrintStatus')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    sessionId,
+    chamberId,
+    patientId,
+    queueTypeId,
+    serial,
+    status,
+    feeBdt,
+    issuedAt,
+    firstCalledAt,
+    enteredAt,
+    cancelledAt,
+    cancelReason,
+    latestPrintStatus,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is QueueTokenRow &&
+          other.id == this.id &&
+          other.sessionId == this.sessionId &&
+          other.chamberId == this.chamberId &&
+          other.patientId == this.patientId &&
+          other.queueTypeId == this.queueTypeId &&
+          other.serial == this.serial &&
+          other.status == this.status &&
+          other.feeBdt == this.feeBdt &&
+          other.issuedAt == this.issuedAt &&
+          other.firstCalledAt == this.firstCalledAt &&
+          other.enteredAt == this.enteredAt &&
+          other.cancelledAt == this.cancelledAt &&
+          other.cancelReason == this.cancelReason &&
+          other.latestPrintStatus == this.latestPrintStatus);
+}
+
+class QueueTokensCompanion extends UpdateCompanion<QueueTokenRow> {
+  final Value<String> id;
+  final Value<String> sessionId;
+  final Value<String> chamberId;
+  final Value<String> patientId;
+  final Value<String> queueTypeId;
+  final Value<int> serial;
+  final Value<String> status;
+  final Value<int?> feeBdt;
+  final Value<int> issuedAt;
+  final Value<int?> firstCalledAt;
+  final Value<int?> enteredAt;
+  final Value<int?> cancelledAt;
+  final Value<String?> cancelReason;
+  final Value<String?> latestPrintStatus;
+  final Value<int> rowid;
+  const QueueTokensCompanion({
+    this.id = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.chamberId = const Value.absent(),
+    this.patientId = const Value.absent(),
+    this.queueTypeId = const Value.absent(),
+    this.serial = const Value.absent(),
+    this.status = const Value.absent(),
+    this.feeBdt = const Value.absent(),
+    this.issuedAt = const Value.absent(),
+    this.firstCalledAt = const Value.absent(),
+    this.enteredAt = const Value.absent(),
+    this.cancelledAt = const Value.absent(),
+    this.cancelReason = const Value.absent(),
+    this.latestPrintStatus = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  QueueTokensCompanion.insert({
+    required String id,
+    required String sessionId,
+    required String chamberId,
+    required String patientId,
+    required String queueTypeId,
+    required int serial,
+    required String status,
+    this.feeBdt = const Value.absent(),
+    required int issuedAt,
+    this.firstCalledAt = const Value.absent(),
+    this.enteredAt = const Value.absent(),
+    this.cancelledAt = const Value.absent(),
+    this.cancelReason = const Value.absent(),
+    this.latestPrintStatus = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       sessionId = Value(sessionId),
+       chamberId = Value(chamberId),
+       patientId = Value(patientId),
+       queueTypeId = Value(queueTypeId),
+       serial = Value(serial),
+       status = Value(status),
+       issuedAt = Value(issuedAt);
+  static Insertable<QueueTokenRow> custom({
+    Expression<String>? id,
+    Expression<String>? sessionId,
+    Expression<String>? chamberId,
+    Expression<String>? patientId,
+    Expression<String>? queueTypeId,
+    Expression<int>? serial,
+    Expression<String>? status,
+    Expression<int>? feeBdt,
+    Expression<int>? issuedAt,
+    Expression<int>? firstCalledAt,
+    Expression<int>? enteredAt,
+    Expression<int>? cancelledAt,
+    Expression<String>? cancelReason,
+    Expression<String>? latestPrintStatus,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sessionId != null) 'session_id': sessionId,
+      if (chamberId != null) 'chamber_id': chamberId,
+      if (patientId != null) 'patient_id': patientId,
+      if (queueTypeId != null) 'queue_type_id': queueTypeId,
+      if (serial != null) 'serial': serial,
+      if (status != null) 'status': status,
+      if (feeBdt != null) 'fee_bdt': feeBdt,
+      if (issuedAt != null) 'issued_at': issuedAt,
+      if (firstCalledAt != null) 'first_called_at': firstCalledAt,
+      if (enteredAt != null) 'entered_at': enteredAt,
+      if (cancelledAt != null) 'cancelled_at': cancelledAt,
+      if (cancelReason != null) 'cancel_reason': cancelReason,
+      if (latestPrintStatus != null) 'latest_print_status': latestPrintStatus,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  QueueTokensCompanion copyWith({
+    Value<String>? id,
+    Value<String>? sessionId,
+    Value<String>? chamberId,
+    Value<String>? patientId,
+    Value<String>? queueTypeId,
+    Value<int>? serial,
+    Value<String>? status,
+    Value<int?>? feeBdt,
+    Value<int>? issuedAt,
+    Value<int?>? firstCalledAt,
+    Value<int?>? enteredAt,
+    Value<int?>? cancelledAt,
+    Value<String?>? cancelReason,
+    Value<String?>? latestPrintStatus,
+    Value<int>? rowid,
+  }) {
+    return QueueTokensCompanion(
+      id: id ?? this.id,
+      sessionId: sessionId ?? this.sessionId,
+      chamberId: chamberId ?? this.chamberId,
+      patientId: patientId ?? this.patientId,
+      queueTypeId: queueTypeId ?? this.queueTypeId,
+      serial: serial ?? this.serial,
+      status: status ?? this.status,
+      feeBdt: feeBdt ?? this.feeBdt,
+      issuedAt: issuedAt ?? this.issuedAt,
+      firstCalledAt: firstCalledAt ?? this.firstCalledAt,
+      enteredAt: enteredAt ?? this.enteredAt,
+      cancelledAt: cancelledAt ?? this.cancelledAt,
+      cancelReason: cancelReason ?? this.cancelReason,
+      latestPrintStatus: latestPrintStatus ?? this.latestPrintStatus,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    if (chamberId.present) {
+      map['chamber_id'] = Variable<String>(chamberId.value);
+    }
+    if (patientId.present) {
+      map['patient_id'] = Variable<String>(patientId.value);
+    }
+    if (queueTypeId.present) {
+      map['queue_type_id'] = Variable<String>(queueTypeId.value);
+    }
+    if (serial.present) {
+      map['serial'] = Variable<int>(serial.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (feeBdt.present) {
+      map['fee_bdt'] = Variable<int>(feeBdt.value);
+    }
+    if (issuedAt.present) {
+      map['issued_at'] = Variable<int>(issuedAt.value);
+    }
+    if (firstCalledAt.present) {
+      map['first_called_at'] = Variable<int>(firstCalledAt.value);
+    }
+    if (enteredAt.present) {
+      map['entered_at'] = Variable<int>(enteredAt.value);
+    }
+    if (cancelledAt.present) {
+      map['cancelled_at'] = Variable<int>(cancelledAt.value);
+    }
+    if (cancelReason.present) {
+      map['cancel_reason'] = Variable<String>(cancelReason.value);
+    }
+    if (latestPrintStatus.present) {
+      map['latest_print_status'] = Variable<String>(latestPrintStatus.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('QueueTokensCompanion(')
+          ..write('id: $id, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('chamberId: $chamberId, ')
+          ..write('patientId: $patientId, ')
+          ..write('queueTypeId: $queueTypeId, ')
+          ..write('serial: $serial, ')
+          ..write('status: $status, ')
+          ..write('feeBdt: $feeBdt, ')
+          ..write('issuedAt: $issuedAt, ')
+          ..write('firstCalledAt: $firstCalledAt, ')
+          ..write('enteredAt: $enteredAt, ')
+          ..write('cancelledAt: $cancelledAt, ')
+          ..write('cancelReason: $cancelReason, ')
+          ..write('latestPrintStatus: $latestPrintStatus, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TokenPrintAttemptsTable extends TokenPrintAttempts
+    with TableInfo<$TokenPrintAttemptsTable, TokenPrintAttemptRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TokenPrintAttemptsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tokenIdMeta = const VerificationMeta(
+    'tokenId',
+  );
+  @override
+  late final GeneratedColumn<String> tokenId = GeneratedColumn<String>(
+    'token_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES queue_tokens (id)',
+    ),
+  );
+  static const VerificationMeta _attemptNumberMeta = const VerificationMeta(
+    'attemptNumber',
+  );
+  @override
+  late final GeneratedColumn<int> attemptNumber = GeneratedColumn<int>(
+    'attempt_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reasonMeta = const VerificationMeta('reason');
+  @override
+  late final GeneratedColumn<String> reason = GeneratedColumn<String>(
+    'reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _actorAccountIdMeta = const VerificationMeta(
+    'actorAccountId',
+  );
+  @override
+  late final GeneratedColumn<String> actorAccountId = GeneratedColumn<String>(
+    'actor_account_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    tokenId,
+    attemptNumber,
+    status,
+    reason,
+    actorAccountId,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'token_print_attempts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TokenPrintAttemptRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('token_id')) {
+      context.handle(
+        _tokenIdMeta,
+        tokenId.isAcceptableOrUnknown(data['token_id']!, _tokenIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tokenIdMeta);
+    }
+    if (data.containsKey('attempt_number')) {
+      context.handle(
+        _attemptNumberMeta,
+        attemptNumber.isAcceptableOrUnknown(
+          data['attempt_number']!,
+          _attemptNumberMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_attemptNumberMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('reason')) {
+      context.handle(
+        _reasonMeta,
+        reason.isAcceptableOrUnknown(data['reason']!, _reasonMeta),
+      );
+    }
+    if (data.containsKey('actor_account_id')) {
+      context.handle(
+        _actorAccountIdMeta,
+        actorAccountId.isAcceptableOrUnknown(
+          data['actor_account_id']!,
+          _actorAccountIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TokenPrintAttemptRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TokenPrintAttemptRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      tokenId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token_id'],
+      )!,
+      attemptNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attempt_number'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      reason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reason'],
+      ),
+      actorAccountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}actor_account_id'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TokenPrintAttemptsTable createAlias(String alias) {
+    return $TokenPrintAttemptsTable(attachedDatabase, alias);
+  }
+}
+
+class TokenPrintAttemptRow extends DataClass
+    implements Insertable<TokenPrintAttemptRow> {
+  final String id;
+  final String tokenId;
+  final int attemptNumber;
+  final String status;
+  final String? reason;
+  final String? actorAccountId;
+  final int createdAt;
+  const TokenPrintAttemptRow({
+    required this.id,
+    required this.tokenId,
+    required this.attemptNumber,
+    required this.status,
+    this.reason,
+    this.actorAccountId,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['token_id'] = Variable<String>(tokenId);
+    map['attempt_number'] = Variable<int>(attemptNumber);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || reason != null) {
+      map['reason'] = Variable<String>(reason);
+    }
+    if (!nullToAbsent || actorAccountId != null) {
+      map['actor_account_id'] = Variable<String>(actorAccountId);
+    }
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  TokenPrintAttemptsCompanion toCompanion(bool nullToAbsent) {
+    return TokenPrintAttemptsCompanion(
+      id: Value(id),
+      tokenId: Value(tokenId),
+      attemptNumber: Value(attemptNumber),
+      status: Value(status),
+      reason: reason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reason),
+      actorAccountId: actorAccountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(actorAccountId),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory TokenPrintAttemptRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TokenPrintAttemptRow(
+      id: serializer.fromJson<String>(json['id']),
+      tokenId: serializer.fromJson<String>(json['tokenId']),
+      attemptNumber: serializer.fromJson<int>(json['attemptNumber']),
+      status: serializer.fromJson<String>(json['status']),
+      reason: serializer.fromJson<String?>(json['reason']),
+      actorAccountId: serializer.fromJson<String?>(json['actorAccountId']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'tokenId': serializer.toJson<String>(tokenId),
+      'attemptNumber': serializer.toJson<int>(attemptNumber),
+      'status': serializer.toJson<String>(status),
+      'reason': serializer.toJson<String?>(reason),
+      'actorAccountId': serializer.toJson<String?>(actorAccountId),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  TokenPrintAttemptRow copyWith({
+    String? id,
+    String? tokenId,
+    int? attemptNumber,
+    String? status,
+    Value<String?> reason = const Value.absent(),
+    Value<String?> actorAccountId = const Value.absent(),
+    int? createdAt,
+  }) => TokenPrintAttemptRow(
+    id: id ?? this.id,
+    tokenId: tokenId ?? this.tokenId,
+    attemptNumber: attemptNumber ?? this.attemptNumber,
+    status: status ?? this.status,
+    reason: reason.present ? reason.value : this.reason,
+    actorAccountId: actorAccountId.present
+        ? actorAccountId.value
+        : this.actorAccountId,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  TokenPrintAttemptRow copyWithCompanion(TokenPrintAttemptsCompanion data) {
+    return TokenPrintAttemptRow(
+      id: data.id.present ? data.id.value : this.id,
+      tokenId: data.tokenId.present ? data.tokenId.value : this.tokenId,
+      attemptNumber: data.attemptNumber.present
+          ? data.attemptNumber.value
+          : this.attemptNumber,
+      status: data.status.present ? data.status.value : this.status,
+      reason: data.reason.present ? data.reason.value : this.reason,
+      actorAccountId: data.actorAccountId.present
+          ? data.actorAccountId.value
+          : this.actorAccountId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TokenPrintAttemptRow(')
+          ..write('id: $id, ')
+          ..write('tokenId: $tokenId, ')
+          ..write('attemptNumber: $attemptNumber, ')
+          ..write('status: $status, ')
+          ..write('reason: $reason, ')
+          ..write('actorAccountId: $actorAccountId, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    tokenId,
+    attemptNumber,
+    status,
+    reason,
+    actorAccountId,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TokenPrintAttemptRow &&
+          other.id == this.id &&
+          other.tokenId == this.tokenId &&
+          other.attemptNumber == this.attemptNumber &&
+          other.status == this.status &&
+          other.reason == this.reason &&
+          other.actorAccountId == this.actorAccountId &&
+          other.createdAt == this.createdAt);
+}
+
+class TokenPrintAttemptsCompanion
+    extends UpdateCompanion<TokenPrintAttemptRow> {
+  final Value<String> id;
+  final Value<String> tokenId;
+  final Value<int> attemptNumber;
+  final Value<String> status;
+  final Value<String?> reason;
+  final Value<String?> actorAccountId;
+  final Value<int> createdAt;
+  final Value<int> rowid;
+  const TokenPrintAttemptsCompanion({
+    this.id = const Value.absent(),
+    this.tokenId = const Value.absent(),
+    this.attemptNumber = const Value.absent(),
+    this.status = const Value.absent(),
+    this.reason = const Value.absent(),
+    this.actorAccountId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TokenPrintAttemptsCompanion.insert({
+    required String id,
+    required String tokenId,
+    required int attemptNumber,
+    required String status,
+    this.reason = const Value.absent(),
+    this.actorAccountId = const Value.absent(),
+    required int createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       tokenId = Value(tokenId),
+       attemptNumber = Value(attemptNumber),
+       status = Value(status),
+       createdAt = Value(createdAt);
+  static Insertable<TokenPrintAttemptRow> custom({
+    Expression<String>? id,
+    Expression<String>? tokenId,
+    Expression<int>? attemptNumber,
+    Expression<String>? status,
+    Expression<String>? reason,
+    Expression<String>? actorAccountId,
+    Expression<int>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (tokenId != null) 'token_id': tokenId,
+      if (attemptNumber != null) 'attempt_number': attemptNumber,
+      if (status != null) 'status': status,
+      if (reason != null) 'reason': reason,
+      if (actorAccountId != null) 'actor_account_id': actorAccountId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TokenPrintAttemptsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? tokenId,
+    Value<int>? attemptNumber,
+    Value<String>? status,
+    Value<String?>? reason,
+    Value<String?>? actorAccountId,
+    Value<int>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return TokenPrintAttemptsCompanion(
+      id: id ?? this.id,
+      tokenId: tokenId ?? this.tokenId,
+      attemptNumber: attemptNumber ?? this.attemptNumber,
+      status: status ?? this.status,
+      reason: reason ?? this.reason,
+      actorAccountId: actorAccountId ?? this.actorAccountId,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (tokenId.present) {
+      map['token_id'] = Variable<String>(tokenId.value);
+    }
+    if (attemptNumber.present) {
+      map['attempt_number'] = Variable<int>(attemptNumber.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (reason.present) {
+      map['reason'] = Variable<String>(reason.value);
+    }
+    if (actorAccountId.present) {
+      map['actor_account_id'] = Variable<String>(actorAccountId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TokenPrintAttemptsCompanion(')
+          ..write('id: $id, ')
+          ..write('tokenId: $tokenId, ')
+          ..write('attemptNumber: $attemptNumber, ')
+          ..write('status: $status, ')
+          ..write('reason: $reason, ')
+          ..write('actorAccountId: $actorAccountId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3527,6 +7564,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AuthSessionsTable authSessions = $AuthSessionsTable(this);
   late final $AuditEntriesTable auditEntries = $AuditEntriesTable(this);
   late final $PinDevicesTable pinDevices = $PinDevicesTable(this);
+  late final $QueueTypesTable queueTypes = $QueueTypesTable(this);
+  late final $QueueSessionsTable queueSessions = $QueueSessionsTable(this);
+  late final $SessionQueueCountersTable sessionQueueCounters =
+      $SessionQueueCountersTable(this);
+  late final $PatientsTable patients = $PatientsTable(this);
+  late final $IdempotentCommandsTable idempotentCommands =
+      $IdempotentCommandsTable(this);
+  late final $QueueTokensTable queueTokens = $QueueTokensTable(this);
+  late final $TokenPrintAttemptsTable tokenPrintAttempts =
+      $TokenPrintAttemptsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3540,6 +7587,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     authSessions,
     auditEntries,
     pinDevices,
+    queueTypes,
+    queueSessions,
+    sessionQueueCounters,
+    patients,
+    idempotentCommands,
+    queueTokens,
+    tokenPrintAttempts,
   ];
 }
 
@@ -3939,6 +7993,42 @@ final class $$ChambersTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
+
+  static MultiTypedResultKey<$QueueSessionsTable, List<QueueSessionRow>>
+  _queueSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.queueSessions,
+    aliasName: 'chambers__id__queue_sessions__chamber_id',
+  );
+
+  $$QueueSessionsTableProcessedTableManager get queueSessionsRefs {
+    final manager = $$QueueSessionsTableTableManager(
+      $_db,
+      $_db.queueSessions,
+    ).filter((f) => f.chamberId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_queueSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$QueueTokensTable, List<QueueTokenRow>>
+  _queueTokensRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.queueTokens,
+    aliasName: 'chambers__id__queue_tokens__chamber_id',
+  );
+
+  $$QueueTokensTableProcessedTableManager get queueTokensRefs {
+    final manager = $$QueueTokensTableTableManager(
+      $_db,
+      $_db.queueTokens,
+    ).filter((f) => f.chamberId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_queueTokensRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$ChambersTableFilterComposer
@@ -3996,6 +8086,56 @@ class $$ChambersTableFilterComposer
           ),
     );
     return composer;
+  }
+
+  Expression<bool> queueSessionsRefs(
+    Expression<bool> Function($$QueueSessionsTableFilterComposer f) f,
+  ) {
+    final $$QueueSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.queueSessions,
+      getReferencedColumn: (t) => t.chamberId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.queueSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> queueTokensRefs(
+    Expression<bool> Function($$QueueTokensTableFilterComposer f) f,
+  ) {
+    final $$QueueTokensTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.queueTokens,
+      getReferencedColumn: (t) => t.chamberId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueTokensTableFilterComposer(
+            $db: $db,
+            $table: $db.queueTokens,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 }
 
@@ -4103,6 +8243,56 @@ class $$ChambersTableAnnotationComposer
     );
     return composer;
   }
+
+  Expression<T> queueSessionsRefs<T extends Object>(
+    Expression<T> Function($$QueueSessionsTableAnnotationComposer a) f,
+  ) {
+    final $$QueueSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.queueSessions,
+      getReferencedColumn: (t) => t.chamberId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.queueSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> queueTokensRefs<T extends Object>(
+    Expression<T> Function($$QueueTokensTableAnnotationComposer a) f,
+  ) {
+    final $$QueueTokensTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.queueTokens,
+      getReferencedColumn: (t) => t.chamberId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueTokensTableAnnotationComposer(
+            $db: $db,
+            $table: $db.queueTokens,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ChambersTableTableManager
@@ -4118,7 +8308,11 @@ class $$ChambersTableTableManager
           $$ChambersTableUpdateCompanionBuilder,
           (ChamberRow, $$ChambersTableReferences),
           ChamberRow,
-          PrefetchHooks Function({bool doctorId})
+          PrefetchHooks Function({
+            bool doctorId,
+            bool queueSessionsRefs,
+            bool queueTokensRefs,
+          })
         > {
   $$ChambersTableTableManager(_$AppDatabase db, $ChambersTable table)
     : super(
@@ -4175,45 +8369,94 @@ class $$ChambersTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({doctorId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (doctorId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.doctorId,
-                        referencedTable: $$ChambersTableReferences
-                            ._doctorIdTable(db),
-                        referencedColumn: $$ChambersTableReferences
-                            ._doctorIdTable(db)
-                            .id,
-                      ) as T;
-                    }
+          prefetchHooksCallback:
+              ({
+                doctorId = false,
+                queueSessionsRefs = false,
+                queueTokensRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (queueSessionsRefs) db.queueSessions,
+                    if (queueTokensRefs) db.queueTokens,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (doctorId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.doctorId,
+                            referencedTable: $$ChambersTableReferences
+                                ._doctorIdTable(db),
+                            referencedColumn: $$ChambersTableReferences
+                                ._doctorIdTable(db)
+                                .id,
+                          ) as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (queueSessionsRefs)
+                        await $_getPrefetchedDataByColumns<
+                          ChamberRow,
+                          $ChambersTable,
+                          QueueSessionRow,
+                          $QueueSessionsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ChambersTableReferences
+                              ._queueSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ChambersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).queueSessionsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'chamber_id',
+                          typedResults: items,
+                        ),
+                      if (queueTokensRefs)
+                        await $_getPrefetchedDataByColumns<
+                          ChamberRow,
+                          $ChambersTable,
+                          QueueTokenRow,
+                          $QueueTokensTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ChambersTableReferences
+                              ._queueTokensRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ChambersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).queueTokensRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'chamber_id',
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -4230,7 +8473,11 @@ typedef $$ChambersTableProcessedTableManager =
       $$ChambersTableUpdateCompanionBuilder,
       (ChamberRow, $$ChambersTableReferences),
       ChamberRow,
-      PrefetchHooks Function({bool doctorId})
+      PrefetchHooks Function({
+        bool doctorId,
+        bool queueSessionsRefs,
+        bool queueTokensRefs,
+      })
     >;
 typedef $$AppSettingsTableCreateCompanionBuilder =
     AppSettingsCompanion Function({
@@ -6262,6 +10509,3074 @@ typedef $$PinDevicesTableProcessedTableManager =
       PinDeviceRow,
       PrefetchHooks Function({bool userId})
     >;
+typedef $$QueueTypesTableCreateCompanionBuilder = QueueTypesCompanion Function({
+  required String id,
+  required String ownerKey,
+  required String englishName,
+  required String bengaliName,
+  required int startNumber,
+  required int endNumber,
+  required int displayOrder,
+  Value<bool> enabled,
+  Value<int> rowid,
+});
+typedef $$QueueTypesTableUpdateCompanionBuilder = QueueTypesCompanion Function({
+  Value<String> id,
+  Value<String> ownerKey,
+  Value<String> englishName,
+  Value<String> bengaliName,
+  Value<int> startNumber,
+  Value<int> endNumber,
+  Value<int> displayOrder,
+  Value<bool> enabled,
+  Value<int> rowid,
+});
+
+class $$QueueTypesTableFilterComposer
+    extends Composer<_$AppDatabase, $QueueTypesTable> {
+  $$QueueTypesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerKey => $composableBuilder(
+    column: $table.ownerKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get englishName => $composableBuilder(
+    column: $table.englishName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bengaliName => $composableBuilder(
+    column: $table.bengaliName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startNumber => $composableBuilder(
+    column: $table.startNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endNumber => $composableBuilder(
+    column: $table.endNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get displayOrder => $composableBuilder(
+    column: $table.displayOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$QueueTypesTableOrderingComposer
+    extends Composer<_$AppDatabase, $QueueTypesTable> {
+  $$QueueTypesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerKey => $composableBuilder(
+    column: $table.ownerKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get englishName => $composableBuilder(
+    column: $table.englishName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bengaliName => $composableBuilder(
+    column: $table.bengaliName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startNumber => $composableBuilder(
+    column: $table.startNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endNumber => $composableBuilder(
+    column: $table.endNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get displayOrder => $composableBuilder(
+    column: $table.displayOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$QueueTypesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $QueueTypesTable> {
+  $$QueueTypesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerKey =>
+      $composableBuilder(column: $table.ownerKey, builder: (column) => column);
+
+  GeneratedColumn<String> get englishName => $composableBuilder(
+    column: $table.englishName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get bengaliName => $composableBuilder(
+    column: $table.bengaliName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get startNumber => $composableBuilder(
+    column: $table.startNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get endNumber =>
+      $composableBuilder(column: $table.endNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get displayOrder => $composableBuilder(
+    column: $table.displayOrder,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get enabled =>
+      $composableBuilder(column: $table.enabled, builder: (column) => column);
+}
+
+class $$QueueTypesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $QueueTypesTable,
+          QueueTypeRow,
+          $$QueueTypesTableFilterComposer,
+          $$QueueTypesTableOrderingComposer,
+          $$QueueTypesTableAnnotationComposer,
+          $$QueueTypesTableCreateCompanionBuilder,
+          $$QueueTypesTableUpdateCompanionBuilder,
+          (
+            QueueTypeRow,
+            BaseReferences<_$AppDatabase, $QueueTypesTable, QueueTypeRow>,
+          ),
+          QueueTypeRow,
+          PrefetchHooks Function()
+        > {
+  $$QueueTypesTableTableManager(_$AppDatabase db, $QueueTypesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$QueueTypesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$QueueTypesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$QueueTypesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> ownerKey = const Value.absent(),
+                Value<String> englishName = const Value.absent(),
+                Value<String> bengaliName = const Value.absent(),
+                Value<int> startNumber = const Value.absent(),
+                Value<int> endNumber = const Value.absent(),
+                Value<int> displayOrder = const Value.absent(),
+                Value<bool> enabled = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => QueueTypesCompanion(
+                id: id,
+                ownerKey: ownerKey,
+                englishName: englishName,
+                bengaliName: bengaliName,
+                startNumber: startNumber,
+                endNumber: endNumber,
+                displayOrder: displayOrder,
+                enabled: enabled,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String ownerKey,
+                required String englishName,
+                required String bengaliName,
+                required int startNumber,
+                required int endNumber,
+                required int displayOrder,
+                Value<bool> enabled = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => QueueTypesCompanion.insert(
+                id: id,
+                ownerKey: ownerKey,
+                englishName: englishName,
+                bengaliName: bengaliName,
+                startNumber: startNumber,
+                endNumber: endNumber,
+                displayOrder: displayOrder,
+                enabled: enabled,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$QueueTypesTable, QueueTypeRow>(table),
+                  BaseReferences<_$AppDatabase, $QueueTypesTable, QueueTypeRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$QueueTypesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $QueueTypesTable,
+      QueueTypeRow,
+      $$QueueTypesTableFilterComposer,
+      $$QueueTypesTableOrderingComposer,
+      $$QueueTypesTableAnnotationComposer,
+      $$QueueTypesTableCreateCompanionBuilder,
+      $$QueueTypesTableUpdateCompanionBuilder,
+      (
+        QueueTypeRow,
+        BaseReferences<_$AppDatabase, $QueueTypesTable, QueueTypeRow>,
+      ),
+      QueueTypeRow,
+      PrefetchHooks Function()
+    >;
+typedef $$QueueSessionsTableCreateCompanionBuilder =
+    QueueSessionsCompanion Function({
+      required String id,
+      required String chamberId,
+      required String businessDate,
+      required String status,
+      required int openedAt,
+      Value<String?> openedByAccountId,
+      Value<int?> closedAt,
+      Value<String?> closedByAccountId,
+      Value<String?> closeReason,
+      required String configSnapshotJson,
+      Value<int> rowid,
+    });
+typedef $$QueueSessionsTableUpdateCompanionBuilder =
+    QueueSessionsCompanion Function({
+      Value<String> id,
+      Value<String> chamberId,
+      Value<String> businessDate,
+      Value<String> status,
+      Value<int> openedAt,
+      Value<String?> openedByAccountId,
+      Value<int?> closedAt,
+      Value<String?> closedByAccountId,
+      Value<String?> closeReason,
+      Value<String> configSnapshotJson,
+      Value<int> rowid,
+    });
+
+final class $$QueueSessionsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $QueueSessionsTable, QueueSessionRow> {
+  $$QueueSessionsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ChambersTable _chamberIdTable(_$AppDatabase db) =>
+      db.chambers.createAlias('queue_sessions__chamber_id__chambers__id');
+
+  $$ChambersTableProcessedTableManager get chamberId {
+    final $_column = $_itemColumn<String>('chamber_id')!;
+
+    final manager = $$ChambersTableTableManager(
+      $_db,
+      $_db.chambers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_chamberIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $SessionQueueCountersTable,
+    List<SessionQueueCounterRow>
+  >
+  _sessionQueueCountersRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.sessionQueueCounters,
+        aliasName: 'queue_sessions__id__session_queue_counters__session_id',
+      );
+
+  $$SessionQueueCountersTableProcessedTableManager
+  get sessionQueueCountersRefs {
+    final manager = $$SessionQueueCountersTableTableManager(
+      $_db,
+      $_db.sessionQueueCounters,
+    ).filter((f) => f.sessionId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _sessionQueueCountersRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$QueueTokensTable, List<QueueTokenRow>>
+  _queueTokensRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.queueTokens,
+    aliasName: 'queue_sessions__id__queue_tokens__session_id',
+  );
+
+  $$QueueTokensTableProcessedTableManager get queueTokensRefs {
+    final manager = $$QueueTokensTableTableManager(
+      $_db,
+      $_db.queueTokens,
+    ).filter((f) => f.sessionId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_queueTokensRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$QueueSessionsTableFilterComposer
+    extends Composer<_$AppDatabase, $QueueSessionsTable> {
+  $$QueueSessionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get businessDate => $composableBuilder(
+    column: $table.businessDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get openedAt => $composableBuilder(
+    column: $table.openedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get openedByAccountId => $composableBuilder(
+    column: $table.openedByAccountId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get closedAt => $composableBuilder(
+    column: $table.closedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get closedByAccountId => $composableBuilder(
+    column: $table.closedByAccountId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get closeReason => $composableBuilder(
+    column: $table.closeReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get configSnapshotJson => $composableBuilder(
+    column: $table.configSnapshotJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ChambersTableFilterComposer get chamberId {
+    final $$ChambersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chamberId,
+      referencedTable: $db.chambers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChambersTableFilterComposer(
+            $db: $db,
+            $table: $db.chambers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> sessionQueueCountersRefs(
+    Expression<bool> Function($$SessionQueueCountersTableFilterComposer f) f,
+  ) {
+    final $$SessionQueueCountersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sessionQueueCounters,
+      getReferencedColumn: (t) => t.sessionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SessionQueueCountersTableFilterComposer(
+            $db: $db,
+            $table: $db.sessionQueueCounters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> queueTokensRefs(
+    Expression<bool> Function($$QueueTokensTableFilterComposer f) f,
+  ) {
+    final $$QueueTokensTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.queueTokens,
+      getReferencedColumn: (t) => t.sessionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueTokensTableFilterComposer(
+            $db: $db,
+            $table: $db.queueTokens,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$QueueSessionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $QueueSessionsTable> {
+  $$QueueSessionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get businessDate => $composableBuilder(
+    column: $table.businessDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get openedAt => $composableBuilder(
+    column: $table.openedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get openedByAccountId => $composableBuilder(
+    column: $table.openedByAccountId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get closedAt => $composableBuilder(
+    column: $table.closedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get closedByAccountId => $composableBuilder(
+    column: $table.closedByAccountId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get closeReason => $composableBuilder(
+    column: $table.closeReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get configSnapshotJson => $composableBuilder(
+    column: $table.configSnapshotJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ChambersTableOrderingComposer get chamberId {
+    final $$ChambersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chamberId,
+      referencedTable: $db.chambers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChambersTableOrderingComposer(
+            $db: $db,
+            $table: $db.chambers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$QueueSessionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $QueueSessionsTable> {
+  $$QueueSessionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get businessDate => $composableBuilder(
+    column: $table.businessDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get openedAt =>
+      $composableBuilder(column: $table.openedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get openedByAccountId => $composableBuilder(
+    column: $table.openedByAccountId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get closedAt =>
+      $composableBuilder(column: $table.closedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get closedByAccountId => $composableBuilder(
+    column: $table.closedByAccountId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get closeReason => $composableBuilder(
+    column: $table.closeReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get configSnapshotJson => $composableBuilder(
+    column: $table.configSnapshotJson,
+    builder: (column) => column,
+  );
+
+  $$ChambersTableAnnotationComposer get chamberId {
+    final $$ChambersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chamberId,
+      referencedTable: $db.chambers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChambersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.chambers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> sessionQueueCountersRefs<T extends Object>(
+    Expression<T> Function($$SessionQueueCountersTableAnnotationComposer a) f,
+  ) {
+    final $$SessionQueueCountersTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.sessionQueueCounters,
+          getReferencedColumn: (t) => t.sessionId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$SessionQueueCountersTableAnnotationComposer(
+                $db: $db,
+                $table: $db.sessionQueueCounters,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> queueTokensRefs<T extends Object>(
+    Expression<T> Function($$QueueTokensTableAnnotationComposer a) f,
+  ) {
+    final $$QueueTokensTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.queueTokens,
+      getReferencedColumn: (t) => t.sessionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueTokensTableAnnotationComposer(
+            $db: $db,
+            $table: $db.queueTokens,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$QueueSessionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $QueueSessionsTable,
+          QueueSessionRow,
+          $$QueueSessionsTableFilterComposer,
+          $$QueueSessionsTableOrderingComposer,
+          $$QueueSessionsTableAnnotationComposer,
+          $$QueueSessionsTableCreateCompanionBuilder,
+          $$QueueSessionsTableUpdateCompanionBuilder,
+          (QueueSessionRow, $$QueueSessionsTableReferences),
+          QueueSessionRow,
+          PrefetchHooks Function({
+            bool chamberId,
+            bool sessionQueueCountersRefs,
+            bool queueTokensRefs,
+          })
+        > {
+  $$QueueSessionsTableTableManager(_$AppDatabase db, $QueueSessionsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$QueueSessionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$QueueSessionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$QueueSessionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> chamberId = const Value.absent(),
+                Value<String> businessDate = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> openedAt = const Value.absent(),
+                Value<String?> openedByAccountId = const Value.absent(),
+                Value<int?> closedAt = const Value.absent(),
+                Value<String?> closedByAccountId = const Value.absent(),
+                Value<String?> closeReason = const Value.absent(),
+                Value<String> configSnapshotJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => QueueSessionsCompanion(
+                id: id,
+                chamberId: chamberId,
+                businessDate: businessDate,
+                status: status,
+                openedAt: openedAt,
+                openedByAccountId: openedByAccountId,
+                closedAt: closedAt,
+                closedByAccountId: closedByAccountId,
+                closeReason: closeReason,
+                configSnapshotJson: configSnapshotJson,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String chamberId,
+                required String businessDate,
+                required String status,
+                required int openedAt,
+                Value<String?> openedByAccountId = const Value.absent(),
+                Value<int?> closedAt = const Value.absent(),
+                Value<String?> closedByAccountId = const Value.absent(),
+                Value<String?> closeReason = const Value.absent(),
+                required String configSnapshotJson,
+                Value<int> rowid = const Value.absent(),
+              }) => QueueSessionsCompanion.insert(
+                id: id,
+                chamberId: chamberId,
+                businessDate: businessDate,
+                status: status,
+                openedAt: openedAt,
+                openedByAccountId: openedByAccountId,
+                closedAt: closedAt,
+                closedByAccountId: closedByAccountId,
+                closeReason: closeReason,
+                configSnapshotJson: configSnapshotJson,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$QueueSessionsTable, QueueSessionRow>(table),
+                  $$QueueSessionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                chamberId = false,
+                sessionQueueCountersRefs = false,
+                queueTokensRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (sessionQueueCountersRefs) db.sessionQueueCounters,
+                    if (queueTokensRefs) db.queueTokens,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (chamberId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.chamberId,
+                            referencedTable: $$QueueSessionsTableReferences
+                                ._chamberIdTable(db),
+                            referencedColumn: $$QueueSessionsTableReferences
+                                ._chamberIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (sessionQueueCountersRefs)
+                        await $_getPrefetchedDataByColumns<
+                          QueueSessionRow,
+                          $QueueSessionsTable,
+                          SessionQueueCounterRow,
+                          $SessionQueueCountersTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$QueueSessionsTableReferences
+                              ._sessionQueueCountersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$QueueSessionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).sessionQueueCountersRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'session_id',
+                          typedResults: items,
+                        ),
+                      if (queueTokensRefs)
+                        await $_getPrefetchedDataByColumns<
+                          QueueSessionRow,
+                          $QueueSessionsTable,
+                          QueueTokenRow,
+                          $QueueTokensTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$QueueSessionsTableReferences
+                              ._queueTokensRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$QueueSessionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).queueTokensRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'session_id',
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$QueueSessionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $QueueSessionsTable,
+      QueueSessionRow,
+      $$QueueSessionsTableFilterComposer,
+      $$QueueSessionsTableOrderingComposer,
+      $$QueueSessionsTableAnnotationComposer,
+      $$QueueSessionsTableCreateCompanionBuilder,
+      $$QueueSessionsTableUpdateCompanionBuilder,
+      (QueueSessionRow, $$QueueSessionsTableReferences),
+      QueueSessionRow,
+      PrefetchHooks Function({
+        bool chamberId,
+        bool sessionQueueCountersRefs,
+        bool queueTokensRefs,
+      })
+    >;
+typedef $$SessionQueueCountersTableCreateCompanionBuilder =
+    SessionQueueCountersCompanion Function({
+      required String sessionId,
+      required String queueTypeId,
+      required int nextNumber,
+      Value<int> issuedCount,
+      Value<int> rowid,
+    });
+typedef $$SessionQueueCountersTableUpdateCompanionBuilder =
+    SessionQueueCountersCompanion Function({
+      Value<String> sessionId,
+      Value<String> queueTypeId,
+      Value<int> nextNumber,
+      Value<int> issuedCount,
+      Value<int> rowid,
+    });
+
+final class $$SessionQueueCountersTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $SessionQueueCountersTable,
+          SessionQueueCounterRow
+        > {
+  $$SessionQueueCountersTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $QueueSessionsTable _sessionIdTable(_$AppDatabase db) => db
+      .queueSessions
+      .createAlias('session_queue_counters__session_id__queue_sessions__id');
+
+  $$QueueSessionsTableProcessedTableManager get sessionId {
+    final $_column = $_itemColumn<String>('session_id')!;
+
+    final manager = $$QueueSessionsTableTableManager(
+      $_db,
+      $_db.queueSessions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sessionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$SessionQueueCountersTableFilterComposer
+    extends Composer<_$AppDatabase, $SessionQueueCountersTable> {
+  $$SessionQueueCountersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get queueTypeId => $composableBuilder(
+    column: $table.queueTypeId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get nextNumber => $composableBuilder(
+    column: $table.nextNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get issuedCount => $composableBuilder(
+    column: $table.issuedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$QueueSessionsTableFilterComposer get sessionId {
+    final $$QueueSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.queueSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.queueSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SessionQueueCountersTableOrderingComposer
+    extends Composer<_$AppDatabase, $SessionQueueCountersTable> {
+  $$SessionQueueCountersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get queueTypeId => $composableBuilder(
+    column: $table.queueTypeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get nextNumber => $composableBuilder(
+    column: $table.nextNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get issuedCount => $composableBuilder(
+    column: $table.issuedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$QueueSessionsTableOrderingComposer get sessionId {
+    final $$QueueSessionsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.queueSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueSessionsTableOrderingComposer(
+            $db: $db,
+            $table: $db.queueSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SessionQueueCountersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SessionQueueCountersTable> {
+  $$SessionQueueCountersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get queueTypeId => $composableBuilder(
+    column: $table.queueTypeId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get nextNumber => $composableBuilder(
+    column: $table.nextNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get issuedCount => $composableBuilder(
+    column: $table.issuedCount,
+    builder: (column) => column,
+  );
+
+  $$QueueSessionsTableAnnotationComposer get sessionId {
+    final $$QueueSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.queueSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.queueSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SessionQueueCountersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SessionQueueCountersTable,
+          SessionQueueCounterRow,
+          $$SessionQueueCountersTableFilterComposer,
+          $$SessionQueueCountersTableOrderingComposer,
+          $$SessionQueueCountersTableAnnotationComposer,
+          $$SessionQueueCountersTableCreateCompanionBuilder,
+          $$SessionQueueCountersTableUpdateCompanionBuilder,
+          (SessionQueueCounterRow, $$SessionQueueCountersTableReferences),
+          SessionQueueCounterRow,
+          PrefetchHooks Function({bool sessionId})
+        > {
+  $$SessionQueueCountersTableTableManager(
+    _$AppDatabase db,
+    $SessionQueueCountersTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SessionQueueCountersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SessionQueueCountersTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SessionQueueCountersTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> sessionId = const Value.absent(),
+                Value<String> queueTypeId = const Value.absent(),
+                Value<int> nextNumber = const Value.absent(),
+                Value<int> issuedCount = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SessionQueueCountersCompanion(
+                sessionId: sessionId,
+                queueTypeId: queueTypeId,
+                nextNumber: nextNumber,
+                issuedCount: issuedCount,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String sessionId,
+                required String queueTypeId,
+                required int nextNumber,
+                Value<int> issuedCount = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SessionQueueCountersCompanion.insert(
+                sessionId: sessionId,
+                queueTypeId: queueTypeId,
+                nextNumber: nextNumber,
+                issuedCount: issuedCount,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $SessionQueueCountersTable,
+                    SessionQueueCounterRow
+                  >(table),
+                  $$SessionQueueCountersTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({sessionId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (sessionId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.sessionId,
+                        referencedTable: $$SessionQueueCountersTableReferences
+                            ._sessionIdTable(db),
+                        referencedColumn: $$SessionQueueCountersTableReferences
+                            ._sessionIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$SessionQueueCountersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SessionQueueCountersTable,
+      SessionQueueCounterRow,
+      $$SessionQueueCountersTableFilterComposer,
+      $$SessionQueueCountersTableOrderingComposer,
+      $$SessionQueueCountersTableAnnotationComposer,
+      $$SessionQueueCountersTableCreateCompanionBuilder,
+      $$SessionQueueCountersTableUpdateCompanionBuilder,
+      (SessionQueueCounterRow, $$SessionQueueCountersTableReferences),
+      SessionQueueCounterRow,
+      PrefetchHooks Function({bool sessionId})
+    >;
+typedef $$PatientsTableCreateCompanionBuilder = PatientsCompanion Function({
+  required String id,
+  required int patientNumber,
+  required String bengaliName,
+  Value<String?> englishName,
+  required String phoneNormalized,
+  Value<String?> gender,
+  Value<int?> dateOfBirthMs,
+  Value<int?> birthYear,
+  Value<int?> approximateAgeYears,
+  Value<int?> approximateAgeRecordedAt,
+  Value<String?> locality,
+  Value<String?> legacyFileNumber,
+  Value<String?> adminNote,
+  Value<bool> hasPaperFile,
+  required int createdAt,
+  Value<int> rowid,
+});
+typedef $$PatientsTableUpdateCompanionBuilder = PatientsCompanion Function({
+  Value<String> id,
+  Value<int> patientNumber,
+  Value<String> bengaliName,
+  Value<String?> englishName,
+  Value<String> phoneNormalized,
+  Value<String?> gender,
+  Value<int?> dateOfBirthMs,
+  Value<int?> birthYear,
+  Value<int?> approximateAgeYears,
+  Value<int?> approximateAgeRecordedAt,
+  Value<String?> locality,
+  Value<String?> legacyFileNumber,
+  Value<String?> adminNote,
+  Value<bool> hasPaperFile,
+  Value<int> createdAt,
+  Value<int> rowid,
+});
+
+final class $$PatientsTableReferences
+    extends BaseReferences<_$AppDatabase, $PatientsTable, PatientRow> {
+  $$PatientsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$QueueTokensTable, List<QueueTokenRow>>
+  _queueTokensRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.queueTokens,
+    aliasName: 'patients__id__queue_tokens__patient_id',
+  );
+
+  $$QueueTokensTableProcessedTableManager get queueTokensRefs {
+    final manager = $$QueueTokensTableTableManager(
+      $_db,
+      $_db.queueTokens,
+    ).filter((f) => f.patientId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_queueTokensRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$PatientsTableFilterComposer
+    extends Composer<_$AppDatabase, $PatientsTable> {
+  $$PatientsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get patientNumber => $composableBuilder(
+    column: $table.patientNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bengaliName => $composableBuilder(
+    column: $table.bengaliName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get englishName => $composableBuilder(
+    column: $table.englishName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get phoneNormalized => $composableBuilder(
+    column: $table.phoneNormalized,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get gender => $composableBuilder(
+    column: $table.gender,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dateOfBirthMs => $composableBuilder(
+    column: $table.dateOfBirthMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get birthYear => $composableBuilder(
+    column: $table.birthYear,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get approximateAgeYears => $composableBuilder(
+    column: $table.approximateAgeYears,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get approximateAgeRecordedAt => $composableBuilder(
+    column: $table.approximateAgeRecordedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get locality => $composableBuilder(
+    column: $table.locality,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get legacyFileNumber => $composableBuilder(
+    column: $table.legacyFileNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get adminNote => $composableBuilder(
+    column: $table.adminNote,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hasPaperFile => $composableBuilder(
+    column: $table.hasPaperFile,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> queueTokensRefs(
+    Expression<bool> Function($$QueueTokensTableFilterComposer f) f,
+  ) {
+    final $$QueueTokensTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.queueTokens,
+      getReferencedColumn: (t) => t.patientId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueTokensTableFilterComposer(
+            $db: $db,
+            $table: $db.queueTokens,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PatientsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PatientsTable> {
+  $$PatientsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get patientNumber => $composableBuilder(
+    column: $table.patientNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bengaliName => $composableBuilder(
+    column: $table.bengaliName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get englishName => $composableBuilder(
+    column: $table.englishName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get phoneNormalized => $composableBuilder(
+    column: $table.phoneNormalized,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get gender => $composableBuilder(
+    column: $table.gender,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get dateOfBirthMs => $composableBuilder(
+    column: $table.dateOfBirthMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get birthYear => $composableBuilder(
+    column: $table.birthYear,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get approximateAgeYears => $composableBuilder(
+    column: $table.approximateAgeYears,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get approximateAgeRecordedAt => $composableBuilder(
+    column: $table.approximateAgeRecordedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get locality => $composableBuilder(
+    column: $table.locality,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get legacyFileNumber => $composableBuilder(
+    column: $table.legacyFileNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get adminNote => $composableBuilder(
+    column: $table.adminNote,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hasPaperFile => $composableBuilder(
+    column: $table.hasPaperFile,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PatientsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PatientsTable> {
+  $$PatientsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get patientNumber => $composableBuilder(
+    column: $table.patientNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get bengaliName => $composableBuilder(
+    column: $table.bengaliName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get englishName => $composableBuilder(
+    column: $table.englishName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get phoneNormalized => $composableBuilder(
+    column: $table.phoneNormalized,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get gender =>
+      $composableBuilder(column: $table.gender, builder: (column) => column);
+
+  GeneratedColumn<int> get dateOfBirthMs => $composableBuilder(
+    column: $table.dateOfBirthMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get birthYear =>
+      $composableBuilder(column: $table.birthYear, builder: (column) => column);
+
+  GeneratedColumn<int> get approximateAgeYears => $composableBuilder(
+    column: $table.approximateAgeYears,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get approximateAgeRecordedAt => $composableBuilder(
+    column: $table.approximateAgeRecordedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get locality =>
+      $composableBuilder(column: $table.locality, builder: (column) => column);
+
+  GeneratedColumn<String> get legacyFileNumber => $composableBuilder(
+    column: $table.legacyFileNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get adminNote =>
+      $composableBuilder(column: $table.adminNote, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasPaperFile => $composableBuilder(
+    column: $table.hasPaperFile,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> queueTokensRefs<T extends Object>(
+    Expression<T> Function($$QueueTokensTableAnnotationComposer a) f,
+  ) {
+    final $$QueueTokensTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.queueTokens,
+      getReferencedColumn: (t) => t.patientId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueTokensTableAnnotationComposer(
+            $db: $db,
+            $table: $db.queueTokens,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PatientsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PatientsTable,
+          PatientRow,
+          $$PatientsTableFilterComposer,
+          $$PatientsTableOrderingComposer,
+          $$PatientsTableAnnotationComposer,
+          $$PatientsTableCreateCompanionBuilder,
+          $$PatientsTableUpdateCompanionBuilder,
+          (PatientRow, $$PatientsTableReferences),
+          PatientRow,
+          PrefetchHooks Function({bool queueTokensRefs})
+        > {
+  $$PatientsTableTableManager(_$AppDatabase db, $PatientsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PatientsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PatientsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PatientsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> patientNumber = const Value.absent(),
+                Value<String> bengaliName = const Value.absent(),
+                Value<String?> englishName = const Value.absent(),
+                Value<String> phoneNormalized = const Value.absent(),
+                Value<String?> gender = const Value.absent(),
+                Value<int?> dateOfBirthMs = const Value.absent(),
+                Value<int?> birthYear = const Value.absent(),
+                Value<int?> approximateAgeYears = const Value.absent(),
+                Value<int?> approximateAgeRecordedAt = const Value.absent(),
+                Value<String?> locality = const Value.absent(),
+                Value<String?> legacyFileNumber = const Value.absent(),
+                Value<String?> adminNote = const Value.absent(),
+                Value<bool> hasPaperFile = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PatientsCompanion(
+                id: id,
+                patientNumber: patientNumber,
+                bengaliName: bengaliName,
+                englishName: englishName,
+                phoneNormalized: phoneNormalized,
+                gender: gender,
+                dateOfBirthMs: dateOfBirthMs,
+                birthYear: birthYear,
+                approximateAgeYears: approximateAgeYears,
+                approximateAgeRecordedAt: approximateAgeRecordedAt,
+                locality: locality,
+                legacyFileNumber: legacyFileNumber,
+                adminNote: adminNote,
+                hasPaperFile: hasPaperFile,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int patientNumber,
+                required String bengaliName,
+                Value<String?> englishName = const Value.absent(),
+                required String phoneNormalized,
+                Value<String?> gender = const Value.absent(),
+                Value<int?> dateOfBirthMs = const Value.absent(),
+                Value<int?> birthYear = const Value.absent(),
+                Value<int?> approximateAgeYears = const Value.absent(),
+                Value<int?> approximateAgeRecordedAt = const Value.absent(),
+                Value<String?> locality = const Value.absent(),
+                Value<String?> legacyFileNumber = const Value.absent(),
+                Value<String?> adminNote = const Value.absent(),
+                Value<bool> hasPaperFile = const Value.absent(),
+                required int createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => PatientsCompanion.insert(
+                id: id,
+                patientNumber: patientNumber,
+                bengaliName: bengaliName,
+                englishName: englishName,
+                phoneNormalized: phoneNormalized,
+                gender: gender,
+                dateOfBirthMs: dateOfBirthMs,
+                birthYear: birthYear,
+                approximateAgeYears: approximateAgeYears,
+                approximateAgeRecordedAt: approximateAgeRecordedAt,
+                locality: locality,
+                legacyFileNumber: legacyFileNumber,
+                adminNote: adminNote,
+                hasPaperFile: hasPaperFile,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PatientsTable, PatientRow>(table),
+                  $$PatientsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({queueTokensRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (queueTokensRefs) db.queueTokens],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (queueTokensRefs)
+                    await $_getPrefetchedDataByColumns<
+                      PatientRow,
+                      $PatientsTable,
+                      QueueTokenRow,
+                      $QueueTokensTable
+                    >(
+                      currentTable: table,
+                      referencedTable: $$PatientsTableReferences
+                          ._queueTokensRefsTable(db),
+                      managerFromTypedResult: (p0) => $$PatientsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).queueTokensRefs,
+                      currentColumn: 'id',
+                      referencedColumn: 'patient_id',
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PatientsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PatientsTable,
+      PatientRow,
+      $$PatientsTableFilterComposer,
+      $$PatientsTableOrderingComposer,
+      $$PatientsTableAnnotationComposer,
+      $$PatientsTableCreateCompanionBuilder,
+      $$PatientsTableUpdateCompanionBuilder,
+      (PatientRow, $$PatientsTableReferences),
+      PatientRow,
+      PrefetchHooks Function({bool queueTokensRefs})
+    >;
+typedef $$IdempotentCommandsTableCreateCompanionBuilder =
+    IdempotentCommandsCompanion Function({
+      required String commandId,
+      required String resultJson,
+      required int createdAt,
+      Value<int> rowid,
+    });
+typedef $$IdempotentCommandsTableUpdateCompanionBuilder =
+    IdempotentCommandsCompanion Function({
+      Value<String> commandId,
+      Value<String> resultJson,
+      Value<int> createdAt,
+      Value<int> rowid,
+    });
+
+class $$IdempotentCommandsTableFilterComposer
+    extends Composer<_$AppDatabase, $IdempotentCommandsTable> {
+  $$IdempotentCommandsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get commandId => $composableBuilder(
+    column: $table.commandId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get resultJson => $composableBuilder(
+    column: $table.resultJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$IdempotentCommandsTableOrderingComposer
+    extends Composer<_$AppDatabase, $IdempotentCommandsTable> {
+  $$IdempotentCommandsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get commandId => $composableBuilder(
+    column: $table.commandId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get resultJson => $composableBuilder(
+    column: $table.resultJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$IdempotentCommandsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $IdempotentCommandsTable> {
+  $$IdempotentCommandsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get commandId =>
+      $composableBuilder(column: $table.commandId, builder: (column) => column);
+
+  GeneratedColumn<String> get resultJson => $composableBuilder(
+    column: $table.resultJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$IdempotentCommandsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $IdempotentCommandsTable,
+          IdempotentCommandRow,
+          $$IdempotentCommandsTableFilterComposer,
+          $$IdempotentCommandsTableOrderingComposer,
+          $$IdempotentCommandsTableAnnotationComposer,
+          $$IdempotentCommandsTableCreateCompanionBuilder,
+          $$IdempotentCommandsTableUpdateCompanionBuilder,
+          (
+            IdempotentCommandRow,
+            BaseReferences<
+              _$AppDatabase,
+              $IdempotentCommandsTable,
+              IdempotentCommandRow
+            >,
+          ),
+          IdempotentCommandRow,
+          PrefetchHooks Function()
+        > {
+  $$IdempotentCommandsTableTableManager(
+    _$AppDatabase db,
+    $IdempotentCommandsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$IdempotentCommandsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$IdempotentCommandsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$IdempotentCommandsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> commandId = const Value.absent(),
+                Value<String> resultJson = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => IdempotentCommandsCompanion(
+                commandId: commandId,
+                resultJson: resultJson,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String commandId,
+                required String resultJson,
+                required int createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => IdempotentCommandsCompanion.insert(
+                commandId: commandId,
+                resultJson: resultJson,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$IdempotentCommandsTable, IdempotentCommandRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $IdempotentCommandsTable,
+                    IdempotentCommandRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$IdempotentCommandsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $IdempotentCommandsTable,
+      IdempotentCommandRow,
+      $$IdempotentCommandsTableFilterComposer,
+      $$IdempotentCommandsTableOrderingComposer,
+      $$IdempotentCommandsTableAnnotationComposer,
+      $$IdempotentCommandsTableCreateCompanionBuilder,
+      $$IdempotentCommandsTableUpdateCompanionBuilder,
+      (
+        IdempotentCommandRow,
+        BaseReferences<
+          _$AppDatabase,
+          $IdempotentCommandsTable,
+          IdempotentCommandRow
+        >,
+      ),
+      IdempotentCommandRow,
+      PrefetchHooks Function()
+    >;
+typedef $$QueueTokensTableCreateCompanionBuilder =
+    QueueTokensCompanion Function({
+      required String id,
+      required String sessionId,
+      required String chamberId,
+      required String patientId,
+      required String queueTypeId,
+      required int serial,
+      required String status,
+      Value<int?> feeBdt,
+      required int issuedAt,
+      Value<int?> firstCalledAt,
+      Value<int?> enteredAt,
+      Value<int?> cancelledAt,
+      Value<String?> cancelReason,
+      Value<String?> latestPrintStatus,
+      Value<int> rowid,
+    });
+typedef $$QueueTokensTableUpdateCompanionBuilder =
+    QueueTokensCompanion Function({
+      Value<String> id,
+      Value<String> sessionId,
+      Value<String> chamberId,
+      Value<String> patientId,
+      Value<String> queueTypeId,
+      Value<int> serial,
+      Value<String> status,
+      Value<int?> feeBdt,
+      Value<int> issuedAt,
+      Value<int?> firstCalledAt,
+      Value<int?> enteredAt,
+      Value<int?> cancelledAt,
+      Value<String?> cancelReason,
+      Value<String?> latestPrintStatus,
+      Value<int> rowid,
+    });
+
+final class $$QueueTokensTableReferences
+    extends BaseReferences<_$AppDatabase, $QueueTokensTable, QueueTokenRow> {
+  $$QueueTokensTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $QueueSessionsTable _sessionIdTable(_$AppDatabase db) => db
+      .queueSessions
+      .createAlias('queue_tokens__session_id__queue_sessions__id');
+
+  $$QueueSessionsTableProcessedTableManager get sessionId {
+    final $_column = $_itemColumn<String>('session_id')!;
+
+    final manager = $$QueueSessionsTableTableManager(
+      $_db,
+      $_db.queueSessions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sessionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $ChambersTable _chamberIdTable(_$AppDatabase db) =>
+      db.chambers.createAlias('queue_tokens__chamber_id__chambers__id');
+
+  $$ChambersTableProcessedTableManager get chamberId {
+    final $_column = $_itemColumn<String>('chamber_id')!;
+
+    final manager = $$ChambersTableTableManager(
+      $_db,
+      $_db.chambers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_chamberIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $PatientsTable _patientIdTable(_$AppDatabase db) =>
+      db.patients.createAlias('queue_tokens__patient_id__patients__id');
+
+  $$PatientsTableProcessedTableManager get patientId {
+    final $_column = $_itemColumn<String>('patient_id')!;
+
+    final manager = $$PatientsTableTableManager(
+      $_db,
+      $_db.patients,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_patientIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $TokenPrintAttemptsTable,
+    List<TokenPrintAttemptRow>
+  >
+  _tokenPrintAttemptsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.tokenPrintAttempts,
+        aliasName: 'queue_tokens__id__token_print_attempts__token_id',
+      );
+
+  $$TokenPrintAttemptsTableProcessedTableManager get tokenPrintAttemptsRefs {
+    final manager = $$TokenPrintAttemptsTableTableManager(
+      $_db,
+      $_db.tokenPrintAttempts,
+    ).filter((f) => f.tokenId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _tokenPrintAttemptsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$QueueTokensTableFilterComposer
+    extends Composer<_$AppDatabase, $QueueTokensTable> {
+  $$QueueTokensTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get queueTypeId => $composableBuilder(
+    column: $table.queueTypeId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get serial => $composableBuilder(
+    column: $table.serial,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get feeBdt => $composableBuilder(
+    column: $table.feeBdt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get issuedAt => $composableBuilder(
+    column: $table.issuedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get firstCalledAt => $composableBuilder(
+    column: $table.firstCalledAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get enteredAt => $composableBuilder(
+    column: $table.enteredAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cancelReason => $composableBuilder(
+    column: $table.cancelReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get latestPrintStatus => $composableBuilder(
+    column: $table.latestPrintStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$QueueSessionsTableFilterComposer get sessionId {
+    final $$QueueSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.queueSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.queueSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ChambersTableFilterComposer get chamberId {
+    final $$ChambersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chamberId,
+      referencedTable: $db.chambers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChambersTableFilterComposer(
+            $db: $db,
+            $table: $db.chambers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PatientsTableFilterComposer get patientId {
+    final $$PatientsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.patientId,
+      referencedTable: $db.patients,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PatientsTableFilterComposer(
+            $db: $db,
+            $table: $db.patients,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> tokenPrintAttemptsRefs(
+    Expression<bool> Function($$TokenPrintAttemptsTableFilterComposer f) f,
+  ) {
+    final $$TokenPrintAttemptsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.tokenPrintAttempts,
+      getReferencedColumn: (t) => t.tokenId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TokenPrintAttemptsTableFilterComposer(
+            $db: $db,
+            $table: $db.tokenPrintAttempts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$QueueTokensTableOrderingComposer
+    extends Composer<_$AppDatabase, $QueueTokensTable> {
+  $$QueueTokensTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get queueTypeId => $composableBuilder(
+    column: $table.queueTypeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get serial => $composableBuilder(
+    column: $table.serial,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get feeBdt => $composableBuilder(
+    column: $table.feeBdt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get issuedAt => $composableBuilder(
+    column: $table.issuedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get firstCalledAt => $composableBuilder(
+    column: $table.firstCalledAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get enteredAt => $composableBuilder(
+    column: $table.enteredAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cancelReason => $composableBuilder(
+    column: $table.cancelReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get latestPrintStatus => $composableBuilder(
+    column: $table.latestPrintStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$QueueSessionsTableOrderingComposer get sessionId {
+    final $$QueueSessionsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.queueSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueSessionsTableOrderingComposer(
+            $db: $db,
+            $table: $db.queueSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ChambersTableOrderingComposer get chamberId {
+    final $$ChambersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chamberId,
+      referencedTable: $db.chambers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChambersTableOrderingComposer(
+            $db: $db,
+            $table: $db.chambers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PatientsTableOrderingComposer get patientId {
+    final $$PatientsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.patientId,
+      referencedTable: $db.patients,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PatientsTableOrderingComposer(
+            $db: $db,
+            $table: $db.patients,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$QueueTokensTableAnnotationComposer
+    extends Composer<_$AppDatabase, $QueueTokensTable> {
+  $$QueueTokensTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get queueTypeId => $composableBuilder(
+    column: $table.queueTypeId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get serial =>
+      $composableBuilder(column: $table.serial, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get feeBdt =>
+      $composableBuilder(column: $table.feeBdt, builder: (column) => column);
+
+  GeneratedColumn<int> get issuedAt =>
+      $composableBuilder(column: $table.issuedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get firstCalledAt => $composableBuilder(
+    column: $table.firstCalledAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get enteredAt =>
+      $composableBuilder(column: $table.enteredAt, builder: (column) => column);
+
+  GeneratedColumn<int> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cancelReason => $composableBuilder(
+    column: $table.cancelReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get latestPrintStatus => $composableBuilder(
+    column: $table.latestPrintStatus,
+    builder: (column) => column,
+  );
+
+  $$QueueSessionsTableAnnotationComposer get sessionId {
+    final $$QueueSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.queueSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.queueSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ChambersTableAnnotationComposer get chamberId {
+    final $$ChambersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chamberId,
+      referencedTable: $db.chambers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChambersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.chambers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PatientsTableAnnotationComposer get patientId {
+    final $$PatientsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.patientId,
+      referencedTable: $db.patients,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PatientsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.patients,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> tokenPrintAttemptsRefs<T extends Object>(
+    Expression<T> Function($$TokenPrintAttemptsTableAnnotationComposer a) f,
+  ) {
+    final $$TokenPrintAttemptsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.tokenPrintAttempts,
+          getReferencedColumn: (t) => t.tokenId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TokenPrintAttemptsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.tokenPrintAttempts,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$QueueTokensTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $QueueTokensTable,
+          QueueTokenRow,
+          $$QueueTokensTableFilterComposer,
+          $$QueueTokensTableOrderingComposer,
+          $$QueueTokensTableAnnotationComposer,
+          $$QueueTokensTableCreateCompanionBuilder,
+          $$QueueTokensTableUpdateCompanionBuilder,
+          (QueueTokenRow, $$QueueTokensTableReferences),
+          QueueTokenRow,
+          PrefetchHooks Function({
+            bool sessionId,
+            bool chamberId,
+            bool patientId,
+            bool tokenPrintAttemptsRefs,
+          })
+        > {
+  $$QueueTokensTableTableManager(_$AppDatabase db, $QueueTokensTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$QueueTokensTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$QueueTokensTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$QueueTokensTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> sessionId = const Value.absent(),
+                Value<String> chamberId = const Value.absent(),
+                Value<String> patientId = const Value.absent(),
+                Value<String> queueTypeId = const Value.absent(),
+                Value<int> serial = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int?> feeBdt = const Value.absent(),
+                Value<int> issuedAt = const Value.absent(),
+                Value<int?> firstCalledAt = const Value.absent(),
+                Value<int?> enteredAt = const Value.absent(),
+                Value<int?> cancelledAt = const Value.absent(),
+                Value<String?> cancelReason = const Value.absent(),
+                Value<String?> latestPrintStatus = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => QueueTokensCompanion(
+                id: id,
+                sessionId: sessionId,
+                chamberId: chamberId,
+                patientId: patientId,
+                queueTypeId: queueTypeId,
+                serial: serial,
+                status: status,
+                feeBdt: feeBdt,
+                issuedAt: issuedAt,
+                firstCalledAt: firstCalledAt,
+                enteredAt: enteredAt,
+                cancelledAt: cancelledAt,
+                cancelReason: cancelReason,
+                latestPrintStatus: latestPrintStatus,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String sessionId,
+                required String chamberId,
+                required String patientId,
+                required String queueTypeId,
+                required int serial,
+                required String status,
+                Value<int?> feeBdt = const Value.absent(),
+                required int issuedAt,
+                Value<int?> firstCalledAt = const Value.absent(),
+                Value<int?> enteredAt = const Value.absent(),
+                Value<int?> cancelledAt = const Value.absent(),
+                Value<String?> cancelReason = const Value.absent(),
+                Value<String?> latestPrintStatus = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => QueueTokensCompanion.insert(
+                id: id,
+                sessionId: sessionId,
+                chamberId: chamberId,
+                patientId: patientId,
+                queueTypeId: queueTypeId,
+                serial: serial,
+                status: status,
+                feeBdt: feeBdt,
+                issuedAt: issuedAt,
+                firstCalledAt: firstCalledAt,
+                enteredAt: enteredAt,
+                cancelledAt: cancelledAt,
+                cancelReason: cancelReason,
+                latestPrintStatus: latestPrintStatus,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$QueueTokensTable, QueueTokenRow>(table),
+                  $$QueueTokensTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                sessionId = false,
+                chamberId = false,
+                patientId = false,
+                tokenPrintAttemptsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (tokenPrintAttemptsRefs) db.tokenPrintAttempts,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (sessionId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.sessionId,
+                            referencedTable: $$QueueTokensTableReferences
+                                ._sessionIdTable(db),
+                            referencedColumn: $$QueueTokensTableReferences
+                                ._sessionIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+                        if (chamberId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.chamberId,
+                            referencedTable: $$QueueTokensTableReferences
+                                ._chamberIdTable(db),
+                            referencedColumn: $$QueueTokensTableReferences
+                                ._chamberIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+                        if (patientId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.patientId,
+                            referencedTable: $$QueueTokensTableReferences
+                                ._patientIdTable(db),
+                            referencedColumn: $$QueueTokensTableReferences
+                                ._patientIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (tokenPrintAttemptsRefs)
+                        await $_getPrefetchedDataByColumns<
+                          QueueTokenRow,
+                          $QueueTokensTable,
+                          TokenPrintAttemptRow,
+                          $TokenPrintAttemptsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$QueueTokensTableReferences
+                              ._tokenPrintAttemptsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$QueueTokensTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).tokenPrintAttemptsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'token_id',
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$QueueTokensTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $QueueTokensTable,
+      QueueTokenRow,
+      $$QueueTokensTableFilterComposer,
+      $$QueueTokensTableOrderingComposer,
+      $$QueueTokensTableAnnotationComposer,
+      $$QueueTokensTableCreateCompanionBuilder,
+      $$QueueTokensTableUpdateCompanionBuilder,
+      (QueueTokenRow, $$QueueTokensTableReferences),
+      QueueTokenRow,
+      PrefetchHooks Function({
+        bool sessionId,
+        bool chamberId,
+        bool patientId,
+        bool tokenPrintAttemptsRefs,
+      })
+    >;
+typedef $$TokenPrintAttemptsTableCreateCompanionBuilder =
+    TokenPrintAttemptsCompanion Function({
+      required String id,
+      required String tokenId,
+      required int attemptNumber,
+      required String status,
+      Value<String?> reason,
+      Value<String?> actorAccountId,
+      required int createdAt,
+      Value<int> rowid,
+    });
+typedef $$TokenPrintAttemptsTableUpdateCompanionBuilder =
+    TokenPrintAttemptsCompanion Function({
+      Value<String> id,
+      Value<String> tokenId,
+      Value<int> attemptNumber,
+      Value<String> status,
+      Value<String?> reason,
+      Value<String?> actorAccountId,
+      Value<int> createdAt,
+      Value<int> rowid,
+    });
+
+final class $$TokenPrintAttemptsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $TokenPrintAttemptsTable,
+          TokenPrintAttemptRow
+        > {
+  $$TokenPrintAttemptsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $QueueTokensTable _tokenIdTable(_$AppDatabase db) => db.queueTokens
+      .createAlias('token_print_attempts__token_id__queue_tokens__id');
+
+  $$QueueTokensTableProcessedTableManager get tokenId {
+    final $_column = $_itemColumn<String>('token_id')!;
+
+    final manager = $$QueueTokensTableTableManager(
+      $_db,
+      $_db.queueTokens,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_tokenIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TokenPrintAttemptsTableFilterComposer
+    extends Composer<_$AppDatabase, $TokenPrintAttemptsTable> {
+  $$TokenPrintAttemptsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get attemptNumber => $composableBuilder(
+    column: $table.attemptNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get actorAccountId => $composableBuilder(
+    column: $table.actorAccountId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$QueueTokensTableFilterComposer get tokenId {
+    final $$QueueTokensTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tokenId,
+      referencedTable: $db.queueTokens,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueTokensTableFilterComposer(
+            $db: $db,
+            $table: $db.queueTokens,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TokenPrintAttemptsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TokenPrintAttemptsTable> {
+  $$TokenPrintAttemptsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get attemptNumber => $composableBuilder(
+    column: $table.attemptNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get actorAccountId => $composableBuilder(
+    column: $table.actorAccountId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$QueueTokensTableOrderingComposer get tokenId {
+    final $$QueueTokensTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tokenId,
+      referencedTable: $db.queueTokens,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueTokensTableOrderingComposer(
+            $db: $db,
+            $table: $db.queueTokens,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TokenPrintAttemptsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TokenPrintAttemptsTable> {
+  $$TokenPrintAttemptsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get attemptNumber => $composableBuilder(
+    column: $table.attemptNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get reason =>
+      $composableBuilder(column: $table.reason, builder: (column) => column);
+
+  GeneratedColumn<String> get actorAccountId => $composableBuilder(
+    column: $table.actorAccountId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$QueueTokensTableAnnotationComposer get tokenId {
+    final $$QueueTokensTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tokenId,
+      referencedTable: $db.queueTokens,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$QueueTokensTableAnnotationComposer(
+            $db: $db,
+            $table: $db.queueTokens,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TokenPrintAttemptsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TokenPrintAttemptsTable,
+          TokenPrintAttemptRow,
+          $$TokenPrintAttemptsTableFilterComposer,
+          $$TokenPrintAttemptsTableOrderingComposer,
+          $$TokenPrintAttemptsTableAnnotationComposer,
+          $$TokenPrintAttemptsTableCreateCompanionBuilder,
+          $$TokenPrintAttemptsTableUpdateCompanionBuilder,
+          (TokenPrintAttemptRow, $$TokenPrintAttemptsTableReferences),
+          TokenPrintAttemptRow,
+          PrefetchHooks Function({bool tokenId})
+        > {
+  $$TokenPrintAttemptsTableTableManager(
+    _$AppDatabase db,
+    $TokenPrintAttemptsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TokenPrintAttemptsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TokenPrintAttemptsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TokenPrintAttemptsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> tokenId = const Value.absent(),
+                Value<int> attemptNumber = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> reason = const Value.absent(),
+                Value<String?> actorAccountId = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TokenPrintAttemptsCompanion(
+                id: id,
+                tokenId: tokenId,
+                attemptNumber: attemptNumber,
+                status: status,
+                reason: reason,
+                actorAccountId: actorAccountId,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String tokenId,
+                required int attemptNumber,
+                required String status,
+                Value<String?> reason = const Value.absent(),
+                Value<String?> actorAccountId = const Value.absent(),
+                required int createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => TokenPrintAttemptsCompanion.insert(
+                id: id,
+                tokenId: tokenId,
+                attemptNumber: attemptNumber,
+                status: status,
+                reason: reason,
+                actorAccountId: actorAccountId,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TokenPrintAttemptsTable, TokenPrintAttemptRow>(
+                    table,
+                  ),
+                  $$TokenPrintAttemptsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({tokenId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (tokenId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.tokenId,
+                        referencedTable: $$TokenPrintAttemptsTableReferences
+                            ._tokenIdTable(db),
+                        referencedColumn: $$TokenPrintAttemptsTableReferences
+                            ._tokenIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TokenPrintAttemptsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TokenPrintAttemptsTable,
+      TokenPrintAttemptRow,
+      $$TokenPrintAttemptsTableFilterComposer,
+      $$TokenPrintAttemptsTableOrderingComposer,
+      $$TokenPrintAttemptsTableAnnotationComposer,
+      $$TokenPrintAttemptsTableCreateCompanionBuilder,
+      $$TokenPrintAttemptsTableUpdateCompanionBuilder,
+      (TokenPrintAttemptRow, $$TokenPrintAttemptsTableReferences),
+      TokenPrintAttemptRow,
+      PrefetchHooks Function({bool tokenId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6282,4 +13597,18 @@ class $AppDatabaseManager {
       $$AuditEntriesTableTableManager(_db, _db.auditEntries);
   $$PinDevicesTableTableManager get pinDevices =>
       $$PinDevicesTableTableManager(_db, _db.pinDevices);
+  $$QueueTypesTableTableManager get queueTypes =>
+      $$QueueTypesTableTableManager(_db, _db.queueTypes);
+  $$QueueSessionsTableTableManager get queueSessions =>
+      $$QueueSessionsTableTableManager(_db, _db.queueSessions);
+  $$SessionQueueCountersTableTableManager get sessionQueueCounters =>
+      $$SessionQueueCountersTableTableManager(_db, _db.sessionQueueCounters);
+  $$PatientsTableTableManager get patients =>
+      $$PatientsTableTableManager(_db, _db.patients);
+  $$IdempotentCommandsTableTableManager get idempotentCommands =>
+      $$IdempotentCommandsTableTableManager(_db, _db.idempotentCommands);
+  $$QueueTokensTableTableManager get queueTokens =>
+      $$QueueTokensTableTableManager(_db, _db.queueTokens);
+  $$TokenPrintAttemptsTableTableManager get tokenPrintAttempts =>
+      $$TokenPrintAttemptsTableTableManager(_db, _db.tokenPrintAttempts);
 }

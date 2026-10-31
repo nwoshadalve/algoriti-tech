@@ -8,6 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/clock.dart';
 import '../../../platform/keep_alive_gateway.dart';
 import '../../../platform/system_health_gateway.dart';
+import '../../connectivity/application/printer_controller.dart';
+import '../../connectivity/application/test_token_service.dart';
+import '../../connectivity/domain/printer.dart';
 import 'monitoring_service.dart';
 
 /// One monitor for the app: it keeps the retry progress that every browser
@@ -17,5 +20,13 @@ final monitoringServiceProvider = Provider<MonitoringService>(
     health: ref.watch(systemHealthGatewayProvider),
     keepAlive: ref.watch(keepAliveGatewayProvider),
     clock: ref.watch(clockProvider),
+    printerState: () => ref.read(printerControllerProvider),
+    retryPrinter: () async {
+      final outcome = await ref
+          .read(printerControllerProvider.notifier)
+          .retryNow();
+      return outcome == ConnectOutcome.connected;
+    },
+    testPrinter: () => ref.read(testTokenServiceProvider).runForAdmin(),
   ),
 );

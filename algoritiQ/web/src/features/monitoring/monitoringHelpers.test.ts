@@ -9,7 +9,8 @@ import { describe, expect, it } from 'vitest'
 import { en } from '@/core/i18n/messages/en'
 import type { MessageKey } from '@/core/i18n/messages/types'
 import { formatBytes, formatUptime } from '@/features/monitoring/format'
-import { reasonKey } from '@/features/monitoring/monitoringReasons'
+import { reasonKey, serviceOkFallback, serviceProblemDetail } from '@/features/monitoring/monitoringReasons'
+import type { HealthService } from '@/core/api/monitoring'
 import { websocketHealth } from '@/features/monitoring/websocketHealth'
 
 const t = (key: MessageKey, params?: Record<string, string | number>) =>
@@ -33,7 +34,25 @@ describe('formatBytes', () => {
 describe('reasonKey', () => {
   it('should word a known code and treat an unknown one as a failed reading', () => {
     expect(en[reasonKey('printer_not_set_up')]).toBe('No printer is set up yet.')
+    expect(en[reasonKey('printer_connecting')]).toContain('Trying to connect')
     expect(reasonKey('something_new')).toBe('monitorReasonReadingFailed')
+  })
+})
+
+describe('serviceProblemDetail', () => {
+  it('should not show a line when the printer is warning without a reason', () => {
+    const service: HealthService = {
+      id: 'printer',
+      status: 'warning',
+      retryable: false,
+    }
+    expect(serviceProblemDetail(service, t)).toBeNull()
+    expect(serviceOkFallback(service, t, false)).toBeNull()
+  })
+
+  it('should use ready text when the printer is ok', () => {
+    const service: HealthService = { id: 'printer', status: 'ok', retryable: true }
+    expect(serviceProblemDetail(service, t)).toBe('Ready to print tokens.')
   })
 })
 
@@ -42,11 +61,16 @@ describe('websocketHealth', () => {
     expect(websocketHealth('connected', 0, 2, 60).status).toBe('ok')
   })
 
-  it('should fail with the live-offline reason when the browser lost the connection', () => {
+  it('should warn while the first connection is opening', () => {
+    expect(websocketHealth('connecting', 0, 2, 60).status).toBe('warning')
+    expect(websocketHealth('connecting', 0, 2, 60).reason).toBe('live_connecting')
+  })
+
+  it('should retry after a dropped connection', () => {
     const health = websocketHealth('offline', 3, 2, 60)
 
-    expect(health.status).toBe('failed')
-    expect(health.reason).toBe('live_offline')
+    expect(health.status).toBe('retrying')
+    expect(health.retry).toEqual({ attempt: 3, max: 0 })
     expect(health.retryable).toBe(true)
   })
 

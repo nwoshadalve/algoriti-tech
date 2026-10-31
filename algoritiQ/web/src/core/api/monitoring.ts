@@ -45,6 +45,20 @@ export type Monitoring = {
   services: HealthService[]
 }
 
+export type BluetoothEnableOutcome =
+  | 'already_on'
+  | 'dialog_shown'
+  | 'settings_opened'
+  | 'need_app_open'
+  | 'missing'
+  | 'denied'
+
+export type EnableBluetoothResult = Monitoring & { outcome: BluetoothEnableOutcome }
+
+export type PrinterTestOutcome = 'printed' | 'failed' | 'not_connected' | 'no_details'
+
+export type PrinterTestResult = Monitoring & { outcome: PrinterTestOutcome }
+
 export function getMonitoring(token: string, signal?: AbortSignal): Promise<Monitoring> {
   return apiFetch<Monitoring>('/monitoring', { headers: bearer(token), signal })
 }
@@ -52,6 +66,22 @@ export function getMonitoring(token: string, signal?: AbortSignal): Promise<Moni
 /** Starts the retry on the tablet and returns the reading that already shows it. */
 export function retryService(token: string, id: ServiceId): Promise<Monitoring> {
   return apiFetch<Monitoring>(`/monitoring/services/${id}/retry`, {
+    method: 'POST',
+    headers: bearer(token),
+  })
+}
+
+/** Opens Android's Bluetooth enable flow on the tablet screen. */
+export function enableBluetooth(token: string): Promise<EnableBluetoothResult> {
+  return apiFetch<EnableBluetoothResult>('/monitoring/bluetooth/enable', {
+    method: 'POST',
+    headers: bearer(token),
+  })
+}
+
+/** Prints a sample token on the paired POS printer (tablet must be connected). */
+export function testPrinter(token: string): Promise<PrinterTestResult> {
+  return apiFetch<PrinterTestResult>('/monitoring/services/printer/test', {
     method: 'POST',
     headers: bearer(token),
   })

@@ -9,7 +9,7 @@ import 'dart:typed_data';
 
 import 'package:algoritiq_app/api/local_api_server.dart';
 import 'package:algoritiq_app/features/access/application/user_management_service.dart';
-import 'package:algoritiq_app/features/access/data/argon2id_password_hasher.dart';
+import 'package:algoritiq_app/features/access/domain/account.dart';
 import 'package:algoritiq_app/features/clinic/data/drift_clinic_repository.dart';
 import 'package:algoritiq_app/features/clinic/domain/chamber.dart';
 import 'package:algoritiq_app/features/clinic/domain/doctor.dart';
@@ -18,7 +18,6 @@ import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/access_kit.dart';
-import '../support/memory_secret_store.dart';
 
 void main() {
   late AccessKit kit;
@@ -67,11 +66,7 @@ void main() {
     users = UserManagementService(
       repository: kit.repository,
       clinic: clinic,
-      hasher: await Argon2idPasswordHasher.create(
-        MemorySecretStore(),
-        memoryKiB: 64,
-        passes: 1,
-      ),
+      hasher: kit.hasher,
       clock: kit.clock,
       newId: () => 'recv-${userIds++}',
       licensePayload: () async => LicensePayload(
@@ -121,6 +116,7 @@ void main() {
 
     expect(result.status, 200);
     expect(result.json['assignmentTarget'], 'chamber');
+    expect(result.json['firstAdminId'], isNotEmpty);
     expect(
       (result.json['onboarding']! as Map<String, Object?>)['needsAttention'],
       isTrue,
@@ -182,5 +178,72 @@ void main() {
 
     expect(patched.status, 200);
     expect(user(patched.json)['status'], 'inactive');
+  });
+
+  test('should set a receptionist password over the API', () async {
+    final created = await call(
+      'POST',
+      '/api/v1/users',
+      json: {
+        'username': 'desk',
+        'firstName': 'Front',
+        'lastName': 'Desk',
+        'email': 'desk@clinic.test',
+        'password': 'a-long-passphrase',
+        'scopeIds': ['c1'],
+      },
+    );
+    final id = user(created.json)['id']! as String;
+
+    final changed = await call(
+      'POST',
+      '/api/v1/users/$id/password',
+      json: {'password': 'another-long-pass'},
+    );
+
+    expect(changed.status, 204);
+  });
+
+  test('should refuse when another admin disables the first administrator', () async {
+    final owner = (await kit.repository.findCredentials('owner'))!.account;
+    final created = await users.createUser(
+      admin: owner,
+      role: Role.admin,
+      username: 'second',
+      firstName: 'Second',
+      lastName: 'Admin',
+      email: 'second@clinic.test',
+      password: 'a-long-passphrase',
+      scopeIds: [],
+    );
+    expect(created, isA<UserCreated>());
+
+    final ctx = await call('GET', '/api/v1/users/context');
+    final firstId = ctx.json['firstAdminId']! as String;
+    final login = await call(
+      'POST',
+      '/api/v1/auth/login',
+      json: {'username': 'second', 'password': 'a-long-passphrase'},
+      bearer: null,
+    );
+    expect(login.status, 200);
+    final secondToken = login.json['token']! as String;
+    final founder = await kit.repository.findAccountById(firstId);
+    expect(founder, isNotNull);
+
+    final patched = await call(
+      'PATCH',
+      '/api/v1/users/$firstId',
+      json: {
+        'firstName': founder!.account.firstName,
+        'lastName': founder.account.lastName,
+        'email': founder.account.email,
+        'status': 'inactive',
+      },
+      bearer: secondToken,
+    );
+
+    expect(patched.status, 409);
+    expect((patched.json['error']! as Map)['code'], 'cannot_disable_initial_admin');
   });
 }
