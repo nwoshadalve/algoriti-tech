@@ -21,6 +21,8 @@ import {
 type ServicesPanelProps = {
   services: HealthService[]
   onRetry: (id: ServiceId) => void
+  onTestPrint?: () => void
+  testPrintBusy?: boolean
 }
 
 function byId(services: HealthService[], id: ServiceId): HealthService | undefined {
@@ -28,7 +30,7 @@ function byId(services: HealthService[], id: ServiceId): HealthService | undefin
 }
 
 /** Printer and TV first, then server connectivity in a compact list. */
-export function ServicesPanel({ services, onRetry }: ServicesPanelProps) {
+export function ServicesPanel({ services, onRetry, onTestPrint, testPrintBusy }: ServicesPanelProps) {
   const { t } = useLocale()
 
   return (
@@ -45,12 +47,15 @@ export function ServicesPanel({ services, onRetry }: ServicesPanelProps) {
             return (
               <ServiceCard
                 key={id}
+                serviceId={id}
                 name={t(labelKey)}
                 icon={icon}
                 service={service}
                 priority
                 showRetry={id !== 'tv'}
                 onRetry={() => onRetry(id)}
+                onTestPrint={id === 'printer' ? onTestPrint : undefined}
+                testPrintBusy={id === 'printer' ? testPrintBusy : undefined}
               />
             )
           })}
@@ -94,11 +99,11 @@ export function ServicesPanel({ services, onRetry }: ServicesPanelProps) {
                       <p className="mt-0.5 text-xs leading-snug text-brand-navy/70 tabular-nums dark:text-white/70">
                         {details.join(' · ')}
                       </p>
-                    ) : (
+                    ) : service.status === 'ok' ? (
                       <p className="mt-0.5 text-xs leading-snug text-brand-navy/70 dark:text-white/70">
                         {t('monitorNoReason')}
                       </p>
-                    )}
+                    ) : null}
                   </div>
                 </div>
                 <div className="shrink-0 pl-7 min-[480px]:pl-0">

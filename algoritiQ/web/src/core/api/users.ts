@@ -63,3 +63,15 @@ export async function updateUser(
   })
   return result.user
 }
+
+export async function setUserPassword(
+  token: string,
+  userId: string,
+  password: string,
+): Promise<void> {
+  await apiFetch<void>(`/users/${userId}/password`, {
+    method: 'POST',
+    headers: bearer(token),
+    body: JSON.stringify({ password }),
+  })
+}

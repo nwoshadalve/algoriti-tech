@@ -66,6 +66,26 @@ export function validateEdit(
   return errors
 }
 
+export type SetPasswordFields = { password: string; confirmPassword: string }
+
+export function validateSetPassword(
+  fields: SetPasswordFields,
+  username: string,
+): FieldErrors {
+  const errors: FieldErrors = {}
+  if (!fields.password) errors.password = 'errorPasswordRequired'
+  else if (fields.password.length < 8) errors.password = 'errorPasswordTooShort'
+  else if (fields.password.length > 128) errors.password = 'errorPasswordTooLong'
+  else if (fields.password.toLowerCase().includes(username.toLowerCase())) {
+    errors.password = 'errorPasswordContainsUsername'
+  }
+  if (!fields.confirmPassword) errors.confirmPassword = 'errorConfirmPasswordRequired'
+  else if (fields.confirmPassword !== fields.password) {
+    errors.confirmPassword = 'errorConfirmPasswordMismatch'
+  }
+  return errors
+}
+
 export function hasFieldErrors(errors: FieldErrors): boolean {
   return Object.keys(errors).length > 0
 }

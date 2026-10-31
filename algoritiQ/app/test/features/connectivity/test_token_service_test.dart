@@ -86,6 +86,14 @@ void main() {
     expect(sent, isNull);
   });
 
+  test('should print from the first doctor when admin has no scope', () async {
+    final outcome = await service(scope: null).runForAdmin();
+
+    expect(outcome, TestTokenOutcome.printed);
+    expect(drawn!.doctorName, testDoctor.name);
+    expect(sent, isNotNull);
+  });
+
   test('should report a printer that failed or is not connected', () async {
     expect(
       await service(result: PrintOutcome.failed).run(),

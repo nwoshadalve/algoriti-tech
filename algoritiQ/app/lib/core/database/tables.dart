@@ -153,3 +153,122 @@ class AuditEntries extends Table {
   TextColumn get prevHash => text()();
   TextColumn get hash => text()();
 }
+
+/// Queue type preset or override. [ownerKey] is `clinic` or a chamber id.
+@DataClassName('QueueTypeRow')
+class QueueTypes extends Table {
+  TextColumn get id => text()();
+  TextColumn get ownerKey => text()();
+  TextColumn get englishName => text()();
+  TextColumn get bengaliName => text()();
+  IntColumn get startNumber => integer()();
+  IntColumn get endNumber => integer()();
+  IntColumn get displayOrder => integer()();
+  BoolColumn get enabled => boolean().withDefault(const Constant(true))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id, ownerKey};
+}
+
+/// One open or historical queue session for a chamber work scope.
+@DataClassName('QueueSessionRow')
+class QueueSessions extends Table {
+  TextColumn get id => text()();
+  TextColumn get chamberId => text().references(Chambers, #id)();
+  TextColumn get businessDate => text()();
+  TextColumn get status => text()();
+  IntColumn get openedAt => integer()();
+  TextColumn get openedByAccountId => text().nullable()();
+  IntColumn get closedAt => integer().nullable()();
+  TextColumn get closedByAccountId => text().nullable()();
+  TextColumn get closeReason => text().nullable()();
+
+  /// Effective queue types and policy at open time (JSON).
+  TextColumn get configSnapshotJson => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Per-type serial counter inside a session.
+@DataClassName('SessionQueueCounterRow')
+class SessionQueueCounters extends Table {
+  TextColumn get sessionId => text().references(QueueSessions, #id)();
+  TextColumn get queueTypeId => text()();
+  IntColumn get nextNumber => integer()();
+  IntColumn get issuedCount => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {sessionId, queueTypeId};
+}
+
+/// Clinic patient record (permanent ID assigned transactionally).
+@DataClassName('PatientRow')
+class Patients extends Table {
+  TextColumn get id => text()();
+  IntColumn get patientNumber => integer().unique()();
+  TextColumn get bengaliName => text()();
+  TextColumn get englishName => text().nullable()();
+  TextColumn get phoneNormalized => text()();
+  TextColumn get gender => text().nullable()();
+  IntColumn get dateOfBirthMs => integer().nullable()();
+  IntColumn get birthYear => integer().nullable()();
+  IntColumn get approximateAgeYears => integer().nullable()();
+  IntColumn get approximateAgeRecordedAt => integer().nullable()();
+  TextColumn get locality => text().nullable()();
+  TextColumn get legacyFileNumber => text().nullable()();
+  TextColumn get adminNote => text().nullable()();
+  BoolColumn get hasPaperFile => boolean().withDefault(const Constant(false))();
+  IntColumn get createdAt => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Idempotent API command results (patient create, token issue, etc.).
+@DataClassName('IdempotentCommandRow')
+class IdempotentCommands extends Table {
+  TextColumn get commandId => text()();
+  TextColumn get resultJson => text()();
+  IntColumn get createdAt => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {commandId};
+}
+
+/// Queue token for one patient in one session.
+@DataClassName('QueueTokenRow')
+class QueueTokens extends Table {
+  TextColumn get id => text()();
+  TextColumn get sessionId => text().references(QueueSessions, #id)();
+  TextColumn get chamberId => text().references(Chambers, #id)();
+  TextColumn get patientId => text().references(Patients, #id)();
+  TextColumn get queueTypeId => text()();
+  IntColumn get serial => integer()();
+  TextColumn get status => text()();
+  IntColumn get feeBdt => integer().nullable()();
+  IntColumn get issuedAt => integer()();
+  IntColumn get firstCalledAt => integer().nullable()();
+  IntColumn get enteredAt => integer().nullable()();
+  IntColumn get cancelledAt => integer().nullable()();
+  TextColumn get cancelReason => text().nullable()();
+  TextColumn get latestPrintStatus => text().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// Slip print attempts for a token (reprints create new rows).
+@DataClassName('TokenPrintAttemptRow')
+class TokenPrintAttempts extends Table {
+  TextColumn get id => text()();
+  TextColumn get tokenId => text().references(QueueTokens, #id)();
+  IntColumn get attemptNumber => integer()();
+  TextColumn get status => text()();
+  TextColumn get reason => text().nullable()();
+  TextColumn get actorAccountId => text().nullable()();
+  IntColumn get createdAt => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}

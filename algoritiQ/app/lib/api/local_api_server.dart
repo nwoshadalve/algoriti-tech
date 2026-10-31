@@ -7,6 +7,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 import '../features/access/application/access_service.dart';
 import '../features/access/application/claim_codes.dart';
 import '../features/access/application/user_management_service.dart';
@@ -21,8 +23,14 @@ import '../features/home/application/receptionist_scope_service.dart';
 import '../platform/backup_gateway.dart';
 import '../features/backup/application/backup_service.dart';
 import '../features/backup/domain/backup_policy.dart';
+import '../features/connectivity/application/test_token_service.dart';
 import '../features/monitoring/application/monitoring_service.dart';
 import '../features/monitoring/domain/health_snapshot.dart';
+import '../features/queue/application/queue_service.dart';
+import '../features/queue/domain/queue_models.dart';
+import '../features/queue_board/application/queue_board_service.dart';
+import '../features/queue_board/domain/board_models.dart';
+import '../features/audit/application/audit_query_service.dart';
 import 'https_server_socket.dart';
 import 'cors_policy.dart';
 import 'live_api_web_socket.dart';
@@ -44,6 +52,9 @@ class LocalApiServer {
     Future<ReceptionistScopeService> Function()? receptionistScope,
     MonitoringService? monitoring,
     Future<BackupService> Function()? backup,
+    Future<QueueService> Function()? queue,
+    Future<QueueBoardService> Function()? queueBoard,
+    AuditQueryService? auditQuery,
     this._web,
     LiveEventBus? liveEvents,
     CorsPolicy? corsPolicy,
@@ -53,6 +64,9 @@ class LocalApiServer {
        _receptionistScope = receptionistScope,
        _monitoring = monitoring,
        _backup = backup,
+       _queue = queue,
+       _queueBoard = queueBoard,
+       _auditQuery = auditQuery,
        liveEvents = liveEvents ?? LiveEventBus(),
        _corsPolicy = corsPolicy ?? defaultCorsPolicy() {
     _liveSocket = LiveApiWebSocket(bus: this.liveEvents, access: _access);
@@ -65,6 +79,9 @@ class LocalApiServer {
   final Future<ReceptionistScopeService> Function()? _receptionistScope;
   final MonitoringService? _monitoring;
   final Future<BackupService> Function()? _backup;
+  final Future<QueueService> Function()? _queue;
+  final Future<QueueBoardService> Function()? _queueBoard;
+  final AuditQueryService? _auditQuery;
   DateTime _startedAt = DateTime.now();
   final CorsPolicy _corsPolicy;
 
@@ -186,6 +203,18 @@ class LocalApiServer {
         await _licenseApi(request, path);
         return;
       }
+      if (path.startsWith('/api/v1/queue-board') || path.startsWith('/api/v1/patients')) {
+        await _queueBoardApi(request, path);
+        return;
+      }
+      if (path.startsWith('/api/v1/queue')) {
+        await _queueApi(request, path);
+        return;
+      }
+      if (path.startsWith('/api/v1/audit')) {
+        await _auditApi(request, path);
+        return;
+      }
       if (path == '/api/v1/clinic' ||
           path == '/api/v1/doctor' ||
           path == '/api/v1/doctor/photo') {
@@ -267,6 +296,8 @@ class LocalApiServer {
     '/api/v1/license',
     '/api/v1/monitoring',
     '/api/v1/chambers',
+    '/api/v1/queue/defaults',
+    '/api/v1/audit',
     '/api/v1/doctor',
     '/api/v1/doctor/photo',
     LiveApiWebSocket.path,
@@ -294,13 +325,21 @@ class LocalApiServer {
       return;
     }
     const prefix = '/api/v1/users/';
-    if (path.startsWith(prefix) && request.method == 'PATCH') {
-      final id = path.substring(prefix.length);
-      if (id.isEmpty || id.contains('/')) {
-        throw const _ApiError(404, 'not_found', 'Not found.');
+    if (path.startsWith(prefix)) {
+      final rest = path.substring(prefix.length);
+      const passwordSuffix = '/password';
+      if (rest.endsWith(passwordSuffix) && request.method == 'POST') {
+        final id = rest.substring(0, rest.length - passwordSuffix.length);
+        if (id.isEmpty || id.contains('/')) {
+          throw const _ApiError(404, 'not_found', 'Not found.');
+        }
+        await _setUserPassword(request, id);
+        return;
       }
-      await _updateUser(request, id);
-      return;
+      if (request.method == 'PATCH' && !rest.contains('/')) {
+        await _updateUser(request, rest);
+        return;
+      }
     }
     if (_knownPaths.contains(path)) {
       throw const _ApiError(405, 'method_not_allowed', 'Wrong method.');
@@ -337,6 +376,20 @@ class LocalApiServer {
       final outcome = await monitoring.enableBluetooth();
       await _json(request, 200, {
         'outcome': outcome.code,
+        ...await _healthJson(monitoring),
+      });
+      return;
+    }
+    if (path == '/api/v1/monitoring/services/printer/test') {
+      if (request.method != 'POST') {
+        throw const _ApiError(405, 'method_not_allowed', 'Wrong method.');
+      }
+      final outcome = await monitoring.testPrinter();
+      if (outcome == null) {
+        throw const _ApiError(404, 'not_found', 'Not found.');
+      }
+      await _json(request, 200, {
+        'outcome': _testPrintOutcomeCode(outcome),
         ...await _healthJson(monitoring),
       });
       return;
@@ -535,6 +588,14 @@ class LocalApiServer {
     if (s.retry case final retry?)
       'retry': {'attempt': retry.attempt, 'max': retry.max},
   };
+
+  static String _testPrintOutcomeCode(TestTokenOutcome outcome) =>
+      switch (outcome) {
+        TestTokenOutcome.printed => 'printed',
+        TestTokenOutcome.failed => 'failed',
+        TestTokenOutcome.notConnected => 'not_connected',
+        TestTokenOutcome.noDetails => 'no_details',
+      };
 
   Future<void> _licenseApi(HttpRequest request, String path) async {
     final method = request.method;
@@ -837,6 +898,665 @@ class LocalApiServer {
     return account;
   }
 
+  Future<QueueService> _queueService() async {
+    final factory = _queue;
+    if (factory == null) {
+      throw const _ApiError(404, 'not_found', 'Not found.');
+    }
+    return factory();
+  }
+
+  Future<void> _queueApi(HttpRequest request, String path) async {
+    final admin = await _signedInAdmin(request);
+    late final QueueService service;
+    try {
+      service = await _queueService();
+    } on Object catch (e) {
+      await _fail(
+        request.response,
+        500,
+        'internal_error',
+        _internalErrorMessage(e),
+      );
+      return;
+    }
+    try {
+      if (path == '/api/v1/queue/defaults' && request.method == 'GET') {
+        try {
+          final loaded = await service.loadClinicDefaults(admin);
+          await _json(request, 200, {
+            'policy': _queuePolicyJson(loaded.policy),
+            'types': [for (final t in loaded.types) _queueTypeJson(t)],
+          });
+        } on Object catch (e) {
+          await _fail(
+            request.response,
+            500,
+            'internal_error',
+            _internalErrorMessage(e),
+          );
+        }
+        return;
+      }
+      if (path == '/api/v1/queue/defaults' && request.method == 'PATCH') {
+        final body = await _readJson(request);
+        final policyMap = _queuePolicyPatchMap(body);
+        await service.updateClinicPolicy(
+          admin,
+          QueuePolicy(
+            timeZone:
+                policyMap['timeZone'] as String? ?? QueuePolicy.defaults.timeZone,
+            dayBoundary:
+                policyMap['dayBoundary'] as String? ??
+                QueuePolicy.defaults.dayBoundary,
+            autoStart:
+                policyMap['autoStart'] as bool? ?? QueuePolicy.defaults.autoStart,
+          ),
+        );
+        if (body['types'] is List) {
+          final types = [
+            for (final raw in body['types']! as List)
+              _queueTypeFromJson(raw as Map<String, Object?>),
+          ];
+          await service.replaceClinicTypes(admin, types);
+        }
+        final loaded = await service.loadClinicDefaults(admin);
+        _publishQueueConfigurationChanged(scope: 'clinic');
+        await _json(request, 200, {
+          'policy': _queuePolicyJson(loaded.policy),
+          'types': [for (final t in loaded.types) _queueTypeJson(t)],
+        });
+        return;
+      }
+      const prefix = '/api/v1/queue/chambers/';
+      if (path.startsWith(prefix)) {
+        final rest = path.substring(prefix.length);
+        final parts = rest.split('/');
+        final chamberId = parts.first;
+        if (parts.length == 1 && request.method == 'GET') {
+          final loaded = await service.loadChamberConfiguration(
+            admin,
+            chamberId,
+          );
+          await _json(request, 200, {
+            'settings': {
+              'useClinicDefaults': loaded.settings.useClinicDefaults,
+              'dayBoundaryOverride': loaded.settings.dayBoundaryOverride,
+              'autoStartOverride': loaded.settings.autoStartOverride,
+            },
+            'effectivePolicy': _queuePolicyJson(loaded.effectivePolicy),
+            'types': [for (final t in loaded.types) _queueTypeJson(t)],
+            'session': loaded.session == null
+                ? null
+                : _queueSessionJson(loaded.session!),
+          });
+          return;
+        }
+        if (parts.length == 1 && request.method == 'PATCH') {
+          final body = await _readJson(request);
+          if (body['types'] is! List) {
+            throw const _ApiError(400, 'invalid_body', 'Missing types array.');
+          }
+          final types = [
+            for (final raw in body['types']! as List)
+              _queueTypeFromJson(raw as Map<String, Object?>),
+          ];
+          final saved = await service.replaceChamberTypes(
+            admin,
+            chamberId,
+            types,
+          );
+          _publishQueueConfigurationChanged(
+            scope: 'chamber',
+            chamberId: chamberId,
+          );
+          await _json(request, 200, {
+            'settings': {
+              'useClinicDefaults': saved.settings.useClinicDefaults,
+              'dayBoundaryOverride': saved.settings.dayBoundaryOverride,
+              'autoStartOverride': saved.settings.autoStartOverride,
+            },
+            'types': [for (final t in saved.types) _queueTypeJson(t)],
+          });
+          return;
+        }
+        if (parts.length == 2 &&
+            parts[1] == 'customize' &&
+            request.method == 'POST') {
+          final settings = await service.customizeChamberQueue(admin, chamberId);
+          _publishQueueConfigurationChanged(
+            scope: 'chamber',
+            chamberId: chamberId,
+          );
+          await _json(request, 200, {
+            'settings': {
+              'useClinicDefaults': settings.useClinicDefaults,
+              'dayBoundaryOverride': settings.dayBoundaryOverride,
+              'autoStartOverride': settings.autoStartOverride,
+            },
+          });
+          return;
+        }
+        if (parts.length == 2 &&
+            parts[1] == 'clear-override' &&
+            request.method == 'POST') {
+          final settings = await service.clearChamberQueueOverride(
+            admin,
+            chamberId,
+          );
+          _publishQueueConfigurationChanged(
+            scope: 'chamber',
+            chamberId: chamberId,
+          );
+          await _json(request, 200, {
+            'settings': {
+              'useClinicDefaults': settings.useClinicDefaults,
+              'dayBoundaryOverride': settings.dayBoundaryOverride,
+              'autoStartOverride': settings.autoStartOverride,
+            },
+          });
+          return;
+        }
+        if (parts.length == 2 && parts[1] == 'policy' && request.method == 'PATCH') {
+          final body = await _readJson(request);
+          final boundary = body['dayBoundary'] as String?;
+          if (boundary == null || boundary.trim().isEmpty) {
+            throw const _ApiError(400, 'invalid_body', 'Missing dayBoundary.');
+          }
+          await service.updateChamberDayBoundary(admin, chamberId, boundary.trim());
+          final loaded = await service.loadChamberConfiguration(admin, chamberId);
+          _publishQueueConfigurationChanged(scope: 'chamber', chamberId: chamberId);
+          await _json(request, 200, {
+            'settings': {
+              'useClinicDefaults': loaded.settings.useClinicDefaults,
+              'dayBoundaryOverride': loaded.settings.dayBoundaryOverride,
+              'autoStartOverride': loaded.settings.autoStartOverride,
+            },
+            'effectivePolicy': _queuePolicyJson(loaded.effectivePolicy),
+          });
+          return;
+        }
+        if (parts.length == 3 && parts[1] == 'session') {
+          switch ((request.method, parts[2])) {
+            case ('POST', 'start'):
+              final session = await service.startSession(admin, chamberId);
+              await _json(request, 200, {
+                'session': session == null ? null : _queueSessionJson(session),
+              });
+            case ('POST', 'close'):
+              await service.closeSession(admin, chamberId);
+              await _json(request, 204, {});
+            case ('POST', 'force-close'):
+              final body = await _readJson(request);
+              await service.forceCloseSession(
+                admin,
+                chamberId,
+                body['reason'] as String? ?? '',
+              );
+              await _json(request, 204, {});
+            default:
+              throw const _ApiError(405, 'method_not_allowed', 'Wrong method.');
+          }
+          return;
+        }
+      }
+      throw const _ApiError(404, 'not_found', 'Not found.');
+    } on QueueServiceRefused catch (refused) {
+      final error = _queueError(refused);
+      await _fail(
+        request.response,
+        error.status,
+        error.code,
+        error.message,
+        extra: error.extra,
+        headers: error.headers,
+      );
+    }
+  }
+
+  Future<QueueBoardService> _queueBoardService() async {
+    final factory = _queueBoard;
+    if (factory == null) {
+      throw const _ApiError(404, 'not_found', 'Not found.');
+    }
+    return factory();
+  }
+
+  Future<void> _queueBoardApi(HttpRequest request, String path) async {
+    final admin = await _signedInAdmin(request);
+    final service = await _queueBoardService();
+    try {
+      if (path == '/api/v1/patients/search' && request.method == 'POST') {
+        final body = await _readJson(request);
+        final patients = await service.searchPatients(
+          admin,
+          body['query'] as String? ?? '',
+        );
+        await _json(request, 200, {
+          'patients': [for (final p in patients) _patientSummaryJson(p)],
+        });
+        return;
+      }
+      if (path == '/api/v1/patients' && request.method == 'POST') {
+        final body = await _readJson(request);
+        final saved = await service.registerPatient(
+          admin,
+          _patientInputFromJson(body),
+          commandId: body['commandId'] as String? ?? '',
+        );
+        await _json(request, 200, _patientSummaryJson(saved));
+        return;
+      }
+      const prefix = '/api/v1/queue-board/chambers/';
+      if (path.startsWith(prefix)) {
+        final rest = path.substring(prefix.length);
+        final parts = rest.split('/');
+        final chamberId = parts.first;
+        if (parts.length == 1 && request.method == 'GET') {
+          final board = await service.loadBoard(admin, chamberId);
+          await _json(request, 200, _boardSnapshotJson(board));
+          return;
+        }
+        if (parts.length == 3 &&
+            parts[1] == 'session' &&
+            parts[2] == 'start' &&
+            request.method == 'POST') {
+          await service.startSession(admin, chamberId);
+          await _json(request, 204, {});
+          return;
+        }
+        if (parts.length == 2 &&
+            parts[1] == 'issue-preview' &&
+            request.method == 'POST') {
+          final body = await _readJson(request);
+          final preview = await service.previewIssue(
+            admin,
+            chamberId,
+            body['patientId'] as String? ?? '',
+            body['queueTypeId'] as String? ?? '',
+            feeBdt: body['feeBdt'] as int?,
+          );
+          await _json(request, 200, _issuePreviewJson(preview));
+          return;
+        }
+        if (parts.length == 2 && parts[1] == 'issue' && request.method == 'POST') {
+          final body = await _readJson(request);
+          final issued = await service.issueToken(
+            admin,
+            chamberId,
+            body['patientId'] as String? ?? '',
+            body['queueTypeId'] as String? ?? '',
+            feeBdt: body['feeBdt'] as int?,
+            commandId: body['commandId'] as String? ?? '',
+          );
+          await _json(request, 200, _issuedTokenJson(issued));
+          return;
+        }
+        if (parts.length == 2 &&
+            parts[1] == 'call-next' &&
+            request.method == 'POST') {
+          final body = await _readJson(request);
+          final token = await service.callNext(
+            admin,
+            chamberId,
+            body['queueTypeId'] as String? ?? '',
+          );
+          await _json(request, 200, _boardTokenJson(token));
+          return;
+        }
+        if (parts.length == 2 && parts[1] == 'recall' && request.method == 'POST') {
+          final body = await _readJson(request);
+          await service.recall(
+            admin,
+            chamberId,
+            body['queueTypeId'] as String? ?? '',
+          );
+          await _json(request, 204, {});
+          return;
+        }
+      }
+      const tokenPrefix = '/api/v1/queue-board/tokens/';
+      if (path.startsWith(tokenPrefix)) {
+        final rest = path.substring(tokenPrefix.length);
+        final parts = rest.split('/');
+        final tokenId = parts.first;
+        if (parts.length == 2 && request.method == 'POST') {
+          final body = await _readJson(request);
+          switch (parts[1]) {
+            case 'entered':
+              final entered = await service.markEntered(admin, tokenId);
+              await _json(request, 200, _boardTokenJson(entered));
+            case 'skipped':
+              final skipped = await service.markSkipped(admin, tokenId);
+              await _json(request, 200, _boardTokenJson(skipped));
+            case 'cancel':
+              final cancelled = await service.cancelToken(
+                admin,
+                tokenId,
+                body['reason'] as String? ?? '',
+              );
+              await _json(request, 200, _boardTokenJson(cancelled));
+            case 'reprint':
+              final attemptId = await service.reprint(
+                admin,
+                tokenId,
+                body['reason'] as String? ?? '',
+              );
+              await _json(request, 200, {'printAttemptId': attemptId});
+            default:
+              throw const _ApiError(405, 'method_not_allowed', 'Wrong method.');
+          }
+          return;
+        }
+      }
+      throw const _ApiError(404, 'not_found', 'Not found.');
+    } on QueueBoardRefused catch (refused) {
+      throw _boardError(refused);
+    }
+  }
+
+  _ApiError _boardError(QueueBoardRefused refused) {
+    return switch (refused.problem) {
+      QueueBoardProblem.forbidden => const _ApiError(
+        403,
+        'forbidden',
+        'Admins only.',
+      ),
+      QueueBoardProblem.chamberNotFound => const _ApiError(
+        404,
+        'not_found',
+        'Unknown chamber.',
+      ),
+      QueueBoardProblem.sessionClosed => const _ApiError(
+        409,
+        'queue_session_missing',
+        'Start a queue session first.',
+      ),
+      QueueBoardProblem.duplicatePhoneNeedsConfirm => const _ApiError(
+        409,
+        'duplicate_phone',
+        'This phone already has patients. Confirm to register another.',
+      ),
+      QueueBoardProblem.patientHasActiveToken => const _ApiError(
+        409,
+        'patient_has_active_token',
+        'This patient already has a token in this session.',
+      ),
+      QueueBoardProblem.rangeExhausted => const _ApiError(
+        409,
+        'queue_range_exhausted',
+        'This queue type has no serials left.',
+      ),
+      QueueBoardProblem.noWaitingToken => const _ApiError(
+        409,
+        'no_waiting_token',
+        'No one is waiting in this queue.',
+      ),
+      QueueBoardProblem.noCalledToken => const _ApiError(
+        409,
+        'no_called_token',
+        'Nothing to recall for this queue.',
+      ),
+      QueueBoardProblem.unresolvedCalledToken => const _ApiError(
+        409,
+        'unresolved_called_token',
+        'Mark the current call entered, missed, or cancelled first.',
+      ),
+      QueueBoardProblem.printerBusy => const _ApiError(
+        409,
+        'printer_busy',
+        'Wait for the current print attempt to finish.',
+      ),
+      QueueBoardProblem.validation ||
+      QueueBoardProblem.commandRequired => const _ApiError(
+        400,
+        'validation_failed',
+        'Check the fields and try again.',
+      ),
+    };
+  }
+
+  Map<String, Object?> _boardSnapshotJson(BoardSnapshot board) => {
+    'chamberId': board.chamberId,
+    'chamberName': board.chamberName,
+    'sessionId': board.sessionId,
+    'sessionOpen': board.sessionOpen,
+    'calledToken': board.calledToken == null
+        ? null
+        : _boardTokenJson(board.calledToken!),
+    'queueControls': [
+      for (final c in board.queueControls) _queueControlJson(c),
+    ],
+    'tokens': [for (final t in board.tokens) _boardTokenJson(t)],
+    'printerBusyTokenId': board.printerBusyTokenId,
+  };
+
+  Map<String, Object?> _queueControlJson(QueueTypeBoardControl c) => {
+    'queueTypeId': c.queueTypeId,
+    'englishName': c.englishName,
+    'bengaliName': c.bengaliName,
+    'waitingCount': c.waitingCount,
+    'nextSerial': c.nextSerial,
+    'canCallNext': c.canCallNext,
+    'canRecall': c.canRecall,
+  };
+
+  Map<String, Object?> _boardTokenJson(BoardTokenView t) => {
+    'id': t.id,
+    'serial': t.serial,
+    'queueTypeId': t.queueTypeId,
+    'queueEnglishName': t.queueEnglishName,
+    'queueBengaliName': t.queueBengaliName,
+    'patientId': t.patientId,
+    'clinicPatientId': t.clinicPatientId,
+    'patientBengaliName': t.patientBengaliName,
+    'status': t.status.apiValue,
+    'issuedAt': t.issuedAt.toUtc().toIso8601String(),
+    'firstCalledAt': t.firstCalledAt?.toUtc().toIso8601String(),
+    'enteredAt': t.enteredAt?.toUtc().toIso8601String(),
+    'feeBdt': t.feeBdt,
+    'latestPrintStatus': t.latestPrintStatus,
+  };
+
+  Map<String, Object?> _patientSummaryJson(PatientSummary p) => {
+    'id': p.id,
+    'patientNumber': p.patientNumber,
+    'clinicPatientId': p.clinicPatientId,
+    'bengaliName': p.bengaliName,
+    'englishName': p.englishName,
+    'phoneNormalized': p.phoneNormalized,
+    'gender': p.gender?.apiValue,
+    'ageLabel': p.ageLabel,
+  };
+
+  Map<String, Object?> _issuePreviewJson(IssuePreview preview) => {
+    'patient': _patientSummaryJson(preview.patient),
+    'chamberName': preview.chamberName,
+    'queueTypeId': preview.queueTypeId,
+    'queueEnglishName': preview.queueEnglishName,
+    'queueBengaliName': preview.queueBengaliName,
+    'previewSerial': preview.previewSerial,
+    'feeBdt': preview.feeBdt,
+  };
+
+  Map<String, Object?> _issuedTokenJson(IssuedTokenResult issued) => {
+    'token': _boardTokenJson(issued.token),
+    'printAttemptId': issued.printAttemptId,
+    'printStatus': issued.printStatus,
+  };
+
+  PatientInput _patientInputFromJson(Map<String, Object?> body) => PatientInput(
+    bengaliName: body['bengaliName'] as String? ?? '',
+    phone: body['phone'] as String? ?? '',
+    englishName: body['englishName'] as String?,
+    gender: PatientGender.parse(body['gender'] as String?),
+    dateOfBirthMs: body['dateOfBirthMs'] as int?,
+    birthYear: body['birthYear'] as int?,
+    approximateAgeYears: body['approximateAgeYears'] as int?,
+    locality: body['locality'] as String?,
+    legacyFileNumber: body['legacyFileNumber'] as String?,
+    adminNote: body['adminNote'] as String?,
+    hasPaperFile: body['hasPaperFile'] as bool? ?? false,
+    confirmDuplicatePhone: body['confirmDuplicatePhone'] as bool? ?? false,
+  );
+
+  Future<void> _auditApi(HttpRequest request, String path) async {
+    await _signedInAdmin(request);
+    final audit = _auditQuery;
+    if (audit == null || path != '/api/v1/audit' || request.method != 'GET') {
+      throw const _ApiError(404, 'not_found', 'Not found.');
+    }
+    final params = request.uri.queryParameters;
+    final page = await audit.list(
+      AuditLogQuery(
+        offset: int.tryParse(params['offset'] ?? '0') ?? 0,
+        fromMs: params['from'] == null
+            ? null
+            : DateTime.parse(params['from']!).toUtc().millisecondsSinceEpoch,
+        toMs: params['to'] == null
+            ? null
+            : DateTime.parse(params['to']!).toUtc().millisecondsSinceEpoch,
+        actionPrefix: params['actionPrefix'],
+        outcome: params['outcome'],
+      ),
+    );
+    await _json(request, 200, {
+      'entries': [for (final e in page.entries) _auditEntryJson(e)],
+      'total': page.total,
+      'nextOffset': page.nextOffset,
+    });
+  }
+
+  _ApiError _queueError(QueueServiceRefused refused) {
+    return switch (refused.problem) {
+      QueueServiceProblem.forbidden => const _ApiError(
+        403,
+        'forbidden',
+        'Admins only.',
+      ),
+      QueueServiceProblem.validation => _ApiError(
+        400,
+        'queue_validation_failed',
+        'Check the queue type fields.',
+        extra: {
+          'problems': refused.validation?.keys.map((p) => p.name).toList(),
+        },
+      ),
+      QueueServiceProblem.openSession => const _ApiError(
+        409,
+        'queue_session_open',
+        'Close the current session first.',
+      ),
+      QueueServiceProblem.noOpenSession => const _ApiError(
+        404,
+        'queue_session_missing',
+        'There is no open session for this chamber.',
+      ),
+      QueueServiceProblem.reasonRequired => const _ApiError(
+        400,
+        'queue_reason_required',
+        'A reason is required.',
+      ),
+      QueueServiceProblem.inheritClinicDefaults => const _ApiError(
+        409,
+        'queue_chamber_inherits_defaults',
+        'This chamber uses clinic queue types. Edit clinic defaults instead.',
+      ),
+      QueueServiceProblem.chamberNotFound => const _ApiError(
+        404,
+        'not_found',
+        'Chamber not found.',
+      ),
+      _ => const _ApiError(400, 'queue_refused', 'The change was refused.'),
+    };
+  }
+
+  Map<String, Object?> _queuePolicyJson(QueuePolicy policy) => {
+    'timeZone': policy.timeZone,
+    'dayBoundary': policy.dayBoundary,
+    'autoStart': policy.autoStart,
+  };
+
+  void _publishQueueConfigurationChanged({
+    required String scope,
+    String? chamberId,
+  }) {
+    liveEvents.publish('queue.configuration.changed', {
+      'scope': scope,
+      if (chamberId != null) 'chamberId': chamberId,
+    });
+  }
+
+  Map<String, Object?> _queuePolicyPatchMap(Map<String, Object?> body) {
+    final nested = body['policy'];
+    if (nested is Map<String, Object?>) return nested;
+    if (nested is Map) return Map<String, Object?>.from(nested);
+    return body;
+  }
+
+  Map<String, Object?> _queueTypeJson(QueueTypeConfig type) => {
+    'id': type.id,
+    'englishName': type.englishName,
+    'bengaliName': type.bengaliName,
+    'startNumber': type.startNumber,
+    'endNumber': type.endNumber,
+    'displayOrder': type.displayOrder,
+    'enabled': type.enabled,
+  };
+
+  QueueTypeConfig _queueTypeFromJson(Map<String, Object?> json) =>
+      QueueTypeConfig(
+        id: json['id'] as String,
+        englishName: json['englishName'] as String? ?? '',
+        bengaliName: json['bengaliName'] as String? ?? '',
+        startNumber: _queueNumberFromJson(json['startNumber']),
+        endNumber: _queueNumberFromJson(json['endNumber']),
+        displayOrder: _queueNumberFromJson(json['displayOrder']),
+        enabled: json['enabled'] as bool? ?? true,
+      );
+
+  int _queueNumberFromJson(Object? value) {
+    if (value is int) return value;
+    if (value is num) return value.round();
+    if (value is String) return int.tryParse(value.trim()) ?? 0;
+    return 0;
+  }
+
+  Map<String, Object?> _queueSessionJson(QueueSessionView session) => {
+    'id': session.id,
+    'chamberId': session.chamberId,
+    'businessDate': session.businessDate,
+    'status': session.status.apiValue,
+    'openedAt': session.openedAt.toUtc().toIso8601String(),
+    'openedByAccountId': session.openedByAccountId,
+    'usage': [
+      for (final u in session.usage)
+        {
+          'queueTypeId': u.queueTypeId,
+          'englishName': u.englishName,
+          'bengaliName': u.bengaliName,
+          'startNumber': u.startNumber,
+          'endNumber': u.endNumber,
+          'issuedCount': u.issuedCount,
+          'nextNumber': u.nextNumber,
+          'enabled': u.enabled,
+          'capacity': u.capacity,
+        },
+    ],
+  };
+
+  Map<String, Object?> _auditEntryJson(AuditLogEntryView entry) => {
+    'id': entry.id,
+    'occurredAt': entry.occurredAt.toUtc().toIso8601String(),
+    'action': entry.action,
+    'category': entry.category,
+    'outcome': entry.outcome,
+    'actorDisplayName': entry.actorDisplayName,
+    'actorRole': entry.actorRole,
+    'safeMetadata': entry.safeMetadata,
+    'detail': entry.detail,
+  };
+
   Future<void> _usersContext(HttpRequest request) async {
     final admin = await _signedInAdmin(request);
     try {
@@ -1008,6 +1728,74 @@ class LocalApiServer {
     };
   }
 
+  Future<void> _setUserPassword(HttpRequest request, String userId) async {
+    final admin = await _signedInAdmin(request);
+    final body = await _readJson(request);
+    final password = _text(body, 'password');
+    try {
+      final service = await _userService();
+      final result = await service.setUserPassword(
+        admin: admin,
+        userId: userId,
+        password: password,
+      );
+      switch (result) {
+        case UserPasswordSet():
+          request.response.statusCode = 204;
+          await request.response.close();
+        case SetUserPasswordRefused(:final problem):
+          var username = 'user';
+          if (problem == SetUserPasswordProblem.credentialsInvalid) {
+            username = await service.usernameOf(userId) ?? username;
+          }
+          throw _setUserPasswordError(
+            problem,
+            username: username,
+            password: password,
+          );
+      }
+    } on UserManagementForbidden {
+      throw const _ApiError(403, 'forbidden', 'Admins only.');
+    }
+  }
+
+  _ApiError _setUserPasswordError(
+    SetUserPasswordProblem problem, {
+    required String username,
+    required String password,
+  }) {
+    return switch (problem) {
+      SetUserPasswordProblem.notFound => const _ApiError(
+        404,
+        'not_found',
+        'Not found.',
+      ),
+      SetUserPasswordProblem.forbidden => const _ApiError(
+        403,
+        'password_change_forbidden',
+        'You may not change this person\'s password.',
+      ),
+      SetUserPasswordProblem.credentialsInvalid => _ApiError(
+        400,
+        _passwordOnlyCode(username: username, password: password),
+        'The password was not accepted.',
+      ),
+    };
+  }
+
+  String _passwordOnlyCode({
+    required String username,
+    required String password,
+  }) {
+    return switch (AccessPolicy.check(username: username, password: password)) {
+      CredentialProblem.passwordTooShort => 'password_too_short',
+      CredentialProblem.passwordTooLong => 'password_too_long',
+      CredentialProblem.passwordContainsUsername =>
+        'password_contains_username',
+      _ => 'invalid_request',
+    };
+  }
+
   Future<void> _updateUser(HttpRequest request, String userId) async {
     final admin = await _signedInAdmin(request);
     final body = await _readJson(request);
@@ -1064,6 +1852,11 @@ class LocalApiServer {
       'last_admin',
       'The last active admin cannot be disabled.',
     ),
+    UpdateUserProblem.cannotDisableInitialAdmin => const _ApiError(
+      409,
+      'cannot_disable_initial_admin',
+      'The first administrator cannot be disabled.',
+    ),
     UpdateUserProblem.emailTaken => const _ApiError(
       409,
       'email_taken',
@@ -1109,6 +1902,7 @@ class LocalApiServer {
         {'id': target.id, 'name': target.name},
     ],
     'onboarding': {'needsAttention': context.onboarding.needsAttention},
+    'firstAdminId': context.firstAdminId,
   };
 
   Map<String, Object?> _managedUserJson(ManagedUser user) => {
@@ -1681,20 +2475,24 @@ class LocalApiServer {
       maxAge: '600',
     );
 
-    switch (_corsPolicy) {
-      case CorsPolicy.allowAnyOrigin:
-        headers
-          ..set('access-control-allow-origin', '*')
-          ..set('access-control-allow-headers', shared.allowHeaders)
-          ..set('access-control-allow-methods', shared.allowMethods)
-          ..set('access-control-max-age', shared.maxAge);
-      case CorsPolicy.reflectOrigin:
-        headers
-          ..set('access-control-allow-origin', origin)
-          ..set('vary', 'Origin')
-          ..set('access-control-allow-headers', shared.allowHeaders)
-          ..set('access-control-allow-methods', shared.allowMethods)
-          ..set('access-control-max-age', shared.maxAge);
+    final privateNetworkPreflight =
+        request.headers.value('access-control-request-private-network') == 'true';
+    final allowOrigin = accessControlAllowOrigin(
+      policy: _corsPolicy,
+      origin: origin,
+      privateNetworkPreflight: privateNetworkPreflight,
+    );
+
+    headers
+      ..set('access-control-allow-origin', allowOrigin)
+      ..set('access-control-allow-headers', shared.allowHeaders)
+      ..set('access-control-allow-methods', shared.allowMethods)
+      ..set('access-control-max-age', shared.maxAge);
+    if (allowOrigin != '*') {
+      headers.set('vary', 'Origin');
+    }
+    if (privateNetworkPreflight || _corsPolicy == CorsPolicy.allowAnyOrigin) {
+      headers.set('access-control-allow-private-network', 'true');
     }
   }
 
@@ -1708,6 +2506,13 @@ class LocalApiServer {
       ..headers.contentType = ContentType.json
       ..write(jsonEncode(body));
     await request.response.close();
+  }
+
+  String _internalErrorMessage(Object error) {
+    if (kDebugMode) {
+      return error.toString();
+    }
+    return 'Server error.';
   }
 
   Future<void> _fail(

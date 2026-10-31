@@ -5,10 +5,16 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
+import { useState } from 'react'
 import { useLiveChannel } from '@/core/api/LiveChannelProvider'
 import type { HealthService, Monitoring, ServiceId } from '@/core/api/monitoring'
 import { useLocale } from '@/core/i18n/LocaleProvider'
+import { useToast } from '@/core/toast/toastContext'
+import { Modal } from '@/core/ui/Modal'
 import { PagePreloader } from '@/core/ui/PagePreloader'
+import { LoadingButton } from '@/core/ui/LoadingButton'
+import { bluetoothOutcomeKey } from '@/features/monitoring/bluetoothOutcome'
+import { printerTestOutcomeKey } from '@/features/monitoring/printerTestOutcome'
 import { ResourcesGrid } from '@/features/monitoring/ResourcesGrid'
 import { ServicesPanel } from '@/features/monitoring/ServicesPanel'
 import { formatUptime } from '@/features/monitoring/format'
@@ -29,12 +35,31 @@ function withBrowserWebsocket(
 /** Admin monitoring: clinic devices first, then server services and tablet resources. */
 export function MonitoringPage() {
   const { t, locale } = useLocale()
+  const toast = useToast()
   const live = useLiveChannel()
-  const { data, failed, retry, reload } = useMonitoring()
+  const { data, failed, retry, reload, turnBluetoothOn, bluetoothBusy, testPrint, testPrintBusy } =
+    useMonitoring()
+  const [testConfirmOpen, setTestConfirmOpen] = useState(false)
+
+  async function onTurnBluetoothOn() {
+    const outcome = await turnBluetoothOn()
+    if (outcome) toast.success(t(bluetoothOutcomeKey(outcome)))
+  }
 
   function onRetry(id: ServiceId) {
     if (id === 'websocket') live.retry()
     else void retry(id)
+  }
+
+  async function onConfirmTestPrint() {
+    const outcome = await testPrint()
+    setTestConfirmOpen(false)
+    if (!outcome) {
+      toast.error(t('monitorLoadFailed'))
+      return
+    }
+    if (outcome === 'printed') toast.success(t(printerTestOutcomeKey(outcome)))
+    else toast.error(t(printerTestOutcomeKey(outcome)))
   }
 
   const services = data ? withBrowserWebsocket(data, live) : []
@@ -83,7 +108,45 @@ export function MonitoringPage() {
         )
       ) : (
         <>
-          <ServicesPanel services={services} onRetry={onRetry} />
+          <ServicesPanel
+            services={services}
+            onRetry={onRetry}
+            onTestPrint={() => setTestConfirmOpen(true)}
+            testPrintBusy={testPrintBusy}
+          />
+
+          {testConfirmOpen ? (
+            <Modal
+              title={t('monitorPrinterTestConfirmTitle')}
+              onClose={() => setTestConfirmOpen(false)}
+              busy={testPrintBusy}
+              footer={
+                <div className="flex flex-wrap justify-end gap-2">
+                  <button
+                    type="button"
+                    disabled={testPrintBusy}
+                    className="inline-flex min-h-11 items-center rounded-xl border border-brand-navy/15 px-4 text-sm font-medium dark:border-white/20"
+                    onClick={() => setTestConfirmOpen(false)}
+                  >
+                    {t('actionCancel')}
+                  </button>
+                  <LoadingButton
+                    type="button"
+                    isLoading={testPrintBusy}
+                    loadingLabel={t('monitorPrinterTestConfirmAction')}
+                    className="min-h-11"
+                    onClick={() => void onConfirmTestPrint()}
+                  >
+                    {t('monitorPrinterTestConfirmAction')}
+                  </LoadingButton>
+                </div>
+              }
+            >
+              <p className="text-sm text-brand-navy/80 dark:text-white/80">
+                {t('monitorPrinterTestConfirmBody')}
+              </p>
+            </Modal>
+          ) : null}
 
           <section
             aria-labelledby="monitor-resources"
@@ -95,7 +158,11 @@ export function MonitoringPage() {
             >
               {t('monitorResources')}
             </h2>
-            <ResourcesGrid resources={data.resources} />
+            <ResourcesGrid
+              resources={data.resources}
+              bluetoothBusy={bluetoothBusy}
+              onTurnBluetoothOn={() => void onTurnBluetoothOn()}
+            />
           </section>
         </>
       )}

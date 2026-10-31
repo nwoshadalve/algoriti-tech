@@ -7,9 +7,9 @@
  */
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
+import { BootstrapScreen } from '@/app/BootstrapScreen'
 import { SetupLayout } from '@/app/SetupLayout'
 import { LoadingButton } from '@/core/ui/LoadingButton'
-import { PagePreloader } from '@/core/ui/PagePreloader'
 import { PasswordField } from '@/core/ui/PasswordField'
 import { PinInput } from '@/core/ui/PinInput'
 import { SetupCard } from '@/core/ui/SetupCard'
@@ -21,6 +21,7 @@ import { AuthAside } from '@/features/auth/AuthAside'
 import { authError } from '@/features/auth/authErrors'
 import { useAuth } from '@/features/auth/authContext'
 import { clearPinBrowser, readPinBrowser } from '@/features/auth/pinDevice'
+import { isSessionRemembered } from '@/features/auth/session'
 import { SignInMethodSwitch } from '@/features/auth/SignInMethodSwitch'
 import {
   readSignInMode,
@@ -43,6 +44,10 @@ export function LoginPage() {
     return <Navigate to={dashboardHomePath(state.account.role)} replace />
   }
 
+  if (state.status === 'loading') {
+    return <BootstrapScreen />
+  }
+
   const dropPin = () => {
     clearPinBrowser()
     setPinBrowser(null)
@@ -57,20 +62,14 @@ export function LoginPage() {
 
   return (
     <SetupLayout aside={<AuthAside />}>
-      {state.status === 'loading' ? (
-        <SetupCard labelledBy="loading">
-          <PagePreloader className="py-10" />
-        </SetupCard>
-      ) : (
-        <SetupCard labelledBy="login-heading">
-          <SignInCard
-            pinBrowser={pinBrowser}
-            mode={mode}
-            onChooseMode={chooseMode}
-            onPinRemoved={dropPin}
-          />
-        </SetupCard>
-      )}
+      <SetupCard labelledBy="login-heading">
+        <SignInCard
+          pinBrowser={pinBrowser}
+          mode={mode}
+          onChooseMode={chooseMode}
+          onPinRemoved={dropPin}
+        />
+      </SetupCard>
     </SetupLayout>
   )
 }
@@ -90,7 +89,7 @@ function SignInCard({ pinBrowser, mode, onChooseMode, onPinRemoved }: SignInCard
   const toast = useToast()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [remember, setRemember] = useState(false)
+  const [remember, setRemember] = useState(isSessionRemembered)
   const [pin, setPin] = useState('')
   const [fieldError, setFieldError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)

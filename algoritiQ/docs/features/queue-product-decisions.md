@@ -2,7 +2,7 @@
 
 Status: **accepted** for v1 queue design (patient entry, analytics, announcements).  
 Scope: counter tablet (source of truth), TV client (display + playback), local API.  
-Related: [R&D architecture](../discussions/rnd_architechture.md), [Data & offline](../../app/docs/principles/data-offline.md), [Security & privacy](../../app/docs/principles/security-privacy.md).
+Related: [Queue configuration and sessions](./queue-configuration.md), [Patient entry and queue operations](./patient-entry-and-queue-operations.md), [Audit log](./audit-log.md), [R&D architecture](../discussions/rnd_architechture.md), [Data & offline](../../app/docs/principles/data-offline.md), [Security & privacy](../../app/docs/principles/security-privacy.md).
 
 ---
 
@@ -10,20 +10,20 @@ Related: [R&D architecture](../discussions/rnd_architechture.md), [Data & offlin
 
 ### Decisions
 
-- **Three token types**, each with its **own serial counter** per session / work scope (chamber or doctor): **Regular**, **Report**, **Dressing**.
-- **New patient (first time in clinic record):** reception **must** enter **name** and **phone**; **age**, **gender**, and **fees** are **optional** and must not block issuing a token.
+- **Three default token types**, each with its **own serial counter** per session / work scope (chamber or doctor): **Regular**, **Report**, **Dressing**. Bilingual names, default ranges, **per-chamber** add/edit/enable, session rollover, and role permissions are defined in [Queue configuration and sessions](./queue-configuration.md). A change on one chamber's queue list must not change another chamber's list.
+- **New patient (first time in clinic record):** reception **must** enter **Bengali name** and **phone**; the accepted one-page fields and operational flow are defined in [Patient entry and queue operations](./patient-entry-and-queue-operations.md). Optional information must not block issuing a token.
 - **Return patient:** do **not** repeat full registration. Reception finds the record, picks token type, issues today’s token.
 - **Clinic patient number:** system-generated, **unique per clinic**, short and printable; shown on the token slip. **Not** the same as today’s queue serial.
 - **Lookup:** reception searches by **phone** (normalized) and/or **clinic patient number**. Phone is **not** unique (shared family phones in Bangladesh); staff **confirm** the row (name, optional age) when multiple matches.
 - **Public surfaces (TV screen, waiting-area display):** **serial (+ type label) only** — no name or phone.
-- **Fees:** optional at entry; recording payment must not block token creation.
+- **Fee amount:** one optional BDT amount on the visit/token. V1 does not track paid/unpaid status, dues, waivers, refunds, or payment method. Fee entry must not block token creation.
 
 ### Step-by-step — new patient
 
 1. Receptionist is signed in and has chosen **work scope** (chamber or doctor).
-2. Open **new patient** (or register-and-token).
-3. Enter **name** and **phone** (required).
-4. Optionally enter age, gender, fees.
+2. Search first by patient ID or phone; if no correct match exists, open **new patient** inline on the same board.
+3. Enter **Bengali name** and **phone** (required).
+4. Optionally enter the profile and visit fields defined in [Patient entry and queue operations](./patient-entry-and-queue-operations.md).
 5. System creates **patient** row and assigns **clinic patient number**.
 6. Choose token type: **Regular**, **Report**, or **Dressing**.
 7. System allocates the next serial for that **type** in the open session, creates **token**, prints slip (serial, type, clinic patient number for staff; no sensitive data on TV).
@@ -50,14 +50,14 @@ Related: [R&D architecture](../discussions/rnd_architechture.md), [Data & offlin
 
 - **SQLite on the tablet** remains the source of truth; **100k+ patients** and **millions of token rows** are acceptable with indexes and rollup tables.
 - **Live queue** queries only **today’s session** (small); dashboards must **not** scan full history on every page open.
-- **Analytics** (fees, token counts, gender mix) use **pre-aggregated summary tables**, updated when tokens/fees are recorded and/or reconciled daily.
+- **Analytics** (entered fee amounts, token counts, gender mix) use **pre-aggregated summary tables**, updated when tokens/fees are recorded and/or reconciled daily.
 - **Gender percentage** is computed from the **patient** table (or cached snapshot), not by scanning all tokens on each load.
-- **Fees reporting** uses recorded **payments** (paid / unpaid / waived); optional fee at registration does not imply every token has a payment row.
+- **Fee reporting** sums the optional fee amount recorded on visits/tokens. It does not represent payment collection or outstanding dues.
 
 ### Step-by-step — recording (operational)
 
 1. Each **token** row stores type, session, timestamps, link to **patient**.
-2. If fee is captured, attach **payment** (amount BDT, method, status) to that visit — optional.
+2. If a fee is captured, store the optional BDT amount on that visit/token.
 3. In the **same transaction** (or end-of-day job), increment **`daily_stats`** for that scope: counts per type, fee totals, new patients if applicable.
 
 ### Step-by-step — viewing reports (admin)
@@ -73,7 +73,7 @@ Related: [R&D architecture](../discussions/rnd_architechture.md), [Data & offlin
 
 | Table | Grain | Examples |
 | --- | --- | --- |
-| `daily_stats` | clinic + scope + **calendar date** | token counts by type, `fee_collected_bdt`, new patients |
+| `daily_stats` | clinic + scope + **calendar date** | token counts by type, `fee_amount_bdt`, new patients |
 | `monthly_stats` | clinic + scope + **year-month** | same aggregates for charts |
 
 Indexes on **`tokens(created_at_ms)`**, **`patients(phone_normalized)`**, **unique `patients(clinic_patient_number)`**.

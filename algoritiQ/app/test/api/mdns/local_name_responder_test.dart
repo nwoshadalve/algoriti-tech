@@ -230,6 +230,46 @@ void main() {
     expect(addressRecords(socket).last.data, [192, 168, 1, 200]);
   });
 
+  test('should reopen the socket when the network changes', () async {
+    var opens = 0;
+    FakeMdnsSocket live = socket;
+    final it = LocalNameResponder(
+      open: () async {
+        opens++;
+        live = FakeMdnsSocket();
+        return live;
+      },
+      addresses: () async => addresses,
+      addressesV6: () async => addressesV6,
+      probeInterval: const Duration(milliseconds: 5),
+      recheckEvery: const Duration(hours: 1),
+    );
+    addTearDown(it.stop);
+    final claimed = it.names.first;
+    await it.start();
+    await claimed;
+    expect(opens, 1);
+
+    addresses = ['192.168.1.200'];
+    await it.refreshAfterNetworkChange();
+
+    expect(opens, 2);
+    expect(addressRecords(live).last.data, [192, 168, 1, 200]);
+  });
+
+  test('should tell clients to forget the address when Wi-Fi drops', () async {
+    final it = responder();
+    final claimed = it.names.first;
+    await it.start();
+    await claimed;
+
+    addresses = [];
+    await pause(200);
+
+    expect(addressRecords(socket).last.ttl, 0);
+    expect(it.name, 'algoritiq.local');
+  });
+
   test('should advertise the first address when there are several', () async {
     addresses = ['192.168.1.110', '10.20.30.40'];
     final it = responder();

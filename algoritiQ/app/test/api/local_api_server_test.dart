@@ -604,17 +604,67 @@ void main() {
       );
 
       expect(result.status, 204);
-      expect(
-        result.raw.headers.value('access-control-allow-origin'),
-        'http://localhost:5173',
-      );
+      expect(result.raw.headers.value('access-control-allow-origin'), 'http://localhost:5173');
+      expect(result.raw.headers.value('vary'), 'Origin');
       expect(
         result.raw.headers.value('access-control-allow-headers'),
         contains('authorization'),
       );
     });
 
-    test('should allow any origin on preflight in debug CORS mode', () async {
+    test(
+      'should answer private-network preflights for queue and chamber routes',
+      () async {
+        await server.stop();
+        server = LocalApiServer(
+          access: () async => kit.service,
+          corsPolicy: CorsPolicy.allowAnyOrigin,
+        );
+        await server.start(port: 0, address: InternetAddress.loopbackIPv4);
+
+        for (final path in [
+          '/api/v1/queue/chambers/902abfb3-fcb0-47ca-9315-b37b2e15b955',
+          '/api/v1/chambers',
+        ]) {
+          final result = await call(
+            'OPTIONS',
+            path,
+            headers: {
+              'origin': 'http://localhost:5173',
+              'access-control-request-private-network': 'true',
+              'access-control-request-method': 'GET',
+            },
+          );
+
+          expect(result.status, 204);
+          expect(result.raw.headers.value('access-control-allow-origin'), 'http://localhost:5173');
+          expect(result.raw.headers.value('access-control-allow-private-network'), 'true');
+        }
+      },
+    );
+
+    test('should reflect the origin on GET for queue defaults in debug CORS mode', () async {
+      await server.stop();
+      server = LocalApiServer(
+        access: () async => kit.service,
+        corsPolicy: CorsPolicy.allowAnyOrigin,
+      );
+      await server.start(port: 0, address: InternetAddress.loopbackIPv4);
+
+      final result = await call(
+        'GET',
+        '/api/v1/queue/defaults',
+        headers: {
+          'origin': 'http://192.168.0.20:5173',
+          'authorization': 'Bearer fake',
+        },
+      );
+
+      expect(result.raw.headers.value('access-control-allow-origin'), 'http://192.168.0.20:5173');
+      expect(result.raw.headers.value('access-control-allow-private-network'), 'true');
+    });
+
+    test('should reflect any origin on preflight in debug CORS mode', () async {
       await server.stop();
       server = LocalApiServer(
         access: () async => kit.service,
@@ -629,8 +679,28 @@ void main() {
       );
 
       expect(result.status, 204);
-      expect(result.raw.headers.value('access-control-allow-origin'), '*');
-      expect(result.raw.headers.value('vary'), isNull);
+      expect(result.raw.headers.value('access-control-allow-origin'), 'http://localhost:5173');
+      expect(result.raw.headers.value('vary'), 'Origin');
+    });
+
+    test('should reflect a non-local origin on preflight in debug CORS mode', () async {
+      await server.stop();
+      server = LocalApiServer(
+        access: () async => kit.service,
+        corsPolicy: CorsPolicy.allowAnyOrigin,
+      );
+      await server.start(port: 0, address: InternetAddress.loopbackIPv4);
+
+      final result = await call(
+        'OPTIONS',
+        '/api/v1/auth/login',
+        headers: {'origin': 'https://other.example'},
+      );
+
+      expect(result.status, 204);
+      expect(result.raw.headers.value('access-control-allow-origin'), 'https://other.example');
+      expect(result.raw.headers.value('vary'), 'Origin');
+      expect(result.raw.headers.value('access-control-allow-private-network'), 'true');
     });
 
     test(

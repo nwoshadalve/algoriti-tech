@@ -5,6 +5,7 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
+import { Navigate } from 'react-router-dom'
 import { ActivationCodePage } from '@/features/setup/ActivationCodePage'
 import { AdminRegistrationPage } from '@/features/setup/AdminRegistrationPage'
 import { ForgotPasswordPage } from '@/features/auth/ForgotPasswordPage'
@@ -16,6 +17,9 @@ import { SettingsPage } from '@/features/settings/SettingsPage'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { MonitoringPage } from '@/features/monitoring/MonitoringPage'
 import { BackupPage } from '@/features/backup/BackupPage'
+import { QueueConfigurationPage } from '@/features/queue/QueueConfigurationPage'
+import { AuditLogPage } from '@/features/audit/AuditLogPage'
+import { HelpPage } from '@/features/help/HelpPage'
 import { UsersPage } from '@/features/dashboard/UsersPage'
 import { WorkScopePage } from '@/features/work/WorkScopePage'
 import { DashboardLayout } from '@/app/dashboard/DashboardLayout'
@@ -23,6 +27,7 @@ import { RequireAuth } from '@/app/RequireAuth'
 import { AuthenticatedShell } from '@/app/AuthenticatedShell'
 import { RequireWorkScopeReady } from '@/app/RequireWorkScopeReady'
 import { RequireSetupComplete, RequireSetupIncomplete } from '@/app/SetupRouteGuards'
+import { SignedInBootstrapGate } from '@/app/SignedInBootstrapGate'
 
 /** Shared route tree for the browser router and tests. */
 export const appRoutes = [
@@ -49,16 +54,27 @@ export const appRoutes = [
                 element: <RequireWorkScopeReady />,
                 children: [
                   {
-                    element: <DashboardLayout />,
+                    element: <SignedInBootstrapGate />,
                     children: [
+                      {
+                        element: <DashboardLayout />,
+                        children: [
                       { path: '/home', element: <OverviewPage /> },
                       { path: '/board', element: <BoardPage /> },
-                      { path: '/doctor', element: <DoctorPage /> },
-                      { path: '/license', element: <LicensePage /> },
+                      { path: '/doctor', element: <Navigate to="/config/doctor" replace /> },
+                      { path: '/license', element: <Navigate to="/config/chamber" replace /> },
+                      { path: '/config/doctor', element: <DoctorPage /> },
+                      { path: '/config/chamber', element: <LicensePage /> },
                       { path: '/settings', element: <SettingsPage /> },
                       { path: '/users', element: <UsersPage /> },
                       { path: '/monitoring', element: <MonitoringPage /> },
+                      { path: '/queue', element: <Navigate to="/config/queue" replace /> },
+                      { path: '/config/queue', element: <QueueConfigurationPage /> },
+                      { path: '/audit', element: <AuditLogPage /> },
                       { path: '/backup', element: <BackupPage /> },
+                      { path: '/help', element: <HelpPage /> },
+                        ],
+                      },
                     ],
                   },
                 ],

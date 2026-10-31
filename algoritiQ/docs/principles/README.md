@@ -9,7 +9,7 @@ Mandatory for all code in `algoritiQ/web`. Keywords: **MUST** / **MUST NOT** = r
 | [Security & API client](./web-security-api.md) | TLS, pairing, secrets, data minimization |
 | [Testing strategy](./web-testing-strategy.md) | What to test, critical paths, regression policy |
 | [Industry alignment](./industry-standards.md) | WCAG, OWASP, React/TS ecosystem norms we follow |
-| [Web interaction](./web-interaction.md) | Pointer cursor, toasts, popups, server-side lists |
+| [Web interaction](./web-interaction.md) | Pointer cursor, toasts, popups, server-side lists, TanStack Query + partial UI updates |
 
 Concrete coding rules: [../standards/](../standards/).
 

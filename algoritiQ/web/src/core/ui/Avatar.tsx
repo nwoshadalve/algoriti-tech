@@ -6,13 +6,15 @@
  * or distribution is prohibited.
  */
 import type { Account } from '@/core/api/types'
-import { useAvatarUrl } from '@/core/ui/useAvatarUrl'
+import { useAvatarUrl, type PhotoSource } from '@/core/ui/useAvatarUrl'
 
 type AvatarProps = {
   account: Pick<Account, 'firstName' | 'displayName' | 'username' | 'photoVersion'>
   size?: 'md' | 'xl'
   /** Where the picture comes from; the signed-in person's own by default. */
-  source?: (token: string) => Promise<Blob>
+  source?: PhotoSource
+  /** Separates TanStack Query cache entries when `source` is not the account photo. */
+  photoScope?: string
   className?: string
 }
 
@@ -22,8 +24,8 @@ const sizes = {
 }
 
 /** Round picture of the person, or their first initial in capital when there is none. */
-export function Avatar({ account, size = 'md', className = '', source }: AvatarProps) {
-  const url = useAvatarUrl(account.photoVersion, source)
+export function Avatar({ account, size = 'md', className = '', source, photoScope }: AvatarProps) {
+  const url = useAvatarUrl(account.photoVersion, source, photoScope)
   const initial = (account.firstName || account.displayName || account.username)
     .trim()
     .charAt(0)

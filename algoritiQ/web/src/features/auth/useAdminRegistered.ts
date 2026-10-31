@@ -7,6 +7,10 @@
  */
 import { useEffect, useState } from 'react'
 import { getSetupStatus } from '@/core/api/setup'
+import {
+  readSetupRegisteredCache,
+  writeSetupRegisteredCache,
+} from '@/features/auth/setupRegisteredCache'
 
 export type SetupPhase = 'loading' | 'open' | 'registered' | 'unknown'
 
@@ -15,16 +19,22 @@ export type SetupPhase = 'loading' | 'open' | 'registered' | 'unknown'
  * them to the setup steps (`open`) or to sign-in (`registered`).
  */
 export function useAdminRegistered(): SetupPhase {
-  const [phase, setPhase] = useState<SetupPhase>('loading')
+  const [phase, setPhase] = useState<SetupPhase>(() =>
+    readSetupRegisteredCache() ? 'registered' : 'loading',
+  )
 
   useEffect(() => {
     let cancelled = false
     void getSetupStatus().then(
       (status) => {
-        if (!cancelled) setPhase(status.adminRegistered ? 'registered' : 'open')
+        if (cancelled) return
+        writeSetupRegisteredCache(status.adminRegistered)
+        setPhase(status.adminRegistered ? 'registered' : 'open')
       },
       () => {
-        if (!cancelled) setPhase('unknown')
+        if (cancelled) return
+        writeSetupRegisteredCache(false)
+        setPhase('unknown')
       },
     )
     return () => {

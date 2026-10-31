@@ -47,7 +47,7 @@ export function DashboardNavbar({
         dashboardTopBarHeightClass,
       ].join(' ')}
     >
-      <div className="flex h-full items-center gap-2 px-3 sm:px-5 lg:px-8">
+      <div className="flex h-full min-w-0 items-center gap-2 px-3 sm:px-5 lg:px-8">
         <button
           type="button"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-brand-navy lg:hidden transition-colors hover:bg-brand-navy/5 focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:outline-none dark:text-white dark:hover:bg-white/10"
@@ -60,7 +60,7 @@ export function DashboardNavbar({
         </button>
         <Link
           to={home}
-          className="flex min-w-0 shrink items-center rounded-lg lg:hidden focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:outline-none"
+          className="flex min-w-0 flex-1 items-center overflow-hidden rounded-lg lg:hidden lg:flex-none focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:outline-none"
         >
           <BrandWordmark height={28} />
         </Link>

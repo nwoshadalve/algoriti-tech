@@ -72,6 +72,7 @@ export default defineConfig(({ mode }) => {
           target: apiProxy,
           changeOrigin: true,
           secure: false,
+          ws: true,
         },
       },
     },

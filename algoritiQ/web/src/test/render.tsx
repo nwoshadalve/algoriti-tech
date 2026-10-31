@@ -11,6 +11,7 @@ import type { ReactElement } from 'react'
 import { LocaleProvider } from '@/core/i18n/LocaleProvider'
 import { ThemeProvider } from '@/core/theme/ThemeProvider'
 import { ToastProvider } from '@/core/toast/ToastProvider'
+import { QueryProvider } from '@/core/query/QueryProvider'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { appRoutes } from '@/app/appRoutes'
 
@@ -23,7 +24,9 @@ function AppProviders({ children }: { children: React.ReactNode }) {
     <ThemeProvider>
       <LocaleProvider>
         <ToastProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </AuthProvider>
         </ToastProvider>
       </LocaleProvider>
     </ThemeProvider>

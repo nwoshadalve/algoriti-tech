@@ -6,14 +6,16 @@
  * or distribution is prohibited.
  */
 import type { ComponentType, SVGProps } from 'react'
-import type { HealthService } from '@/core/api/monitoring'
+import type { HealthService, ServiceId } from '@/core/api/monitoring'
 import { useLocale } from '@/core/i18n/LocaleProvider'
+import { LoadingButton } from '@/core/ui/LoadingButton'
 import { RetryControl } from '@/features/monitoring/RetryControl'
 import { StatusBadge } from '@/features/monitoring/StatusBadge'
 import { formatUptime } from '@/features/monitoring/format'
-import { reasonKey } from '@/features/monitoring/monitoringReasons'
+import { serviceOkFallback, serviceProblemDetail } from '@/features/monitoring/monitoringReasons'
 
 type ServiceCardProps = {
+  serviceId: ServiceId
   name: string
   icon: ComponentType<SVGProps<SVGSVGElement>>
   service: HealthService
@@ -22,6 +24,8 @@ type ServiceCardProps = {
   priority?: boolean
   /** False hides retry (e.g. TV until a real reconnect exists). */
   showRetry?: boolean
+  onTestPrint?: () => void
+  testPrintBusy?: boolean
 }
 
 const accent: Record<HealthService['status'], string> = {
@@ -33,24 +37,29 @@ const accent: Record<HealthService['status'], string> = {
 }
 
 /** One service as a scannable card (priority layout for printer and TV). */
-export function ServiceCard({ name, icon: Icon, service, onRetry, priority, showRetry = true }: ServiceCardProps) {
+export function ServiceCard({
+  serviceId,
+  name,
+  icon: Icon,
+  service,
+  onRetry,
+  priority,
+  showRetry = true,
+  onTestPrint,
+  testPrintBusy,
+}: ServiceCardProps) {
   const { t } = useLocale()
 
-  const details = [
+  const metrics = [
     service.uptimeSeconds === undefined
       ? null
       : t('monitorUptimeValue', { value: formatUptime(t, service.uptimeSeconds) }),
     service.clients === undefined ? null : t('monitorClients', { count: service.clients }),
   ].filter((part): part is string => part !== null)
 
-  const secondary =
-    service.reason && details.length > 0
-      ? details.join(' · ')
-      : !service.reason && details.length > 0
-        ? details.join(' · ')
-        : !service.reason
-          ? t('monitorNoReason')
-          : null
+  const detail = serviceProblemDetail(service, t) ?? serviceOkFallback(service, t, metrics.length > 0)
+  const showTest =
+    serviceId === 'printer' && service.status === 'ok' && onTestPrint !== undefined
 
   return (
     <li
@@ -67,19 +76,28 @@ export function ServiceCard({ name, icon: Icon, service, onRetry, priority, show
             </h3>
             <StatusBadge status={service.status} />
           </div>
-          {service.reason ? (
-            <p className="mt-1 text-sm leading-snug text-brand-navy/80 dark:text-white/80">
-              {t(reasonKey(service.reason))}
-            </p>
+          {detail ? (
+            <p className="mt-1 text-sm leading-snug text-brand-navy/80 dark:text-white/80">{detail}</p>
           ) : null}
-          {secondary ? (
+          {metrics.length > 0 ? (
             <p className="mt-1 text-xs leading-snug text-brand-navy/65 tabular-nums dark:text-white/65">
-              {secondary}
+              {metrics.join(' · ')}
             </p>
           ) : null}
         </div>
       </div>
-      <div className="mt-auto pt-1">
+      <div className="mt-auto flex flex-wrap gap-2 pt-1">
+        {showTest ? (
+          <LoadingButton
+            type="button"
+            isLoading={testPrintBusy}
+            loadingLabel={t('monitorPrinterTest')}
+            className="min-h-10 sm:min-h-11"
+            onClick={onTestPrint}
+          >
+            {t('monitorPrinterTest')}
+          </LoadingButton>
+        ) : null}
         {showRetry ? <RetryControl service={service} name={name} onRetry={onRetry} /> : null}
       </div>
     </li>

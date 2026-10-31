@@ -11,7 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LocaleProvider } from '@/core/i18n/LocaleProvider'
 import { PencilIcon } from '@/core/ui/icons'
 import { IconButton } from '@/core/ui/IconButton'
-import { Tooltip } from '@/core/ui/Tooltip'
+import { Tooltip, TOOLTIP_DISMISS_EVENT } from '@/core/ui/Tooltip'
 
 function setup(ui = <Tooltip label="Edit user"><button aria-label="Edit user">E</button></Tooltip>) {
   render(<LocaleProvider>{ui}</LocaleProvider>)
@@ -70,6 +70,49 @@ describe('Tooltip', () => {
       vi.advanceTimersByTime(400)
     })
     await user.click(button)
+    expect(tip()).toBeNull()
+  })
+
+  it('should stay hidden after click until the pointer leaves the control', async () => {
+    const user = setup()
+    const button = screen.getByRole('button', { name: 'Edit user' })
+
+    await user.hover(button)
+    act(() => {
+      vi.advanceTimersByTime(400)
+    })
+    expect(tip()).toHaveTextContent('Edit user')
+
+    await user.click(button)
+    expect(tip()).toBeNull()
+
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(tip()).toBeNull()
+
+    await user.unhover(button)
+    await user.hover(button)
+    act(() => {
+      vi.advanceTimersByTime(400)
+    })
+    expect(tip()).toHaveTextContent('Edit user')
+  })
+
+  it('should hide when the app opens a modal', async () => {
+    setup()
+    const button = screen.getByRole('button', { name: 'Edit user' })
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+
+    await user.hover(button)
+    act(() => {
+      vi.advanceTimersByTime(400)
+    })
+    expect(tip()).toHaveTextContent('Edit user')
+
+    act(() => {
+      document.dispatchEvent(new Event(TOOLTIP_DISMISS_EVENT))
+    })
     expect(tip()).toBeNull()
   })
 

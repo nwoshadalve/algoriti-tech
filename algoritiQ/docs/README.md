@@ -36,7 +36,10 @@ If rules conflict or a task needs to break one, **stop and ask** — do not impr
 
 Normative **accepted decisions** for upcoming work:
 
+- [Queue configuration and sessions](./features/queue-configuration.md)
+- [Patient entry and queue operations](./features/patient-entry-and-queue-operations.md)
 - [Queue: patient entry, analytics, announcements](./features/queue-product-decisions.md)
+- [Admin audit log](./features/audit-log.md) — living event catalogue; update as features are finalized
 
 ## Other folders
 

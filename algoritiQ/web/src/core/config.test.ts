@@ -13,11 +13,11 @@ describe('resolveApiBase', () => {
     vi.resetModules()
   })
 
-  it('should use the tablet origin in dev by default', async () => {
+  it('should use the Vite proxy path in dev by default', async () => {
     vi.stubEnv('DEV', true)
     vi.stubEnv('VITE_API_BASE_PATH', '/api/v1')
     const { resolveApiBase } = await import('@/core/config')
-    expect(resolveApiBase()).toBe('https://algoritiq.local:8443/api/v1')
+    expect(resolveApiBase()).toBe('/api/v1')
   })
 
   it('should use a relative path in production', async () => {

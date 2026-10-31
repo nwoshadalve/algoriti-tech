@@ -15,6 +15,7 @@ import * as setupApi from '@/core/api/setup'
 import type { Account, Doctor } from '@/core/api/types'
 import { saveSession } from '@/features/auth/session'
 import { parseDegrees, validateDoctor } from '@/features/doctor/doctorValidation'
+import { queryClient } from '@/core/query/queryClient'
 import { renderAppAt } from '@/test/render'
 
 const owner: Account = {
@@ -42,6 +43,7 @@ const doctor: Doctor = {
 
 describe('doctor page', () => {
   beforeEach(() => {
+    queryClient.clear()
     vi.spyOn(setupApi, 'getSetupStatus').mockResolvedValue({
       adminRegistered: true,
       claimCodeRequired: false,
@@ -58,7 +60,7 @@ describe('doctor page', () => {
   })
 
   async function open() {
-    renderAppAt('/doctor')
+    renderAppAt('/config/doctor')
     await screen.findByLabelText('Name, with title')
     return userEvent.setup()
   }
@@ -154,7 +156,7 @@ describe('doctor page', () => {
 
   it('should explain when the doctor cannot be loaded', async () => {
     vi.spyOn(doctorApi, 'getDoctor').mockRejectedValue(new ApiError('doctor_unavailable', 'x'))
-    renderAppAt('/doctor')
+    renderAppAt('/config/doctor')
 
     expect(
       await within(screen.getByLabelText('Notifications')).findByText(
@@ -166,15 +168,20 @@ describe('doctor page', () => {
   describe('the menu', () => {
     it('should list the Doctor page for a doctor license', async () => {
       renderAppAt('/home')
+      const user = userEvent.setup()
 
       const nav = await screen.findByRole('navigation', { name: 'Dashboard sections' })
+      await user.click(within(nav).getByRole('button', { name: 'Conf' }))
 
-      expect(await within(nav).findByRole('link', { name: 'Doctor' })).toHaveAttribute('href', '/doctor')
+      expect(await within(nav).findByRole('link', { name: 'Doctor' })).toHaveAttribute(
+        'href',
+        '/config/doctor',
+      )
     })
 
     it('should not list it for a chamber license, and send the page to the overview', async () => {
       vi.spyOn(doctorApi, 'getLicenseType').mockResolvedValue('chamber')
-      renderAppAt('/doctor')
+      renderAppAt('/config/doctor')
 
       expect(await screen.findByRole('heading', { name: 'Welcome back, The' })).toBeInTheDocument()
       const nav = screen.getByRole('navigation', { name: 'Dashboard sections' })

@@ -13,6 +13,8 @@ export function usersErrorKey(error: unknown): MessageKey {
     switch (error.code) {
       case 'forbidden':
         return 'usersErrorForbidden'
+      case 'password_change_forbidden':
+        return 'usersErrorPasswordForbidden'
       case 'username_taken':
         return 'usersErrorUsernameTaken'
       case 'email_taken':
@@ -21,6 +23,8 @@ export function usersErrorKey(error: unknown): MessageKey {
         return 'usersErrorSelf'
       case 'last_admin':
         return 'usersErrorLastAdmin'
+      case 'cannot_disable_initial_admin':
+        return 'usersErrorInitialAdmin'
       case 'scope_invalid':
         return 'usersErrorScopeInvalid'
       case 'username_invalid':

@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api_host.dart';
+import '../platform/keep_alive_gateway.dart';
 
 sealed class ServerState {
   const ServerState();
@@ -35,6 +36,7 @@ final serverControllerProvider =
 /// Keeps the tablet's local API running while the app is.
 class ServerController extends Notifier<ServerState> {
   StreamSubscription<String?>? _names;
+  StreamSubscription<void>? _network;
 
   /// The local network name as last heard; it may arrive before or after the
   /// server reports it is running.
@@ -42,7 +44,14 @@ class ServerController extends Notifier<ServerState> {
 
   @override
   ServerState build() {
-    ref.onDispose(() => _names?.cancel());
+    ref.onDispose(() {
+      _names?.cancel();
+      _network?.cancel();
+    });
+    final gateway = ref.read(keepAliveGatewayProvider);
+    _network ??= gateway.networkChanges.listen((_) {
+      unawaited(_onNetworkChanged());
+    });
     unawaited(_start());
     return const ServerStarting();
   }
@@ -56,9 +65,19 @@ class ServerController extends Notifier<ServerState> {
   Future<void> refreshAddresses() async {
     final current = state;
     if (current is! ServerRunning) return;
-    final addresses = await ref.read(apiHostProvider).currentAddresses();
+    final host = ref.read(apiHostProvider);
+    await host.refreshLocalNetwork();
+    if (!ref.mounted) return;
+    final addresses = await host.currentAddresses();
     if (!ref.mounted) return;
     state = ServerRunning(current.endpoint.copyWith(addresses: addresses));
+  }
+
+  Future<void> _onNetworkChanged() async {
+    final host = ref.read(apiHostProvider);
+    await host.refreshLocalNetwork();
+    if (!ref.mounted) return;
+    await refreshAddresses();
   }
 
   void _onName(String? name) {

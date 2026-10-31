@@ -45,6 +45,10 @@ final class KeepAliveStatus {
 abstract interface class KeepAliveGateway {
   Future<KeepAliveStatus> status();
 
+  /// Fires when the tablet's Wi-Fi or IP may have changed (link up, down, or
+  /// new addresses). Used to refresh the local network name immediately.
+  Stream<void> get networkChanges;
+
   /// The tablet's IPv4 addresses on its networks (Wi-Fi first).
   Future<List<String>> localAddresses();
 
@@ -71,6 +75,13 @@ final class ChannelKeepAliveGateway implements KeepAliveGateway {
   const ChannelKeepAliveGateway();
 
   static const _channel = MethodChannel('tech.algoriti.algoritiq/keepalive');
+  static const _events = EventChannel(
+    'tech.algoriti.algoritiq/keepalive/events',
+  );
+
+  @override
+  Stream<void> get networkChanges =>
+      _events.receiveBroadcastStream().map((_) {});
 
   @override
   Future<KeepAliveStatus> status() async {

@@ -5,7 +5,8 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import {
   createBackup,
   downloadBackup,
@@ -27,6 +28,7 @@ import { PageHeader } from '@/core/ui/PageHeader'
 import { PagePreloader } from '@/core/ui/PagePreloader'
 import { SelectField } from '@/core/ui/SelectField'
 import { BACKUP_RETENTION_LIMIT } from '@/features/backup/backupPolicy'
+import { backupQueryKeys } from '@/features/backup/backupQueryKeys'
 import { BackupListRow } from '@/features/backup/BackupListRow'
 import { BackupUploadZone } from '@/features/backup/BackupUploadZone'
 import { DeleteBackupModal } from '@/features/backup/DeleteBackupModal'
@@ -46,13 +48,43 @@ const scheduleOptions: { value: BackupSchedule; labelKey: MessageKey }[] = [
 
 type BackupTarget = { entry: BackupEntry; dateLabel: string }
 
+type BackupDashboard = {
+  settings: BackupSettings
+  backups: BackupEntry[]
+}
+
+function requireSessionToken(): string {
+  const token = readSession()
+  if (!token) throw new Error('signed_out')
+  return token
+}
+
+async function loadBackupDashboard(): Promise<BackupDashboard> {
+  const token = requireSessionToken()
+  const [nextSettings, list] = await Promise.all([
+    getBackupSettings(token),
+    listBackups(token),
+  ])
+  return {
+    settings: {
+      ...nextSettings,
+      retentionLimit: nextSettings.retentionLimit ?? BACKUP_RETENTION_LIMIT,
+    },
+    backups: list.backups,
+  }
+}
+
 /** Admin backup: schedule, manual copies, list, download and restore. */
 export function BackupPage() {
   const { t, locale } = useLocale()
   const toast = useToast()
-  const [settings, setSettings] = useState<BackupSettings | null>(null)
-  const [backups, setBackups] = useState<BackupEntry[] | null>(null)
-  const [failed, setFailed] = useState(false)
+  const queryClient = useQueryClient()
+  const dashboardQuery = useQuery({
+    queryKey: backupQueryKeys.dashboard(),
+    queryFn: loadBackupDashboard,
+    retry: false,
+  })
+
   const [savingSchedule, setSavingSchedule] = useState(false)
   const [creating, setCreating] = useState(false)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -61,28 +93,14 @@ export function BackupPage() {
   const [uploadFile, setUploadFile] = useState<File | null>(null)
   const [restoreBusyId, setRestoreBusyId] = useState<string | null>(null)
 
-  const load = useCallback(async () => {
-    const token = readSession()
-    if (!token) return
-    try {
-      const [nextSettings, list] = await Promise.all([
-        getBackupSettings(token),
-        listBackups(token),
-      ])
-      setSettings({
-        ...nextSettings,
-        retentionLimit: nextSettings.retentionLimit ?? BACKUP_RETENTION_LIMIT,
-      })
-      setBackups(list.backups)
-      setFailed(false)
-    } catch {
-      setFailed(true)
-    }
-  }, [])
+  function refreshDashboard() {
+    void queryClient.invalidateQueries({ queryKey: backupQueryKeys.dashboard() })
+  }
 
-  useEffect(() => {
-    void load()
-  }, [load])
+  const settings = dashboardQuery.data?.settings
+  const backups = dashboardQuery.data?.backups
+  const loading = dashboardQuery.isPending && dashboardQuery.data === undefined
+  const failed = dashboardQuery.isError && dashboardQuery.data === undefined
 
   async function onSaveSchedule(schedule: BackupSchedule) {
     const token = readSession()
@@ -90,12 +108,18 @@ export function BackupPage() {
     setSavingSchedule(true)
     try {
       const updated = await updateBackupSettings(token, schedule)
-      setSettings({
-        ...updated,
-        retentionLimit: updated.retentionLimit ?? settings.retentionLimit,
+      queryClient.setQueryData<BackupDashboard>(backupQueryKeys.dashboard(), (current) => {
+        if (!current) return current
+        return {
+          ...current,
+          settings: {
+            ...updated,
+            retentionLimit: updated.retentionLimit ?? current.settings.retentionLimit,
+          },
+        }
       })
       toast.success(t('backupSettingsSaved'))
-      void load()
+      refreshDashboard()
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : t('backupActionFailed'))
     } finally {
@@ -110,7 +134,7 @@ export function BackupPage() {
     try {
       await createBackup(token)
       toast.success(t('backupCreated'))
-      await load()
+      refreshDashboard()
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : t('backupActionFailed'))
     } finally {
@@ -136,7 +160,7 @@ export function BackupPage() {
     setRestoreTarget({ entry, dateLabel })
   }
 
-  if (!settings || !backups) {
+  if (loading || !settings || !backups) {
     return (
       <div className="mx-auto w-full min-w-0 max-w-5xl">
         {failed ? (
@@ -147,7 +171,7 @@ export function BackupPage() {
               className="flex flex-col gap-3 rounded-xl border border-amber-300/80 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-100 sm:flex-row sm:items-center sm:justify-between"
             >
               <span>{t('backupLoadFailed')}</span>
-              <button type="button" className={secondaryButton} onClick={() => void load()}>
+              <button type="button" className={secondaryButton} onClick={() => refreshDashboard()}>
                 {t('monitorRetry')}
               </button>
             </div>
@@ -269,7 +293,7 @@ export function BackupPage() {
           onClose={() => setDeleteTarget(null)}
           onDeleted={() => {
             setDeleteTarget(null)
-            void load()
+            refreshDashboard()
           }}
         />
       ) : null}
@@ -280,7 +304,7 @@ export function BackupPage() {
           onClose={() => setUploadFile(null)}
           onUploaded={() => {
             setUploadFile(null)
-            void load()
+            refreshDashboard()
           }}
         />
       ) : null}

@@ -6,9 +6,9 @@ The tablet gives itself a name other devices on the clinic Wi-Fi can type instea
 
 - The tablet announces itself with **mDNS** (the "Bonjour" name service): devices ask "where is `algoritiq.local`?" and the tablet answers with its address.
 - Before taking a name it asks the network if anyone uses it. If so it tries `algoritiq-2.local`, `-3`, … (two tablets on one Wi-Fi), up to 9.
-- It answers with the Wi-Fi **IPv4 and IPv6 link-local** address, announces again when either changes (checked every 30 s), and says goodbye when the server stops.
+- It answers with the Wi-Fi **IPv4 and IPv6 link-local** address, announces again when either changes (Android tells the app at once when Wi‑Fi or IP changes; otherwise checked every 30 s), sends **goodbye** (TTL 0) when the link drops, and says goodbye when the server stops.
 - The HTTPS server listens on IPv6 and IPv4 together, so either address works.
-- Everything runs in the background with the server, also on a locked or restarted tablet ([keep-alive](./keep-alive.md)). A multicast lock held by the service keeps the Wi-Fi chip passing these packets with the screen off.
+- Everything runs in the background with the server, also on a locked or restarted tablet ([keep-alive](./keep-alive.md)). A multicast lock held by the service keeps the Wi-Fi chip passing these packets with the screen off; the service also wakes Dart on a 30 s native heartbeat and when the screen turns on or the tablet leaves Doze, so the name stays reachable after deep sleep.
 
 ## What the user sees
 
@@ -33,10 +33,10 @@ Not checked: phones (Android and iPhone), Mac, Linux. Android Chrome in particul
 
 ## If the IP or the router changes
 
-- **New IP, same router:** the tablet checks its addresses every 30 s and announces the new one. Devices cache a name for 2 minutes, so the name works again within about 2 minutes (an open page may need a refresh).
-- **Different router or Wi-Fi:** same thing, as long as the new network lets devices talk to each other (no "client isolation"). If another tablet there already uses `algoritiq.local`, this one becomes `algoritiq-2.local`; check the admin guide.
+- **New IP, same router:** Android notifies the app; the tablet reopens its mDNS socket, announces the new address, and the admin guide IP updates. Devices cache a name for 2 minutes, so an open browser tab may still need a refresh.
+- **Different router or Wi-Fi:** same immediate refresh, as long as the new network lets devices talk to each other (no "client isolation"). If another tablet there already uses `algoritiq.local`, this one becomes `algoritiq-2.local`; check the admin guide.
 - The certificate belongs to the tablet, not to the address, so the browser warning does not come back for a new IP.
-- Checked: Wi-Fi switched off and on (name back in 5 s). Not checked on real hardware: a changed IP or a different router (covered by unit tests only).
+- Checked: Wi-Fi switched off and on (name back within a few seconds). Not checked on real hardware: a changed IP or a different router (covered by unit tests only).
 
 ## Check it yourself
 
@@ -52,5 +52,5 @@ Not checked: phones (Android and iPhone), Mac, Linux. Android Chrome in particul
 
 ## Code
 
-`lib/api/https_server_socket.dart` (plain HTTP to https) · `lib/api/mdns/` (`mdns_message.dart` packets, `mdns_socket.dart` UDP socket, `local_name_responder.dart`) · wired in `lib/api/api_host.dart` and `server_controller.dart` · `KeepAliveService.kt` (multicast lock), `KeepAliveChannel.kt` (`localAddressesV6`) · `AddressPanel`.
+`lib/api/https_server_socket.dart` (plain HTTP to https) · `lib/api/mdns/` (`mdns_message.dart` packets, `mdns_socket.dart` UDP socket, `local_name_responder.dart`) · wired in `lib/api/api_host.dart` and `server_controller.dart` · `KeepAliveChannel.kt` (`localAddresses`, `localAddressesV6`, network-change events), `KeepAliveService.kt` (multicast lock) · `AddressPanel`.
 Tests: `test/api/https_server_socket_test.dart`, `test/api/mdns/`, `test/api/server_controller_test.dart`, `test/features/access/admin_guide_test.dart`.

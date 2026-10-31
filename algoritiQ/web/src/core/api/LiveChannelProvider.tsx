@@ -21,6 +21,7 @@ import {
   resolveLiveWebSocketUrl,
   type LiveConnectionState,
 } from '@/core/api/live'
+import { dispatchLiveEvent } from '@/core/api/liveEvents'
 import { useAuth } from '@/features/auth/authContext'
 import { readSession } from '@/features/auth/session'
 
@@ -110,6 +111,9 @@ export function LiveChannelProvider({ children }: { children: ReactNode }) {
         }
         if (frame.type === 'ping') {
           socket.send(pongFrame())
+        }
+        if (frame.type === 'event') {
+          dispatchLiveEvent(frame.name, frame.payload)
         }
       })
 

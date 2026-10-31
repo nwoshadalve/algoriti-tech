@@ -233,12 +233,11 @@ void main() {
     });
 
     test(
-      'should be allowed for another admin, never for the last one',
+      'should protect the first administrator and the last active admin',
       () async {
         final me = await call('GET', '/api/v1/me');
         final firstId = (me.json['account']! as Map)['id'] as String;
-        final secondId =
-            user(await make('second', role: 'admin'))['id']! as String;
+        await make('second', role: 'admin');
         final login = await call(
           'POST',
           '/api/v1/auth/login',
@@ -246,21 +245,14 @@ void main() {
         );
         final second = login.json['token']! as String;
 
-        final ok = await setStatus(
+        final initial = await setStatus(
           firstId,
           'inactive',
           bearer: second,
           email: 'owner@clinic.test',
         );
-        final self = await setStatus(
-          secondId,
-          'inactive',
-          bearer: second,
-          email: 'second@clinic.test',
-        );
-
-        expect(ok.status, 200);
-        expect(self.status, 409);
+        expect(initial.status, 409);
+        expect((initial.json['error']! as Map)['code'], 'cannot_disable_initial_admin');
       },
     );
   });

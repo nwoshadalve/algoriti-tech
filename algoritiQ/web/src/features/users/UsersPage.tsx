@@ -5,9 +5,10 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
-import { useEffect, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { getUsersContext, updateUser } from '@/core/api/users'
-import type { ManagedUser, UserSort, UsersContext, UsersQuery } from '@/core/api/types'
+import type { ManagedUser, UserSort, UsersQuery } from '@/core/api/types'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import type { MessageKey } from '@/core/i18n/messages/types'
 import { useToast } from '@/core/toast/toastContext'
@@ -24,10 +25,13 @@ import { useDebouncedValue } from '@/core/ui/useDebouncedValue'
 import { useAuth } from '@/features/auth/authContext'
 import { readSession } from '@/features/auth/session'
 import { DisableUserModal } from '@/features/users/DisableUserModal'
+import { SetUserPasswordModal } from '@/features/users/SetUserPasswordModal'
 import { UserFormModal } from '@/features/users/UserFormModal'
 import { UsersTable } from '@/features/users/UsersTable'
 import { UsersToolbar } from '@/features/users/UsersToolbar'
 import { usersErrorKey } from '@/features/users/usersErrorMessages'
+import { usersQueryKeys } from '@/features/users/usersQueryKeys'
+import { canDisableUser, canSetUserPassword } from '@/features/users/usersPermissions'
 import { useUsersList } from '@/features/users/useUsersList'
 
 const SEARCH_PAUSE_MS = 300
@@ -35,6 +39,7 @@ const SEARCH_PAUSE_MS = 300
 type Dialog =
   | { kind: 'create' }
   | { kind: 'edit'; user: ManagedUser }
+  | { kind: 'password'; user: ManagedUser }
   | { kind: 'disable'; user: ManagedUser }
   | null
 
@@ -42,8 +47,8 @@ type Dialog =
 export function UsersPage() {
   const { t } = useLocale()
   const toast = useToast()
+  const queryClient = useQueryClient()
   const { state } = useAuth()
-  const [context, setContext] = useState<UsersContext | null>(null)
   const [searchText, setSearchText] = useState('')
   const [filters, setFilters] = useState<Omit<UsersQuery, 'search'>>({
     role: '',
@@ -59,22 +64,18 @@ export function UsersPage() {
   const isAdmin = account?.role === 'admin'
   const list = useUsersList(query, isAdmin)
 
-  useEffect(() => {
-    const token = readSession()
-    if (!token || !isAdmin) return
-    let cancelled = false
-    getUsersContext(token).then(
-      (result) => {
-        if (!cancelled) setContext(result)
-      },
-      (error) => toast.error(t(usersErrorKey(error))),
-    )
-    return () => {
-      cancelled = true
-    }
-    // Asked once per visit; the toast function is stable.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin])
+  const contextQuery = useQuery({
+    queryKey: usersQueryKeys.context(),
+    queryFn: async () => {
+      const token = readSession()
+      if (!token) throw new Error('signed_out')
+      return getUsersContext(token)
+    },
+    enabled: isAdmin,
+    retry: false,
+  })
+
+  const context = contextQuery.data ?? null
 
   if (!account) return null
 
@@ -184,6 +185,9 @@ export function UsersPage() {
             query={query}
             onSort={sortBy}
             onEdit={(user) => setDialog({ kind: 'edit', user })}
+            canSetPassword={(user) => (context ? canSetUserPassword(account, user, context) : false)}
+            canDisable={(user) => (context ? canDisableUser(account, user, context) : false)}
+            onSetPassword={(user) => setDialog({ kind: 'password', user })}
             onToggle={(user) =>
               user.status === 'active' ? setDialog({ kind: 'disable', user }) : void enable(user)
             }
@@ -212,9 +216,7 @@ export function UsersPage() {
           onSaved={() => {
             setDialog(null)
             list.reload()
-            // The assignments may now be complete.
-            const token = readSession()
-            if (token) void getUsersContext(token).then(setContext, () => undefined)
+            void queryClient.invalidateQueries({ queryKey: usersQueryKeys.context() })
           }}
         />
       ) : null}
@@ -227,6 +229,13 @@ export function UsersPage() {
             setDialog(null)
             list.replace(saved)
           }}
+        />
+      ) : null}
+      {dialog?.kind === 'password' ? (
+        <SetUserPasswordModal
+          user={dialog.user}
+          onClose={() => setDialog(null)}
+          onSaved={() => setDialog(null)}
         />
       ) : null}
       {dialog?.kind === 'disable' ? (

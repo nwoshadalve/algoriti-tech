@@ -5,10 +5,12 @@
 // or distribution is prohibited.
 import 'package:algoritiq_app/api/api_host.dart';
 import 'package:algoritiq_app/api/server_controller.dart';
+import 'package:algoritiq_app/platform/keep_alive_gateway.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/licensing_kit.dart';
+import '../support/readiness_kit.dart';
 
 void main() {
   late FakeApiHost host;
@@ -17,7 +19,10 @@ void main() {
   setUp(() {
     host = FakeApiHost();
     container = ProviderContainer(
-      overrides: [apiHostProvider.overrideWithValue(host)],
+      overrides: [
+        apiHostProvider.overrideWithValue(host),
+        keepAliveGatewayProvider.overrideWithValue(FakeKeepAliveGateway()),
+      ],
     );
     addTearDown(container.dispose);
     container.listen(serverControllerProvider, (_, _) {});

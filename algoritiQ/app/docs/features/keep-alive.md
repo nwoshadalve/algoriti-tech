@@ -5,7 +5,7 @@ The queue server lives in the tablet app. It must answer with the screen locked,
 ## How
 
 - **One engine for the process** (`EngineHolder.kt`): the Flutter engine, and the API inside it, outlive the screen. The Activity only attaches to it.
-- **Foreground service** (`KeepAliveService.kt`): keeps the process alive, shows a small "Queue server is running" notice, holds a CPU wake lock, a Wi-Fi lock and a multicast lock (for the [local name](./local-name.md)). Restarts itself if the system stops it.
+- **Foreground service** (`KeepAliveService.kt`): keeps the process alive, shows a small "Queue server is running" notice, holds a CPU wake lock, a Wi-Fi lock and a multicast lock (for the [local name](./local-name.md)). While it runs, `KeepAliveNetworkEvents` watches Wi‑Fi, screen-on, and leaving Doze, and pings Dart every 30 s so the name and API stay up after deep sleep (Dart timers alone are not enough). Restarts itself if the system stops it.
 - **Data before unlock** (`AlgoritiqApplication.kt`, `DeviceStorage.kt`): all app data (database, photos, settings, secure storage) lives in Android's *device-protected* storage, so it can be read before the first unlock ("Direct Boot"). Data from older versions is moved there once, the first time the tablet is unlocked after the update (photo paths in the database are updated too).
 - **Boot start** (`BootReceiver.kt`, direct-boot aware): starts the service right after power-on (`LOCKED_BOOT_COMPLETED`, before the PIN is entered), and also on `BOOT_COMPLETED` / `QUICKBOOT_POWERON`, after an app update, and on unlock (`USER_PRESENT`). With no UI, the engine starts and only the API runs (`bootstrap()`); the screen is built when the app is opened.
 - **Permission guide** (once, after first-time setup): *Keep the tablet ready* walks the user through the settings below.
@@ -26,9 +26,10 @@ When the user taps **Continue**, the foreground service and local HTTPS API star
 ## Checked on the Honor Pad X7 (Android 15)
 
 - Lock screen showing: the API kept answering.
+- Screen off for a long stretch (deep sleep): the API and `algoritiq.local` stay up while the foreground service runs (native 30 s heartbeat + wake on screen-on / leaving Doze). Tablet should stay on power.
 - Restart with a PIN set, **never unlocked**: the API answered 16 s after power-on (user state `RUNNING_LOCKED`), with the same HTTPS certificate and database as before.
 - Update from the previous version: data moved to device-protected storage with nothing lost (license, language, doctor, chambers, photo).
-- Not yet checked: a fully sleeping screen over hours.
+- Not yet checked on hardware: many hours unplugged on battery (Doze may still win on some makers).
 
 ## Limits
 
@@ -39,5 +40,5 @@ When the user taps **Continue**, the foreground service and local HTTPS API star
 
 ## Code
 
-`android/app/src/main/kotlin/…/` (`AlgoritiqApplication`, `DeviceStorage`, `EngineHolder`, `KeepAliveService`, `BootReceiver`, `KeepAliveChannel`) · `lib/platform/keep_alive_gateway.dart` · `lib/features/readiness/`.
+`android/app/src/main/kotlin/…/` (`AlgoritiqApplication`, `DeviceStorage`, `EngineHolder`, `KeepAliveService`, `KeepAliveNetworkEvents`, `BootReceiver`, `KeepAliveChannel`) · `lib/platform/keep_alive_gateway.dart` · `lib/features/readiness/`.
 Tests: `test/features/readiness/`.

@@ -5,19 +5,12 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query'
+import { useCallback } from 'react'
 import { listUsers } from '@/core/api/users'
-import type { ManagedUser, UsersQuery } from '@/core/api/types'
+import type { ManagedUser, UsersPageResult, UsersQuery } from '@/core/api/types'
 import { readSession } from '@/features/auth/session'
-
-type Loaded = {
-  /** The query (and reload count) these rows answer. */
-  key: string
-  users: ManagedUser[]
-  total: number
-  cursor: string | null
-  failed: boolean
-}
+import { usersQueryKeys } from '@/features/users/usersQueryKeys'
 
 export type UsersList = {
   users: ManagedUser[]
@@ -37,100 +30,92 @@ export type UsersList = {
   replace: (user: ManagedUser) => void
 }
 
+function dedupeUsers(rows: ManagedUser[]): ManagedUser[] {
+  const seen = new Set<string>()
+  const out: ManagedUser[] = []
+  for (const user of rows) {
+    if (seen.has(user.id)) continue
+    seen.add(user.id)
+    out.push(user)
+  }
+  return out
+}
+
 /**
  * The users table's data: one page at a time from the tablet, which searches,
- * filters and sorts. A new query starts from the first page; scrolling asks for
- * the next. Answers to an old query are dropped.
+ * filters and sorts. Cached in TanStack Query so returning to `/users` is instant.
  */
 export function useUsersList(query: UsersQuery, enabled = true): UsersList {
-  const [reloads, setReloads] = useState(0)
-  const [loaded, setLoaded] = useState<Loaded | null>(null)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [moreFailed, setMoreFailed] = useState(false)
-  const key = `${reloads}|${JSON.stringify(query)}`
-  const current = useRef({ key, query, cursor: null as string | null })
+  const queryClient = useQueryClient()
+  const listKey = usersQueryKeys.list(query)
 
-  useEffect(() => {
-    const token = readSession()
-    if (!token || !enabled) return
-    const controller = new AbortController()
-    current.current = { key, query, cursor: null }
-    listUsers(token, query, null, controller.signal).then(
-      (page) => {
-        current.current.cursor = page.nextCursor
-        setMoreFailed(false)
-        setLoadingMore(false)
-        setLoaded({ key, users: page.users, total: page.total, cursor: page.nextCursor, failed: false })
-      },
-      () => {
-        if (controller.signal.aborted) return
-        setLoaded({ key, users: [], total: 0, cursor: null, failed: true })
-      },
-    )
-    return () => controller.abort()
-    // `key` already holds the whole query.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, enabled])
+  const result = useInfiniteQuery({
+    queryKey: listKey,
+    queryFn: async ({ pageParam, signal }) => {
+      const token = readSession()
+      if (!token) throw new Error('signed_out')
+      return listUsers(token, query, pageParam, signal)
+    },
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    enabled,
+    retry: false,
+  })
+
+  const {
+    data,
+    isPending,
+    isError,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    hasNextPage,
+    fetchNextPage,
+  } = result
+
+  const pages = data?.pages ?? []
+  const users = dedupeUsers(pages.flatMap((page) => page.users))
 
   const loadMore = useCallback(() => {
-    const token = readSession()
-    const now = current.current
-    if (!token || !now.cursor || loadingMore) return
-    setLoadingMore(true)
-    setMoreFailed(false)
-    listUsers(token, now.query, now.cursor).then(
-      (page) => {
-        // The query changed while this was on its way: the answer is for nothing.
-        if (current.current.key !== now.key) return
-        current.current.cursor = page.nextCursor
-        setLoadingMore(false)
-        setLoaded((previous) => {
-          if (!previous || previous.key !== now.key) return previous
-          const seen = new Set(previous.users.map((user) => user.id))
-          return {
-            ...previous,
-            users: [...previous.users, ...page.users.filter((user) => !seen.has(user.id))],
-            total: page.total,
-            cursor: page.nextCursor,
-          }
-        })
-      },
-      () => {
-        if (current.current.key !== now.key) return
-        setLoadingMore(false)
-        setMoreFailed(true)
-      },
-    )
-  }, [loadingMore])
+    if (isFetchingNextPage || !hasNextPage) return
+    void fetchNextPage()
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
-  const reload = useCallback(() => setReloads((count) => count + 1), [])
+  const reload = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: listKey })
+  }, [queryClient, listKey])
 
-  const replace = useCallback((user: ManagedUser) => {
-    setLoaded((previous) => {
-      if (!previous) return previous
-      const { status } = current.current.query
-      const stays = !status || user.status === status
-      const known = previous.users.some((row) => row.id === user.id)
-      if (!known) return previous
-      return {
-        ...previous,
-        users: stays
-          ? previous.users.map((row) => (row.id === user.id ? user : row))
-          : previous.users.filter((row) => row.id !== user.id),
-        total: stays ? previous.total : Math.max(0, previous.total - 1),
-      }
-    })
-  }, [])
+  const replace = useCallback(
+    (user: ManagedUser) => {
+      queryClient.setQueryData<InfiniteData<UsersPageResult>>(listKey, (previous) => {
+        if (!previous) return previous
+        const { status } = query
+        const stays = !status || user.status === status
+        const known = previous.pages.some((page) => page.users.some((row) => row.id === user.id))
+        if (!known) return previous
+        return {
+          ...previous,
+          pages: previous.pages.map((page, index) => ({
+            ...page,
+            users: stays
+              ? page.users.map((row) => (row.id === user.id ? user : row))
+              : page.users.filter((row) => row.id !== user.id),
+            total:
+              index === 0 && !stays ? Math.max(0, page.total - 1) : page.total,
+          })),
+        }
+      })
+    },
+    [query, queryClient, listKey],
+  )
 
-  const ready = loaded !== null && loaded.key === key
   return {
-    users: ready ? loaded.users : [],
-    total: ready ? loaded.total : 0,
-    loading: !ready,
-    loadingMore,
-    failed: ready && loaded.failed,
-    moreFailed,
-    hasMore: ready && loaded.cursor !== null,
+    users,
+    total: pages[0]?.total ?? 0,
+    loading: isPending && data === undefined,
+    loadingMore: isFetchingNextPage,
+    failed: isError && data === undefined,
+    moreFailed: isFetchNextPageError,
+    hasMore: Boolean(hasNextPage),
     loadMore,
     reload,
     replace,

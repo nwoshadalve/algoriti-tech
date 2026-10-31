@@ -47,6 +47,7 @@ final class LocalNameResponder {
   Timer? _repeat;
   bool _stopped = false;
   bool _claiming = false;
+  bool _refreshing = false;
 
   String? _host;
   List<int>? _ip;
@@ -60,6 +61,19 @@ final class LocalNameResponder {
   String? get name => _host;
 
   Stream<String?> get names => _names.stream;
+
+  /// Reopens the multicast socket and announces the name on the current Wi-Fi.
+  /// Call when Android reports a network change (new SSID or IP).
+  Future<void> refreshAfterNetworkChange() async {
+    if (_stopped || _refreshing) return;
+    _refreshing = true;
+    try {
+      await _reopenSocket();
+      await _look();
+    } finally {
+      _refreshing = false;
+    }
+  }
 
   /// Opens the socket and starts claiming a name in the background.
   Future<void> start() async {
@@ -158,7 +172,11 @@ final class LocalNameResponder {
   Future<void> _look() async {
     if (_stopped) return;
     final ip = await _firstAddress();
-    if (_stopped || ip == null) return;
+    if (_stopped) return;
+    if (ip == null) {
+      _withdrawAddresses();
+      return;
+    }
     if (_host == null) {
       await _claim();
       return;
@@ -170,6 +188,35 @@ final class LocalNameResponder {
       _ip6 = ip6;
       _announce();
     }
+  }
+
+  Future<void> _reopenSocket() async {
+    await _incoming?.cancel();
+    _incoming = null;
+    _socket?.close();
+    _socket = null;
+    if (_stopped) return;
+    try {
+      final socket = await _open();
+      if (_stopped) {
+        socket.close();
+        return;
+      }
+      _socket = socket;
+      _incoming = socket.datagrams.listen(_onPacket, onError: (Object _) {});
+    } on Exception {
+      // The periodic look or the next network event will try again.
+    }
+  }
+
+  /// Tells clients to drop the old address while Wi-Fi is down.
+  void _withdrawAddresses() {
+    final host = _host;
+    final ip = _ip;
+    if (host == null || ip == null) return;
+    _send(MdnsPackets.address(host, ip, ipv6: _ip6, ttl: 0));
+    _ip = null;
+    _ip6 = null;
   }
 
   void _onPacket(MdnsDatagram datagram) {

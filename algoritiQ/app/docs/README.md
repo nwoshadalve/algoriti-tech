@@ -78,4 +78,5 @@ If rules conflict or a task needs to break one: **stop and ask**, don't improvis
 - [ ] No business logic in widgets; boundaries respected ([Architecture](./principles/architecture.md))
 - [ ] Errors handled, no PII in logs ([Errors & logging](./principles/errors-logging.md), [Security](./principles/security-privacy.md))
 - [ ] UI changes checked on the physical tablet
+- [ ] **`algoritiQ/app` changes deployed to the tablet** (`flutter build apk` + `adb install -r`; bundle web first if `web/` or `assets/web/` changed) — see [Testing principles](./principles/testing.md) §7 and [web-build-and-deploy](./web-build-and-deploy.md)
 - [ ] Docs updated if behavior or setup changed

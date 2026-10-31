@@ -8,11 +8,15 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { getLicenseType } from '@/core/api/doctor'
 import { ClinicContext, type ClinicInfo } from '@/core/clinic/clinicContext'
+import {
+  readLicenseCache,
+  writeLicenseCache,
+} from '@/core/clinic/clinicLicenseCache'
 import { readSession } from '@/features/auth/session'
 
-/** Asks the tablet once what the clinic is licensed for, so the menu can show the right pages. */
+/** Keeps clinic license in sync with the tablet so the menu does not reflow after load. */
 export function ClinicProvider({ children }: { children: ReactNode }) {
-  const [licenseType, setLicenseType] = useState<ClinicInfo['licenseType']>(undefined)
+  const [licenseType, setLicenseType] = useState<ClinicInfo['licenseType']>(() => readLicenseCache())
 
   useEffect(() => {
     const token = readSession()
@@ -20,10 +24,14 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
     let cancelled = false
     getLicenseType(token).then(
       (type) => {
-        if (!cancelled) setLicenseType(type)
+        if (cancelled) return
+        writeLicenseCache(type)
+        setLicenseType(type)
       },
       () => {
-        if (!cancelled) setLicenseType(null)
+        if (cancelled) return
+        writeLicenseCache(null)
+        setLicenseType(null)
       },
     )
     return () => {

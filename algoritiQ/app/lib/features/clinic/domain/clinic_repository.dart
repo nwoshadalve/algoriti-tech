@@ -16,6 +16,8 @@ abstract interface class ClinicRepository {
   /// Chambers in the order they were added.
   Stream<List<Chamber>> watchChambers();
 
+  Future<Chamber?> chamberById(String id);
+
   Future<int> chamberCount();
 
   /// Saves [doctor] and moves setup on from the profile step, together.

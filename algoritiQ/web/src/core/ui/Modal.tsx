@@ -10,7 +10,7 @@ import { createPortal } from 'react-dom'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import { CloseIcon } from '@/core/ui/icons'
 import { lockPageScroll } from '@/core/ui/scrollLock'
-import { Tooltip } from '@/core/ui/Tooltip'
+import { TOOLTIP_DISMISS_EVENT, Tooltip } from '@/core/ui/Tooltip'
 
 type ModalProps = {
   title: string
@@ -62,6 +62,7 @@ export function Modal({
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null
     const release = lockPageScroll()
+    document.dispatchEvent(new Event(TOOLTIP_DISMISS_EVENT))
     const first = body.current?.querySelector<HTMLElement>(FOCUSABLE) ?? panel.current
     first?.focus()
     return () => {

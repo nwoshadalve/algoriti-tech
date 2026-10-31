@@ -8,6 +8,9 @@ import 'dart:async';
 import '../../../core/clock.dart';
 import '../../../platform/keep_alive_gateway.dart';
 import '../../../platform/system_health_gateway.dart';
+import '../../connectivity/application/printer_controller.dart';
+import '../../connectivity/application/test_token_service.dart';
+import '../../connectivity/domain/printer.dart';
 import '../domain/health_snapshot.dart';
 
 /// What the admin monitoring page shows: the tablet's CPU, memory, storage and
@@ -15,20 +18,30 @@ import '../domain/health_snapshot.dart';
 /// that fails can be tried again; progress is kept here so every browser sees
 /// the same retry.
 ///
-/// The printer and the TV app are not built yet, so they report
-/// "unavailable" with the reason, and their retry honestly tries and fails.
+/// The printer uses [PrinterController]; the TV app is not built yet.
 class MonitoringService {
   MonitoringService({
-    required this._health,
-    required this._keepAlive,
-    required this._clock,
+    required SystemHealthGateway health,
+    required KeepAliveGateway keepAlive,
+    required Clock clock,
+    PrinterState Function()? printerState,
+    Future<bool> Function()? retryPrinter,
+    Future<TestTokenOutcome> Function()? testPrinter,
     this.retryDelay = const Duration(seconds: 2),
     this.maxAttempts = 3,
-  });
+  }) : _health = health,
+       _keepAlive = keepAlive,
+       _clock = clock,
+       _printerState = printerState,
+       _retryPrinter = retryPrinter,
+       _testPrinter = testPrinter;
 
   final SystemHealthGateway _health;
   final KeepAliveGateway _keepAlive;
   final Clock _clock;
+  final PrinterState Function()? _printerState;
+  final Future<bool> Function()? _retryPrinter;
+  final Future<TestTokenOutcome> Function()? _testPrinter;
 
   /// Wait between two tries.
   final Duration retryDelay;
@@ -82,7 +95,7 @@ class MonitoringService {
           clients: liveClients,
         ),
         _androidService(system, keepAlive),
-        _unavailable(ServiceId.printer, HealthReason.printerNotSetUp),
+        _printerService(),
         _unavailable(ServiceId.tv, HealthReason.tvNotConnected),
       ],
     );
@@ -91,6 +104,13 @@ class MonitoringService {
   /// Asks Android to turn Bluetooth on; the person confirms on the tablet.
   Future<BluetoothEnableOutcome> enableBluetooth() =>
       _health.requestEnableBluetooth();
+
+  /// Sends a sample token slip to the paired printer (admin monitoring).
+  Future<TestTokenOutcome?> testPrinter() async {
+    final run = _testPrinter;
+    if (run == null) return null;
+    return run();
+  }
 
   Future<SystemHealth?> _readSystem() async {
     try {
@@ -129,6 +149,77 @@ class MonitoringService {
       uptime: system?.androidServiceUptime,
       retryable: true,
     );
+  }
+
+  ServiceHealth _printerService() {
+    final retry = _retries[ServiceId.printer];
+    if (retry != null) return _retrying(ServiceId.printer, retry);
+
+    final read = _printerState;
+    if (read == null) {
+      return _unavailable(ServiceId.printer, HealthReason.printerNotSetUp);
+    }
+    final printer = read();
+    if (!printer.loaded) {
+      return const ServiceHealth(
+        id: ServiceId.printer,
+        status: HealthStatus.unavailable,
+        reason: HealthReason.printerNotSetUp,
+        retryable: false,
+      );
+    }
+    if (printer.saved == null) {
+      return const ServiceHealth(
+        id: ServiceId.printer,
+        status: HealthStatus.unavailable,
+        reason: HealthReason.printerNotSetUp,
+        retryable: false,
+      );
+    }
+    switch (printer.link) {
+      case PrinterLink.connected:
+        return const ServiceHealth(
+          id: ServiceId.printer,
+          status: HealthStatus.ok,
+          retryable: true,
+        );
+      case PrinterLink.connecting:
+        return const ServiceHealth(
+          id: ServiceId.printer,
+          status: HealthStatus.warning,
+          reason: HealthReason.printerConnecting,
+          retryable: false,
+        );
+      case PrinterLink.disconnected:
+        return const ServiceHealth(
+          id: ServiceId.printer,
+          status: HealthStatus.failed,
+          reason: HealthReason.printerDisconnected,
+          retryable: true,
+        );
+      case PrinterLink.notPaired:
+        return const ServiceHealth(
+          id: ServiceId.printer,
+          status: HealthStatus.unavailable,
+          reason: HealthReason.printerNotSetUp,
+          retryable: false,
+        );
+      case PrinterLink.blocked:
+        final reason = switch (printer.access) {
+          BluetoothAccess.off => HealthReason.bluetoothOff,
+          BluetoothAccess.denied => HealthReason.bluetoothDenied,
+          BluetoothAccess.missing => HealthReason.bluetoothMissing,
+          BluetoothAccess.ready => HealthReason.printerDisconnected,
+        };
+        return ServiceHealth(
+          id: ServiceId.printer,
+          status: reason == HealthReason.bluetoothMissing
+              ? HealthStatus.unavailable
+              : HealthStatus.failed,
+          reason: reason,
+          retryable: reason != HealthReason.bluetoothMissing,
+        );
+    }
   }
 
   ServiceHealth _unavailable(ServiceId id, HealthReason reason) {
@@ -235,8 +326,17 @@ class MonitoringService {
     }
   }
 
-  /// One real try. The printer and the TV app have nothing to connect to yet.
+  /// One real try. The TV app has nothing to connect to yet.
   Future<bool> _probe(ServiceId id) async {
+    if (id == ServiceId.printer) {
+      final retry = _retryPrinter;
+      if (retry == null) return false;
+      try {
+        return await retry();
+      } on Object {
+        return false;
+      }
+    }
     if (id != ServiceId.androidService) return false;
     try {
       await _keepAlive.startService();
