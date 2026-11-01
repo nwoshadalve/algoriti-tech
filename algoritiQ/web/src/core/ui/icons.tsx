@@ -38,7 +38,7 @@ export function OverviewIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
-export function BoardIcon(props: SVGProps<SVGSVGElement>) {
+export function QueueDeskIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon {...props}>
       <rect x="3.5" y="4" width="17" height="16" rx="2" />

@@ -7,7 +7,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import { listChambers } from '@/core/api/chambers'
-import { getBoardSnapshot, startBoardSession } from '@/core/api/board'
+import { getQueueDeskSnapshot, startQueueDeskSession } from '@/core/api/queueDesk'
 import type { BoardSnapshot, BoardTokenView, Chamber } from '@/core/api/types'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import { useToast } from '@/core/toast/toastContext'
@@ -49,7 +49,7 @@ export function AdminQueueBoardPage() {
   const refresh = useCallback(async (id: string) => {
     const token = readSession()
     if (!token || !id) return
-    const board = await getBoardSnapshot(token, id)
+    const board = await getQueueDeskSnapshot(token, id)
     setSnapshot(board)
     setFailed(false)
   }, [])
@@ -86,7 +86,7 @@ export function AdminQueueBoardPage() {
     if (!token || !chamberId || startingSession) return
     setStartingSession(true)
     try {
-      await startBoardSession(token, chamberId)
+      await startQueueDeskSession(token, chamberId)
       toast.success(t('boardSessionStarted'))
       await refresh(chamberId)
     } catch (error) {
@@ -101,7 +101,7 @@ export function AdminQueueBoardPage() {
   if (!isAdmin) {
     return (
       <div>
-        <PageHeader title={t('navBoard')} description={t('boardIntro')} />
+        <PageHeader title={t('navQueueDesk')} description={t('boardIntro')} />
         <NoticeBanner tone="error">{t('boardErrorForbidden')}</NoticeBanner>
       </div>
     )
@@ -110,7 +110,7 @@ export function AdminQueueBoardPage() {
   if (loading && !snapshot) {
     return (
       <div>
-        <PageHeader title={t('navBoard')} description={t('boardAdminIntro')} />
+        <PageHeader title={t('navQueueDesk')} description={t('boardAdminIntro')} />
         {failed ? (
           <NoticeBanner tone="error">
             <button type="button" className={secondaryButton} onClick={() => void load()}>
@@ -130,7 +130,7 @@ export function AdminQueueBoardPage() {
   return (
     <div className="min-w-0 space-y-6 pb-10">
       <PageHeader
-        title={t('navBoard')}
+        title={t('navQueueDesk')}
         description={snapshot ? t('boardAdminIntroNamed', { name: snapshot.chamberName }) : t('boardAdminIntro')}
         actions={
           chambers.length > 0 ? (

@@ -6,7 +6,7 @@
  * or distribution is prohibited.
  */
 import { useState } from 'react'
-import { reprintToken } from '@/core/api/board'
+import { reprintToken } from '@/core/api/queueDesk'
 import type { BoardTokenView } from '@/core/api/types'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import { useToast } from '@/core/toast/toastContext'

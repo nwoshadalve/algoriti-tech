@@ -76,7 +76,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Open menu'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Board'));
+    await tester.tap(find.text('Queue desk'));
     await tester.pumpAndSettle();
 
     expect(find.text('Patient queue'), findsOneWidget);

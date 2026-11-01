@@ -645,7 +645,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navPrimaryLabel => 'Dashboard sections';
 
   @override
-  String get navBoard => 'Board';
+  String get navBoard => 'Queue desk';
 
   @override
   String get navCloseMenu => 'Close menu';
@@ -686,7 +686,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get boardIntro =>
-      'Run the counter from here. Live queue tools will appear on this board.';
+      'Run the counter from here. Live queue tools appear on the queue desk.';
 
   @override
   String get boardServerTitle => 'Clinic server';

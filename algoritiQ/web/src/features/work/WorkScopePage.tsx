@@ -39,7 +39,7 @@ export function WorkScopePage() {
   }
 
   if (state.status === 'ready') {
-    return <Navigate to="/board" replace />
+    return <Navigate to={dashboardHomePath(auth.account.role)} replace />
   }
 
   const intro =

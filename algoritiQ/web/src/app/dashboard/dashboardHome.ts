@@ -8,6 +8,6 @@
 import type { Role } from '@/core/api/types'
 
 /** Default landing route after sign-in for this role. */
-export function dashboardHomePath(role: Role): '/home' | '/board' {
-  return role === 'receptionist' ? '/board' : '/home'
+export function dashboardHomePath(role: Role): '/home' | '/queue-desk' {
+  return role === 'receptionist' ? '/queue-desk' : '/home'
 }

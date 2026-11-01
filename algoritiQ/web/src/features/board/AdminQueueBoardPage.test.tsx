@@ -7,7 +7,7 @@
  */
 import { render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import * as boardApi from '@/core/api/board'
+import * as queueDeskApi from '@/core/api/queueDesk'
 import * as chambersApi from '@/core/api/chambers'
 import type { Account } from '@/core/api/types'
 import { LocaleProvider } from '@/core/i18n/LocaleProvider'
@@ -57,7 +57,7 @@ describe('AdminQueueBoardPage', () => {
 
   it('should block non-admin users', () => {
     renderBoard(receptionist)
-    expect(screen.getByText('Only an administrator can use the queue board.')).toBeInTheDocument()
+    expect(screen.getByText('Only an administrator can use the queue desk.')).toBeInTheDocument()
   })
 
   it('should load for administrators', async () => {
@@ -65,7 +65,7 @@ describe('AdminQueueBoardPage', () => {
     vi.spyOn(chambersApi, 'listChambers').mockResolvedValue([
       { id: 'c1', name: 'Main', location: '', phone: '' },
     ])
-    vi.spyOn(boardApi, 'getBoardSnapshot').mockResolvedValue({
+    vi.spyOn(queueDeskApi, 'getQueueDeskSnapshot').mockResolvedValue({
       chamberId: 'c1',
       chamberName: 'Main',
       sessionId: null,
@@ -77,7 +77,7 @@ describe('AdminQueueBoardPage', () => {
     })
 
     renderBoard(admin)
-    expect(await screen.findByRole('heading', { name: 'Board' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Queue desk' })).toBeInTheDocument()
     expect(screen.getByText('Session not open')).toBeInTheDocument()
   })
 })

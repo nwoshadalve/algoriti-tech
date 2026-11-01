@@ -611,7 +611,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get navPrimaryLabel => 'ড্যাশবোর্ডের অংশ';
 
   @override
-  String get navBoard => 'বোর্ড';
+  String get navBoard => 'কিউ ডেস্ক';
 
   @override
   String get navCloseMenu => 'মেনু বন্ধ করুন';
@@ -652,7 +652,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get boardIntro =>
-      'এখান থেকেই কাউন্টার চালান। লাইভ কিউ সরঞ্জাম এই বোর্ডে দেখা যাবে।';
+      'এখান থেকেই কাউন্টার চালান। লাইভ কিউ সরঞ্জাম কিউ ডেস্কে দেখা যাবে।';
 
   @override
   String get boardServerTitle => 'ক্লিনিক সারভার';

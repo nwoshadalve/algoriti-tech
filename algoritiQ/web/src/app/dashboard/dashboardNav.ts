@@ -12,7 +12,7 @@ import { effectiveLicenseType } from '@/core/clinic/clinicLicenseCache'
 import {
   ActivityIcon,
   AuditIcon,
-  BoardIcon,
+  QueueDeskIcon,
   ConfigIcon,
   HardDriveIcon,
   HelpIcon,
@@ -50,7 +50,7 @@ export type DashboardNavEntry = DashboardNavLink | DashboardNavGroup
 /** Primary dashboard navigation: top-level order and nested configuration items. */
 export const dashboardNavEntries: DashboardNavEntry[] = [
   { kind: 'link', to: '/home', labelKey: 'navOverview', icon: OverviewIcon, end: true, roles: ['admin'] },
-  { kind: 'link', to: '/board', labelKey: 'navBoard', icon: BoardIcon, end: true, roles: ['admin', 'receptionist'] },
+  { kind: 'link', to: '/queue-desk', labelKey: 'navQueueDesk', icon: QueueDeskIcon, end: true, roles: ['admin', 'receptionist'] },
   { kind: 'link', to: '/users', labelKey: 'navUsers', icon: UsersIcon, roles: ['admin'] },
   {
     kind: 'group',

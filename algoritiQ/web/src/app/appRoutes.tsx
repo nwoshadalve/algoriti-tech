@@ -10,7 +10,7 @@ import { ActivationCodePage } from '@/features/setup/ActivationCodePage'
 import { AdminRegistrationPage } from '@/features/setup/AdminRegistrationPage'
 import { ForgotPasswordPage } from '@/features/auth/ForgotPasswordPage'
 import { OverviewPage } from '@/features/home/OverviewPage'
-import { BoardPage } from '@/features/home/BoardPage'
+import { QueueDeskPage } from '@/features/home/QueueDeskPage'
 import { DoctorPage } from '@/features/doctor/DoctorPage'
 import { LicensePage } from '@/features/license/LicensePage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
@@ -60,7 +60,8 @@ export const appRoutes = [
                         element: <DashboardLayout />,
                         children: [
                       { path: '/home', element: <OverviewPage /> },
-                      { path: '/board', element: <BoardPage /> },
+                      { path: '/board', element: <Navigate to="/queue-desk" replace /> },
+                      { path: '/queue-desk', element: <QueueDeskPage /> },
                       { path: '/doctor', element: <Navigate to="/config/doctor" replace /> },
                       { path: '/license', element: <Navigate to="/config/chamber" replace /> },
                       { path: '/config/doctor', element: <DoctorPage /> },

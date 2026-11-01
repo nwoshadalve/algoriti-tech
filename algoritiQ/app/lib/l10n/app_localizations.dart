@@ -1187,7 +1187,7 @@ abstract class AppLocalizations {
   /// No description provided for @navBoard.
   ///
   /// In en, this message translates to:
-  /// **'Board'**
+  /// **'Queue desk'**
   String get navBoard;
 
   /// No description provided for @navCloseMenu.
@@ -1253,7 +1253,7 @@ abstract class AppLocalizations {
   /// No description provided for @boardIntro.
   ///
   /// In en, this message translates to:
-  /// **'Run the counter from here. Live queue tools will appear on this board.'**
+  /// **'Run the counter from here. Live queue tools appear on the queue desk.'**
   String get boardIntro;
 
   /// No description provided for @boardServerTitle.

@@ -117,7 +117,7 @@ export type Messages = {
   navOpenMenu: string
   navCloseMenu: string
   navOverview: string
-  navBoard: string
+  navQueueDesk: string
   navUsers: string
   navConf: string
   navHelp: string

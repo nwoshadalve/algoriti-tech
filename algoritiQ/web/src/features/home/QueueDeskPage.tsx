@@ -22,8 +22,8 @@ const statusStyle = {
   offline: 'bg-brand-coral',
 } as const
 
-/** Home board: admin queue operations or receptionist counter overview. */
-export function BoardPage() {
+/** Queue desk: admin queue operations or receptionist counter overview. */
+export function QueueDeskPage() {
   const { t } = useLocale()
   const { state } = useAuth()
   const account = state.status === 'signedIn' ? state.account : null
@@ -32,10 +32,10 @@ export function BoardPage() {
     return <AdminQueueBoardPage />
   }
 
-  return <ReceptionistBoardPlaceholder account={account} t={t} />
+  return <ReceptionistQueueDeskPlaceholder account={account} t={t} />
 }
 
-function ReceptionistBoardPlaceholder({
+function ReceptionistQueueDeskPlaceholder({
   account,
   t,
 }: {
@@ -63,8 +63,8 @@ function ReceptionistBoardPlaceholder({
       <PageHeader title={t('homeGreeting', { name })} description={description} />
 
       <div className="grid min-w-0 gap-4 sm:gap-6 md:grid-cols-2">
-        <Card as="section" labelledBy="board-server">
-          <h2 id="board-server" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
+        <Card as="section" labelledBy="queue-desk-server">
+          <h2 id="queue-desk-server" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
             {t('overviewServerTitle')}
           </h2>
           <p className="mt-3 flex items-start gap-3 text-base font-medium">
@@ -79,8 +79,8 @@ function ReceptionistBoardPlaceholder({
         </Card>
 
         {account ? (
-          <Card as="section" labelledBy="board-account">
-            <h2 id="board-account" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
+          <Card as="section" labelledBy="queue-desk-account">
+            <h2 id="queue-desk-account" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
               {t('overviewAccountTitle')}
             </h2>
             <dl className="mt-3 grid min-w-0 grid-cols-[minmax(0,auto)_minmax(0,1fr)] gap-x-4 gap-y-1.5 text-sm">
@@ -95,8 +95,8 @@ function ReceptionistBoardPlaceholder({
         ) : null}
       </div>
 
-      <Card as="section" labelledBy="board-queue" className="mt-10 border-dashed">
-        <h2 id="board-queue" className="font-semibold">
+      <Card as="section" labelledBy="queue-desk-queue" className="mt-10 border-dashed">
+        <h2 id="queue-desk-queue" className="font-semibold">
           {t('overviewQueueTitle')}
         </h2>
         <p className="mt-1 text-sm text-brand-navy/70 dark:text-white/70">{t('overviewQueueSoon')}</p>

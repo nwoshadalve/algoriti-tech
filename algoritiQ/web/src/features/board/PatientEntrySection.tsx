@@ -6,7 +6,7 @@
  * or distribution is prohibited.
  */
 import { useCallback, useEffect, useState } from 'react'
-import { previewIssueToken } from '@/core/api/board'
+import { previewIssueToken } from '@/core/api/queueDesk'
 import { searchPatients } from '@/core/api/patients'
 import type { IssuePreview, PatientSummary, QueueTypeBoardControl } from '@/core/api/types'
 import { useLocale } from '@/core/i18n/LocaleProvider'

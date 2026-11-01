@@ -274,7 +274,7 @@
   "resetPrevious": "Back",
   "resetExpired": "This reset has expired. Enter the activation key again.",
   "navPrimaryLabel": "Dashboard sections",
-  "navBoard": "Board",
+  "navBoard": "Queue desk",
   "navCloseMenu": "Close menu",
   "navOpenMenu": "Open menu",
   "boardGreeting": "Welcome back, {name}",
@@ -295,7 +295,7 @@
     }
   },
   "navChangeWorkScope": "Change chamber",
-  "boardIntro": "Run the counter from here. Live queue tools will appear on this board.",
+  "boardIntro": "Run the counter from here. Live queue tools appear on the queue desk.",
   "boardServerTitle": "Clinic server",
   "boardServerOk": "This tablet is serving the web app and other devices.",
   "boardServerStarting": "Starting the clinic server…",

@@ -8,7 +8,7 @@
 import { ApiError } from '@/core/api/client'
 import type { MessageKey } from '@/core/i18n/messages/types'
 
-/** Maps queue-board API refusals to user-facing message keys. */
+/** Maps queue-desk API refusals to user-facing message keys. */
 export function boardErrorKey(error: unknown): MessageKey {
   if (error instanceof ApiError) {
     switch (error.code) {

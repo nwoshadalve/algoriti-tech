@@ -146,10 +146,10 @@ export function HelpPage() {
             </p>
             <p className="mt-3">
               <Link
-                to="/board"
+                to="/queue-desk"
                 className="font-medium text-brand-coral underline-offset-2 hover:underline focus-visible:rounded focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:outline-none"
               >
-                {t('navBoard')}
+                {t('navQueueDesk')}
               </Link>
             </p>
           </Card>

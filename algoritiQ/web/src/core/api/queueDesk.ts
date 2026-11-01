@@ -9,14 +9,15 @@ import { apiFetch, bearer } from '@/core/api/client'
 import type { BoardSnapshot, BoardTokenView, IssuePreview, IssuedTokenResult } from '@/core/api/types'
 
 function chamberPath(chamberId: string): string {
-  return `/queue-board/chambers/${encodeURIComponent(chamberId)}`
+  return `/queue-desk/chambers/${encodeURIComponent(chamberId)}`
 }
 
-export async function getBoardSnapshot(token: string, chamberId: string): Promise<BoardSnapshot> {
+/** Live queue desk snapshot for one chamber ([patient-entry-and-queue-operations.md]). */
+export async function getQueueDeskSnapshot(token: string, chamberId: string): Promise<BoardSnapshot> {
   return apiFetch<BoardSnapshot>(chamberPath(chamberId), { headers: bearer(token) })
 }
 
-export async function startBoardSession(token: string, chamberId: string): Promise<void> {
+export async function startQueueDeskSession(token: string, chamberId: string): Promise<void> {
   await apiFetch(`${chamberPath(chamberId)}/session/start`, {
     method: 'POST',
     headers: bearer(token),
@@ -85,7 +86,7 @@ export async function markTokenEntered(
   tokenId: string,
   commandId: string,
 ): Promise<BoardTokenView> {
-  return apiFetch<BoardTokenView>(`/queue-board/tokens/${encodeURIComponent(tokenId)}/entered`, {
+  return apiFetch<BoardTokenView>(`/queue-desk/tokens/${encodeURIComponent(tokenId)}/entered`, {
     method: 'POST',
     headers: bearer(token),
     body: JSON.stringify({ commandId }),
@@ -97,7 +98,7 @@ export async function markTokenSkipped(
   tokenId: string,
   commandId: string,
 ): Promise<BoardTokenView> {
-  return apiFetch<BoardTokenView>(`/queue-board/tokens/${encodeURIComponent(tokenId)}/skipped`, {
+  return apiFetch<BoardTokenView>(`/queue-desk/tokens/${encodeURIComponent(tokenId)}/skipped`, {
     method: 'POST',
     headers: bearer(token),
     body: JSON.stringify({ commandId }),
@@ -110,7 +111,7 @@ export async function cancelToken(
   commandId: string,
   reason?: string,
 ): Promise<BoardTokenView> {
-  return apiFetch<BoardTokenView>(`/queue-board/tokens/${encodeURIComponent(tokenId)}/cancel`, {
+  return apiFetch<BoardTokenView>(`/queue-desk/tokens/${encodeURIComponent(tokenId)}/cancel`, {
     method: 'POST',
     headers: bearer(token),
     body: JSON.stringify({ commandId, reason }),
@@ -124,7 +125,7 @@ export async function reprintToken(
   reason: string,
 ): Promise<{ printAttemptId: string }> {
   return apiFetch<{ printAttemptId: string }>(
-    `/queue-board/tokens/${encodeURIComponent(tokenId)}/reprint`,
+    `/queue-desk/tokens/${encodeURIComponent(tokenId)}/reprint`,
     {
       method: 'POST',
       headers: bearer(token),

@@ -203,7 +203,7 @@ class LocalApiServer {
         await _licenseApi(request, path);
         return;
       }
-      if (path.startsWith('/api/v1/queue-board') || path.startsWith('/api/v1/patients')) {
+      if (path.startsWith('/api/v1/queue-desk') || path.startsWith('/api/v1/patients')) {
         await _queueBoardApi(request, path);
         return;
       }
@@ -1147,7 +1147,7 @@ class LocalApiServer {
         await _json(request, 200, _patientSummaryJson(saved));
         return;
       }
-      const prefix = '/api/v1/queue-board/chambers/';
+      const prefix = '/api/v1/queue-desk/chambers/';
       if (path.startsWith(prefix)) {
         final rest = path.substring(prefix.length);
         final parts = rest.split('/');
@@ -1215,7 +1215,7 @@ class LocalApiServer {
           return;
         }
       }
-      const tokenPrefix = '/api/v1/queue-board/tokens/';
+      const tokenPrefix = '/api/v1/queue-desk/tokens/';
       if (path.startsWith(tokenPrefix)) {
         final rest = path.substring(tokenPrefix.length);
         final parts = rest.split('/');

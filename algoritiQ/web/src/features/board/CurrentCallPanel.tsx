@@ -5,7 +5,7 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
-import { markTokenEntered, markTokenSkipped, recallCalledToken } from '@/core/api/board'
+import { markTokenEntered, markTokenSkipped, recallCalledToken } from '@/core/api/queueDesk'
 import type { BoardTokenView } from '@/core/api/types'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import { useToast } from '@/core/toast/toastContext'

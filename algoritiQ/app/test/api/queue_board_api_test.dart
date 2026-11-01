@@ -120,7 +120,7 @@ void main() {
     final token = await signIn();
     final result = await call(
       'GET',
-      '/api/v1/queue-board/chambers/$chamberId',
+      '/api/v1/queue-desk/chambers/$chamberId',
       token: token,
     );
 
@@ -164,7 +164,7 @@ void main() {
 
     final result = await call(
       'GET',
-      '/api/v1/queue-board/chambers/$chamberId',
+      '/api/v1/queue-desk/chambers/$chamberId',
       token: token,
     );
 
