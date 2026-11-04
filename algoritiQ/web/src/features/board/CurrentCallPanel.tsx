@@ -5,6 +5,7 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
+import { useState } from 'react'
 import { markTokenEntered, markTokenSkipped, recallCalledToken } from '@/core/api/queueDesk'
 import type { BoardTokenView } from '@/core/api/types'
 import { useLocale } from '@/core/i18n/LocaleProvider'
@@ -16,37 +17,28 @@ import { readSession } from '@/features/auth/session'
 import { boardErrorKey } from '@/features/board/boardErrors'
 import { newBoardCommandId, queueDisplayName } from '@/features/board/boardFormat'
 import { formatQueueSerial } from '@/features/queue/formatQueueSerial'
-import { useState } from 'react'
 
 type CurrentCallPanelProps = {
   chamberId: string
   called: BoardTokenView | null
   onRefresh: () => void
   onCancel: (token: BoardTokenView) => void
+  layout?: 'card' | 'desk'
 }
 
 /** Actions for the token currently in CALLED state. */
-export function CurrentCallPanel({ chamberId, called, onRefresh, onCancel }: CurrentCallPanelProps) {
+export function CurrentCallPanel({
+  chamberId,
+  called,
+  onRefresh,
+  onCancel,
+  layout = 'card',
+}: CurrentCallPanelProps) {
   const { t, locale } = useLocale()
   const toast = useToast()
   const [busy, setBusy] = useState('')
 
-  if (!called) {
-    return (
-      <Card as="section" labelledBy="board-current-call">
-        <h2 id="board-current-call" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
-          {t('boardCurrentCallTitle')}
-        </h2>
-        <p className="mt-2 text-sm text-brand-navy/65 dark:text-white/65">{t('boardCurrentCallEmpty')}</p>
-      </Card>
-    )
-  }
-
-  const activeCall = called
-  const serial = formatQueueSerial(activeCall.serial, locale)
-  const queueName = queueDisplayName(locale, activeCall.queueEnglishName, activeCall.queueBengaliName)
-
-  async function run(action: 'entered' | 'skipped' | 'recall') {
+  async function run(action: 'entered' | 'skipped' | 'recall', activeCall: BoardTokenView) {
     const token = readSession()
     if (!token || busy) return
     setBusy(action)
@@ -69,24 +61,18 @@ export function CurrentCallPanel({ chamberId, called, onRefresh, onCancel }: Cur
     }
   }
 
-  return (
-    <Card as="section" labelledBy="board-current-call">
-      <h2 id="board-current-call" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
-        {t('boardCurrentCallTitle')}
-      </h2>
-      <div className="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-        <p className="text-3xl font-bold tabular-nums">{serial}</p>
-        <p className="text-sm font-medium">{activeCall.patientBengaliName}</p>
-        <p className="text-sm text-brand-navy/65 dark:text-white/65">{activeCall.clinicPatientId}</p>
-        <p className="text-sm text-brand-navy/65 dark:text-white/65">{queueName}</p>
-      </div>
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+  function renderActions(activeCall: BoardTokenView, compact: boolean) {
+    const btnClass = compact
+      ? '!min-h-9 !w-auto !px-3 !py-1.5 !text-xs sm:!min-w-0'
+      : 'sm:w-auto sm:min-w-36'
+    return (
+      <div className={`flex flex-wrap gap-2 ${compact ? 'mt-3' : 'mt-4 sm:flex-row'}`}>
         <LoadingButton
           isLoading={busy === 'recall'}
           loadingLabel={t('boardWorking')}
           disabled={!!busy}
-          className="sm:w-auto sm:min-w-36"
-          onClick={() => void run('recall')}
+          className={btnClass}
+          onClick={() => void run('recall', activeCall)}
         >
           {t('boardRecall')}
         </LoadingButton>
@@ -94,8 +80,8 @@ export function CurrentCallPanel({ chamberId, called, onRefresh, onCancel }: Cur
           isLoading={busy === 'entered'}
           loadingLabel={t('boardWorking')}
           disabled={!!busy}
-          className="sm:w-auto sm:min-w-36"
-          onClick={() => void run('entered')}
+          className={btnClass}
+          onClick={() => void run('entered', activeCall)}
         >
           {t('boardPatientEntered')}
         </LoadingButton>
@@ -103,20 +89,75 @@ export function CurrentCallPanel({ chamberId, called, onRefresh, onCancel }: Cur
           isLoading={busy === 'skipped'}
           loadingLabel={t('boardWorking')}
           disabled={!!busy}
-          className="sm:w-auto sm:min-w-36"
-          onClick={() => void run('skipped')}
+          className={btnClass}
+          onClick={() => void run('skipped', activeCall)}
         >
           {t('boardPatientMissed')}
         </LoadingButton>
         <button
           type="button"
-          className={`${secondaryButton} sm:w-auto`}
+          className={`${secondaryButton} ${compact ? '!min-h-9 !w-auto !px-3 !py-1.5 !text-xs' : 'sm:w-auto'}`}
           disabled={!!busy}
           onClick={() => onCancel(activeCall)}
         >
           {t('boardCancelToken')}
         </button>
       </div>
+    )
+  }
+
+  if (!called) {
+    const empty = <p className="mt-2 text-sm text-brand-navy/65 dark:text-white/65">{t('boardCurrentCallEmpty')}</p>
+    if (layout === 'desk') {
+      return (
+        <div className="rounded-2xl border border-dashed border-brand-navy/15 bg-brand-mist/30 px-4 py-6 text-center text-sm text-brand-navy/65 dark:border-white/15 dark:bg-white/5 dark:text-white/65">
+          {t('boardCurrentCallEmpty')}
+        </div>
+      )
+    }
+    return (
+      <Card as="section" labelledBy="board-current-call">
+        <h2 id="board-current-call" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
+          {t('boardCurrentCallTitle')}
+        </h2>
+        {empty}
+      </Card>
+    )
+  }
+
+  const serial = formatQueueSerial(called.serial, locale)
+  const queueName = queueDisplayName(locale, called.queueEnglishName, called.queueBengaliName)
+  const compact = layout === 'desk'
+
+  const inner = (
+    <>
+      <div className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 ${compact ? 'mt-2' : 'mt-3'}`}>
+        <p className="text-3xl font-bold tabular-nums text-brand-coral-action">{serial}</p>
+        <p className="text-sm font-medium">{called.patientBengaliName}</p>
+        <p className="text-sm text-brand-navy/65 dark:text-white/65">{called.clinicPatientId}</p>
+        <p className={`text-sm text-brand-navy/65 dark:text-white/65 ${compact ? 'w-full' : ''}`}>{queueName}</p>
+      </div>
+      {renderActions(called, compact)}
+    </>
+  )
+
+  if (layout === 'desk') {
+    return (
+      <div className="rounded-2xl border border-brand-coral/25 bg-gradient-to-br from-brand-coral/10 to-white p-4 dark:from-brand-coral/15 dark:to-brand-navy-raised">
+        <p className="text-xs font-bold tracking-wide text-brand-navy/60 uppercase dark:text-white/60">
+          {t('boardCurrentCallTitle')}
+        </p>
+        {inner}
+      </div>
+    )
+  }
+
+  return (
+    <Card as="section" labelledBy="board-current-call">
+      <h2 id="board-current-call" className="text-sm font-semibold text-brand-navy/70 dark:text-white/70">
+        {t('boardCurrentCallTitle')}
+      </h2>
+      {inner}
     </Card>
   )
 }

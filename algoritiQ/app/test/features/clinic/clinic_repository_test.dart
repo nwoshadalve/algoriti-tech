@@ -31,8 +31,13 @@ void main() {
 
   const doctor = Doctor(id: 'd1', name: 'Dr. Rahim', specialty: 'Medicine');
 
-  Chamber chamber(String id, {String doctorId = 'd1'}) =>
-      Chamber(id: id, doctorId: doctorId, name: 'Chamber $id');
+  Chamber chamber(String id, {String doctorId = 'd1'}) => Chamber(
+        id: id,
+        doctorId: doctorId,
+        name: 'Chamber $id',
+        patientIdPrefix: '',
+        patientIdNextSequence: 1,
+      );
 
   group('setup stage', () {
     test('should start at the profile step', () async {
@@ -87,17 +92,30 @@ void main() {
       expect(names, ['z', 'a']);
     });
 
+    test('should assign a three-digit patient id prefix when a chamber is added', () async {
+      await repository.addChamber(chamber('a'), limit: 3);
+
+      final saved = (await repository.watchChambers().first).single;
+      expect(saved.patientIdPrefix.length, 3);
+      expect(int.tryParse(saved.patientIdPrefix), isNotNull);
+      expect(saved.patientIdNextSequence, 1);
+    });
+
     test('should update a chamber without changing its position', () async {
       await repository.addChamber(chamber('a'), limit: 3);
       await repository.addChamber(chamber('b'), limit: 3);
 
+      final existing = (await repository.watchChambers().first)
+          .firstWhere((c) => c.id == 'a');
       await repository.updateChamber(
-        const Chamber(
+        Chamber(
           id: 'a',
           doctorId: 'd1',
           name: 'Renamed',
           location: 'Uttara',
           phone: '01700000000',
+          patientIdPrefix: existing.patientIdPrefix,
+          patientIdNextSequence: existing.patientIdNextSequence,
         ),
       );
 

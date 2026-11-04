@@ -8,6 +8,14 @@ import 'package:flutter/services.dart';
 
 import '../theme/app_spacing.dart';
 
+/// Same height as desk form dropdowns when [LabeledTextField.compact] is true.
+const _deskFormControlHeight = 40.0;
+
+const _deskCompactInputPadding = EdgeInsets.symmetric(
+  horizontal: Spacing.sm,
+  vertical: 10,
+);
+
 /// Text field with its label above it, as used across forms. No example
 /// text inside: the label says what goes here.
 class LabeledTextField extends StatelessWidget {
@@ -86,6 +94,11 @@ class LabeledTextField extends StatelessWidget {
               errorText: errorText,
               helperText: errorText == null ? hint : null,
               helperMaxLines: 3,
+              isDense: compact,
+              contentPadding: compact ? _deskCompactInputPadding : null,
+              constraints: compact
+                  ? const BoxConstraints(minHeight: _deskFormControlHeight)
+                  : null,
             ),
           ),
         ],

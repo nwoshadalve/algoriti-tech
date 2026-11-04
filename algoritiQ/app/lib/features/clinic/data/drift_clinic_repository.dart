@@ -4,6 +4,7 @@
 // Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
 // or distribution is prohibited.
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:drift/drift.dart';
 
@@ -73,6 +74,8 @@ final class DriftClinicRepository implements ClinicRepository {
             name: row.name,
             location: row.location,
             phone: row.phone,
+            patientIdPrefix: row.patientIdPrefix,
+            patientIdNextSequence: row.patientIdNextSequence,
           ),
       ],
     );
@@ -90,7 +93,31 @@ final class DriftClinicRepository implements ClinicRepository {
       name: row.name,
       location: row.location,
       phone: row.phone,
+      patientIdPrefix: row.patientIdPrefix,
+      patientIdNextSequence: row.patientIdNextSequence,
     );
+  }
+
+  @override
+  Future<bool> patientIdPrefixInUse(
+    String prefix, {
+    String? exceptChamberId,
+  }) async {
+    var query = _db.select(_db.chambers)
+      ..where((c) => c.patientIdPrefix.equals(prefix));
+    if (exceptChamberId != null) {
+      query = query..where((c) => c.id.equals(exceptChamberId).not());
+    }
+    return (await query.getSingleOrNull()) != null;
+  }
+
+  Future<String> _newUniquePatientIdPrefix() async {
+    final rng = Random.secure();
+    for (var attempt = 0; attempt < 500; attempt++) {
+      final candidate = (100 + rng.nextInt(900)).toString();
+      if (!await patientIdPrefixInUse(candidate)) return candidate;
+    }
+    throw StateError('Could not allocate a chamber patient ID prefix.');
   }
 
   @override
@@ -151,6 +178,7 @@ final class DriftClinicRepository implements ClinicRepository {
   Future<bool> addChamber(Chamber chamber, {required int limit}) =>
       _db.transaction(() async {
         if (await _chamberCountOf(chamber.doctorId) >= limit) return false;
+        final prefix = await _newUniquePatientIdPrefix();
         await _db
             .into(_db.chambers)
             .insert(
@@ -160,6 +188,8 @@ final class DriftClinicRepository implements ClinicRepository {
                 name: chamber.name,
                 location: Value(chamber.location),
                 phone: Value(chamber.phone),
+                patientIdPrefix: prefix,
+                patientIdNextSequence: const Value(1),
                 createdAt: _clock().toUtc().millisecondsSinceEpoch,
               ),
             );
@@ -175,6 +205,8 @@ final class DriftClinicRepository implements ClinicRepository {
         name: Value(chamber.name),
         location: Value(chamber.location),
         phone: Value(chamber.phone),
+        patientIdPrefix: Value(chamber.patientIdPrefix),
+        patientIdNextSequence: Value(chamber.patientIdNextSequence),
       ),
     );
   }

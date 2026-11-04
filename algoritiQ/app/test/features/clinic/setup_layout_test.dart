@@ -57,6 +57,8 @@ void main() {
         name: 'Al-Khidmah Medical Services (Pvt.), Chandpur',
         location: 'Chandpur Sadar, Chandpur',
         phone: '01766521717',
+        patientIdPrefix: '776',
+        patientIdNextSequence: 1,
       ),
       Chamber(
         id: 'c2',
@@ -64,6 +66,8 @@ void main() {
         name: 'Uttara Chamber',
         location: 'Uttara, Dhaka',
         phone: '01700000000',
+        patientIdPrefix: '665',
+        patientIdNextSequence: 1,
       ),
     ].indexed) {
       await db
@@ -75,6 +79,7 @@ void main() {
               name: chamber.name,
               location: Value(chamber.location),
               phone: Value(chamber.phone),
+              patientIdPrefix: chamber.patientIdPrefix,
               createdAt: i,
             ),
           );

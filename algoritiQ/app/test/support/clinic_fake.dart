@@ -12,6 +12,8 @@ const testChamber = Chamber(
   id: 'c1',
   doctorId: 'd1',
   name: 'আল-খিদমাহ্ মেডিকেল সার্ভিসেস, চাঁদপুর',
+  patientIdPrefix: '776',
+  patientIdNextSequence: 1,
 );
 
 /// Only the two lists the token needs; anything else is a mistake in the test.

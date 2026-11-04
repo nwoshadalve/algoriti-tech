@@ -100,4 +100,60 @@ void main() {
     expect(user.photo, isNull);
     expect(user.photoVersion, 0);
   });
+
+  test('should upgrade from v14 when patients already exist', () async {
+    final database = AppDatabase(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw
+            ..execute(
+              'CREATE TABLE doctors (id TEXT NOT NULL, name TEXT NOT NULL, '
+              'specialty TEXT NULL, degrees TEXT NOT NULL DEFAULT \'[]\', '
+              'designation TEXT NULL, workplace TEXT NULL, '
+              'registration_number TEXT NULL, photo_path TEXT NULL, '
+              'PRIMARY KEY (id))',
+            )
+            ..execute(
+              'CREATE TABLE chambers (id TEXT NOT NULL, doctor_id TEXT NOT NULL, '
+              'name TEXT NOT NULL, location TEXT NULL, phone TEXT NULL, '
+              'created_at INTEGER NOT NULL, PRIMARY KEY (id))',
+            )
+            ..execute(
+              'CREATE TABLE patients (id TEXT NOT NULL, patient_number INTEGER NOT NULL '
+              'UNIQUE, bengali_name TEXT NOT NULL, english_name TEXT NULL, '
+              'phone_normalized TEXT NOT NULL, gender TEXT NULL, '
+              'date_of_birth_ms INTEGER NULL, birth_year INTEGER NULL, '
+              'approximate_age_years INTEGER NULL, '
+              'approximate_age_recorded_at INTEGER NULL, locality TEXT NULL, '
+              'legacy_file_number TEXT NULL, admin_note TEXT NULL, '
+              'has_paper_file INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, '
+              'PRIMARY KEY (id))',
+            )
+            ..execute(
+              "INSERT INTO doctors (id, name) VALUES ('d1', 'Doctor')",
+            )
+            ..execute(
+              "INSERT INTO chambers (id, doctor_id, name, created_at) "
+              "VALUES ('c1', 'd1', 'Chamber', 1)",
+            )
+            ..execute(
+              "INSERT INTO patients (id, patient_number, bengali_name, "
+              "phone_normalized, created_at) VALUES "
+              "('p1', 1, 'One', '01700000001', 1), "
+              "('p2', 2, 'Two', '01700000002', 2)",
+            )
+            ..execute('PRAGMA user_version = 14');
+        },
+      ),
+    );
+    addTearDown(database.close);
+
+    final patients = await database.select(database.patients).get();
+    expect(patients, hasLength(2));
+    expect(patients.map((p) => p.clinicPatientId).toSet(), {'P-000001', 'P-000002'});
+
+    final chamber = await database.select(database.chambers).getSingle();
+    expect(chamber.patientIdPrefix, isNotEmpty);
+    expect(chamber.patientIdNextSequence, 1);
+  });
 }

@@ -55,6 +55,19 @@ class QueueService {
     }
   }
 
+  /// Receptionist may start a session only for an assigned chamber.
+  Future<void> _requireDeskSessionStarter(
+    Account account,
+    String chamberId,
+  ) async {
+    if (account.role == Role.admin) return;
+    if (account.role == Role.receptionist) {
+      final scopes = await _accounts.getUserScopes(account.id);
+      if (scopes.contains(chamberId)) return;
+    }
+    throw const QueueServiceRefused(QueueServiceProblem.forbidden);
+  }
+
   Future<void> _audit(
     Account? actor,
     String action,
@@ -344,7 +357,7 @@ class QueueService {
     Account admin,
     String chamberId,
   ) async {
-    await _requireAdmin(admin);
+    await _requireDeskSessionStarter(admin, chamberId);
     if (await _repo.openSessionForChamber(chamberId) != null) {
       throw const QueueServiceRefused(QueueServiceProblem.openSession);
     }

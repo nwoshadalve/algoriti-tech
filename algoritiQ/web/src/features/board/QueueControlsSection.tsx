@@ -23,6 +23,7 @@ type QueueControlsSectionProps = {
   calledToken: BoardTokenView | null
   sessionOpen: boolean
   onRefresh: () => void
+  layout?: 'card' | 'desk'
 }
 
 /** Per-queue waiting counts, call next, and recall. */
@@ -32,6 +33,7 @@ export function QueueControlsSection({
   calledToken,
   sessionOpen,
   onRefresh,
+  layout = 'card',
 }: QueueControlsSectionProps) {
   const { t, locale } = useLocale()
   const toast = useToast()
@@ -70,40 +72,53 @@ export function QueueControlsSection({
     }
   }
 
-  return (
-    <Card as="section" labelledBy="board-queue-controls">
-      <h2 id="board-queue-controls" className="font-semibold">
-        {t('boardQueueControlsTitle')}
-      </h2>
-      {calledToken ? (
-        <p className="mt-1 text-sm text-amber-900 dark:text-amber-100" role="status">
-          {t('boardCallBlocked', {
-            serial: formatQueueSerial(calledToken.serial, locale),
-          })}
-        </p>
-      ) : null}
-      <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {controls.map((control) => {
-          const name = queueDisplayName(locale, control.englishName, control.bengaliName)
-          const loading = busyType === control.queueTypeId
-          const recalling = busyRecall === control.queueTypeId
-          return (
-            <li
-              key={control.queueTypeId}
-              className="rounded-xl border border-brand-navy/10 bg-brand-mist/40 p-4 dark:border-white/10 dark:bg-white/5"
-            >
-              <p className="font-semibold">{name}</p>
-              <p className="mt-1 text-sm text-brand-navy/70 dark:text-white/70">
-                {t('boardWaitingCount', { count: control.waitingCount })}
-              </p>
-              <p className="text-xs text-brand-navy/60 dark:text-white/60">
-                {t('boardNextSerial', { serial: formatQueueSerial(control.nextSerial, locale) })}
-              </p>
-              <div className="mt-3 flex flex-col gap-2">
+  const blocked = calledToken ? (
+    <p className="mt-1 text-sm text-amber-900 dark:text-amber-100" role="status">
+      {t('boardCallBlocked', {
+        serial: formatQueueSerial(calledToken.serial, locale),
+      })}
+    </p>
+  ) : null
+
+  const list = (
+    <ul className={layout === 'desk' ? 'mt-3 flex flex-col gap-2' : 'mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3'}>
+      {controls.map((control) => {
+        const name = queueDisplayName(locale, control.englishName, control.bengaliName)
+        const loading = busyType === control.queueTypeId
+        const recalling = busyRecall === control.queueTypeId
+        return (
+          <li
+            key={control.queueTypeId}
+            className={
+              layout === 'desk'
+                ? 'rounded-xl border border-brand-navy/10 bg-brand-mist/40 px-3 py-2.5 dark:border-white/10 dark:bg-white/5'
+                : 'rounded-xl border border-brand-navy/10 bg-brand-mist/40 p-4 dark:border-white/10 dark:bg-white/5'
+            }
+          >
+            <div className={layout === 'desk' ? 'flex flex-wrap items-center justify-between gap-2' : undefined}>
+              <div className={layout === 'desk' ? 'min-w-0 flex-1' : undefined}>
+                <p className="font-semibold">{name}</p>
+                <p className="mt-0.5 text-sm text-brand-navy/70 dark:text-white/70">
+                  {t('boardWaitingCount', { count: control.waitingCount })}
+                  {layout === 'desk' ? (
+                    <span className="text-brand-navy/55 dark:text-white/55">
+                      {' · '}
+                      {t('boardNextSerial', { serial: formatQueueSerial(control.nextSerial, locale) })}
+                    </span>
+                  ) : null}
+                </p>
+                {layout === 'card' ? (
+                  <p className="text-xs text-brand-navy/60 dark:text-white/60">
+                    {t('boardNextSerial', { serial: formatQueueSerial(control.nextSerial, locale) })}
+                  </p>
+                ) : null}
+              </div>
+              <div className={layout === 'desk' ? 'flex shrink-0 flex-wrap gap-2' : 'mt-3 flex flex-col gap-2'}>
                 <LoadingButton
                   isLoading={loading}
                   loadingLabel={t('boardWorking')}
                   disabled={!control.canCallNext || !!busyType || !!busyRecall}
+                  className={layout === 'desk' ? '!min-h-9 !w-auto !px-3 !py-1.5 !text-xs sm:!min-w-0' : undefined}
                   onClick={() => void callNext(control.queueTypeId)}
                 >
                   {t('boardCallNext')}
@@ -113,18 +128,47 @@ export function QueueControlsSection({
                   loadingLabel={t('boardWorking')}
                   disabled={!control.canRecall || !!busyType || !!busyRecall}
                   onClick={() => void recall(control.queueTypeId)}
-                  className="!bg-brand-navy/90 hover:!opacity-100 dark:!bg-white/15"
+                  className={
+                    layout === 'desk'
+                      ? '!min-h-9 !w-auto !px-3 !py-1.5 !text-xs !bg-brand-navy/90 hover:!opacity-100 sm:!min-w-0 dark:!bg-white/15'
+                      : '!bg-brand-navy/90 hover:!opacity-100 dark:!bg-white/15'
+                  }
                 >
                   {t('boardRecall')}
                 </LoadingButton>
               </div>
-            </li>
-          )
-        })}
-      </ul>
-      {controls.length === 0 ? (
-        <p className="mt-2 text-sm text-brand-navy/65 dark:text-white/65">{t('boardNoQueueTypes')}</p>
-      ) : null}
+            </div>
+          </li>
+        )
+      })}
+    </ul>
+  )
+
+  const empty = controls.length === 0 ? (
+    <p className="mt-2 text-sm text-brand-navy/65 dark:text-white/65">{t('boardNoQueueTypes')}</p>
+  ) : null
+
+  if (layout === 'desk') {
+    return (
+      <section aria-labelledby="board-queue-controls" className="rounded-2xl border border-brand-navy/10 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-brand-navy-raised">
+        <h2 id="board-queue-controls" className="text-xs font-bold tracking-wide text-brand-navy/70 uppercase dark:text-white/70">
+          {t('boardQueueControlsTitle')}
+        </h2>
+        {blocked}
+        {list}
+        {empty}
+      </section>
+    )
+  }
+
+  return (
+    <Card as="section" labelledBy="board-queue-controls">
+      <h2 id="board-queue-controls" className="font-semibold">
+        {t('boardQueueControlsTitle')}
+      </h2>
+      {blocked}
+      {list}
+      {empty}
     </Card>
   )
 }

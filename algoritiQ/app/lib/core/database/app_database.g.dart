@@ -612,6 +612,28 @@ class $ChambersTable extends Chambers
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _patientIdPrefixMeta = const VerificationMeta(
+    'patientIdPrefix',
+  );
+  @override
+  late final GeneratedColumn<String> patientIdPrefix = GeneratedColumn<String>(
+    'patient_id_prefix',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _patientIdNextSequenceMeta =
+      const VerificationMeta('patientIdNextSequence');
+  @override
+  late final GeneratedColumn<int> patientIdNextSequence = GeneratedColumn<int>(
+    'patient_id_next_sequence',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -620,6 +642,8 @@ class $ChambersTable extends Chambers
     location,
     phone,
     createdAt,
+    patientIdPrefix,
+    patientIdNextSequence,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -674,6 +698,26 @@ class $ChambersTable extends Chambers
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('patient_id_prefix')) {
+      context.handle(
+        _patientIdPrefixMeta,
+        patientIdPrefix.isAcceptableOrUnknown(
+          data['patient_id_prefix']!,
+          _patientIdPrefixMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_patientIdPrefixMeta);
+    }
+    if (data.containsKey('patient_id_next_sequence')) {
+      context.handle(
+        _patientIdNextSequenceMeta,
+        patientIdNextSequence.isAcceptableOrUnknown(
+          data['patient_id_next_sequence']!,
+          _patientIdNextSequenceMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -707,6 +751,14 @@ class $ChambersTable extends Chambers
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
       )!,
+      patientIdPrefix: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}patient_id_prefix'],
+      )!,
+      patientIdNextSequence: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}patient_id_next_sequence'],
+      )!,
     );
   }
 
@@ -729,6 +781,12 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
 
   /// UTC epoch milliseconds; keeps chambers in the order they were added.
   final int createdAt;
+
+  /// Digits-only prefix for new patient IDs in this chamber (see chamber-patient-id.md).
+  final String patientIdPrefix;
+
+  /// Next sequence value to append to [patientIdPrefix] on register.
+  final int patientIdNextSequence;
   const ChamberRow({
     required this.id,
     required this.doctorId,
@@ -736,6 +794,8 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
     this.location,
     this.phone,
     required this.createdAt,
+    required this.patientIdPrefix,
+    required this.patientIdNextSequence,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -750,6 +810,8 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
       map['phone'] = Variable<String>(phone);
     }
     map['created_at'] = Variable<int>(createdAt);
+    map['patient_id_prefix'] = Variable<String>(patientIdPrefix);
+    map['patient_id_next_sequence'] = Variable<int>(patientIdNextSequence);
     return map;
   }
 
@@ -765,6 +827,8 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
           ? const Value.absent()
           : Value(phone),
       createdAt: Value(createdAt),
+      patientIdPrefix: Value(patientIdPrefix),
+      patientIdNextSequence: Value(patientIdNextSequence),
     );
   }
 
@@ -780,6 +844,10 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
       location: serializer.fromJson<String?>(json['location']),
       phone: serializer.fromJson<String?>(json['phone']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
+      patientIdPrefix: serializer.fromJson<String>(json['patientIdPrefix']),
+      patientIdNextSequence: serializer.fromJson<int>(
+        json['patientIdNextSequence'],
+      ),
     );
   }
   @override
@@ -792,6 +860,8 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
       'location': serializer.toJson<String?>(location),
       'phone': serializer.toJson<String?>(phone),
       'createdAt': serializer.toJson<int>(createdAt),
+      'patientIdPrefix': serializer.toJson<String>(patientIdPrefix),
+      'patientIdNextSequence': serializer.toJson<int>(patientIdNextSequence),
     };
   }
 
@@ -802,6 +872,8 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
     Value<String?> location = const Value.absent(),
     Value<String?> phone = const Value.absent(),
     int? createdAt,
+    String? patientIdPrefix,
+    int? patientIdNextSequence,
   }) => ChamberRow(
     id: id ?? this.id,
     doctorId: doctorId ?? this.doctorId,
@@ -809,6 +881,8 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
     location: location.present ? location.value : this.location,
     phone: phone.present ? phone.value : this.phone,
     createdAt: createdAt ?? this.createdAt,
+    patientIdPrefix: patientIdPrefix ?? this.patientIdPrefix,
+    patientIdNextSequence: patientIdNextSequence ?? this.patientIdNextSequence,
   );
   ChamberRow copyWithCompanion(ChambersCompanion data) {
     return ChamberRow(
@@ -818,6 +892,12 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
       location: data.location.present ? data.location.value : this.location,
       phone: data.phone.present ? data.phone.value : this.phone,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      patientIdPrefix: data.patientIdPrefix.present
+          ? data.patientIdPrefix.value
+          : this.patientIdPrefix,
+      patientIdNextSequence: data.patientIdNextSequence.present
+          ? data.patientIdNextSequence.value
+          : this.patientIdNextSequence,
     );
   }
 
@@ -829,14 +909,24 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
           ..write('name: $name, ')
           ..write('location: $location, ')
           ..write('phone: $phone, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('patientIdPrefix: $patientIdPrefix, ')
+          ..write('patientIdNextSequence: $patientIdNextSequence')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, doctorId, name, location, phone, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    doctorId,
+    name,
+    location,
+    phone,
+    createdAt,
+    patientIdPrefix,
+    patientIdNextSequence,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -846,7 +936,9 @@ class ChamberRow extends DataClass implements Insertable<ChamberRow> {
           other.name == this.name &&
           other.location == this.location &&
           other.phone == this.phone &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.patientIdPrefix == this.patientIdPrefix &&
+          other.patientIdNextSequence == this.patientIdNextSequence);
 }
 
 class ChambersCompanion extends UpdateCompanion<ChamberRow> {
@@ -856,6 +948,8 @@ class ChambersCompanion extends UpdateCompanion<ChamberRow> {
   final Value<String?> location;
   final Value<String?> phone;
   final Value<int> createdAt;
+  final Value<String> patientIdPrefix;
+  final Value<int> patientIdNextSequence;
   final Value<int> rowid;
   const ChambersCompanion({
     this.id = const Value.absent(),
@@ -864,6 +958,8 @@ class ChambersCompanion extends UpdateCompanion<ChamberRow> {
     this.location = const Value.absent(),
     this.phone = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.patientIdPrefix = const Value.absent(),
+    this.patientIdNextSequence = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ChambersCompanion.insert({
@@ -873,11 +969,14 @@ class ChambersCompanion extends UpdateCompanion<ChamberRow> {
     this.location = const Value.absent(),
     this.phone = const Value.absent(),
     required int createdAt,
+    required String patientIdPrefix,
+    this.patientIdNextSequence = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        doctorId = Value(doctorId),
        name = Value(name),
-       createdAt = Value(createdAt);
+       createdAt = Value(createdAt),
+       patientIdPrefix = Value(patientIdPrefix);
   static Insertable<ChamberRow> custom({
     Expression<String>? id,
     Expression<String>? doctorId,
@@ -885,6 +984,8 @@ class ChambersCompanion extends UpdateCompanion<ChamberRow> {
     Expression<String>? location,
     Expression<String>? phone,
     Expression<int>? createdAt,
+    Expression<String>? patientIdPrefix,
+    Expression<int>? patientIdNextSequence,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -894,6 +995,9 @@ class ChambersCompanion extends UpdateCompanion<ChamberRow> {
       if (location != null) 'location': location,
       if (phone != null) 'phone': phone,
       if (createdAt != null) 'created_at': createdAt,
+      if (patientIdPrefix != null) 'patient_id_prefix': patientIdPrefix,
+      if (patientIdNextSequence != null)
+        'patient_id_next_sequence': patientIdNextSequence,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -905,6 +1009,8 @@ class ChambersCompanion extends UpdateCompanion<ChamberRow> {
     Value<String?>? location,
     Value<String?>? phone,
     Value<int>? createdAt,
+    Value<String>? patientIdPrefix,
+    Value<int>? patientIdNextSequence,
     Value<int>? rowid,
   }) {
     return ChambersCompanion(
@@ -914,6 +1020,9 @@ class ChambersCompanion extends UpdateCompanion<ChamberRow> {
       location: location ?? this.location,
       phone: phone ?? this.phone,
       createdAt: createdAt ?? this.createdAt,
+      patientIdPrefix: patientIdPrefix ?? this.patientIdPrefix,
+      patientIdNextSequence:
+          patientIdNextSequence ?? this.patientIdNextSequence,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -939,6 +1048,14 @@ class ChambersCompanion extends UpdateCompanion<ChamberRow> {
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
+    if (patientIdPrefix.present) {
+      map['patient_id_prefix'] = Variable<String>(patientIdPrefix.value);
+    }
+    if (patientIdNextSequence.present) {
+      map['patient_id_next_sequence'] = Variable<int>(
+        patientIdNextSequence.value,
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -954,6 +1071,8 @@ class ChambersCompanion extends UpdateCompanion<ChamberRow> {
           ..write('location: $location, ')
           ..write('phone: $phone, ')
           ..write('createdAt: $createdAt, ')
+          ..write('patientIdPrefix: $patientIdPrefix, ')
+          ..write('patientIdNextSequence: $patientIdNextSequence, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5064,6 +5183,42 @@ class $PatientsTable extends Patients
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
+  static const VerificationMeta _clinicPatientIdMeta = const VerificationMeta(
+    'clinicPatientId',
+  );
+  @override
+  late final GeneratedColumn<String> clinicPatientId = GeneratedColumn<String>(
+    'clinic_patient_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _patientIdPrefixMeta = const VerificationMeta(
+    'patientIdPrefix',
+  );
+  @override
+  late final GeneratedColumn<String> patientIdPrefix = GeneratedColumn<String>(
+    'patient_id_prefix',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _patientIdSequenceMeta = const VerificationMeta(
+    'patientIdSequence',
+  );
+  @override
+  late final GeneratedColumn<int> patientIdSequence = GeneratedColumn<int>(
+    'patient_id_sequence',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _bengaliNameMeta = const VerificationMeta(
     'bengaliName',
   );
@@ -5212,6 +5367,9 @@ class $PatientsTable extends Patients
   List<GeneratedColumn> get $columns => [
     id,
     patientNumber,
+    clinicPatientId,
+    patientIdPrefix,
+    patientIdSequence,
     bengaliName,
     englishName,
     phoneNormalized,
@@ -5253,6 +5411,35 @@ class $PatientsTable extends Patients
       );
     } else if (isInserting) {
       context.missing(_patientNumberMeta);
+    }
+    if (data.containsKey('clinic_patient_id')) {
+      context.handle(
+        _clinicPatientIdMeta,
+        clinicPatientId.isAcceptableOrUnknown(
+          data['clinic_patient_id']!,
+          _clinicPatientIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_clinicPatientIdMeta);
+    }
+    if (data.containsKey('patient_id_prefix')) {
+      context.handle(
+        _patientIdPrefixMeta,
+        patientIdPrefix.isAcceptableOrUnknown(
+          data['patient_id_prefix']!,
+          _patientIdPrefixMeta,
+        ),
+      );
+    }
+    if (data.containsKey('patient_id_sequence')) {
+      context.handle(
+        _patientIdSequenceMeta,
+        patientIdSequence.isAcceptableOrUnknown(
+          data['patient_id_sequence']!,
+          _patientIdSequenceMeta,
+        ),
+      );
     }
     if (data.containsKey('bengali_name')) {
       context.handle(
@@ -5379,6 +5566,18 @@ class $PatientsTable extends Patients
         DriftSqlType.int,
         data['${effectivePrefix}patient_number'],
       )!,
+      clinicPatientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}clinic_patient_id'],
+      )!,
+      patientIdPrefix: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}patient_id_prefix'],
+      )!,
+      patientIdSequence: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}patient_id_sequence'],
+      )!,
       bengaliName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}bengali_name'],
@@ -5443,6 +5642,15 @@ class $PatientsTable extends Patients
 class PatientRow extends DataClass implements Insertable<PatientRow> {
   final String id;
   final int patientNumber;
+
+  /// Canonical display/search id (chamber prefix scheme or legacy `P-000001`).
+  final String clinicPatientId;
+
+  /// Prefix copied at registration; empty for legacy `P-` patients.
+  final String patientIdPrefix;
+
+  /// Sequence copied at registration; legacy rows use [patientNumber].
+  final int patientIdSequence;
   final String bengaliName;
   final String? englishName;
   final String phoneNormalized;
@@ -5459,6 +5667,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
   const PatientRow({
     required this.id,
     required this.patientNumber,
+    required this.clinicPatientId,
+    required this.patientIdPrefix,
+    required this.patientIdSequence,
     required this.bengaliName,
     this.englishName,
     required this.phoneNormalized,
@@ -5478,6 +5689,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['patient_number'] = Variable<int>(patientNumber);
+    map['clinic_patient_id'] = Variable<String>(clinicPatientId);
+    map['patient_id_prefix'] = Variable<String>(patientIdPrefix);
+    map['patient_id_sequence'] = Variable<int>(patientIdSequence);
     map['bengali_name'] = Variable<String>(bengaliName);
     if (!nullToAbsent || englishName != null) {
       map['english_name'] = Variable<String>(englishName);
@@ -5518,6 +5732,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
     return PatientsCompanion(
       id: Value(id),
       patientNumber: Value(patientNumber),
+      clinicPatientId: Value(clinicPatientId),
+      patientIdPrefix: Value(patientIdPrefix),
+      patientIdSequence: Value(patientIdSequence),
       bengaliName: Value(bengaliName),
       englishName: englishName == null && nullToAbsent
           ? const Value.absent()
@@ -5560,6 +5777,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
     return PatientRow(
       id: serializer.fromJson<String>(json['id']),
       patientNumber: serializer.fromJson<int>(json['patientNumber']),
+      clinicPatientId: serializer.fromJson<String>(json['clinicPatientId']),
+      patientIdPrefix: serializer.fromJson<String>(json['patientIdPrefix']),
+      patientIdSequence: serializer.fromJson<int>(json['patientIdSequence']),
       bengaliName: serializer.fromJson<String>(json['bengaliName']),
       englishName: serializer.fromJson<String?>(json['englishName']),
       phoneNormalized: serializer.fromJson<String>(json['phoneNormalized']),
@@ -5585,6 +5805,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'patientNumber': serializer.toJson<int>(patientNumber),
+      'clinicPatientId': serializer.toJson<String>(clinicPatientId),
+      'patientIdPrefix': serializer.toJson<String>(patientIdPrefix),
+      'patientIdSequence': serializer.toJson<int>(patientIdSequence),
       'bengaliName': serializer.toJson<String>(bengaliName),
       'englishName': serializer.toJson<String?>(englishName),
       'phoneNormalized': serializer.toJson<String>(phoneNormalized),
@@ -5606,6 +5829,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
   PatientRow copyWith({
     String? id,
     int? patientNumber,
+    String? clinicPatientId,
+    String? patientIdPrefix,
+    int? patientIdSequence,
     String? bengaliName,
     Value<String?> englishName = const Value.absent(),
     String? phoneNormalized,
@@ -5622,6 +5848,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
   }) => PatientRow(
     id: id ?? this.id,
     patientNumber: patientNumber ?? this.patientNumber,
+    clinicPatientId: clinicPatientId ?? this.clinicPatientId,
+    patientIdPrefix: patientIdPrefix ?? this.patientIdPrefix,
+    patientIdSequence: patientIdSequence ?? this.patientIdSequence,
     bengaliName: bengaliName ?? this.bengaliName,
     englishName: englishName.present ? englishName.value : this.englishName,
     phoneNormalized: phoneNormalized ?? this.phoneNormalized,
@@ -5650,6 +5879,15 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
       patientNumber: data.patientNumber.present
           ? data.patientNumber.value
           : this.patientNumber,
+      clinicPatientId: data.clinicPatientId.present
+          ? data.clinicPatientId.value
+          : this.clinicPatientId,
+      patientIdPrefix: data.patientIdPrefix.present
+          ? data.patientIdPrefix.value
+          : this.patientIdPrefix,
+      patientIdSequence: data.patientIdSequence.present
+          ? data.patientIdSequence.value
+          : this.patientIdSequence,
       bengaliName: data.bengaliName.present
           ? data.bengaliName.value
           : this.bengaliName,
@@ -5687,6 +5925,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
     return (StringBuffer('PatientRow(')
           ..write('id: $id, ')
           ..write('patientNumber: $patientNumber, ')
+          ..write('clinicPatientId: $clinicPatientId, ')
+          ..write('patientIdPrefix: $patientIdPrefix, ')
+          ..write('patientIdSequence: $patientIdSequence, ')
           ..write('bengaliName: $bengaliName, ')
           ..write('englishName: $englishName, ')
           ..write('phoneNormalized: $phoneNormalized, ')
@@ -5708,6 +5949,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
   int get hashCode => Object.hash(
     id,
     patientNumber,
+    clinicPatientId,
+    patientIdPrefix,
+    patientIdSequence,
     bengaliName,
     englishName,
     phoneNormalized,
@@ -5728,6 +5972,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
       (other is PatientRow &&
           other.id == this.id &&
           other.patientNumber == this.patientNumber &&
+          other.clinicPatientId == this.clinicPatientId &&
+          other.patientIdPrefix == this.patientIdPrefix &&
+          other.patientIdSequence == this.patientIdSequence &&
           other.bengaliName == this.bengaliName &&
           other.englishName == this.englishName &&
           other.phoneNormalized == this.phoneNormalized &&
@@ -5746,6 +5993,9 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
 class PatientsCompanion extends UpdateCompanion<PatientRow> {
   final Value<String> id;
   final Value<int> patientNumber;
+  final Value<String> clinicPatientId;
+  final Value<String> patientIdPrefix;
+  final Value<int> patientIdSequence;
   final Value<String> bengaliName;
   final Value<String?> englishName;
   final Value<String> phoneNormalized;
@@ -5763,6 +6013,9 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
   const PatientsCompanion({
     this.id = const Value.absent(),
     this.patientNumber = const Value.absent(),
+    this.clinicPatientId = const Value.absent(),
+    this.patientIdPrefix = const Value.absent(),
+    this.patientIdSequence = const Value.absent(),
     this.bengaliName = const Value.absent(),
     this.englishName = const Value.absent(),
     this.phoneNormalized = const Value.absent(),
@@ -5781,6 +6034,9 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
   PatientsCompanion.insert({
     required String id,
     required int patientNumber,
+    required String clinicPatientId,
+    this.patientIdPrefix = const Value.absent(),
+    this.patientIdSequence = const Value.absent(),
     required String bengaliName,
     this.englishName = const Value.absent(),
     required String phoneNormalized,
@@ -5797,12 +6053,16 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        patientNumber = Value(patientNumber),
+       clinicPatientId = Value(clinicPatientId),
        bengaliName = Value(bengaliName),
        phoneNormalized = Value(phoneNormalized),
        createdAt = Value(createdAt);
   static Insertable<PatientRow> custom({
     Expression<String>? id,
     Expression<int>? patientNumber,
+    Expression<String>? clinicPatientId,
+    Expression<String>? patientIdPrefix,
+    Expression<int>? patientIdSequence,
     Expression<String>? bengaliName,
     Expression<String>? englishName,
     Expression<String>? phoneNormalized,
@@ -5821,6 +6081,9 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (patientNumber != null) 'patient_number': patientNumber,
+      if (clinicPatientId != null) 'clinic_patient_id': clinicPatientId,
+      if (patientIdPrefix != null) 'patient_id_prefix': patientIdPrefix,
+      if (patientIdSequence != null) 'patient_id_sequence': patientIdSequence,
       if (bengaliName != null) 'bengali_name': bengaliName,
       if (englishName != null) 'english_name': englishName,
       if (phoneNormalized != null) 'phone_normalized': phoneNormalized,
@@ -5843,6 +6106,9 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
   PatientsCompanion copyWith({
     Value<String>? id,
     Value<int>? patientNumber,
+    Value<String>? clinicPatientId,
+    Value<String>? patientIdPrefix,
+    Value<int>? patientIdSequence,
     Value<String>? bengaliName,
     Value<String?>? englishName,
     Value<String>? phoneNormalized,
@@ -5861,6 +6127,9 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
     return PatientsCompanion(
       id: id ?? this.id,
       patientNumber: patientNumber ?? this.patientNumber,
+      clinicPatientId: clinicPatientId ?? this.clinicPatientId,
+      patientIdPrefix: patientIdPrefix ?? this.patientIdPrefix,
+      patientIdSequence: patientIdSequence ?? this.patientIdSequence,
       bengaliName: bengaliName ?? this.bengaliName,
       englishName: englishName ?? this.englishName,
       phoneNormalized: phoneNormalized ?? this.phoneNormalized,
@@ -5887,6 +6156,15 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
     }
     if (patientNumber.present) {
       map['patient_number'] = Variable<int>(patientNumber.value);
+    }
+    if (clinicPatientId.present) {
+      map['clinic_patient_id'] = Variable<String>(clinicPatientId.value);
+    }
+    if (patientIdPrefix.present) {
+      map['patient_id_prefix'] = Variable<String>(patientIdPrefix.value);
+    }
+    if (patientIdSequence.present) {
+      map['patient_id_sequence'] = Variable<int>(patientIdSequence.value);
     }
     if (bengaliName.present) {
       map['bengali_name'] = Variable<String>(bengaliName.value);
@@ -5940,6 +6218,9 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
     return (StringBuffer('PatientsCompanion(')
           ..write('id: $id, ')
           ..write('patientNumber: $patientNumber, ')
+          ..write('clinicPatientId: $clinicPatientId, ')
+          ..write('patientIdPrefix: $patientIdPrefix, ')
+          ..write('patientIdSequence: $patientIdSequence, ')
           ..write('bengaliName: $bengaliName, ')
           ..write('englishName: $englishName, ')
           ..write('phoneNormalized: $phoneNormalized, ')
@@ -7961,6 +8242,8 @@ typedef $$ChambersTableCreateCompanionBuilder = ChambersCompanion Function({
   Value<String?> location,
   Value<String?> phone,
   required int createdAt,
+  required String patientIdPrefix,
+  Value<int> patientIdNextSequence,
   Value<int> rowid,
 });
 typedef $$ChambersTableUpdateCompanionBuilder = ChambersCompanion Function({
@@ -7970,6 +8253,8 @@ typedef $$ChambersTableUpdateCompanionBuilder = ChambersCompanion Function({
   Value<String?> location,
   Value<String?> phone,
   Value<int> createdAt,
+  Value<String> patientIdPrefix,
+  Value<int> patientIdNextSequence,
   Value<int> rowid,
 });
 
@@ -8062,6 +8347,16 @@ class $$ChambersTableFilterComposer
 
   ColumnFilters<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get patientIdPrefix => $composableBuilder(
+    column: $table.patientIdPrefix,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get patientIdNextSequence => $composableBuilder(
+    column: $table.patientIdNextSequence,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8173,6 +8468,16 @@ class $$ChambersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get patientIdPrefix => $composableBuilder(
+    column: $table.patientIdPrefix,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get patientIdNextSequence => $composableBuilder(
+    column: $table.patientIdNextSequence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$DoctorsTableOrderingComposer get doctorId {
     final $$DoctorsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -8220,6 +8525,16 @@ class $$ChambersTableAnnotationComposer
 
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get patientIdPrefix => $composableBuilder(
+    column: $table.patientIdPrefix,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get patientIdNextSequence => $composableBuilder(
+    column: $table.patientIdNextSequence,
+    builder: (column) => column,
+  );
 
   $$DoctorsTableAnnotationComposer get doctorId {
     final $$DoctorsTableAnnotationComposer composer = $composerBuilder(
@@ -8333,6 +8648,8 @@ class $$ChambersTableTableManager
                 Value<String?> location = const Value.absent(),
                 Value<String?> phone = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
+                Value<String> patientIdPrefix = const Value.absent(),
+                Value<int> patientIdNextSequence = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ChambersCompanion(
                 id: id,
@@ -8341,6 +8658,8 @@ class $$ChambersTableTableManager
                 location: location,
                 phone: phone,
                 createdAt: createdAt,
+                patientIdPrefix: patientIdPrefix,
+                patientIdNextSequence: patientIdNextSequence,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -8351,6 +8670,8 @@ class $$ChambersTableTableManager
                 Value<String?> location = const Value.absent(),
                 Value<String?> phone = const Value.absent(),
                 required int createdAt,
+                required String patientIdPrefix,
+                Value<int> patientIdNextSequence = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ChambersCompanion.insert(
                 id: id,
@@ -8359,6 +8680,8 @@ class $$ChambersTableTableManager
                 location: location,
                 phone: phone,
                 createdAt: createdAt,
+                patientIdPrefix: patientIdPrefix,
+                patientIdNextSequence: patientIdNextSequence,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -11733,6 +12056,9 @@ typedef $$SessionQueueCountersTableProcessedTableManager =
 typedef $$PatientsTableCreateCompanionBuilder = PatientsCompanion Function({
   required String id,
   required int patientNumber,
+  required String clinicPatientId,
+  Value<String> patientIdPrefix,
+  Value<int> patientIdSequence,
   required String bengaliName,
   Value<String?> englishName,
   required String phoneNormalized,
@@ -11751,6 +12077,9 @@ typedef $$PatientsTableCreateCompanionBuilder = PatientsCompanion Function({
 typedef $$PatientsTableUpdateCompanionBuilder = PatientsCompanion Function({
   Value<String> id,
   Value<int> patientNumber,
+  Value<String> clinicPatientId,
+  Value<String> patientIdPrefix,
+  Value<int> patientIdSequence,
   Value<String> bengaliName,
   Value<String?> englishName,
   Value<String> phoneNormalized,
@@ -11806,6 +12135,21 @@ class $$PatientsTableFilterComposer
 
   ColumnFilters<int> get patientNumber => $composableBuilder(
     column: $table.patientNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clinicPatientId => $composableBuilder(
+    column: $table.clinicPatientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get patientIdPrefix => $composableBuilder(
+    column: $table.patientIdPrefix,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get patientIdSequence => $composableBuilder(
+    column: $table.patientIdSequence,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11919,6 +12263,21 @@ class $$PatientsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get clinicPatientId => $composableBuilder(
+    column: $table.clinicPatientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get patientIdPrefix => $composableBuilder(
+    column: $table.patientIdPrefix,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get patientIdSequence => $composableBuilder(
+    column: $table.patientIdSequence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get bengaliName => $composableBuilder(
     column: $table.bengaliName,
     builder: (column) => ColumnOrderings(column),
@@ -11999,6 +12358,21 @@ class $$PatientsTableAnnotationComposer
 
   GeneratedColumn<int> get patientNumber => $composableBuilder(
     column: $table.patientNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get clinicPatientId => $composableBuilder(
+    column: $table.clinicPatientId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get patientIdPrefix => $composableBuilder(
+    column: $table.patientIdPrefix,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get patientIdSequence => $composableBuilder(
+    column: $table.patientIdSequence,
     builder: (column) => column,
   );
 
@@ -12113,6 +12487,9 @@ class $$PatientsTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<int> patientNumber = const Value.absent(),
+                Value<String> clinicPatientId = const Value.absent(),
+                Value<String> patientIdPrefix = const Value.absent(),
+                Value<int> patientIdSequence = const Value.absent(),
                 Value<String> bengaliName = const Value.absent(),
                 Value<String?> englishName = const Value.absent(),
                 Value<String> phoneNormalized = const Value.absent(),
@@ -12130,6 +12507,9 @@ class $$PatientsTableTableManager
               }) => PatientsCompanion(
                 id: id,
                 patientNumber: patientNumber,
+                clinicPatientId: clinicPatientId,
+                patientIdPrefix: patientIdPrefix,
+                patientIdSequence: patientIdSequence,
                 bengaliName: bengaliName,
                 englishName: englishName,
                 phoneNormalized: phoneNormalized,
@@ -12149,6 +12529,9 @@ class $$PatientsTableTableManager
               ({
                 required String id,
                 required int patientNumber,
+                required String clinicPatientId,
+                Value<String> patientIdPrefix = const Value.absent(),
+                Value<int> patientIdSequence = const Value.absent(),
                 required String bengaliName,
                 Value<String?> englishName = const Value.absent(),
                 required String phoneNormalized,
@@ -12166,6 +12549,9 @@ class $$PatientsTableTableManager
               }) => PatientsCompanion.insert(
                 id: id,
                 patientNumber: patientNumber,
+                clinicPatientId: clinicPatientId,
+                patientIdPrefix: patientIdPrefix,
+                patientIdSequence: patientIdSequence,
                 bengaliName: bengaliName,
                 englishName: englishName,
                 phoneNormalized: phoneNormalized,

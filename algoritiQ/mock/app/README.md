@@ -23,6 +23,8 @@ You can also open a single screen directly, e.g. `/screens/board.html`, to edit 
 | `src/tokens.css`, `src/app.css` | Shared design system (used by screen HTML) |
 | `src/screen-frame.js` | Applies preview options inside each iframe |
 | `src/screens-list.js` | Screen picker entries |
+| `src/queue-desk-engine.js`, `src/board-store.js`, `src/board.js`, `src/board.css` | Interactive **Queue desk** (mirrors `queueDesk.ts` with dummy data + `localStorage`) |
+| `docs/queue-desk-e2e-flows.md` | Manual E2E checklist for the mock |
 | `screens/*.html` | One file per app screen (hard-coded copy/data) |
 
 ## Device size (measured)
@@ -46,6 +48,8 @@ Preview defaults to these dimensions. **Navigation is a slide-out drawer** (☰ 
 
 Dashboard screens also include in-app **বাংলা / EN** and **theme** controls (same as Flutter); those toggle inside the iframe for design review.
 
+**Queue desk** (`board.html`) is a full-viewport interactive mock: patient flows open in modals; the desk grid (actions, call, queues, session table) stays on screen without page scroll (only the session table scrolls inside its pane if needed).
+
 **Chamber name (matches Flutter):** On viewports **under 1024px** (portrait on the clinic tablet), the top bar shows a location pin and chamber name (`WorkScopeContextHeader` compact). At **1024px and up** (landscape), the top bar does not show the chamber—only the **Board** page body uses “Working at … Run the counter from here.” Connectivity and Settings never repeat the chamber in the page body.
 
 ## Screens
@@ -53,3 +57,5 @@ Dashboard screens also include in-app **বাংলা / EN** and **theme** con
 `activation`, `readiness`, `clinic-data`, `setup-profile`, `setup-chambers`, `setup-ready`, `sign-in`, `work-scope`, `admin-notice`, `board`, `connectivity`, `settings`
 
 Add a new mock: create `screens/your-screen.html` (copy head + link CSS + `screen-frame.js`), then register it in `src/screens-list.js`.
+
+The **board** screen is interactive: in-memory dummy patients/tokens, search, register, issue/print, call next, recall, entered/missed, reprint, and cancel. Open it in the preview shell or at `/screens/board.html`.

@@ -11,7 +11,7 @@ export const screens = [
   { id: "sign-in", label: "7 · Sign in", file: "sign-in.html" },
   { id: "work-scope", label: "8 · Work scope", file: "work-scope.html" },
   { id: "admin-notice", label: "9 · Admin notice", file: "admin-notice.html" },
-  { id: "board", label: "10 · Board (home)", file: "board.html" },
+  { id: "board", label: "10 · Queue desk", file: "board.html" },
   { id: "connectivity", label: "11 · Connectivity", file: "connectivity.html" },
   { id: "settings", label: "12 · Settings", file: "settings.html" },
 ];

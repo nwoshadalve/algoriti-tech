@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="bn" data-theme="light" class="device-view locale-bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>অডিও · টিভি মক</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/tv.css" />
+  </head>
+  <body>
+    <div class="tv-root">
+      <div class="tv-setup">
+        <div class="tv-setup-card">
+          <h1 class="tv-bn" data-l10n="audioTitle">ঘোষণার শব্দ</h1>
+          <p class="tv-bn" data-l10n="audioIntro">ইন্টারনেট ছাড়াই ভলিউম পরীক্ষা করুন। ট্যাবলেট অডিও পাঠায়; টিভি শুধু চালায়।</p>
+          <div class="tv-audio-controls">
+            <label class="tv-slider-row tv-bn">
+              <span data-l10n="audioVolume">ভলিউম</span>
+              <input id="volume" type="range" min="0" max="100" value="70" />
+              <span id="volume-value">৭০%</span>
+            </label>
+            <p class="tv-sample-text tv-bn" data-l10n="audioSample">সিরিয়াল নম্বর ১২৫, দয়া করে চেম্বারে আসুন।</p>
+            <button type="button" class="tv-btn tv-bn" id="test-audio" data-l10n="audioTest">পরীক্ষামূলক ঘোষণা শুনুন</button>
+            <p><span class="tv-status-pill tv-bn" id="audio-status" data-l10n="audioReady">অডিও প্রস্তুত</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/screen-frame.js"></script>
+    <script type="module" src="/src/setup-audio.js"></script>
+  </body>
+</html>

@@ -25,30 +25,30 @@
             </div>
             <span class="logo__text">Algoriti<span>Q</span></span>
           </div>
-          <div class="lang-switch" role="group" aria-label="Language">
+          <div class="lang-switch" role="group" data-l10n-aria="languageLabel" aria-label="Language">
             <span class="lang-switch__track" aria-hidden="true"></span>
-            <button type="button" class="lang-switch__seg" data-lang="bn">বাংলা</button>
-            <button type="button" class="lang-switch__seg lang-switch__seg--on" data-lang="en">EN</button>
+            <button type="button" class="lang-switch__seg" data-lang="bn" aria-pressed="false">বাংলা</button>
+            <button type="button" class="lang-switch__seg" data-lang="en" aria-pressed="true">EN</button>
           </div>
         </header>
         <div class="card-page__scroll">
           <div class="card-page__inner card-page__inner--setup-wide">
             <div class="card card--flat">
               <div class="setup-header-wide">
-                <h2>Add your chambers</h2>
+                <h2 data-l10n="chambersTitle">Add your chambers</h2>
                 <div class="step-progress">
-                  <div class="step-progress__item step-progress__item--done">Your profile</div>
-                  <div class="step-progress__item step-progress__item--current">Chambers</div>
-                  <div class="step-progress__item">Ready</div>
+                  <div class="step-progress__item step-progress__item--done" data-l10n="setupStepProfile">Your profile</div>
+                  <div class="step-progress__item step-progress__item--current" data-l10n="setupStepChambers">Chambers</div>
+                  <div class="step-progress__item" data-l10n="setupStepReady">Ready</div>
                 </div>
               </div>
               <div class="setup-header-narrow stack-md">
-                <h1 class="app-headline">Add your chambers</h1>
-                <p class="text-intro">Your license covers up to 3 chambers. You can change these later in settings.</p>
+                <h1 class="app-headline" data-l10n="chambersTitle">Add your chambers</h1>
+                <p class="text-intro" data-l10n="mockChambersIntro3">Your license covers up to 3 chambers. You can change these later in settings.</p>
                 <div class="step-progress">
-                  <div class="step-progress__item step-progress__item--done">Your profile</div>
-                  <div class="step-progress__item step-progress__item--current">Chambers</div>
-                  <div class="step-progress__item">Ready</div>
+                  <div class="step-progress__item step-progress__item--done" data-l10n="setupStepProfile">Your profile</div>
+                  <div class="step-progress__item step-progress__item--current" data-l10n="setupStepChambers">Chambers</div>
+                  <div class="step-progress__item" data-l10n="setupStepReady">Ready</div>
                 </div>
               </div>
               <div class="stack-lg two-col-form two-col-form--wide" style="margin-top: var(--space-lg)">
@@ -61,18 +61,18 @@
                     <strong>Evening chamber</strong>
                     <span class="text-small">5 Gulshan Ave, Dhaka<br />01700-000002</span>
                   </div>
-                  <p class="text-small">2 of 3 chambers</p>
+                  <p class="text-small" data-l10n="mockChamberQuota23">2 of 3 chambers</p>
                 </div>
                 <div class="stack-md">
-                  <div class="field"><label>Chamber name</label><input value="Night chamber" readonly /></div>
-                  <div class="field"><label>Address</label><input readonly /></div>
-                  <div class="field"><label>Phone</label><input readonly /></div>
-                  <button type="button" class="btn btn--outline">Add chamber</button>
+                  <div class="field"><label data-l10n="chamberNameLabel">Chamber name</label><input value="Night chamber" readonly /></div>
+                  <div class="field"><label data-l10n="chamberLocationLabel">Address</label><input readonly /></div>
+                  <div class="field"><label data-l10n="chamberPhoneLabel">Phone</label><input readonly /></div>
+                  <button type="button" class="btn btn--outline" data-l10n="addChamberButton">Add chamber</button>
                 </div>
               </div>
               <div class="btn-row" style="margin-top: var(--space-lg)">
-                <button type="button" class="btn btn--outline" style="flex: 1">Back</button>
-                <button type="button" class="btn btn--primary" style="flex: 2">Continue</button>
+                <button type="button" class="btn btn--outline" style="flex: 1" data-l10n="backButton">Back</button>
+                <button type="button" class="btn btn--primary" style="flex: 2" data-l10n="continueButton">Continue</button>
               </div>
             </div>
           </div>

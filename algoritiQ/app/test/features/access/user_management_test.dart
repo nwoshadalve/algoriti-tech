@@ -61,7 +61,13 @@ void main() {
     admin = (await accounts.findCredentials('owner'))!.account;
     await clinic.saveProfile(const Doctor(id: 'd1', name: 'Dr. Rahim'));
     await clinic.addChamber(
-      const Chamber(id: 'c1', doctorId: 'd1', name: 'Main'),
+      const Chamber(
+        id: 'c1',
+        doctorId: 'd1',
+        name: 'Main',
+        patientIdPrefix: '776',
+        patientIdNextSequence: 1,
+      ),
       limit: 3,
     );
   });

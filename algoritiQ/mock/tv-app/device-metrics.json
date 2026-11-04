@@ -1,0 +1,10 @@
+{
+  "model": "SINGER SLE32GP6100TV",
+  "note": "Recommended waiting-room TV from docs/components_selection.md",
+  "resolution": "1366 × 768 HD",
+  "landscape": {
+    "widthPx": 1366,
+    "heightPx": 768
+  },
+  "safeOverscanPaddingPx": 48
+}

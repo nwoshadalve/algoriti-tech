@@ -16,6 +16,7 @@ import '../../queue/application/queue_service.dart';
 import '../../queue/domain/queue_models.dart';
 import '../data/drift_queue_board_repository.dart';
 import '../domain/board_models.dart';
+import '../domain/patient_id.dart';
 import '../domain/phone_normalize.dart';
 
 enum QueueBoardProblem {
@@ -63,13 +64,35 @@ class QueueBoardService {
   final Clock _clock;
   final IdGenerator _newId;
 
-  Future<void> _requireAdmin(Account account) async {
-    if (account.role != Role.admin) {
-      throw const QueueBoardRefused(QueueBoardProblem.forbidden);
+  /// Admin or receptionist assigned to [chamberId] when it is set.
+  Future<void> _requireDeskUser(Account account, [String? chamberId]) async {
+    if (account.role == Role.admin) return;
+    if (account.role == Role.receptionist) {
+      final scopes = await _accounts.getUserScopes(account.id);
+      if (scopes.isEmpty) {
+        throw const QueueBoardRefused(QueueBoardProblem.forbidden);
+      }
+      if (chamberId != null && !scopes.contains(chamberId)) {
+        throw const QueueBoardRefused(QueueBoardProblem.forbidden);
+      }
+      return;
     }
+    throw const QueueBoardRefused(QueueBoardProblem.forbidden);
   }
 
-  Future<void> _audit(Account admin, String action, Map<String, Object?> meta) async {
+  Future<void> _requireTokenDeskUser(Account account, String tokenId) async {
+    final row = await _board.tokenById(tokenId);
+    if (row == null) {
+      throw const QueueBoardRefused(QueueBoardProblem.validation);
+    }
+    await _requireDeskUser(account, row.chamberId);
+  }
+
+  Future<void> _audit(
+    Account admin,
+    String action,
+    Map<String, Object?> meta,
+  ) async {
     await _accounts.audit(
       at: _clock(),
       action: action,
@@ -82,8 +105,8 @@ class QueueBoardService {
     return _clinic.chamberById(chamberId);
   }
 
-  Future<BoardSnapshot> loadBoard(Account admin, String chamberId) async {
-    await _requireAdmin(admin);
+  Future<BoardSnapshot> loadBoard(Account account, String chamberId) async {
+    await _requireDeskUser(account, chamberId);
     final chamber = await _chamber(chamberId);
     if (chamber == null) {
       throw const QueueBoardRefused(QueueBoardProblem.chamberNotFound);
@@ -171,21 +194,25 @@ class QueueBoardService {
   }
 
   Future<void> startSession(Account admin, String chamberId) async {
-    await _requireAdmin(admin);
+    await _requireDeskUser(admin, chamberId);
     await _queue.startSession(admin, chamberId);
   }
 
-  Future<List<PatientSummary>> searchPatients(Account admin, String query) async {
-    await _requireAdmin(admin);
+  Future<List<PatientSummary>> searchPatients(
+    Account admin,
+    String query,
+  ) async {
+    await _requireDeskUser(admin);
     return _board.searchPatients(query);
   }
 
   Future<PatientSummary> registerPatient(
     Account admin,
     PatientInput input, {
+    required String chamberId,
     required String commandId,
   }) async {
-    await _requireAdmin(admin);
+    await _requireDeskUser(admin, chamberId);
     if (commandId.trim().isEmpty) {
       throw const QueueBoardRefused(QueueBoardProblem.commandRequired);
     }
@@ -198,6 +225,9 @@ class QueueBoardService {
     if (input.bengaliName.trim().isEmpty || input.phone.trim().isEmpty) {
       throw const QueueBoardRefused(QueueBoardProblem.validation);
     }
+    if (await _chamber(chamberId) == null) {
+      throw const QueueBoardRefused(QueueBoardProblem.chamberNotFound);
+    }
     final phone = normalizeClinicPhone(input.phone);
     final existing = await _board.patientsWithPhone(phone);
     if (existing.isNotEmpty && !input.confirmDuplicatePhone) {
@@ -207,10 +237,13 @@ class QueueBoardService {
     }
     final now = _clock().toUtc().millisecondsSinceEpoch;
     final id = _newId();
-    final number = await _board.allocatePatientNumber();
+    final allocated = await _board.allocatePatientIdForChamber(chamberId);
     final row = await _board.insertPatient(
       id: id,
-      patientNumber: number,
+      patientNumber: allocated.patientNumber,
+      clinicPatientId: allocated.clinicPatientId,
+      patientIdPrefix: allocated.patientIdPrefix,
+      patientIdSequence: allocated.patientIdSequence,
       input: input,
       createdAtMs: now,
     );
@@ -227,7 +260,7 @@ class QueueBoardService {
     String queueTypeId, {
     int? feeBdt,
   }) async {
-    await _requireAdmin(admin);
+    await _requireDeskUser(admin, chamberId);
     final session = await _requireOpenSession(chamberId);
     final patient = await _board.patientById(patientId);
     if (patient == null) {
@@ -266,7 +299,7 @@ class QueueBoardService {
     int? feeBdt,
     required String commandId,
   }) async {
-    await _requireAdmin(admin);
+    await _requireDeskUser(admin, chamberId);
     if (commandId.trim().isEmpty) {
       throw const QueueBoardRefused(QueueBoardProblem.commandRequired);
     }
@@ -274,7 +307,13 @@ class QueueBoardService {
     if (cached != null) {
       return _issuedFromJson(cached);
     }
-    await previewIssue(admin, chamberId, patientId, queueTypeId, feeBdt: feeBdt);
+    await previewIssue(
+      admin,
+      chamberId,
+      patientId,
+      queueTypeId,
+      feeBdt: feeBdt,
+    );
     final session = await _requireOpenSession(chamberId);
     final tokenId = _newId();
     final now = _clock().toUtc().millisecondsSinceEpoch;
@@ -318,7 +357,7 @@ class QueueBoardService {
     String chamberId,
     String queueTypeId,
   ) async {
-    await _requireAdmin(admin);
+    await _requireDeskUser(admin, chamberId);
     final session = await _requireOpenSession(chamberId);
     if (await _board.calledTokenForSession(session.id) != null) {
       throw const QueueBoardRefused(QueueBoardProblem.unresolvedCalledToken);
@@ -338,10 +377,17 @@ class QueueBoardService {
     return _tokenView(updated, types);
   }
 
-  Future<void> recall(Account admin, String chamberId, String queueTypeId) async {
-    await _requireAdmin(admin);
+  Future<void> recall(
+    Account admin,
+    String chamberId,
+    String queueTypeId,
+  ) async {
+    await _requireDeskUser(admin, chamberId);
     final session = await _requireOpenSession(chamberId);
-    final called = await _board.latestCalledForQueueType(session.id, queueTypeId);
+    final called = await _board.latestCalledForQueueType(
+      session.id,
+      queueTypeId,
+    );
     if (called == null) {
       throw const QueueBoardRefused(QueueBoardProblem.noCalledToken);
     }
@@ -349,12 +395,12 @@ class QueueBoardService {
   }
 
   Future<BoardTokenView> markEntered(Account admin, String tokenId) async {
-    await _requireAdmin(admin);
+    await _requireTokenDeskUser(admin, tokenId);
     return _transition(admin, tokenId, TokenStatus.entered);
   }
 
   Future<BoardTokenView> markSkipped(Account admin, String tokenId) async {
-    await _requireAdmin(admin);
+    await _requireTokenDeskUser(admin, tokenId);
     return _transition(admin, tokenId, TokenStatus.skipped);
   }
 
@@ -363,7 +409,7 @@ class QueueBoardService {
     String tokenId,
     String reason,
   ) async {
-    await _requireAdmin(admin);
+    await _requireTokenDeskUser(admin, tokenId);
     final now = _clock().toUtc().millisecondsSinceEpoch;
     final updated = await _board.updateTokenStatus(
       tokenId: tokenId,
@@ -377,7 +423,7 @@ class QueueBoardService {
   }
 
   Future<String> reprint(Account admin, String tokenId, String reason) async {
-    await _requireAdmin(admin);
+    await _requireTokenDeskUser(admin, tokenId);
     if (await _board.pendingPrintTokenId() != null) {
       throw const QueueBoardRefused(QueueBoardProblem.printerBusy);
     }
@@ -455,13 +501,20 @@ class QueueBoardService {
       patientId: row.patientId,
       clinicPatientId: patient == null
           ? ''
-          : formatClinicPatientId(patient.patientNumber),
+          : clinicPatientIdFromRow(
+              patientNumber: patient.patientNumber,
+              patientIdPrefix: patient.patientIdPrefix,
+              clinicPatientId: patient.clinicPatientId,
+            ),
       patientBengaliName: patient?.bengaliName ?? '',
       status: TokenStatus.parse(row.status) ?? TokenStatus.waiting,
       issuedAt: DateTime.fromMillisecondsSinceEpoch(row.issuedAt, isUtc: true),
       firstCalledAt: row.firstCalledAt == null
           ? null
-          : DateTime.fromMillisecondsSinceEpoch(row.firstCalledAt!, isUtc: true),
+          : DateTime.fromMillisecondsSinceEpoch(
+              row.firstCalledAt!,
+              isUtc: true,
+            ),
       enteredAt: row.enteredAt == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(row.enteredAt!, isUtc: true),
@@ -501,9 +554,7 @@ class QueueBoardService {
   IssuedTokenResult _issuedFromJson(String raw) {
     final map = Map<String, Object?>.from(jsonDecode(raw) as Map);
     return IssuedTokenResult(
-      token: _tokenFromJson(
-        Map<String, Object?>.from(map['token']! as Map),
-      ),
+      token: _tokenFromJson(Map<String, Object?>.from(map['token']! as Map)),
       printAttemptId: map['printAttemptId']! as String,
       printStatus: map['printStatus']! as String,
     );

@@ -639,6 +639,7 @@ class LocalApiServer {
             name: _text(body, 'name'),
             location: _text(body, 'location'),
             phone: _text(body, 'phone'),
+            patientIdPrefix: body['patientIdPrefix'] as String?,
           );
           return await _chamberResult(request, result, 200);
         }
@@ -711,6 +712,16 @@ class LocalApiServer {
       'last_chamber',
       'The last chamber cannot be deleted.',
     ),
+    ChamberProblem.patientIdPrefixInvalid => const _ApiError(
+      400,
+      'chamber_patient_id_prefix_invalid',
+      'Patient ID prefix must be 3–6 digits.',
+    ),
+    ChamberProblem.patientIdPrefixTaken => const _ApiError(
+      409,
+      'chamber_patient_id_prefix_taken',
+      'Another chamber already uses this patient ID prefix.',
+    ),
   };
 
   Map<String, Object?> _chamberJson(Chamber chamber) => {
@@ -718,6 +729,8 @@ class LocalApiServer {
     'name': chamber.name,
     'location': chamber.location ?? '',
     'phone': chamber.phone ?? '',
+    'patientIdPrefix': chamber.patientIdPrefix,
+    'patientIdNextSequence': chamber.patientIdNextSequence,
   };
 
   Map<String, Object?> _licenseJson(LicenseSummary license) => {
@@ -1142,6 +1155,7 @@ class LocalApiServer {
         final saved = await service.registerPatient(
           admin,
           _patientInputFromJson(body),
+          chamberId: body['chamberId'] as String? ?? '',
           commandId: body['commandId'] as String? ?? '',
         );
         await _json(request, 200, _patientSummaryJson(saved));

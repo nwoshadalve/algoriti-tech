@@ -2,22 +2,35 @@
 
 Status: **accepted** for v1 queue configuration.  
 Scope: admin configuration, chamber queue sessions, serial allocation boundaries, and role permissions.  
-Related: [Queue product decisions](./queue-product-decisions.md), [Audit log](./audit-log.md), [Data and offline](../../app/docs/principles/data-offline.md).
+Related: [Queue product decisions](./queue-product-decisions.md), [Patient entry and queue operations](./patient-entry-and-queue-operations.md), [Audit log](./audit-log.md), [Data and offline](../../app/docs/principles/data-offline.md).
+
+**Code map**
+
+| Layer | Location |
+| --- | --- |
+| Tablet persistence and rules | `app/lib/features/queue/` (`QueueService`, `DriftQueueRepository`, `queue_validation.dart`) |
+| HTTP `/api/v1/queue/*` | `app/lib/api/local_api_server.dart` → `_queueApi` |
+| HTTP `/api/v1/queue-desk/*` | same file → `_queueBoardApi` (live desk; shares session start with configuration service) |
+| Web admin configuration UI | `web/src/features/queue/` — route **`/config/queue`** |
+| Web queue desk UI | `web/src/features/board/`, `web/src/features/home/QueueDeskPage.tsx` — route **`/queue-desk`** |
+| OpenAPI | [openapi.yaml](../api/openapi.yaml) — paths are relative to `/api/v1` |
 
 ---
 
 ## 1. Place in the product flow
 
-Queue configuration is the **first step of the queue feature**. It happens after the clinic and its chambers exist and before a receptionist can issue tokens:
+Queue configuration is the **first step of the queue feature**. It happens after the clinic and its chambers exist and before staff can issue tokens:
 
 1. Admin creates or restores the clinic.
-2. Admin configures the clinic's chambers.
-3. System seeds the **clinic template** — three default queue types and ranges (§2).
-4. Admin opens **Queue configuration**, selects a **chamber**, and reviews or edits that chamber's list. Changes apply to **that chamber only** (§4).
-5. Admin or an assigned receptionist starts a queue session **for that chamber**.
-6. Receptionist can issue patient tokens against **that chamber's** open session.
+2. Admin configures chambers (license, setup, or **`/license`** in the web app).
+3. The tablet seeds the **clinic template** — three default queue types and ranges (§2).
+4. Admin opens **Queue configuration** (`/config/queue`), selects a **chamber**, and reviews or edits that chamber's list. Changes apply to **that chamber only** (§4).
+5. Admin or receptionist opens the **queue desk** (`/queue-desk`), selects work scope (chamber), and **starts a session** for that chamber when none is open (§5).
+6. Receptionist issues patient tokens against that chamber's open session ([patient entry doc](./patient-entry-and-queue-operations.md)).
 
 The setup must not require the admin to re-enter the standard queues. A new clinic starts with usable defaults.
+
+Admins configure queues in the **web dashboard** served by the tablet. The Flutter tablet shell has no separate queue-configuration screen.
 
 ---
 
@@ -31,25 +44,28 @@ On first use the tablet seeds a **clinic template** — three queue types every 
 | 2 | Report | রিপোর্ট | 2001 | 2099 |
 | 3 | Dressing | ড্রেসিং | 3001 | 3099 |
 
-Each queue type has an independent counter in each open queue session. The default ranges provide 99 serials per type per session.
+Seeding lives in `DriftQueueRepository` (`clinic` owner key). Each queue type has an independent counter in each open queue session. The default ranges provide **99 serials per type per session** (`end − start + 1`).
 
-**Per chamber:** every chamber **starts by inheriting** this template (same three types and ranges on screen). The admin does not configure chambers in bulk. On the queue configuration page they **select one chamber** and add, edit, enable, disable, or reorder types for **that chamber only**. Saving must not change another chamber's list.
+**Per chamber:** every chamber **starts by inheriting** this template (same three types and ranges on screen). The admin does not configure chambers in bulk. On the queue configuration page they **select one chamber** and add, edit, or enable/disable types for **that chamber only**. Saving must not change another chamber's list.
 
 Admins may, for a given chamber:
 
 - accept the inherited template without saving;
-- edit a preset;
-- enable or disable a queue type;
-- change its display order;
-- add another queue type.
+- edit a preset (names and/or range);
+- enable or disable a queue type (toggle persists the full `types` array);
+- add another queue type (appended with the next `displayOrder`).
+
+The web UI does not provide reorder controls. `displayOrder` is stored and returned by the API; new types get `max(displayOrder) + 1`.
 
 Existing token history must retain the queue name and serial used when the token was issued. Renaming or disabling a queue type must not rewrite historical tokens.
+
+**Note:** Bluetooth **test slips** (`connectivity` feature) use a separate fixed label `নিয়মিত` for Regular on the dummy slip only. Issued tokens and configuration use the configured Bengali name (default **সাধারণ**).
 
 ---
 
 ## 3. Add or edit a queue type
 
-Required admin inputs:
+Required admin inputs (web modal):
 
 - English name;
 - Bengali name;
@@ -58,26 +74,28 @@ Required admin inputs:
 
 System-managed values:
 
-- stable queue type ID;
-- display order;
-- enabled/disabled state;
+- stable queue type ID (new rows use `new_<uuid>` until saved);
+- `displayOrder`;
+- `enabled`;
 - creation and modification audit data;
-- next serial for each queue session.
+- per-session `nextNumber` / `issuedCount` (§5).
 
 ### Validation
 
-The system must reject:
+The tablet `QueueService` rejects saves when:
 
-- a blank English or Bengali name;
-- a duplicate queue name in the same configuration;
-- start or end values that are zero or negative;
-- a starting number greater than the ending number;
-- overlapping enabled ranges in the **same chamber's** configuration;
-- changing a queue type or range in a way that would affect an open session.
+- English or Bengali name is blank;
+- duplicate English (case-insensitive) or Bengali name among siblings;
+- start or end is zero or negative;
+- start is greater than end;
+- **enabled** ranges overlap in the **same chamber's** configuration (disabled types are ignored for overlap);
+- a change is blocked while a session is **open** for that chamber (see below).
 
-Changes apply to the **next** session. An open session keeps the immutable queue configuration snapshot with which it started.
+The web form runs the same overlap and name rules **client-side** before PATCH; open-session refusals come from the server on save.
 
-If the configured range is smaller than the chamber's recent or expected daily volume, warn the admin but allow them to save it after confirmation.
+**Open session:** While a chamber has an open session (`OPEN` or `ROLLOVER_DUE`), the server **blocks** changes to `startNumber`, `endNumber`, or `enabled`, and blocks **removing** a type from the saved list. It **allows** edits to **English and Bengali names only** on existing types. Adding a brand-new type is blocked for the whole save while a session is open.
+
+Changes to ranges and enabled state apply to the **next** session. An open session keeps the immutable queue configuration snapshot with which it started.
 
 ### Number localization
 
@@ -100,129 +118,94 @@ Queue types are **owned per chamber**. A user change on one chamber **must not**
 ### Bootstrap (inherit)
 
 - The clinic template (§2) is stored once under owner `clinic`.
-- Each chamber begins with **`useClinicDefaults: true`**. Its configuration API returns the template types for display and for new sessions until that chamber has its own override.
+- Each chamber begins with **`useClinicDefaults: true`**. `GET /queue/chambers/{chamberId}` returns the template types for display and for new sessions until that chamber has its own override.
 - Other chambers are unaffected when an admin edits one chamber.
 
 ### Override (customize)
 
 - The admin queue page saves with **`PATCH /queue/chambers/{chamberId}`** and a full `types` array for **that chamber only**.
 - If the chamber still inherits, the server **copies the template into a chamber override** on the first save, sets **`useClinicDefaults: false`**, then applies the submitted types.
-- Optional **`POST …/customize`** copies the template without other edits. **`POST …/clear-override`** exists for API completeness but is **not** exposed in the web admin UI.
+- **`POST /queue/chambers/{chamberId}/customize`** copies the template without other edits (API only; not exposed in the web UI).
+- **`POST /queue/chambers/{chamberId}/clear-override`** restores inherit for types (API only; not exposed in the web UI). Policy overrides on the chamber are kept.
 
 ### What must not happen
 
-- The web admin UI **must not** save queue type add/edit/enable/disable through **`PATCH /queue/defaults`** while a chamber is selected. That endpoint updates the clinic template only (policy and, if present, template types for chambers that still inherit).
+- The web admin UI **does not** save queue type add/edit/enable/disable through **`PATCH /queue/defaults`** with a `types` body while configuring a chamber. That endpoint is for the **clinic template** (and clinic-wide policy fields when used).
 - A mutation in the UI **must not** push the same `types` list into every chamber's cache or database row.
+
+### Automatic stop time (per chamber)
+
+The web UI labels this **automatic stop time**.
+
+- Clinic default **`dayBoundary`** and **`timeZone`** come from `GET /queue/defaults` (defaults: **`03:00`**, **`Asia/Dhaka`**, `autoStart: true`).
+- Per-chamber override is stored as **`dayBoundaryOverride`** on chamber settings.
+- The policy modal saves with **`PATCH /queue/chambers/{chamberId}/policy`** and body `{ "dayBoundary": "HH:mm" }` only — not a full policy object.
+- The modal can apply one time to **multiple selected chambers** (sequential PATCH per chamber).
+- The configuration page footer shows the clinic **time zone**; the header summary shows the **effective** stop time for the selected chamber.
+
+The web UI does not edit clinic `autoStart`, time zone, or rollover policy; those values stay at seeded defaults unless changed through the API.
 
 ### Sessions and serials
 
 Queue sessions and counters always belong to one **work scope** (a chamber in the current v1 flow). Separate chambers may use the same numeric ranges without conflict: the authoritative identity is **session + queue type + serial**, not the serial alone.
 
-### Queue-day boundary (still two-level)
-
-- **Clinic default** boundary and time zone (e.g. **03:00 Asia/Dhaka**).
-- Optional **per-chamber** `dayBoundaryOverride` (and optional `autoStartOverride`) without copying type lists between chambers.
-
-Store the time zone explicitly (`Asia/Dhaka` for the current deployment), not only a UTC offset.
-
 ---
 
-## 5. Queue-day boundary (detail)
+## 5. Session controls
 
-The admin configures when a new queue business day begins (see also §4):
+Only one open session may exist per chamber (`OPEN` or `ROLLOVER_DUE` counts as open for configuration locks).
 
-- clinic default start time and time zone, for example **03:00 Asia/Dhaka**;
-- optional per-chamber **day boundary** override (e.g. **00:00**) without changing that chamber's type list;
-- whether the next session starts automatically when rollover is safe;
-- how remaining non-entered tokens are handled at the boundary.
+| Action | Route | Web UI |
+| --- | --- | --- |
+| Start session | `POST /queue/chambers/{chamberId}/session/start` or `POST /queue-desk/chambers/{chamberId}/session/start` | **Queue desk** (`queueDesk.ts`) |
+| Close session | `POST /queue/chambers/{chamberId}/session/close` | API only (`queue.ts`) |
+| Force close | `POST /queue/chambers/{chamberId}/session/force-close` with `{ reason }` | API only |
+| Chamber config + session summary | `GET /queue/chambers/{chamberId}` includes optional `session` with per-type usage | Not shown on `/config/queue` |
 
-### Scheduled rollover
+Live token issue, call, enter, skip, cancel, and reprint use **`/queue-desk/*`** ([patient entry doc](./patient-entry-and-queue-operations.md)).
 
-The boundary creates a **new session**. It never deletes or resets historical rows.
+### Queue desk (web)
 
-At the configured boundary:
+Route **`/queue-desk`**. Admins use **`AdminQueueBoardPage`**: chamber selector, **Start session** when closed, then patient entry and queue controls. Receptionists see the non-admin queue desk overview for their role.
 
-- if no active tokens remain, close the current session and, when auto-start is enabled, open the next session with counters reset to their configured starts;
-- apply the admin-configured active-token policy when non-entered tokens remain;
-- if the tablet was off, reconcile the boundary at the next startup and create only the required current session.
-
-Supported active-token policies:
-
-1. **Wait until clear** (recommended default) — mark the session **rollover due**, keep it open, and prompt staff to mark each called patient entered, missed, or cancelled.
-2. **Close at boundary** — change every remaining `WAITING`, `CALLED`, or `SKIPPED` token to `CANCELLED` with reason `SESSION_ROLLOVER`, close the session, and audit the affected counts before optionally starting the next session.
-
-The selected policy must be visible on the configuration and current-session pages. The system must never silently discard a token and must never wrap an exhausted counter back to its start inside the same session.
-
----
-
-## 6. Manual session controls
-
-Only one open session may exist for a chamber.
-
-### Receptionist
-
-An assigned receptionist may:
-
-- start a session for their selected chamber;
-- request normal closure of that session;
-- resolve active tokens as entered, missed, or cancelled before closure.
-
-They cannot manage another chamber and cannot force-close a session with active tokens.
-
-### Admin
-
-An admin may:
-
-- start or close a session for any chamber;
-- force-close a session when operationally necessary.
-
-Force-close requires a confirmation and a reason. Remaining active tokens become `CANCELLED`; they are not deleted. The action and reason are written to the audit log.
-
-### Lifecycle
+### Session lifecycle (stored statuses)
 
 ```text
 NOT_STARTED → OPEN → CLOSING → CLOSED
                   ↘ ROLLOVER_DUE
 ```
 
-- `OPEN`: tokens may be issued.
-- `ROLLOVER_DUE`: the configured boundary passed while active tokens remained.
-- `CLOSING`: token issuance is blocked while remaining work is resolved.
-- `CLOSED`: immutable history; a new session may start.
+---
+
+## 6. Range exhaustion
+
+The server tracks **`issuedCount`**, **`nextNumber`**, and **`capacity`** per queue type in an open session and refuses issuance at exhaustion on the queue desk.
+
+Do not roll over to the starting number inside the same session. Other queue types in the session remain available. Admins may configure a larger range for the **next** session when no open session blocks range edits.
 
 ---
 
-## 7. Range exhaustion
+## 7. Queue configuration page (web admin)
 
-The queue page must show usage for every queue type, for example **82 of 99 issued**.
+Admin-only route **`/config/queue`** (`QueueConfigurationPage`).
 
-- Warn staff before exhaustion (default threshold: 80%).
-- At the ending number, block further issuance for that type with an actionable message.
-- Do not roll over to the starting number.
-- Other queue types in the session remain available.
-- Admin may configure a larger range for the next session.
+1. **Chamber selector** — choose which chamber to configure. All type add/edit/enable/disable actions save with **`PATCH /queue/chambers/{chamberId}`** and a full `types` array.
+2. **Inherit vs customized** — **Uses clinic defaults** / **Customized for this chamber** from `settings.useClinicDefaults`.
+3. **Queue types table** — English/Bengali names, localized range, enabled badge, edit and enable/disable actions.
+4. **Automatic stop time** — summary in the page header; edit opens the policy modal (§4). Saves per chamber via **`PATCH …/policy`**.
+5. **Sessions** — start and run on **queue desk** (§5), not on this page.
 
----
+The page does **not** offer “use clinic defaults again” (`clear-override`).
 
-## 8. Queue configuration page (web admin)
+Configuration changes publish live refresh hints so open `/config/queue` tabs update after saves elsewhere ([web interaction](../principles/web-interaction.md)).
 
-Admin-only route **`/config/queue`**.
-
-1. **Chamber selector** — choose which chamber to configure. All type add/edit/enable/disable actions save with **`PATCH /queue/chambers/{chamberId}`** only.
-2. **Inherit vs customized** — show **Uses clinic defaults** while the chamber has no override; after the first save show **Customized for this chamber**. Other chambers keep their own inherit or override state.
-3. **Queue types table** — names, ranges, enabled state, and actions for the **selected chamber** only.
-4. **Automatic stop time** — per-chamber effective boundary (clinic default or override); edit via the policy modal without changing other chambers' type lists.
-5. **Current session** (when built on this page or the board) — status, usage, start/close for the selected chamber.
-
-The page **must not** treat the chamber dropdown as a filter on a single shared list stored at clinic scope. Clinic **`PATCH /queue/defaults`** with a `types` body is for the **template** and policy only, not for the primary “edit queue types” flow.
-
-All create, update, enable/disable, start, close, rollover, and force-close actions must produce audit events defined in [Audit log](./audit-log.md).
+Create, update, enable/disable, policy, and session API actions emit audit events defined in [Audit log](./audit-log.md).
 
 ---
 
-## 9. Data and API direction
+## 8. Data and API
 
-Conceptual records:
+Conceptual records (SQLite on the tablet):
 
 ```text
 ClinicQueueDefaults
@@ -263,4 +246,15 @@ SessionQueueCounter
   issuedCount
 ```
 
-Implementation must preserve the existing rules: SQLite is authoritative, serial allocation is transactional and idempotent, and state is persisted before WebSocket events are emitted. API shapes live in [OpenAPI](../api/openapi.yaml) (`/queue/defaults`, `/queue/chambers/{chamberId}`, customize, clear-override).
+SQLite is authoritative, serial allocation is transactional and idempotent, and state is persisted before WebSocket events are emitted.
+
+**API surface**
+
+- **`/api/v1/queue/defaults`** — `GET` / `PATCH` clinic policy and template types.
+- **`/api/v1/queue/chambers/{chamberId}`** — `GET` settings, effective policy, types, optional session; `PATCH` types.
+- **`/api/v1/queue/chambers/{chamberId}/policy`** — `PATCH` `{ dayBoundary }`.
+- **`/api/v1/queue/chambers/{chamberId}/customize`** | **`…/clear-override`** — `POST` (no web UI).
+- **`/api/v1/queue/chambers/{chamberId}/session/*`** — start / close / force-close.
+- **`/api/v1/queue-desk/chambers/{chamberId}`** — desk snapshot; **`…/session/start`**; issue, call, recall, etc.
+
+Web client paths omit the `/api/v1` prefix (`core/api/client`). Full shapes: [OpenAPI](../api/openapi.yaml).

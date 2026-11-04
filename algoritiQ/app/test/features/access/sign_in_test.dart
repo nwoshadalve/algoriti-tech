@@ -102,6 +102,7 @@ void main() {
               id: chamberId,
               doctorId: 'seed-doctor',
               name: 'Main chamber',
+              patientIdPrefix: '776',
               createdAt: testNow.millisecondsSinceEpoch,
             ),
           );

@@ -27,6 +27,10 @@ export function chamberError(error: unknown): { key: MessageKey; field?: keyof C
         return { key: 'chamberErrorLimit' }
       case 'last_chamber':
         return { key: 'chamberErrorLast' }
+      case 'chamber_patient_id_prefix_invalid':
+        return { key: 'chamberErrorPatientIdPrefix', field: 'patientIdPrefix' }
+      case 'chamber_patient_id_prefix_taken':
+        return { key: 'chamberErrorPatientIdPrefixTaken', field: 'patientIdPrefix' }
       case 'forbidden':
         return { key: 'usersErrorForbidden' }
       default:

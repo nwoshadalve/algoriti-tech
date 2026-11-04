@@ -1,0 +1,15 @@
+{
+  "name": "algoritiq-tv-mock",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Static UI mock for the AlgoritiQ Android TV waiting-room display",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "sync:tablet": "python scripts/sync-tablet-data.py"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}

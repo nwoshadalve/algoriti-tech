@@ -22,13 +22,14 @@ type SessionTokensTableProps = {
   tokens: BoardTokenView[]
   printerBusyTokenId: string | null
   onReprint: (token: BoardTokenView) => void
+  embedded?: boolean
 }
 
 const cell =
   'px-4 py-3 text-sm max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:px-0 max-md:py-1.5'
 
 /** Current-session tokens in a fixed-height scrolling table. */
-export function SessionTokensTable({ tokens, printerBusyTokenId, onReprint }: SessionTokensTableProps) {
+export function SessionTokensTable({ tokens, printerBusyTokenId, onReprint, embedded }: SessionTokensTableProps) {
   const { t, locale } = useLocale()
   const [now, setNow] = useState(() => Date.now())
 
@@ -37,9 +38,16 @@ export function SessionTokensTable({ tokens, printerBusyTokenId, onReprint }: Se
     return () => clearInterval(timer)
   }, [])
 
+  const shellClass = embedded
+    ? 'flex min-h-0 flex-1 flex-col overflow-hidden'
+    : 'flex min-h-0 flex-col overflow-hidden rounded-2xl border border-brand-navy/10 bg-white shadow-sm dark:border-white/10 dark:bg-brand-navy-raised'
+  const scrollClass = embedded
+    ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain'
+    : 'max-h-[min(28rem,50vh)] overflow-y-auto overscroll-contain'
+
   return (
-    <div className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-brand-navy/10 bg-white shadow-sm dark:border-white/10 dark:bg-brand-navy-raised">
-      <div className="max-h-[min(28rem,50vh)] overflow-y-auto overscroll-contain">
+    <div className={shellClass}>
+      <div className={scrollClass}>
         <table className="w-full border-collapse text-left" aria-label={t('boardSessionTableLabel')}>
           <thead className="sticky top-0 z-10 max-md:sr-only">
             <tr className="border-b border-brand-navy/10 bg-brand-mist/90 backdrop-blur dark:border-white/10 dark:bg-brand-navy/90">

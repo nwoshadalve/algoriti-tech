@@ -49,6 +49,12 @@ class Chambers extends Table {
   /// UTC epoch milliseconds; keeps chambers in the order they were added.
   IntColumn get createdAt => integer()();
 
+  /// Digits-only prefix for new patient IDs in this chamber (see chamber-patient-id.md).
+  TextColumn get patientIdPrefix => text()();
+
+  /// Next sequence value to append to [patientIdPrefix] on register.
+  IntColumn get patientIdNextSequence => integer().withDefault(const Constant(1))();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -207,6 +213,16 @@ class SessionQueueCounters extends Table {
 class Patients extends Table {
   TextColumn get id => text()();
   IntColumn get patientNumber => integer().unique()();
+
+  /// Canonical display/search id (chamber prefix scheme or legacy `P-000001`).
+  TextColumn get clinicPatientId => text().unique()();
+
+  /// Prefix copied at registration; empty for legacy `P-` patients.
+  TextColumn get patientIdPrefix => text().withDefault(const Constant(''))();
+
+  /// Sequence copied at registration; legacy rows use [patientNumber].
+  IntColumn get patientIdSequence => integer().withDefault(const Constant(0))();
+
   TextColumn get bengaliName => text()();
   TextColumn get englishName => text().nullable()();
   TextColumn get phoneNormalized => text()();

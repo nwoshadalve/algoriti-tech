@@ -62,7 +62,7 @@ The **theme** and **language** switches are in the fixed top bar on desktop and 
 
 ## Queue configuration
 
-`/config/queue` (admins only): choose a **chamber**, then add, edit, enable, or disable **that chamber's** queue types. New clinics start with three inherited template types (Regular, Report, Dressing and their default ranges — see [queue-configuration.md](../../../docs/features/queue-configuration.md)). The first save for a chamber creates a **chamber override**; other chambers are not changed. The page shows **Uses clinic defaults** or **Customized for this chamber**. Saves call `PATCH /queue/chambers/{chamberId}` with a `types` body, not clinic-wide defaults. Automatic stop time can differ per chamber via the policy editor. The web UI does not offer “use clinic defaults again”.
+`/config/queue` (admins only): choose a **chamber**, then add, edit, enable, or disable **that chamber's** queue types. New clinics start with three inherited template types (Regular, Report, Dressing and default ranges — see [queue-configuration.md](../../../docs/features/queue-configuration.md)). The first save creates a **chamber override**; other chambers are unchanged. The page shows **Uses clinic defaults** or **Customized for this chamber**. Saves call `PATCH /queue/chambers/{chamberId}` with a full `types` array. **Automatic stop time** is edited in a modal and saved with `PATCH /queue/chambers/{chamberId}/policy` (one or more chambers at a time). There is no “use clinic defaults again” control. **Sessions** are started from **`/queue-desk`**, not from this page. Full behavior: [queue-configuration.md](../../../docs/features/queue-configuration.md).
 
 ## Doctor page
 

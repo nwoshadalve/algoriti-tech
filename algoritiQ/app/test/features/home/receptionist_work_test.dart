@@ -77,6 +77,7 @@ void main() {
                     id: 'seed-chamber-2',
                     doctorId: 'seed-doctor',
                     name: 'Second chamber',
+                    patientIdPrefix: '665',
                     createdAt: testNow.millisecondsSinceEpoch,
                   ),
                 );

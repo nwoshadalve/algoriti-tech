@@ -90,7 +90,13 @@ void main() {
     final clinicRepo = DriftClinicRepository(kit.database, kit.clock);
     await clinicRepo.saveProfile(const Doctor(id: 'd1', name: 'Dr. Rahim'));
     await clinicRepo.addChamber(
-      const Chamber(id: 'c1', doctorId: 'd1', name: 'Main'),
+      const Chamber(
+        id: 'c1',
+        doctorId: 'd1',
+        name: 'Main',
+        patientIdPrefix: '776',
+        patientIdNextSequence: 1,
+      ),
       limit: 3,
     );
     final login = await call(

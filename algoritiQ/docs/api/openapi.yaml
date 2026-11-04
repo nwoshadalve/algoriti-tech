@@ -1735,13 +1735,28 @@ components:
           minLength: 1
           maxLength: 32
           description: Digits, spaces and `+ - ( ) .` only.
+        patientIdPrefix:
+          type: string
+          minLength: 3
+          maxLength: 6
+          pattern: '^[0-9]+$'
+          description: Digits-only prefix for new patient IDs. Assigned on create; optional on PATCH (see chamber-patient-id.md).
     Chamber:
       allOf:
         - $ref: '#/components/schemas/ChamberInput'
         - type: object
-          required: [id]
+          required: [id, patientIdPrefix, patientIdNextSequence]
           properties:
             id: { type: string }
+            patientIdPrefix:
+              type: string
+              minLength: 3
+              maxLength: 6
+              pattern: '^[0-9]+$'
+            patientIdNextSequence:
+              type: integer
+              minimum: 1
+              description: Next sequence appended to the prefix when registering a patient.
     QueuePolicy:
       type: object
       required: [timeZone, dayBoundary, autoStart]

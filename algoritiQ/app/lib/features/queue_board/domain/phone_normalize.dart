@@ -4,6 +4,15 @@
 // Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
 // or distribution is prohibited.
 
+export 'patient_id.dart'
+    show
+        clinicPatientIdFromRow,
+        formatChamberPatientId,
+        formatClinicPatientId,
+        formatLegacyClinicPatientId,
+        parseLegacyPatientNumberQuery,
+        parsePatientNumberQuery;
+
 /// Normalizes a Bangladesh clinic phone for search and storage.
 String normalizeClinicPhone(String input) {
   final digits = StringBuffer();
@@ -20,18 +29,4 @@ String normalizeClinicPhone(String input) {
     raw = raw.substring(1);
   }
   return raw;
-}
-
-/// Parses a clinic patient id query (`P-1`, `p-000042`, `42`).
-int? parsePatientNumberQuery(String query) {
-  final trimmed = query.trim();
-  if (trimmed.isEmpty) return null;
-  final upper = trimmed.toUpperCase();
-  final withoutPrefix = upper.startsWith('P-') ? upper.substring(2) : upper;
-  final digits = int.tryParse(withoutPrefix.replaceAll(RegExp(r'[^0-9]'), ''));
-  return digits;
-}
-
-String formatClinicPatientId(int patientNumber) {
-  return 'P-${patientNumber.toString().padLeft(6, '0')}';
 }

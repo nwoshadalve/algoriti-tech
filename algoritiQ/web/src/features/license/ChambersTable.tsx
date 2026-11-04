@@ -33,7 +33,7 @@ export function ChambersTable({ chambers, onEdit, onDelete }: ChambersTableProps
       <table className="w-full min-w-0 border-collapse text-left" aria-label={t('chambersTableLabel')}>
         <thead className="max-md:sr-only">
           <tr className="border-b border-brand-navy/10 bg-brand-mist/60 dark:border-white/10 dark:bg-white/5">
-            {(['chamberColName', 'chamberColAddress', 'chamberColPhone'] as const).map((key) => (
+            {(['chamberColName', 'chamberColAddress', 'chamberColPhone', 'chamberColPatientIdPrefix'] as const).map((key) => (
               <th
                 key={key}
                 scope="col"
@@ -66,6 +66,17 @@ export function ChambersTable({ chambers, onEdit, onDelete }: ChambersTableProps
               <td className={fieldCell}>
                 <span className={`${labelClass} max-md:inline md:sr-only`}>{t('chamberColPhone')}</span>
                 <span className={`${valueClass} tabular-nums`}>{chamber.phone}</span>
+              </td>
+              <td className={fieldCell}>
+                <span className={`${labelClass} max-md:inline md:sr-only`}>{t('chamberColPatientIdPrefix')}</span>
+                <span className={`${valueClass} tabular-nums`}>
+                  {chamber.patientIdPrefix}
+                  <span className="block text-xs text-brand-navy/55 dark:text-white/55">
+                    {t('chamberPatientIdNextPreview', {
+                      id: `${chamber.patientIdPrefix}${chamber.patientIdNextSequence}`,
+                    })}
+                  </span>
+                </span>
               </td>
               <td className="px-4 py-3 text-sm max-md:px-0 max-md:pt-3 md:text-right">
                 <div className="flex flex-col gap-2 max-md:w-full md:flex-row md:flex-wrap md:items-center md:justify-end md:gap-2">

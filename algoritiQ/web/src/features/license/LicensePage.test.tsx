@@ -42,8 +42,22 @@ const license: LicenseSummary = {
   status: 'active',
 }
 
-const main: Chamber = { id: 'c1', name: 'Main chamber', location: '12 Lake Road', phone: '01711000000' }
-const evening: Chamber = { id: 'c2', name: 'Evening chamber', location: '4 Hill Street', phone: '01822000000' }
+const main: Chamber = {
+  id: 'c1',
+  name: 'Main chamber',
+  location: '12 Lake Road',
+  phone: '01711000000',
+  patientIdPrefix: '776',
+  patientIdNextSequence: 14,
+}
+const evening: Chamber = {
+  id: 'c2',
+  name: 'Evening chamber',
+  location: '4 Hill Street',
+  phone: '01822000000',
+  patientIdPrefix: '665',
+  patientIdNextSequence: 3,
+}
 
 describe('license page', () => {
   let getLicense: MockInstance<typeof chambersApi.getLicense>
@@ -242,6 +256,7 @@ describe('license page', () => {
           name: 'Main chamber (new)',
           location: '12 Lake Road',
           phone: '01711000000',
+          patientIdPrefix: '776',
         }),
       )
       expect(await toasts().findByText('Chamber saved.')).toBeInTheDocument()
@@ -363,6 +378,8 @@ describe('license page', () => {
           name: 'আল-খিদমাহ্ মেডিকেল সার্ভিসেস (প্রাঃ), চাঁদপুর',
           location: '৬/১, আমেরী ম্যানশন, স্টেডিয়াম রোড, চাঁদপুর',
           phone: '01766521717',
+          patientIdPrefix: '776',
+          patientIdNextSequence: 1,
         },
       ])
       Object.defineProperty(window, 'innerWidth', { configurable: true, value: 320 })

@@ -25,49 +25,49 @@
             </div>
             <span class="logo__text">Algoriti<span>Q</span></span>
           </div>
-          <div class="lang-switch" role="group" aria-label="Language">
+          <div class="lang-switch" role="group" data-l10n-aria="languageLabel" aria-label="Language">
             <span class="lang-switch__track" aria-hidden="true"></span>
-            <button type="button" class="lang-switch__seg" data-lang="bn">বাংলা</button>
-            <button type="button" class="lang-switch__seg lang-switch__seg--on" data-lang="en">EN</button>
+            <button type="button" class="lang-switch__seg" data-lang="bn" aria-pressed="false">বাংলা</button>
+            <button type="button" class="lang-switch__seg" data-lang="en" aria-pressed="true">EN</button>
           </div>
         </header>
         <div class="card-page__scroll">
           <div class="card-page__inner card-page__inner--setup-wide">
             <div class="card card--flat">
               <div class="setup-header-wide">
-                <h2>Your profile</h2>
+                <h2 data-l10n="profileTitle">Your profile</h2>
                 <div class="step-progress">
-                  <div class="step-progress__item step-progress__item--current">Your profile</div>
-                  <div class="step-progress__item">Chambers</div>
-                  <div class="step-progress__item">Ready</div>
+                  <div class="step-progress__item step-progress__item--current" data-l10n="setupStepProfile">Your profile</div>
+                  <div class="step-progress__item" data-l10n="setupStepChambers">Chambers</div>
+                  <div class="step-progress__item" data-l10n="setupStepReady">Ready</div>
                 </div>
               </div>
               <div class="setup-header-narrow stack-md">
-                <h1 class="app-headline">Your profile</h1>
-                <p class="text-intro">This is shown on the TV and on tokens.</p>
+                <h1 class="app-headline" data-l10n="profileTitle">Your profile</h1>
+                <p class="text-intro" data-l10n="profileIntro">This is shown on the TV and on tokens.</p>
                 <div class="step-progress">
-                  <div class="step-progress__item step-progress__item--current">Your profile</div>
-                  <div class="step-progress__item">Chambers</div>
-                  <div class="step-progress__item">Ready</div>
+                  <div class="step-progress__item step-progress__item--current" data-l10n="setupStepProfile">Your profile</div>
+                  <div class="step-progress__item" data-l10n="setupStepChambers">Chambers</div>
+                  <div class="step-progress__item" data-l10n="setupStepReady">Ready</div>
                 </div>
               </div>
               <div class="stack-lg two-col-form two-col-form--wide" style="margin-top: var(--space-lg)">
                 <div class="stack-md">
-                  <div class="field"><label>Full name, with title</label><input value="Dr. Farhana Rahman" readonly /></div>
-                  <div class="field"><label>Designation</label><input value="Consultant" readonly /></div>
-                  <div class="field"><label>Degrees</label><input value="MBBS, FCPS (Cardiology)" readonly /></div>
-                  <div class="field"><label>Specialty</label><input value="Cardiology" readonly /></div>
+                  <div class="field"><label data-l10n="doctorNameLabel">Full name, with title</label><input value="Dr. Farhana Rahman" readonly /></div>
+                  <div class="field"><label data-l10n="designationLabel">Designation</label><input value="Consultant" readonly /></div>
+                  <div class="field"><label data-l10n="degreesLabel">Degrees</label><input value="MBBS, FCPS (Cardiology)" readonly /></div>
+                  <div class="field"><label data-l10n="specialtyLabel">Specialty</label><input value="Cardiology" readonly /></div>
                 </div>
                 <div class="stack-md">
                   <div class="doctor-summary">
                     <div class="doctor-summary__photo">👩‍⚕️</div>
                     <div>
-                      <button type="button" class="btn btn--outline" style="width: auto">Change photo</button>
-                      <p class="text-small" style="margin-top: var(--space-sm)">Shown on the TV and tokens.</p>
+                      <button type="button" class="btn btn--outline" style="width: auto" data-l10n="changePhotoButton">Change photo</button>
+                      <p class="text-small" style="margin-top: var(--space-sm)" data-l10n="mockSetupPhotoHint">Shown on the TV and tokens.</p>
                     </div>
                   </div>
-                  <div class="field"><label>Workplace</label><input value="City Heart Clinic" readonly /></div>
-                  <button type="button" class="btn btn--primary">Continue</button>
+                  <div class="field"><label data-l10n="workplaceLabel">Workplace</label><input value="City Heart Clinic" readonly /></div>
+                  <button type="button" class="btn btn--primary" data-l10n="continueButton">Continue</button>
                 </div>
               </div>
             </div>

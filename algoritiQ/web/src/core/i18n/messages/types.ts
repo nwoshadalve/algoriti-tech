@@ -520,6 +520,7 @@ export type Messages = {
   chamberColName: string
   chamberColAddress: string
   chamberColPhone: string
+  chamberColPatientIdPrefix: string
   chamberEdit: string
   chamberDelete: string
   chamberLastTip: string
@@ -530,6 +531,9 @@ export type Messages = {
   fieldChamberAddress: string
   fieldChamberPhone: string
   fieldChamberPhoneHint: string
+  fieldChamberPatientIdPrefix: string
+  fieldChamberPatientIdPrefixHint: string
+  chamberPatientIdNextPreview: string
   chamberAdded: string
   chamberSaved: string
   chamberDeleted: string
@@ -539,6 +543,8 @@ export type Messages = {
   chamberErrorName: string
   chamberErrorAddress: string
   chamberErrorPhone: string
+  chamberErrorPatientIdPrefix: string
+  chamberErrorPatientIdPrefixTaken: string
   chamberErrorLimit: string
   chamberErrorLast: string
 
@@ -638,6 +644,11 @@ export type Messages = {
   boardPatientActionsTitle: string
   boardNewPatient: string
   boardExistingPatient: string
+  boardAddPatientShort: string
+  boardAddExistingShort: string
+  boardFieldAge: string
+  boardFieldAdminNote: string
+  boardSaveAndIssue: string
   boardSearchLabel: string
   boardSearchHint: string
   boardSearching: string

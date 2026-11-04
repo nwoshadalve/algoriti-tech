@@ -11,6 +11,7 @@ import '../../../core/database/app_database.dart';
 import '../../queue/data/drift_queue_repository.dart';
 import '../../queue/domain/queue_models.dart';
 import '../domain/board_models.dart';
+import '../domain/patient_id.dart';
 import '../domain/phone_normalize.dart';
 
 const _nextPatientNumberKey = 'patients.nextNumber';
@@ -29,7 +30,10 @@ class DriftQueueBoardRepository {
     return row?.resultJson;
   }
 
-  Future<void> saveIdempotentResult(String commandId, Map<String, Object?> json) async {
+  Future<void> saveIdempotentResult(
+    String commandId,
+    Map<String, Object?> json,
+  ) async {
     await _db
         .into(_db.idempotentCommands)
         .insertOnConflictUpdate(
@@ -41,40 +45,77 @@ class DriftQueueBoardRepository {
         );
   }
 
+  Future<int> _nextInternalPatientNumber() async {
+    final key = _nextPatientNumberKey;
+    final row = await (_db.select(
+      _db.appSettings,
+    )..where((s) => s.key.equals(key))).getSingleOrNull();
+    var next = row == null
+        ? 1
+        : (jsonDecode(row.value) as Map<String, dynamic>)['next'] as int? ?? 1;
+    final maxRow =
+        await (_db.select(_db.patients)
+              ..orderBy([(p) => OrderingTerm.desc(p.patientNumber)])
+              ..limit(1))
+            .getSingleOrNull();
+    if (maxRow != null && maxRow.patientNumber >= next) {
+      next = maxRow.patientNumber + 1;
+    }
+    final assigned = next;
+    await _db.into(_db.appSettings).insertOnConflictUpdate(
+          AppSettingsCompanion.insert(
+            key: key,
+            value: jsonEncode({'next': assigned + 1}),
+          ),
+        );
+    return assigned;
+  }
+
+  /// Allocates the next patient id for [chamberId] (prefix + sequence transaction).
+  Future<
+      ({
+        int patientNumber,
+        String patientIdPrefix,
+        int patientIdSequence,
+        String clinicPatientId,
+      })> allocatePatientIdForChamber(String chamberId) async {
+    return _db.transaction(() async {
+      final chamber =
+          await (_db.select(_db.chambers)..where((c) => c.id.equals(chamberId)))
+              .getSingleOrNull();
+      if (chamber == null) {
+        throw StateError('chamber_not_found');
+      }
+      final sequence = chamber.patientIdNextSequence;
+      final prefix = chamber.patientIdPrefix;
+      final clinicPatientId = formatChamberPatientId(prefix, sequence);
+      final patientNumber = await _nextInternalPatientNumber();
+      await (_db.update(_db.chambers)..where((c) => c.id.equals(chamberId)))
+          .write(
+        ChambersCompanion(
+          patientIdNextSequence: Value(sequence + 1),
+        ),
+      );
+      return (
+        patientNumber: patientNumber,
+        patientIdPrefix: prefix,
+        patientIdSequence: sequence,
+        clinicPatientId: clinicPatientId,
+      );
+    });
+  }
+
+  @Deprecated('Use allocatePatientIdForChamber')
   Future<int> allocatePatientNumber() async {
     return _db.transaction(() async {
-      final key = _nextPatientNumberKey;
-      final row = await (_db.select(
-        _db.appSettings,
-      )..where((s) => s.key.equals(key))).getSingleOrNull();
-      var next = row == null
-          ? 1
-          : (jsonDecode(row.value) as Map<String, dynamic>)['next'] as int? ?? 1;
-      final maxRow =
-          await (_db.select(_db.patients)
-                ..orderBy([(p) => OrderingTerm.desc(p.patientNumber)])
-                ..limit(1))
-              .getSingleOrNull();
-      if (maxRow != null && maxRow.patientNumber >= next) {
-        next = maxRow.patientNumber + 1;
-      }
-      final assigned = next;
-      await _db
-          .into(_db.appSettings)
-          .insertOnConflictUpdate(
-            AppSettingsCompanion.insert(
-              key: key,
-              value: jsonEncode({'next': assigned + 1}),
-            ),
-          );
-      return assigned;
+      return _nextInternalPatientNumber();
     });
   }
 
   Future<List<PatientSummary>> searchPatients(String query) async {
     final trimmed = query.trim();
     if (trimmed.isEmpty) return [];
-    final byNumber = parsePatientNumberQuery(trimmed);
+    final byNumber = parseLegacyPatientNumberQuery(trimmed);
     if (byNumber != null) {
       final rows =
           await (_db.select(_db.patients)
@@ -82,6 +123,16 @@ class DriftQueueBoardRepository {
                 ..limit(20))
               .get();
       return [for (final row in rows) _patientSummary(row)];
+    }
+    if (RegExp(r'^[0-9]+$').hasMatch(trimmed)) {
+      final rows =
+          await (_db.select(_db.patients)
+                ..where((p) => p.clinicPatientId.equals(trimmed))
+                ..limit(20))
+              .get();
+      if (rows.isNotEmpty) {
+        return [for (final row in rows) _patientSummary(row)];
+      }
     }
     final phone = normalizeClinicPhone(trimmed);
     if (phone.isEmpty) return [];
@@ -106,6 +157,9 @@ class DriftQueueBoardRepository {
   Future<PatientRow> insertPatient({
     required String id,
     required int patientNumber,
+    required String clinicPatientId,
+    required String patientIdPrefix,
+    required int patientIdSequence,
     required PatientInput input,
     required int createdAtMs,
   }) async {
@@ -116,6 +170,9 @@ class DriftQueueBoardRepository {
           PatientsCompanion.insert(
             id: id,
             patientNumber: patientNumber,
+            clinicPatientId: clinicPatientId,
+            patientIdPrefix: Value(patientIdPrefix),
+            patientIdSequence: Value(patientIdSequence),
             bengaliName: input.bengaliName.trim(),
             englishName: Value(input.englishName?.trim()),
             phoneNormalized: phone,
@@ -166,7 +223,8 @@ class DriftQueueBoardRepository {
     final rows =
         await (_db.select(_db.queueTokens)
               ..where(
-                (t) => t.sessionId.equals(sessionId) & t.status.equals('CALLED'),
+                (t) =>
+                    t.sessionId.equals(sessionId) & t.status.equals('CALLED'),
               )
               ..limit(1))
             .get();
@@ -175,12 +233,11 @@ class DriftQueueBoardRepository {
 
   Future<int> previewNextSerial(String sessionId, String queueTypeId) async {
     final counter =
-        await (_db.select(_db.sessionQueueCounters)
-              ..where(
-                (c) =>
-                    c.sessionId.equals(sessionId) &
-                    c.queueTypeId.equals(queueTypeId),
-              ))
+        await (_db.select(_db.sessionQueueCounters)..where(
+              (c) =>
+                  c.sessionId.equals(sessionId) &
+                  c.queueTypeId.equals(queueTypeId),
+            ))
             .getSingleOrNull();
     return counter?.nextNumber ?? 0;
   }
@@ -196,18 +253,16 @@ class DriftQueueBoardRepository {
   }) async {
     return _db.transaction(() async {
       final counter =
-          await (_db.select(_db.sessionQueueCounters)
-                ..where(
-                  (c) =>
-                      c.sessionId.equals(sessionId) &
-                      c.queueTypeId.equals(queueTypeId),
-                ))
+          await (_db.select(_db.sessionQueueCounters)..where(
+                (c) =>
+                    c.sessionId.equals(sessionId) &
+                    c.queueTypeId.equals(queueTypeId),
+              ))
               .getSingle();
       final serial = counter.nextNumber;
-      final typeRow =
-          await (_db.select(_db.queueTypes)
-                ..where((t) => t.id.equals(queueTypeId)))
-              .getSingleOrNull();
+      final typeRow = await (_db.select(
+        _db.queueTypes,
+      )..where((t) => t.id.equals(queueTypeId))).getSingleOrNull();
       final end = typeRow?.endNumber ?? serial;
       if (serial > end) {
         throw StateError('exhausted');
@@ -249,9 +304,7 @@ class DriftQueueBoardRepository {
   Future<List<QueueTokenRow>> tokensForSession(String sessionId) async {
     return (_db.select(_db.queueTokens)
           ..where((t) => t.sessionId.equals(sessionId))
-          ..orderBy([
-            (t) => OrderingTerm.desc(t.issuedAt),
-          ]))
+          ..orderBy([(t) => OrderingTerm.desc(t.issuedAt)]))
         .get();
   }
 
@@ -284,6 +337,12 @@ class DriftQueueBoardRepository {
               ..limit(1))
             .get();
     return rows.isEmpty ? null : rows.first;
+  }
+
+  Future<QueueTokenRow?> tokenById(String id) async {
+    return (_db.select(
+      _db.queueTokens,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
   Future<QueueTokenRow?> oldestWaiting(
@@ -335,11 +394,8 @@ class DriftQueueBoardRepository {
   }
 
   Future<void> setLatestPrintStatus(String tokenId, String status) async {
-    await (_db.update(
-      _db.queueTokens,
-    )..where((t) => t.id.equals(tokenId))).write(
-      QueueTokensCompanion(latestPrintStatus: Value(status)),
-    );
+    await (_db.update(_db.queueTokens)..where((t) => t.id.equals(tokenId)))
+        .write(QueueTokensCompanion(latestPrintStatus: Value(status)));
   }
 
   Future<TokenPrintAttemptRow> insertPrintAttempt({
@@ -387,7 +443,8 @@ class DriftQueueBoardRepository {
     return rows.isEmpty ? null : rows.first.id;
   }
 
-  Future<void> ensureClinicDefaults() => _queueRepo.ensureClinicDefaultsSeeded();
+  Future<void> ensureClinicDefaults() =>
+      _queueRepo.ensureClinicDefaultsSeeded();
 
   Future<QueueSessionRow?> openSessionForChamber(String chamberId) =>
       _queueRepo.openSessionForChamber(chamberId);
@@ -421,7 +478,11 @@ class DriftQueueBoardRepository {
     return PatientSummary(
       id: row.id,
       patientNumber: row.patientNumber,
-      clinicPatientId: formatClinicPatientId(row.patientNumber),
+      clinicPatientId: clinicPatientIdFromRow(
+        patientNumber: row.patientNumber,
+        patientIdPrefix: row.patientIdPrefix,
+        clinicPatientId: row.clinicPatientId,
+      ),
       bengaliName: row.bengaliName,
       englishName: row.englishName ?? '',
       phoneNormalized: row.phoneNormalized,

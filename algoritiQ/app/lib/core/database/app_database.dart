@@ -4,6 +4,7 @@
 // Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
 // or distribution is prohibited.
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
@@ -33,6 +34,7 @@ part 'app_database.g.dart';
 /// - v12: repair queue tables / `enabled` column on older queue schemas.
 /// - v13: composite primary key on queue types (`id`, `owner_key`).
 /// - v14: one-time data cleanup on upgrade (removed orphan per-chamber type rows). Per-chamber queue overrides remain the product model; see `docs/features/queue-configuration.md` §4.
+/// - v15: chamber patient ID prefix + sequence; canonical `clinic_patient_id` on patients.
 @DriftDatabase(
   tables: [
     Doctors,
@@ -66,7 +68,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -138,6 +140,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 14) {
         await _revertChamberQueueCustomization(m);
+      }
+      if (from < 15) {
+        await _migrateChamberPatientIdPrefixes(m);
       }
     },
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
@@ -218,9 +223,23 @@ FROM queue_types''');
   /// Removes invalid per-chamber queue rows from an intermediate schema; does not change the chamber-wise product model.
   Future<void> _revertChamberQueueCustomization(Migrator m) async {
     final db = m.database;
-    await db.customStatement(
-      "DELETE FROM queue_types WHERE owner_key != 'clinic'",
-    );
+    final hasSettings = await db
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'app_settings'",
+        )
+        .get();
+    if (hasSettings.isEmpty) return;
+
+    final hasQueueTypes = await db
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'queue_types'",
+        )
+        .get();
+    if (hasQueueTypes.isNotEmpty) {
+      await db.customStatement(
+        "DELETE FROM queue_types WHERE owner_key != 'clinic'",
+      );
+    }
     final rows = await db
         .customSelect(
           "SELECT key, value FROM app_settings WHERE key LIKE 'queue.chamber.%'",
@@ -240,6 +259,112 @@ FROM queue_types''');
       } on Object {
         // Leave malformed settings untouched.
       }
+    }
+  }
+
+  /// Backfills chamber prefixes and canonical patient ids (see chamber-patient-id.md).
+  Future<void> _migrateChamberPatientIdPrefixes(Migrator m) async {
+    final db = m.database;
+    final hasChambers = await _tableExists(db, 'chambers');
+    final hasPatients = await _tableExists(db, 'patients');
+
+    if (hasChambers) {
+      // Custom ALTER avoids Drift's NOT NULL default on [clinicPatientId]: a constant
+      // default would duplicate across rows and break the UNIQUE constraint.
+      await _addColumnIfMissing(
+        db,
+        'chambers',
+        'patient_id_prefix',
+        "TEXT NOT NULL DEFAULT ''",
+      );
+      await _addColumnIfMissing(
+        db,
+        'chambers',
+        'patient_id_next_sequence',
+        'INTEGER NOT NULL DEFAULT 1',
+      );
+    }
+
+    if (hasPatients) {
+      await _addColumnIfMissing(db, 'patients', 'clinic_patient_id', 'TEXT');
+      await _addColumnIfMissing(
+        db,
+        'patients',
+        'patient_id_prefix',
+        "TEXT NOT NULL DEFAULT ''",
+      );
+      await _addColumnIfMissing(
+        db,
+        'patients',
+        'patient_id_sequence',
+        'INTEGER NOT NULL DEFAULT 0',
+      );
+    }
+
+    if (hasChambers) {
+      final usedPrefixes = <String>{};
+      final chamberRows = await db.customSelect('SELECT id FROM chambers').get();
+      final rng = Random.secure();
+      for (final row in chamberRows) {
+        final id = row.read<String>('id');
+        var prefix = '';
+        for (var attempt = 0; attempt < 500; attempt++) {
+          final candidate = (100 + rng.nextInt(900)).toString();
+          if (usedPrefixes.add(candidate)) {
+            prefix = candidate;
+            break;
+          }
+        }
+        if (prefix.isEmpty) {
+          prefix = (900 + chamberRows.indexOf(row)).toString();
+          usedPrefixes.add(prefix);
+        }
+        await db.customStatement(
+          'UPDATE chambers SET patient_id_prefix = ?, patient_id_next_sequence = 1 WHERE id = ?',
+          [prefix, id],
+        );
+      }
+    }
+
+    if (hasPatients) {
+      await db.customStatement('''
+UPDATE patients
+SET
+  clinic_patient_id = 'P-' || printf('%06d', patient_number),
+  patient_id_prefix = '',
+  patient_id_sequence = patient_number
+WHERE clinic_patient_id IS NULL OR clinic_patient_id = ''
+''');
+
+      await db.customStatement('''
+CREATE UNIQUE INDEX IF NOT EXISTS patients_clinic_patient_id_unique
+ON patients (clinic_patient_id)
+''');
+    }
+  }
+
+  Future<bool> _tableExists(GeneratedDatabase db, String table) async {
+    final rows = await db
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+          variables: [Variable.withString(table)],
+        )
+        .get();
+    return rows.isNotEmpty;
+  }
+
+  Future<void> _addColumnIfMissing(
+    GeneratedDatabase db,
+    String table,
+    String column,
+    String definition,
+  ) async {
+    try {
+      await db.customStatement(
+        'ALTER TABLE $table ADD COLUMN $column $definition',
+      );
+    } on Object {
+      // Column already present (retry after a partial migration).
     }
   }
 }

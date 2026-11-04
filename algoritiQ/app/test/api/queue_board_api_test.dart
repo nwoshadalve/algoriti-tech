@@ -38,6 +38,7 @@ void main() {
             id: chamberId,
             doctorId: 'seed-doctor',
             name: 'Room 1',
+            patientIdPrefix: '776',
             createdAt: DateTime.utc(2026).millisecondsSinceEpoch,
           ),
         );
@@ -149,6 +150,9 @@ void main() {
     final patient = await boardRepo.insertPatient(
       id: 'patient-1',
       patientNumber: 1,
+      clinicPatientId: 'P-000001',
+      patientIdPrefix: '',
+      patientIdSequence: 1,
       input: const PatientInput(bengaliName: 'Test', phone: '01712345678'),
       createdAtMs: kit.clock().millisecondsSinceEpoch,
     );

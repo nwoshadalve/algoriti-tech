@@ -173,15 +173,16 @@ void main() {
     const chamberA = 'chamber-a';
     const chamberB = 'chamber-b';
     await seedDoctor(kit.database);
-    for (final entry in [
+    for (final (i, entry) in <(String, String)>[
       (chamberA, 'Chamber A'),
       (chamberB, 'Chamber B'),
-    ]) {
+    ].indexed) {
       await kit.database.into(kit.database.chambers).insertOnConflictUpdate(
             ChambersCompanion.insert(
               id: entry.$1,
               doctorId: 'seed-doctor',
               name: entry.$2,
+              patientIdPrefix: '${801 + i}',
               createdAt: DateTime.utc(2026).millisecondsSinceEpoch,
             ),
           );

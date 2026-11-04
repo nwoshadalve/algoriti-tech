@@ -43,8 +43,9 @@ Two kinds of docs:
 | [Web app](./features/web-app.md) | The React site served by the tablet, how to build and bundle it |
 | [Connectivity](./features/connectivity.md) | The receptionist's printer page: pair once, automatic reconnect, battery and paper |
 | [Monitoring](./features/monitoring.md) | The admin monitoring page: tablet CPU, RAM, storage, Bluetooth, services, retry |
+| [Queue configuration](./features/queue-configuration.md) | Per-chamber queue types, ranges, stop time; links to shared spec |
 
-Queue (patient entry, stats, TV audio) — accepted product decisions: [queue-product-decisions.md](../../docs/features/queue-product-decisions.md) (repo `docs/features/`).
+Queue (patient entry, stats, TV audio) — accepted product decisions: [queue-product-decisions.md](../../docs/features/queue-product-decisions.md) (repo `docs/features/`). Operations: [patient-entry-and-queue-operations.md](../../docs/features/patient-entry-and-queue-operations.md).
 
 Guides: [Build the web app and deploy it on the tablet](./web-build-and-deploy.md) · [Dev setup](./dev-setup.md).
 

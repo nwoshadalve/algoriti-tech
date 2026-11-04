@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="bn" data-theme="light" class="device-view locale-bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>পেয়ারিং · টিভি মক</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/tv.css" />
+  </head>
+  <body>
+    <div class="tv-root" style="height: 100%">
+      <div class="tv-setup">
+        <div class="tv-setup-card">
+          <h1 class="tv-bn" data-l10n="pairTitle">এই টিভি সংযুক্ত করুন</h1>
+          <p class="tv-bn" data-l10n="pairIntro">ওয়েটিং রুমের স্ক্রিন যুক্ত করতে কাউন্টার ট্যাবলেটে নিচের কোডটি নিশ্চিত করুন।</p>
+          <p class="tv-bn" data-l10n="pairCodeLabel">পেয়ারিং কোড</p>
+          <p class="tv-pair-code" aria-label="482913">৪৮২&nbsp;৯১৩</p>
+          <dl class="tv-meta-grid tv-bn">
+            <div>
+              <dt data-l10n="pairChamber">চেম্বার</dt>
+              <dd data-tv-chamber-name>প্রধান চেম্বার</dd>
+            </div>
+            <div>
+              <dt>ঠিকানা</dt>
+              <dd data-tv-chamber-location>১২, মিরপুর রোড</dd>
+            </div>
+          </dl>
+          <p class="tv-bn" data-l10n="pairHint">ট্যাবলেট → সেটিংস → টিভি-তে একই কোড দেখাবে।</p>
+          <p class="tv-bn" data-l10n="pairWaiting">ট্যাবলেটের নিশ্চিতকরণের জন্য অপেক্ষা…</p>
+          <div class="tv-spinner" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/screen-frame.js"></script>
+    <script type="module" src="/src/pairing.js"></script>
+  </body>
+</html>

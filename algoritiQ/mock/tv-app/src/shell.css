@@ -1,0 +1,143 @@
+/* Preview chrome only — not part of the TV app UI. */
+
+body.mock-preview-body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #1a1a2e;
+  color: #e8eaef;
+  min-height: 100vh;
+}
+
+.mock-shell {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) 1fr;
+  min-height: 100vh;
+}
+
+.mock-controls {
+  padding: 24px;
+  background: #121826;
+  border-right: 1px solid #2a3348;
+  overflow-y: auto;
+}
+
+.mock-controls__title {
+  margin: 0 0 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.mock-controls__hint {
+  margin: 0 0 24px;
+  font-size: 0.8125rem;
+  color: #9aa3b5;
+  line-height: 1.45;
+}
+
+.mock-field {
+  display: block;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+}
+
+.mock-field span,
+.mock-field legend {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.mock-field select {
+  width: 100%;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid #3d465c;
+  background: #0f141f;
+  color: inherit;
+  font: inherit;
+}
+
+.mock-field label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 16px;
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.mock-flow {
+  margin: 24px 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.8125rem;
+  color: #9aa3b5;
+  line-height: 1.5;
+}
+
+.mock-preview-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: auto;
+}
+
+.device {
+  --device-w: 1366px;
+  --device-h: 768px;
+}
+
+.device--viewport-720p {
+  --device-w: 1280px;
+  --device-h: 720px;
+}
+
+.device-bezel {
+  width: var(--device-w);
+  height: var(--device-h);
+  max-width: calc(100vw - 380px);
+  max-height: calc(100vh - 48px);
+  padding: 14px 14px 22px;
+  background: linear-gradient(180deg, #2a2a2a 0%, #111 100%);
+  border-radius: 8px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  position: relative;
+}
+
+.device-bezel::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 4px;
+  border-radius: 4px;
+  background: #333;
+}
+
+.device-screen {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #000;
+}
+
+.device-screen iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: var(--page, #071428);
+}
+
+@media (max-width: 900px) {
+  .mock-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .device-bezel {
+    max-width: 100%;
+  }
+}

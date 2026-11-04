@@ -31,6 +31,7 @@ void main() {
             id: chamberId,
             doctorId: 'seed-doctor',
             name: 'Room 1',
+            patientIdPrefix: '776',
             createdAt: DateTime.utc(2026).millisecondsSinceEpoch,
           ),
         );

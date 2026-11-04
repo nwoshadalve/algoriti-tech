@@ -159,9 +159,19 @@ export type Chamber = {
   name: string
   location: string
   phone: string
+  /** Digits-only prefix for new patient IDs in this chamber. */
+  patientIdPrefix: string
+  /** Next sequence appended to the prefix on register (resets when prefix changes). */
+  patientIdNextSequence: number
 }
 
-export type ChamberInput = Omit<Chamber, 'id'>
+export type ChamberInput = {
+  name: string
+  location: string
+  phone: string
+  /** Optional on PATCH; server assigns on POST. */
+  patientIdPrefix?: string
+}
 
 export type QueuePolicy = {
   timeZone: string
@@ -269,6 +279,7 @@ export type PatientSummary = {
 
 export type RegisterPatientInput = {
   commandId: string
+  chamberId: string
   bengaliName: string
   phone: string
   englishName?: string

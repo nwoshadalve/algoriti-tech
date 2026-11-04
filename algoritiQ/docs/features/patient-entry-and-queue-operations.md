@@ -94,26 +94,27 @@ Phone numbers are stored in a canonical normalized form and formatted for displa
 
 ## 4. Permanent clinic patient ID
 
-Each patient receives a short, human-readable ID unique within the clinic:
+Each patient receives a short, human-readable ID unique within the clinic. **New** patients registered at the desk use the chamber prefix scheme documented in [Chamber patient ID prefix](./chamber-patient-id.md): prefix plus incrementing sequence (e.g. `7761`, `7762`, `7761001`).
+
+Legacy records may still show the older clinic-wide form:
 
 ```text
 P-000001
 P-000002
-P-000003
 ```
 
 Requirements:
 
-- assigned transactionally by the tablet;
+- assigned transactionally on the tablet when the patient is registered (scoped to the receptionist’s chamber via `chamberId`);
 - permanent and never reused;
-- independent of chamber, session, and queue type;
-- searchable with or without the `P-` prefix and leading zeros;
+- independent of queue type and session (but allocated from the registering chamber’s prefix counter);
+- searchable by full ID and, for legacy rows, with or without the `P-` prefix and leading zeros;
 - printed on every token;
 - suitable for writing on the physical patient file.
 
-Do not encode phone number, birth date, chamber, or other personal information in the ID.
+Do not encode phone number, birth date, or queue serial in the ID.
 
-Store and exchange the canonical ID using Latin digits. Bengali UI may localize the numeric part (`P-০০০০০১`) without creating a second identifier.
+Store and exchange the canonical ID using Latin digits. Bengali UI may localize displayed digits without creating a second identifier.
 
 ---
 

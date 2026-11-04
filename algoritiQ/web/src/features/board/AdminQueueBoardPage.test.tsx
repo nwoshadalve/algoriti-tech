@@ -57,13 +57,20 @@ describe('AdminQueueBoardPage', () => {
 
   it('should block non-admin users', () => {
     renderBoard(receptionist)
-    expect(screen.getByText('Only an administrator can use the queue desk.')).toBeInTheDocument()
+    expect(screen.getByText('You cannot use the queue desk with this account.')).toBeInTheDocument()
   })
 
   it('should load for administrators', async () => {
     vi.spyOn(session, 'readSession').mockReturnValue('tok')
     vi.spyOn(chambersApi, 'listChambers').mockResolvedValue([
-      { id: 'c1', name: 'Main', location: '', phone: '' },
+      {
+        id: 'c1',
+        name: 'Main',
+        location: '',
+        phone: '',
+        patientIdPrefix: '776',
+        patientIdNextSequence: 1,
+      },
     ])
     vi.spyOn(queueDeskApi, 'getQueueDeskSnapshot').mockResolvedValue({
       chamberId: 'c1',

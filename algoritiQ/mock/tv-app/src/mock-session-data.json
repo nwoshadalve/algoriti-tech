@@ -1,0 +1,53 @@
+{
+  "source": {
+    "sqlite": "E:\\Projects\\algoriti-tech\\tablet-backups\\queue-reset-20261101\\app_flutter\\algoritiq.sqlite",
+    "exportedAt": "auto"
+  },
+  "doctor": {
+    "id": "b5a2ba0c-eb53-4df7-92e0-1f985ef58534",
+    "name": "ডা. মো. জাহিদুল হক খান",
+    "degrees": [
+      "এম.বি.বি.এস (ডিএমসি)",
+      "বিসিএস (স্বাস্থ্য)",
+      "এমএস (অর্থোপেডিক্স সার্জারী)",
+      "বিএসএমএমইউ (সাবেক পিজি হাসপাতাল)",
+      "এ.ও ট্রমা বেসিক",
+      "এ.ও পেলভিস-এসিটাবুলাম"
+    ],
+    "designation": "সহকারী অধ্যাপক, অর্থো-সার্জারী",
+    "workplace": "পঙ্গু হাসপাতাল (নিটোর), ঢাকা",
+    "registrationNumber": "A-50414",
+    "specialty": "হাড়-জোড়া, বাত-ব্যাথা, পঙ্গুরোগ, এক্সিডেন্ট অর্থোপেডিক্স, ট্রমা সার্জারী বিশেষজ্ঞ ও সার্জন",
+    "photoUrl": "/assets/doctor-photo.jpg",
+    "photoPathOnTablet": "/data/user_de/0/tech.algoriti.algoritiq_app/app_flutter/doctor_photos/1793105806000.jpg",
+    "photoVersion": 1
+  },
+  "chamber": {
+    "id": "902abfb3-fcb0-47ca-9315-b37b2e15b955",
+    "doctorId": "b5a2ba0c-eb53-4df7-92e0-1f985ef58534",
+    "name": "আল-খিদমাহ্ মেডিকেল সার্ভিসেস (প্রাঃ), চাঁদপুর",
+    "location": "৬/১, আমেরী ম্যানশন, স্টেডিয়াম রোড, চাঁদপুর",
+    "phone": "01766521717"
+  },
+  "session": {
+    "businessDate": "2026-10-31",
+    "label": "৩১ অক্টোবর ২০২৬"
+  },
+  "queueTypes": [
+    {
+      "id": "regular",
+      "bengaliName": "সাধারণ",
+      "englishName": "Regular"
+    },
+    {
+      "id": "report",
+      "bengaliName": "রিপোর্ট",
+      "englishName": "Report"
+    },
+    {
+      "id": "dressing",
+      "bengaliName": "ড্রেসিং",
+      "englishName": "Dressing"
+    }
+  ]
+}

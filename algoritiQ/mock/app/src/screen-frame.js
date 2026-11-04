@@ -1,12 +1,19 @@
 /** In-screen controls (theme / language) for static mocks. Preview shell can override via postMessage. */
 
+import {
+  applyDocumentLocale,
+  getLocale,
+  setLocale,
+  t,
+} from "./mock-locale.js";
+
 function syncThemeButtons() {
   const dark = document.documentElement.dataset.theme === "dark";
   document.querySelectorAll("[data-mock-theme-toggle]").forEach((btn) => {
     btn.innerHTML = dark ? iconLightMode() : iconDarkMode();
     btn.setAttribute(
       "aria-label",
-      dark ? "Switch to light theme" : "Switch to dark theme",
+      dark ? t("themeLight") : t("themeDark"),
     );
   });
 }
@@ -23,11 +30,8 @@ function wireLanguageSwitchers() {
   document.querySelectorAll(".lang-switch").forEach((group) => {
     group.querySelectorAll(".lang-switch__seg").forEach((seg) => {
       seg.addEventListener("click", () => {
-        if (seg.classList.contains("lang-switch__seg--on")) return;
-        group
-          .querySelectorAll(".lang-switch__seg")
-          .forEach((s) => s.classList.remove("lang-switch__seg--on"));
-        seg.classList.add("lang-switch__seg--on");
+        const next = seg.getAttribute("data-lang");
+        if (next === "en" || next === "bn") setLocale(next);
       });
     });
   });
@@ -79,7 +83,10 @@ function wireDashboardDrawer() {
       root.classList.toggle("dashboard--drawer-open", open);
       drawer.setAttribute("aria-hidden", open ? "false" : "true");
       openBtn.setAttribute("aria-expanded", open ? "true" : "false");
-      openBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      openBtn.setAttribute(
+        "aria-label",
+        open ? t("navCloseMenu") : t("navOpenMenu"),
+      );
       if (scrim) scrim.hidden = !open;
     };
 
@@ -91,11 +98,31 @@ function wireDashboardDrawer() {
     root.querySelectorAll(".nav-tile").forEach((tile) => {
       tile.addEventListener("click", () => setOpen(false));
     });
+
+    setOpen(false);
+  });
+}
+
+window.addEventListener("mock-locale-change", () => {
+  syncThemeButtons();
+  wireDashboardDrawerLabels();
+});
+
+function wireDashboardDrawerLabels() {
+  document.querySelectorAll("[data-drawer-scrim]").forEach((el) => {
+    el.setAttribute("aria-label", t("navCloseMenu"));
+  });
+  document.querySelectorAll("[data-drawer-close]").forEach((el) => {
+    el.setAttribute("aria-label", t("navCloseMenu"));
   });
 }
 
 wireLanguageSwitchers();
 wireThemeToggles();
 wireDashboardDrawer();
+wireDashboardDrawerLabels();
+applyDocumentLocale();
 syncThemeButtons();
 window.parent.postMessage({ type: "mock-screen-ready" }, "*");
+
+export { getLocale, setLocale, t };

@@ -160,6 +160,9 @@ void main() {
     test('should add, list and edit chambers', () async {
       final created = await add('  Main  ', location: ' 12 Lake Road ');
       final id = chamber(created)['id']! as String;
+      final assignedPrefix = chamber(created)['patientIdPrefix']! as String;
+      expect(assignedPrefix.length, 3);
+      expect(assignedPrefix, matches(r'^[0-9]{3}$'));
 
       final edited = await call(
         'PATCH',
@@ -168,6 +171,7 @@ void main() {
           'name': 'Main chamber',
           'location': 'New address',
           'phone': '+880 1711-000000',
+          'patientIdPrefix': '6652',
         },
       );
       final listed = await call('GET', '/api/v1/chambers');
@@ -177,6 +181,8 @@ void main() {
       expect(chamber(created)['location'], '12 Lake Road');
       expect(edited.status, 200);
       expect(chamber(edited)['phone'], '+880 1711-000000');
+      expect(chamber(edited)['patientIdPrefix'], '6652');
+      expect(chamber(edited)['patientIdNextSequence'], 1);
       final rows = listed.json['chambers']! as List;
       expect(rows, hasLength(1));
       expect((rows.single as Map)['name'], 'Main chamber');

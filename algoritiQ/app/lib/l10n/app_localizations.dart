@@ -62,8 +62,7 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,18 +82,17 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('bn'),
-    Locale('en'),
+    Locale('en')
   ];
 
   /// No description provided for @activationTitle.
@@ -1328,6 +1325,396 @@ abstract class AppLocalizations {
   /// **'Live queue tools will appear here once they are ready.'**
   String get boardQueueSoon;
 
+  /// No description provided for @deskSessionClosedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session not open'**
+  String get deskSessionClosedTitle;
+
+  /// No description provided for @deskSessionClosedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Start today\'s session to issue tokens and call patients.'**
+  String get deskSessionClosedHint;
+
+  /// No description provided for @deskStartSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Start session'**
+  String get deskStartSession;
+
+  /// No description provided for @deskWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Working…'**
+  String get deskWorking;
+
+  /// No description provided for @deskCurrentCallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Now calling'**
+  String get deskCurrentCallTitle;
+
+  /// No description provided for @deskCurrentCallEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No patient is being called.'**
+  String get deskCurrentCallEmpty;
+
+  /// No description provided for @deskQueueControlsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Queues'**
+  String get deskQueueControlsTitle;
+
+  /// No description provided for @deskCallBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve serial {serial} before calling the next patient.'**
+  String deskCallBlocked(String serial);
+
+  /// No description provided for @deskWaitingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting: {count}'**
+  String deskWaitingCount(int count);
+
+  /// No description provided for @deskCallNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Call next'**
+  String get deskCallNext;
+
+  /// No description provided for @deskRecall.
+  ///
+  /// In en, this message translates to:
+  /// **'Recall'**
+  String get deskRecall;
+
+  /// No description provided for @deskCallBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get deskCallBtn;
+
+  /// No description provided for @deskRecallBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Recall'**
+  String get deskRecallBtn;
+
+  /// No description provided for @deskPatientEntered.
+  ///
+  /// In en, this message translates to:
+  /// **'Entered'**
+  String get deskPatientEntered;
+
+  /// No description provided for @deskPatientMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed'**
+  String get deskPatientMissed;
+
+  /// No description provided for @deskSessionTableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s session'**
+  String get deskSessionTableTitle;
+
+  /// No description provided for @deskSessionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No tokens issued yet.'**
+  String get deskSessionEmpty;
+
+  /// No description provided for @deskAddPatientShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get deskAddPatientShort;
+
+  /// No description provided for @deskAddExistingShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Add existing'**
+  String get deskAddExistingShort;
+
+  /// No description provided for @deskErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Try again.'**
+  String get deskErrorGeneric;
+
+  /// No description provided for @deskResolveCallFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark the current call entered, missed, or cancelled first.'**
+  String get deskResolveCallFirst;
+
+  /// No description provided for @deskNoWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'No one is waiting in this queue.'**
+  String get deskNoWaiting;
+
+  /// No description provided for @deskNothingToRecall.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to recall for this queue.'**
+  String get deskNothingToRecall;
+
+  /// No description provided for @deskSessionStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Session started.'**
+  String get deskSessionStarted;
+
+  /// No description provided for @deskCallNextSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient called.'**
+  String get deskCallNextSuccess;
+
+  /// No description provided for @deskRecallSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recall sent.'**
+  String get deskRecallSent;
+
+  /// No description provided for @deskRegisterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New patient'**
+  String get deskRegisterTitle;
+
+  /// No description provided for @deskRegisterIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Required fields are marked with *.'**
+  String get deskRegisterIntro;
+
+  /// No description provided for @deskDuplicatePhoneConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone is already on file. Confirm to save anyway.'**
+  String get deskDuplicatePhoneConfirm;
+
+  /// No description provided for @deskRegisterSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and save'**
+  String get deskRegisterSave;
+
+  /// No description provided for @deskSaveAndIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and issue token'**
+  String get deskSaveAndIssue;
+
+  /// No description provided for @deskFieldBengaliName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (Bengali)'**
+  String get deskFieldBengaliName;
+
+  /// No description provided for @deskFieldEnglishName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (English)'**
+  String get deskFieldEnglishName;
+
+  /// No description provided for @deskFieldQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get deskFieldQueue;
+
+  /// No description provided for @deskFieldAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get deskFieldAge;
+
+  /// No description provided for @deskFieldGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get deskFieldGender;
+
+  /// No description provided for @deskFieldFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee (BDT)'**
+  String get deskFieldFee;
+
+  /// No description provided for @deskFieldAdminNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin note'**
+  String get deskFieldAdminNote;
+
+  /// No description provided for @deskFieldPaperFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing'**
+  String get deskFieldPaperFile;
+
+  /// No description provided for @deskFieldPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient'**
+  String get deskFieldPatient;
+
+  /// No description provided for @deskFieldChamber.
+  ///
+  /// In en, this message translates to:
+  /// **'Chamber'**
+  String get deskFieldChamber;
+
+  /// No description provided for @deskFieldPreviewSerial.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial'**
+  String get deskFieldPreviewSerial;
+
+  /// No description provided for @deskGenderUnset.
+  ///
+  /// In en, this message translates to:
+  /// **'Not stated'**
+  String get deskGenderUnset;
+
+  /// No description provided for @deskGenderMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get deskGenderMale;
+
+  /// No description provided for @deskGenderFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get deskGenderFemale;
+
+  /// No description provided for @deskGenderOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get deskGenderOther;
+
+  /// No description provided for @deskGenderNotStated.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefer not to say'**
+  String get deskGenderNotStated;
+
+  /// No description provided for @deskExistingPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing patient'**
+  String get deskExistingPatient;
+
+  /// No description provided for @deskSearchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get deskSearchLabel;
+
+  /// No description provided for @deskSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by phone or clinic patient number.'**
+  String get deskSearchHint;
+
+  /// No description provided for @deskSearchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching patients.'**
+  String get deskSearchEmpty;
+
+  /// No description provided for @deskSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching…'**
+  String get deskSearching;
+
+  /// No description provided for @deskRegisterNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Register as new patient'**
+  String get deskRegisterNew;
+
+  /// No description provided for @deskIssueFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue token for {name}'**
+  String deskIssueFor(String name);
+
+  /// No description provided for @deskIssuePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and print'**
+  String get deskIssuePreview;
+
+  /// No description provided for @deskIssueConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm token'**
+  String get deskIssueConfirmTitle;
+
+  /// No description provided for @deskIssueConfirmIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the details before printing.'**
+  String get deskIssueConfirmIntro;
+
+  /// No description provided for @deskIssueConfirmPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and print'**
+  String get deskIssueConfirmPrint;
+
+  /// No description provided for @deskIssueBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get deskIssueBack;
+
+  /// No description provided for @deskIssueSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Token issued.'**
+  String get deskIssueSuccess;
+
+  /// No description provided for @deskErrorDuplicatePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone is already on file. Confirm to continue.'**
+  String get deskErrorDuplicatePhone;
+
+  /// No description provided for @deskErrorActiveToken.
+  ///
+  /// In en, this message translates to:
+  /// **'This patient already has an active token today.'**
+  String get deskErrorActiveToken;
+
+  /// No description provided for @deskErrorRangeExhausted.
+  ///
+  /// In en, this message translates to:
+  /// **'This queue has no serials left.'**
+  String get deskErrorRangeExhausted;
+
+  /// No description provided for @deskErrorValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the highlighted fields.'**
+  String get deskErrorValidation;
+
+  /// No description provided for @deskErrorForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot run the queue desk here.'**
+  String get deskErrorForbidden;
+
   /// No description provided for @themeLight.
   ///
   /// In en, this message translates to:
@@ -1959,8 +2346,7 @@ abstract class AppLocalizations {
   String get printerToastNoDetails;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -1969,26 +2355,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['bn', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['bn', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'bn':
-      return AppLocalizationsBn();
-    case 'en':
-      return AppLocalizationsEn();
+    case 'bn': return AppLocalizationsBn();
+    case 'en': return AppLocalizationsEn();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

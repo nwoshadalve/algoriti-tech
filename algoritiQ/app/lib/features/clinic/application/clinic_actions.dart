@@ -84,6 +84,8 @@ class ClinicActions {
           name: cleanName,
           location: cleanLocation,
           phone: cleanPhone,
+          patientIdPrefix: '',
+          patientIdNextSequence: 1,
         ),
         limit: maxChambers,
       );
@@ -115,6 +117,8 @@ class ClinicActions {
           name: cleanName,
           location: cleanLocation,
           phone: cleanPhone,
+          patientIdPrefix: chamber.patientIdPrefix,
+          patientIdNextSequence: chamber.patientIdNextSequence,
         ),
       ),
     );

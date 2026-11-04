@@ -25,10 +25,10 @@
             </div>
             <span class="logo__text">Algoriti<span>Q</span></span>
           </div>
-          <div class="lang-switch" role="group" aria-label="Language">
+          <div class="lang-switch" role="group" data-l10n-aria="languageLabel" aria-label="Language">
             <span class="lang-switch__track" aria-hidden="true"></span>
-            <button type="button" class="lang-switch__seg" data-lang="bn">বাংলা</button>
-            <button type="button" class="lang-switch__seg lang-switch__seg--on" data-lang="en">EN</button>
+            <button type="button" class="lang-switch__seg" data-lang="bn" aria-pressed="false">বাংলা</button>
+            <button type="button" class="lang-switch__seg" data-lang="en" aria-pressed="true">EN</button>
           </div>
         </header>
         <div class="card-page__scroll">
@@ -36,34 +36,34 @@
             <div class="card card--flat two-col-form two-col-form--wide">
               <div class="stack-lg">
                 <div>
-                  <h1 class="app-headline">Activate this device</h1>
-                  <p class="text-intro">Send this device code to your provider to get an activation key.</p>
+                  <h1 class="app-headline" data-l10n="activationTitle">Activate this device</h1>
+                  <p class="text-intro" data-l10n="activationIntro">Send this device code to your provider to get an activation key.</p>
                 </div>
                 <div class="stepper">
-                  <span class="stepper__step stepper__step--active">① Copy code</span>
-                  <span class="stepper__step">② Get key</span>
-                  <span class="stepper__step">③ Enter key</span>
+                  <span class="stepper__step stepper__step--active" data-l10n="mockActivationStepCopy">① Copy code</span>
+                  <span class="stepper__step" data-l10n="mockActivationStepGet">② Get key</span>
+                  <span class="stepper__step" data-l10n="mockActivationStepEnter">③ Enter key</span>
                 </div>
                 <div>
-                  <p class="text-label">Device code</p>
+                  <p class="text-label" data-l10n="deviceCodeLabel">Device code</p>
                   <div class="device-code" style="margin-top: var(--space-sm)">
                     <span>AQ7K-3MNP-92XF</span>
-                    <span class="chip-btn">Copy</span>
+                    <span class="chip-btn" data-l10n="copyDeviceCode">Copy</span>
                   </div>
                 </div>
               </div>
               <div class="stack-lg">
                 <div class="field">
-                  <label for="activation-key">Activation key</label>
-                  <input id="activation-key" type="text" placeholder="Paste or type the key" readonly />
+                  <label for="activation-key" data-l10n="activationKeyLabel">Activation key</label>
+                  <input id="activation-key" type="text" data-l10n-placeholder="activationKeyHint" placeholder="Paste or type the key" readonly />
                 </div>
-                <button type="button" class="btn btn--primary">Activate</button>
+                <button type="button" class="btn btn--primary" data-l10n="activateButton">Activate</button>
               </div>
             </div>
           </div>
           <div class="card-page__footer">
             <span aria-hidden="true">🔒</span>
-            <span>Your license is tied to this device and works offline.</span>
+            <span data-l10n="activationFooter">Your license is tied to this device and works offline.</span>
           </div>
         </div>
       </div>

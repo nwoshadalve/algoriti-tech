@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="bn" data-theme="light" class="device-view locale-bn" data-safe-area="on">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>সংযোগ বিচ্ছিন্ন · টিভি</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/tv.css" />
+  </head>
+  <body>
+    <div class="board board--stale" data-tv-display-root>
+      <div class="banner-warn" data-l10n="displayLastUpdate" data-l10n-time="১০:৪২">সর্বশেষ আপডেট ১০:৪২ · পুনঃসংযোগ…</div>
+      <header class="board__status">
+        <p class="board__date" data-tv-session-label></p>
+        <span class="live-dot live-dot--off" data-l10n="displayDisconnected">সংযোগ বিচ্ছিন্ন</span>
+      </header>
+      <main class="board__main">
+        <section class="call-panel" data-tv-called-panel>
+          <div class="call-panel__head">
+            <h1 class="call-panel__title" data-l10n="announcement">ঘোষণা</h1>
+          </div>
+          <div class="call-panel__body">
+            <p class="call-panel__label" data-l10n="nowServing">এখন ডাকা হচ্ছে</p>
+            <p class="call-number is-live">১০০৭</p>
+            <span class="call-type" data-l10n="queueRegular">সাধারণ</span>
+          </div>
+        </section>
+        <section class="queue-panel">
+          <header class="queue-panel__head">
+            <h2 class="queue-panel__title" data-l10n="waitingNext">অপেক্ষমাণ রোগী</h2>
+            <span class="queue-panel__cap" data-l10n="waitingCap">প্রতি ধরনে সর্বোচ্চ ৫ জন</span>
+          </header>
+          <div class="queue-rows">
+            <div class="queue-row">
+              <span class="queue-row__label" data-l10n="queueRegular">সাধারণ</span>
+              <ul class="queue-row__list">
+                <li class="queue-chip">১০০৮</li>
+                <li class="queue-chip">১০০৯</li>
+              </ul>
+            </div>
+            <div class="queue-row">
+              <span class="queue-row__label" data-l10n="queueReport">রিপোর্ট</span>
+              <ul class="queue-row__list"><li class="queue-chip">২০০৩</li></ul>
+            </div>
+            <div class="queue-row">
+              <span class="queue-row__label" data-l10n="queueDressing">ড্রেসিং</span>
+              <ul class="queue-row__list"><li class="queue-chip">৩০০২</li></ul>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer class="board__footer">
+        <div class="doctor-photo-wrap">
+          <img class="doctor-photo" data-tv-doctor-photo hidden alt="" width="120" height="120" />
+          <div class="doctor-photo-fallback" data-tv-doctor-photo-fallback aria-hidden="true">ডা</div>
+        </div>
+        <div class="doctor-block">
+          <h2 class="doctor-block__name" data-tv-doctor-name></h2>
+          <p class="doctor-block__degrees" data-tv-doctor-degrees></p>
+          <p class="doctor-block__line"><span data-tv-doctor-designation></span> · <span data-tv-doctor-specialty></span></p>
+          <p class="doctor-block__sub" data-tv-doctor-workplace></p>
+          <p class="doctor-block__sub" data-tv-doctor-bmdc></p>
+        </div>
+        <div class="chamber-block">
+          <h3 class="chamber-block__name" data-tv-chamber-name></h3>
+          <p class="chamber-block__line" data-tv-chamber-location></p>
+          <p class="chamber-block__sub" data-tv-chamber-phone></p>
+        </div>
+      </footer>
+    </div>
+    <script type="module" src="/src/screen-frame.js"></script>
+    <script type="module" src="/src/display-disconnected.js"></script>
+  </body>
+</html>

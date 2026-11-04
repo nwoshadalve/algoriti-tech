@@ -497,6 +497,16 @@ h2.app-title {
   color: var(--on-surface-variant);
 }
 
+.page-header__landscape-only {
+  display: none;
+}
+
+@container device (min-width: 1024px) {
+  .page-header__landscape-only {
+    display: block;
+  }
+}
+
 .grid-2 {
   display: grid;
   gap: var(--space-md);

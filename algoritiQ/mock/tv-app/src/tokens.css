@@ -1,0 +1,19 @@
+:root,
+[data-theme="light"] {
+  --navy: #0b1f3a;
+  --accent: #ea580c;
+  --accent-soft: #ffedd5;
+  --page: #f1f5f9;
+  --surface: #ffffff;
+  --line: #e2e8f0;
+  --on-surface: #0b1f3a;
+  --on-muted: #475569;
+  --on-faint: #64748b;
+  --ok: #059669;
+  --warn: #d97706;
+  --shadow: 0 16px 48px rgba(11, 31, 58, 0.08);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --font-bn: "Noto Sans Bengali", system-ui, sans-serif;
+  --tv-safe: 36px;
+}

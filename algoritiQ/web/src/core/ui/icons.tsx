@@ -188,6 +188,26 @@ export function PlusIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
+export function PersonAddIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="9.5" cy="8" r="3.25" />
+      <path d="M3 19.5c.55-3.1 2.9-5 6.5-5s6 1.9 6.5 5" />
+      <path d="M17.5 8.5h4" />
+      <path d="M19.5 6.5v4" />
+    </Icon>
+  )
+}
+
+export function PersonIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="8" r="3.25" />
+      <path d="M5.5 19.5c.7-3.2 3.4-5 6.5-5s5.8 1.8 6.5 5" />
+    </Icon>
+  )
+}
+
 export function PencilIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon {...props}>

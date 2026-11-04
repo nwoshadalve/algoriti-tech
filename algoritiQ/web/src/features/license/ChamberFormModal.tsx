@@ -38,6 +38,7 @@ export function ChamberFormModal({ chamber, onClose, onSaved, onLimit }: Chamber
     name: chamber?.name ?? '',
     location: chamber?.location ?? '',
     phone: chamber?.phone ?? '',
+    patientIdPrefix: chamber?.patientIdPrefix ?? '',
   })
   const [errors, setErrors] = useState<ChamberErrors>({})
   const [busy, setBusy] = useState(false)
@@ -64,6 +65,9 @@ export function ChamberFormModal({ chamber, onClose, onSaved, onLimit }: Chamber
       name: fields.name.trim(),
       location: fields.location.trim(),
       phone: fields.phone.trim(),
+      ...(editing && fields.patientIdPrefix
+        ? { patientIdPrefix: fields.patientIdPrefix.trim() }
+        : {}),
     }
     try {
       const saved = editing
@@ -135,6 +139,29 @@ export function ChamberFormModal({ chamber, onClose, onSaved, onLimit }: Chamber
           error={error('phone')}
           onChange={(event) => set('phone', event.target.value)}
         />
+        {editing ? (
+          <>
+            <TextField
+              id="chamber-patient-id-prefix"
+              label={t('fieldChamberPatientIdPrefix')}
+              hint={t('fieldChamberPatientIdPrefixHint', {
+                example: `${fields.patientIdPrefix?.trim() || '776'}1`,
+              })}
+              autoComplete="off"
+              inputMode="numeric"
+              value={fields.patientIdPrefix ?? ''}
+              error={error('patientIdPrefix')}
+              onChange={(event) => set('patientIdPrefix', event.target.value)}
+            />
+            {chamber ? (
+              <p className="text-sm text-brand-navy/65 dark:text-white/65">
+                {t('chamberPatientIdNextPreview', {
+                  id: `${fields.patientIdPrefix?.trim() || chamber.patientIdPrefix}${chamber.patientIdNextSequence}`,
+                })}
+              </p>
+            ) : null}
+          </>
+        ) : null}
       </form>
     </Modal>
   )

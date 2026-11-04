@@ -693,6 +693,210 @@ class AppLocalizationsBn extends AppLocalizations {
   String get boardQueueSoon => 'লাইভ কিউ সরঞ্জাম প্রস্তুত হলে এখানে দেখা যাবে।';
 
   @override
+  String get deskSessionClosedTitle => 'সেশন খোলা নেই';
+
+  @override
+  String get deskSessionClosedHint =>
+      'টোকেন দিতে ও রোগী ডাকতে আজকের সেশন শুরু করুন।';
+
+  @override
+  String get deskStartSession => 'সেশন শুরু';
+
+  @override
+  String get deskWorking => 'কাজ চলছে…';
+
+  @override
+  String get deskCurrentCallTitle => 'এখন ডাকা হচ্ছে';
+
+  @override
+  String get deskCurrentCallEmpty => 'কাউকে ডাকা হচ্ছে না।';
+
+  @override
+  String get deskQueueControlsTitle => 'কিউ';
+
+  @override
+  String deskCallBlocked(String serial) {
+    return 'পরের রোগী ডাকার আগে $serial নম্বরটি সমাধান করুন।';
+  }
+
+  @override
+  String deskWaitingCount(int count) {
+    return 'অপেক্ষায়: $count';
+  }
+
+  @override
+  String get deskCallNext => 'পরের ডাক';
+
+  @override
+  String get deskRecall => 'আবার ডাক';
+
+  @override
+  String get deskCallBtn => 'ডাক';
+
+  @override
+  String get deskRecallBtn => 'পুনরায়';
+
+  @override
+  String get deskPatientEntered => 'ঢুকেছেন';
+
+  @override
+  String get deskPatientMissed => 'আসেননি';
+
+  @override
+  String get deskSessionTableTitle => 'আজকের সেশন';
+
+  @override
+  String get deskSessionEmpty => 'এখনও কোনো টোকেন দেওয়া হয়নি।';
+
+  @override
+  String get deskAddPatientShort => 'যোগ';
+
+  @override
+  String get deskAddExistingShort => 'আগের রোগী';
+
+  @override
+  String get deskErrorGeneric => 'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।';
+
+  @override
+  String get deskResolveCallFirst => 'আগে বর্তমান ডাক সম্পন্ন করুন।';
+
+  @override
+  String get deskNoWaiting => 'এই কিউতে কেউ অপেক্ষায় নেই।';
+
+  @override
+  String get deskNothingToRecall => 'এই কিউতে আবার ডাকার মতো কিছু নেই।';
+
+  @override
+  String get deskSessionStarted => 'সেশন শুরু হয়েছে।';
+
+  @override
+  String get deskCallNextSuccess => 'রোগী ডাকা হয়েছে।';
+
+  @override
+  String get deskRecallSent => 'আবার ডাক পাঠানো হয়েছে।';
+
+  @override
+  String get deskRegisterTitle => 'নতুন রোগী';
+
+  @override
+  String get deskRegisterIntro => '* চিহ্নিত ক্ষেত্রগুলো আবশ্যক।';
+
+  @override
+  String get deskDuplicatePhoneConfirm =>
+      'এই ফোন নম্বর ইতিমধ্যে আছে। তবু সংরক্ষণ করতে নিশ্চিত করুন।';
+
+  @override
+  String get deskRegisterSave => 'নিশ্চিত করে সংরক্ষণ';
+
+  @override
+  String get deskSaveAndIssue => 'সংরক্ষণ ও টোকেন দিন';
+
+  @override
+  String get deskFieldBengaliName => 'নাম (বাংলা)';
+
+  @override
+  String get deskFieldEnglishName => 'নাম (ইংরেজি)';
+
+  @override
+  String get deskFieldQueue => 'কিউ';
+
+  @override
+  String get deskFieldAge => 'বয়স';
+
+  @override
+  String get deskFieldGender => 'লিঙ্গ';
+
+  @override
+  String get deskFieldFee => 'ফি (টাকা)';
+
+  @override
+  String get deskFieldAdminNote => 'অ্যাডমিন নোট';
+
+  @override
+  String get deskFieldPaperFile => 'Existing';
+
+  @override
+  String get deskFieldPatient => 'রোগী';
+
+  @override
+  String get deskFieldChamber => 'চেম্বার';
+
+  @override
+  String get deskFieldPreviewSerial => 'সিরিয়াল';
+
+  @override
+  String get deskGenderUnset => 'উল্লেখ নেই';
+
+  @override
+  String get deskGenderMale => 'পুরুষ';
+
+  @override
+  String get deskGenderFemale => 'মহিলা';
+
+  @override
+  String get deskGenderOther => 'অন্যান্য';
+
+  @override
+  String get deskGenderNotStated => 'বলতে চাই না';
+
+  @override
+  String get deskExistingPatient => 'আগের রোগী';
+
+  @override
+  String get deskSearchLabel => 'খুঁজুন';
+
+  @override
+  String get deskSearchHint => 'ফোন বা ক্লিনিক রোগী নম্বর দিয়ে খুঁজুন।';
+
+  @override
+  String get deskSearchEmpty => 'কোনো রোগী পাওয়া যায়নি।';
+
+  @override
+  String get deskSearching => 'খুঁজছি…';
+
+  @override
+  String get deskRegisterNew => 'নতুন রোগী হিসেবে নিবন্ধন';
+
+  @override
+  String deskIssueFor(String name) {
+    return '$name-এর জন্য টোকেন';
+  }
+
+  @override
+  String get deskIssuePreview => 'দেখুন ও প্রিন্ট';
+
+  @override
+  String get deskIssueConfirmTitle => 'টোকেন নিশ্চিত করুন';
+
+  @override
+  String get deskIssueConfirmIntro => 'প্রিন্টের আগে তথ্য যাচাই করুন।';
+
+  @override
+  String get deskIssueConfirmPrint => 'নিশ্চিত করে প্রিন্ট';
+
+  @override
+  String get deskIssueBack => 'পেছনে';
+
+  @override
+  String get deskIssueSuccess => 'টোকেন দেওয়া হয়েছে।';
+
+  @override
+  String get deskErrorDuplicatePhone =>
+      'এই ফোন নম্বর ইতিমধ্যে আছে। চালিয়ে যেতে নিশ্চিত করুন।';
+
+  @override
+  String get deskErrorActiveToken => 'আজ এই রোগীর সক্রিয় টোকেন আছে।';
+
+  @override
+  String get deskErrorRangeExhausted => 'এই কিউতে আর সিরিয়াল নেই।';
+
+  @override
+  String get deskErrorValidation => 'চিহ্নিত ক্ষেত্রগুলো ঠিক করুন।';
+
+  @override
+  String get deskErrorForbidden => 'আপনি এখানে কিউ ডেস্ক চালাতে পারবেন না।';
+
+  @override
   String get themeLight => 'হালকা থিমে যান';
 
   @override

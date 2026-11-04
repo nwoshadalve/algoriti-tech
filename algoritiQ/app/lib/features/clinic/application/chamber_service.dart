@@ -12,6 +12,7 @@ import '../../access/domain/account_repository.dart';
 import '../../licensing/domain/license_core.dart';
 import '../domain/chamber.dart';
 import '../domain/clinic_repository.dart';
+import '../../queue_board/domain/patient_id.dart';
 
 /// The clinic has no doctor license, or no doctor is set up yet, so there is
 /// nothing to manage.
@@ -53,8 +54,14 @@ enum ChamberProblem {
   limitReached,
   notFound,
 
-  /// A doctor needs at least one chamber to see patients.
+  /// The last chamber cannot be deleted.
   lastChamber,
+
+  /// Patient ID prefix must be 3–6 digits.
+  patientIdPrefixInvalid,
+
+  /// Another chamber already uses this prefix.
+  patientIdPrefixTaken,
 }
 
 sealed class ChamberResult {
@@ -158,18 +165,22 @@ class ChamberService {
       name: cleanName,
       location: cleanLocation,
       phone: cleanPhone,
+      patientIdPrefix: '',
+      patientIdNextSequence: 1,
     );
     // Counted and written in one transaction, so two requests cannot both
     // take the last place.
     final added = await _clinic.addChamber(chamber, limit: license.maxChambers);
     if (!added) return const ChamberRefused(ChamberProblem.limitReached);
+    final saved = await _clinic.chamberById(chamber.id);
+    if (saved == null) return const ChamberRefused(ChamberProblem.notFound);
     await _accounts.audit(
       at: _clock().toUtc(),
       action: 'chamber.created',
       actorId: admin.id,
-      detail: chamber.id,
+      detail: saved.id,
     );
-    return ChamberSaved(chamber);
+    return ChamberSaved(saved);
   }
 
   Future<ChamberResult> update(
@@ -178,6 +189,7 @@ class ChamberService {
     required String name,
     required String location,
     required String phone,
+    String? patientIdPrefix,
   }) async {
     await _covered(admin);
     final current = (await _clinic.watchChambers().first)
@@ -190,12 +202,33 @@ class ChamberService {
     final problem = _check(cleanName, cleanLocation, cleanPhone);
     if (problem != null) return ChamberRefused(problem);
 
+    var prefix = current.patientIdPrefix;
+    var nextSequence = current.patientIdNextSequence;
+    if (patientIdPrefix != null) {
+      final cleanPrefix = patientIdPrefix.trim();
+      if (!isValidChamberPatientIdPrefix(cleanPrefix)) {
+        return const ChamberRefused(ChamberProblem.patientIdPrefixInvalid);
+      }
+      if (await _clinic.patientIdPrefixInUse(
+        cleanPrefix,
+        exceptChamberId: chamberId,
+      )) {
+        return const ChamberRefused(ChamberProblem.patientIdPrefixTaken);
+      }
+      if (cleanPrefix != current.patientIdPrefix) {
+        prefix = cleanPrefix;
+        nextSequence = 1;
+      }
+    }
+
     final chamber = Chamber(
       id: current.id,
       doctorId: current.doctorId,
       name: cleanName,
       location: cleanLocation,
       phone: cleanPhone,
+      patientIdPrefix: prefix,
+      patientIdNextSequence: nextSequence,
     );
     await _clinic.updateChamber(chamber);
     await _accounts.audit(

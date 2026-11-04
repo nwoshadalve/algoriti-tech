@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="bn" data-theme="light" class="device-view locale-bn" data-safe-area="on">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>অপেক্ষা · টিভি</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/tv.css" />
+  </head>
+  <body>
+    <div class="board" data-tv-display-root>
+      <header class="board__status">
+        <p class="board__date" data-tv-session-label></p>
+        <span class="live-dot" data-l10n="displayLive">সংযুক্ত</span>
+      </header>
+      <main class="board__main">
+        <section class="call-panel is-idle" data-tv-called-panel>
+          <div class="call-panel__head">
+            <h1 class="call-panel__title" data-l10n="announcement">ঘোষণা</h1>
+          </div>
+          <div class="call-panel__body">
+            <p class="call-panel__label" data-l10n="pleaseWait">অপেক্ষা করুন</p>
+            <p class="call-number" data-tv-called-serial>—</p>
+            <span class="call-type" data-tv-called-type hidden></span>
+            <p class="call-panel__empty" data-tv-called-empty data-l10n="noCalledYet">এখনও কাউকে ডাকা হয়নি</p>
+          </div>
+        </section>
+        <section class="queue-panel">
+          <header class="queue-panel__head">
+            <h2 class="queue-panel__title" data-l10n="waitingNext">অপেক্ষমাণ রোগী</h2>
+            <span class="queue-panel__cap" data-l10n="waitingCap">প্রতি ধরনে সর্বোচ্চ ৫ জন</span>
+          </header>
+          <div class="queue-rows">
+            <div class="queue-row" data-tv-waiting="regular">
+              <span class="queue-row__label" data-l10n="queueRegular">সাধারণ</span>
+              <ul class="queue-row__list" data-tv-serial-list></ul>
+              <p class="queue-row__more" data-tv-serial-more hidden></p>
+            </div>
+            <div class="queue-row" data-tv-waiting="report">
+              <span class="queue-row__label" data-l10n="queueReport">রিপোর্ট</span>
+              <ul class="queue-row__list" data-tv-serial-list></ul>
+              <p class="queue-row__more" data-tv-serial-more hidden></p>
+            </div>
+            <div class="queue-row" data-tv-waiting="dressing">
+              <span class="queue-row__label" data-l10n="queueDressing">ড্রেসিং</span>
+              <ul class="queue-row__list" data-tv-serial-list></ul>
+              <p class="queue-row__more" data-tv-serial-more hidden></p>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer class="board__footer">
+        <div class="doctor-photo-wrap">
+          <img class="doctor-photo" data-tv-doctor-photo hidden alt="" width="120" height="120" />
+          <div class="doctor-photo-fallback" data-tv-doctor-photo-fallback aria-hidden="true">ডা</div>
+        </div>
+        <div class="doctor-block">
+          <h2 class="doctor-block__name" data-tv-doctor-name></h2>
+          <p class="doctor-block__degrees" data-tv-doctor-degrees></p>
+          <p class="doctor-block__line"><span data-tv-doctor-designation></span> · <span data-tv-doctor-specialty></span></p>
+          <p class="doctor-block__sub" data-tv-doctor-workplace></p>
+          <p class="doctor-block__sub" data-tv-doctor-bmdc></p>
+        </div>
+        <div class="chamber-block">
+          <h3 class="chamber-block__name" data-tv-chamber-name></h3>
+          <p class="chamber-block__line" data-tv-chamber-location></p>
+          <p class="chamber-block__sub" data-tv-chamber-phone></p>
+        </div>
+      </footer>
+      <div class="tv-mock-bar" data-tv-mock-bar>
+        <span data-l10n="mockSimulateCall">ডাক সিমুলেট (মক)</span>
+        <button type="button" data-tv-call-regular data-l10n="queueRegular">সাধারণ</button>
+        <button type="button" data-tv-call-report data-l10n="queueReport">রিপোর্ট</button>
+        <button type="button" data-tv-call-dressing data-l10n="queueDressing">ড্রেসিং</button>
+      </div>
+    </div>
+    <script type="module" src="/src/screen-frame.js"></script>
+    <script type="module" src="/src/display-idle.js"></script>
+  </body>
+</html>
