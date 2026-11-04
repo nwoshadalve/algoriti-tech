@@ -22,11 +22,14 @@ Local development for the **counter tablet** (Flutter) and **dashboard** (React)
 
 Detailed SDK package list: [minimal-android-sdk.md](./minimal-android-sdk.md).
 
+**Android TV app** (`tv-app/`): uses **Android TV emulators** for daily dev — see [tv-app/docs/dev-setup.md](../../tv-app/docs/dev-setup.md). The tablet path above stays physical-device-only.
+
 ## Repo layout
 
 ```text
 algoritiQ/
   app/                  # Flutter tablet host app
+  tv-app/               # Kotlin Android TV waiting-room client
   web/                  # React SPA (admin + doctor) → bundled for tablet release
   docs/                 # Architecture + web principles/standards
 ```

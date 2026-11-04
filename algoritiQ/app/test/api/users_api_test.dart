@@ -210,46 +210,52 @@ void main() {
     expect(changed.status, 204);
   });
 
-  test('should refuse when another admin disables the first administrator', () async {
-    final owner = (await kit.repository.findCredentials('owner'))!.account;
-    final created = await users.createUser(
-      admin: owner,
-      role: Role.admin,
-      username: 'second',
-      firstName: 'Second',
-      lastName: 'Admin',
-      email: 'second@clinic.test',
-      password: 'a-long-passphrase',
-      scopeIds: [],
-    );
-    expect(created, isA<UserCreated>());
+  test(
+    'should refuse when another admin disables the first administrator',
+    () async {
+      final owner = (await kit.repository.findCredentials('owner'))!.account;
+      final created = await users.createUser(
+        admin: owner,
+        role: Role.admin,
+        username: 'second',
+        firstName: 'Second',
+        lastName: 'Admin',
+        email: 'second@clinic.test',
+        password: 'a-long-passphrase',
+        scopeIds: [],
+      );
+      expect(created, isA<UserCreated>());
 
-    final ctx = await call('GET', '/api/v1/users/context');
-    final firstId = ctx.json['firstAdminId']! as String;
-    final login = await call(
-      'POST',
-      '/api/v1/auth/login',
-      json: {'username': 'second', 'password': 'a-long-passphrase'},
-      bearer: null,
-    );
-    expect(login.status, 200);
-    final secondToken = login.json['token']! as String;
-    final founder = await kit.repository.findAccountById(firstId);
-    expect(founder, isNotNull);
+      final ctx = await call('GET', '/api/v1/users/context');
+      final firstId = ctx.json['firstAdminId']! as String;
+      final login = await call(
+        'POST',
+        '/api/v1/auth/login',
+        json: {'username': 'second', 'password': 'a-long-passphrase'},
+        bearer: null,
+      );
+      expect(login.status, 200);
+      final secondToken = login.json['token']! as String;
+      final founder = await kit.repository.findAccountById(firstId);
+      expect(founder, isNotNull);
 
-    final patched = await call(
-      'PATCH',
-      '/api/v1/users/$firstId',
-      json: {
-        'firstName': founder!.account.firstName,
-        'lastName': founder.account.lastName,
-        'email': founder.account.email,
-        'status': 'inactive',
-      },
-      bearer: secondToken,
-    );
+      final patched = await call(
+        'PATCH',
+        '/api/v1/users/$firstId',
+        json: {
+          'firstName': founder!.account.firstName,
+          'lastName': founder.account.lastName,
+          'email': founder.account.email,
+          'status': 'inactive',
+        },
+        bearer: secondToken,
+      );
 
-    expect(patched.status, 409);
-    expect((patched.json['error']! as Map)['code'], 'cannot_disable_initial_admin');
-  });
+      expect(patched.status, 409);
+      expect(
+        (patched.json['error']! as Map)['code'],
+        'cannot_disable_initial_admin',
+      );
+    },
+  );
 }

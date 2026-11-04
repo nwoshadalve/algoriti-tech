@@ -18,6 +18,10 @@ String queueDeskErrorMessage(AppLocalizations l10n, QueueBoardRefused refused) {
     QueueBoardProblem.rangeExhausted => l10n.deskErrorRangeExhausted,
     QueueBoardProblem.validation => l10n.deskErrorValidation,
     QueueBoardProblem.forbidden => l10n.deskErrorForbidden,
+    QueueBoardProblem.printerBusy => l10n.deskPrinterBusy,
+    QueueBoardProblem.otherSessionOpen => l10n.deskOtherSessionOpen(
+      refused.code ?? '',
+    ),
     _ => l10n.deskErrorGeneric,
   };
 }

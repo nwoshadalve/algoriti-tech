@@ -13,6 +13,8 @@ export type WorkScopeOption = {
   id: string
   name: string
   detail: string
+  /** Queue-desk chamber id when assignment is a doctor, not a chamber row. */
+  deskChamberId?: string
 }
 
 export type WorkScopesResponse = {

@@ -36,6 +36,13 @@ void main() {
       expect(slip(number: 105).tokenText, '১০৫');
     });
 
+    test(
+      'should show four-digit tokens in Bengali without padding extra zeros',
+      () {
+        expect(slip(number: 1234).tokenText, '১২৩৪');
+      },
+    );
+
     test('should name the three queues in Bengali', () {
       expect(QueueType.regular.bengaliLabel, 'নিয়মিত');
       expect(QueueType.report.bengaliLabel, 'রিপোর্ট');
@@ -128,6 +135,14 @@ void main() {
           .where((byte) => byte != 0)
           .length;
       expect(ink, greaterThan(200), reason: 'something was drawn');
+    });
+
+    testWidgets('should fit a four-digit serial on the slip', (tester) async {
+      final job = await tester.runAsync(
+        () => const TokenSlipRenderer().render(slip(number: 1234)),
+      );
+      expect(job, isNotNull);
+      expect(job!.length, greaterThan(500));
     });
   });
 }

@@ -5,6 +5,7 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as queueDeskApi from '@/core/api/queueDesk'
@@ -31,6 +32,9 @@ const admin: Account = {
 const receptionist: Account = { ...admin, id: 'r1', username: 'desk', role: 'receptionist' }
 
 function renderBoard(account: Account) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
   return render(
     <LocaleProvider>
       <ToastProvider>
@@ -43,7 +47,9 @@ function renderBoard(account: Account) {
             updateAccount: vi.fn(),
           }}
         >
-          <AdminQueueBoardPage />
+          <QueryClientProvider client={queryClient}>
+            <AdminQueueBoardPage />
+          </QueryClientProvider>
         </AuthContext.Provider>
       </ToastProvider>
     </LocaleProvider>,
@@ -72,6 +78,7 @@ describe('AdminQueueBoardPage', () => {
         patientIdNextSequence: 1,
       },
     ])
+    vi.spyOn(queueDeskApi, 'pickChamberIdWithOpenSession').mockResolvedValue('c1')
     vi.spyOn(queueDeskApi, 'getQueueDeskSnapshot').mockResolvedValue({
       chamberId: 'c1',
       chamberName: 'Main',
@@ -83,8 +90,63 @@ describe('AdminQueueBoardPage', () => {
       printerBusyTokenId: null,
     })
 
+    vi.spyOn(queueDeskApi, 'searchSessionTokensCompat').mockResolvedValue({
+      items: [],
+      total: 0,
+      counts: {},
+    })
+
     renderBoard(admin)
     expect(await screen.findByRole('heading', { name: 'Queue desk' })).toBeInTheDocument()
-    expect(screen.getByText('Session not open')).toBeInTheDocument()
+    expect(await screen.findByText('Session not open')).toBeInTheDocument()
+  })
+
+  it('should render session tokens from the paged API when a session is open', async () => {
+    vi.spyOn(session, 'readSession').mockReturnValue('tok')
+    vi.spyOn(chambersApi, 'listChambers').mockResolvedValue([
+      {
+        id: 'c1',
+        name: 'Main',
+        location: '',
+        phone: '',
+        patientIdPrefix: '776',
+        patientIdNextSequence: 1,
+      },
+    ])
+    vi.spyOn(queueDeskApi, 'pickChamberIdWithOpenSession').mockResolvedValue('c1')
+    vi.spyOn(queueDeskApi, 'getQueueDeskSnapshot').mockResolvedValue({
+      chamberId: 'c1',
+      chamberName: 'Main',
+      sessionId: 's1',
+      sessionOpen: true,
+      calledToken: null,
+      queueControls: [],
+      tokens: [],
+      printerBusyTokenId: null,
+    })
+    vi.spyOn(queueDeskApi, 'searchSessionTokensCompat').mockResolvedValue({
+      items: [
+        {
+          id: 't1',
+          serial: 1001,
+          queueTypeId: 'regular',
+          queueEnglishName: 'Regular',
+          queueBengaliName: 'Regular',
+          patientId: 'p1',
+          clinicPatientId: '7761',
+          patientBengaliName: 'Karim',
+          status: 'WAITING',
+          issuedAt: '2026-11-01T09:00:00.000Z',
+        },
+      ],
+      total: 1,
+      counts: { WAITING: 1 },
+    })
+
+    renderBoard(admin)
+    expect((await screen.findAllByText('Karim')).length).toBeGreaterThan(0)
+    expect(queueDeskApi.getQueueDeskSnapshot).toHaveBeenCalledWith('tok', 'c1', {
+      includeTokens: false,
+    })
   })
 })

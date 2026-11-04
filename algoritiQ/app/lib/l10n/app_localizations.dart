@@ -62,7 +62,8 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,17 +84,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('bn'),
-    Locale('en')
+    Locale('en'),
   ];
 
   /// No description provided for @activationTitle.
@@ -1343,6 +1346,42 @@ abstract class AppLocalizations {
   /// **'Start session'**
   String get deskStartSession;
 
+  /// No description provided for @deskEndSession.
+  ///
+  /// In en, this message translates to:
+  /// **'End session'**
+  String get deskEndSession;
+
+  /// No description provided for @deskOtherSessionOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'The session of {chamber} is still open. End it before starting this one.'**
+  String deskOtherSessionOpen(String chamber);
+
+  /// No description provided for @deskEndSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End today\'s session?'**
+  String get deskEndSessionTitle;
+
+  /// No description provided for @deskEndSessionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{waiting, plural, =0{No patient is waiting.} =1{1 patient is still waiting and will not be called.} other{{waiting} patients are still waiting and will not be called.}} You can start a new session afterwards.'**
+  String deskEndSessionBody(int waiting);
+
+  /// No description provided for @deskEndSessionKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep open'**
+  String get deskEndSessionKeep;
+
+  /// No description provided for @deskSessionEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Session ended.'**
+  String get deskSessionEnded;
+
   /// No description provided for @deskWorking.
   ///
   /// In en, this message translates to:
@@ -1556,7 +1595,7 @@ abstract class AppLocalizations {
   /// No description provided for @deskFieldPaperFile.
   ///
   /// In en, this message translates to:
-  /// **'Existing'**
+  /// **'Has existing paper file'**
   String get deskFieldPaperFile;
 
   /// No description provided for @deskFieldPatient.
@@ -1622,7 +1661,7 @@ abstract class AppLocalizations {
   /// No description provided for @deskSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search by phone or clinic patient number.'**
+  /// **'Search by name, phone or patient ID.'**
   String get deskSearchHint;
 
   /// No description provided for @deskSearchEmpty.
@@ -2303,17 +2342,221 @@ abstract class AppLocalizations {
   /// **'TV screen'**
   String get tvTitle;
 
-  /// No description provided for @tvStatus.
+  /// No description provided for @tvStatusNotPaired.
   ///
   /// In en, this message translates to:
-  /// **'Coming soon'**
-  String get tvStatus;
+  /// **'Not paired'**
+  String get tvStatusNotPaired;
 
-  /// No description provided for @tvBody.
+  /// No description provided for @tvStatusConnected.
   ///
   /// In en, this message translates to:
-  /// **'You will check and connect the waiting-room TV here.'**
-  String get tvBody;
+  /// **'Connected'**
+  String get tvStatusConnected;
+
+  /// No description provided for @tvStatusNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get tvStatusNotConnected;
+
+  /// No description provided for @tvBodyNotPaired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair the waiting-room TV with this chamber to show the queue and play announcements.'**
+  String get tvBodyNotPaired;
+
+  /// No description provided for @tvBodyConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'The TV is connected and receiving live updates from this tablet.'**
+  String get tvBodyConnected;
+
+  /// No description provided for @tvBodyNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch the TV on and join it to the same Wi-Fi as this tablet.'**
+  String get tvBodyNotConnected;
+
+  /// No description provided for @tvActionPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair TV'**
+  String get tvActionPair;
+
+  /// No description provided for @tvActionUnpair.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpair'**
+  String get tvActionUnpair;
+
+  /// No description provided for @tvActionTestScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Test screen'**
+  String get tvActionTestScreen;
+
+  /// No description provided for @tvActionTestSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Test sound'**
+  String get tvActionTestSound;
+
+  /// No description provided for @tvPairTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair a TV'**
+  String get tvPairTitle;
+
+  /// No description provided for @tvPairIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the AlgoritiQ TV app and type the 6-digit PIN it shows.'**
+  String get tvPairIntro;
+
+  /// No description provided for @tvPairPinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN shown on the TV'**
+  String get tvPairPinLabel;
+
+  /// No description provided for @tvPairCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Security code'**
+  String get tvPairCodeTitle;
+
+  /// No description provided for @tvPairCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The TV shows the same code. If it is different, do not pair.'**
+  String get tvPairCodeHint;
+
+  /// No description provided for @tvPairConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair'**
+  String get tvPairConfirm;
+
+  /// No description provided for @tvPairNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No TV is showing this PIN. Check the number on the TV screen.'**
+  String get tvPairNoMatch;
+
+  /// No description provided for @tvPairLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many wrong PINs. Wait a few minutes and try again.'**
+  String get tvPairLocked;
+
+  /// No description provided for @tvPairNoServer.
+  ///
+  /// In en, this message translates to:
+  /// **'The tablet is not sharing on the network yet.'**
+  String get tvPairNoServer;
+
+  /// No description provided for @tvToastPaired.
+  ///
+  /// In en, this message translates to:
+  /// **'TV paired.'**
+  String get tvToastPaired;
+
+  /// No description provided for @tvUnpairTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpair this TV?'**
+  String get tvUnpairTitle;
+
+  /// No description provided for @tvUnpairBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will stop showing this chamber\'s queue. You can pair it again later.'**
+  String tvUnpairBody(String name);
+
+  /// No description provided for @tvUnpairConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpair'**
+  String get tvUnpairConfirm;
+
+  /// No description provided for @tvToastUnpaired.
+  ///
+  /// In en, this message translates to:
+  /// **'TV unpaired.'**
+  String get tvToastUnpaired;
+
+  /// No description provided for @tvTestScreenConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show a test screen on the TV?'**
+  String get tvTestScreenConfirmTitle;
+
+  /// No description provided for @tvTestScreenConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The TV will show a test screen for a few seconds. The real queue is not changed.'**
+  String get tvTestScreenConfirmBody;
+
+  /// No description provided for @tvTestScreenConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on TV'**
+  String get tvTestScreenConfirmAction;
+
+  /// No description provided for @tvTestSoundConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Play a test sound?'**
+  String get tvTestSoundConfirmTitle;
+
+  /// No description provided for @tvTestSoundConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The TV will show the test screen and play a short sound sent from this tablet.'**
+  String get tvTestSoundConfirmBody;
+
+  /// No description provided for @tvTestSoundConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Play test sound'**
+  String get tvTestSoundConfirmAction;
+
+  /// No description provided for @tvToastTestScreenOk.
+  ///
+  /// In en, this message translates to:
+  /// **'The TV showed the test screen.'**
+  String get tvToastTestScreenOk;
+
+  /// No description provided for @tvToastTestSoundOk.
+  ///
+  /// In en, this message translates to:
+  /// **'The TV played the test sound.'**
+  String get tvToastTestSoundOk;
+
+  /// No description provided for @tvToastSoundFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The test screen is showing but the sound did not play. Check the TV volume and audio output.'**
+  String get tvToastSoundFailed;
+
+  /// No description provided for @tvToastNoReply.
+  ///
+  /// In en, this message translates to:
+  /// **'The TV did not answer. Try again.'**
+  String get tvToastNoReply;
+
+  /// No description provided for @tvToastNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'The TV is not connected.'**
+  String get tvToastNotConnected;
+
+  /// No description provided for @tvToastNoDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'The chamber details for the test could not be found.'**
+  String get tvToastNoDetails;
 
   /// No description provided for @dialogClose.
   ///
@@ -2344,9 +2587,400 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The chamber or doctor details for the token could not be found.'**
   String get printerToastNoDetails;
+
+  /// No description provided for @deskColSerial.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial'**
+  String get deskColSerial;
+
+  /// No description provided for @deskColQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get deskColQueue;
+
+  /// No description provided for @deskColId.
+  ///
+  /// In en, this message translates to:
+  /// **'ID'**
+  String get deskColId;
+
+  /// No description provided for @deskColName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get deskColName;
+
+  /// No description provided for @deskColWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait'**
+  String get deskColWait;
+
+  /// No description provided for @deskColStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get deskColStatus;
+
+  /// No description provided for @deskStatusWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get deskStatusWaiting;
+
+  /// No description provided for @deskStatusCalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Called'**
+  String get deskStatusCalled;
+
+  /// No description provided for @deskStatusEntered.
+  ///
+  /// In en, this message translates to:
+  /// **'Entered'**
+  String get deskStatusEntered;
+
+  /// No description provided for @deskStatusMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed'**
+  String get deskStatusMissed;
+
+  /// No description provided for @deskStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get deskStatusCancelled;
+
+  /// No description provided for @deskPrintNotPrinted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not printed'**
+  String get deskPrintNotPrinted;
+
+  /// No description provided for @deskPrintPrinting.
+  ///
+  /// In en, this message translates to:
+  /// **'Printing'**
+  String get deskPrintPrinting;
+
+  /// No description provided for @deskPrintCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check slip'**
+  String get deskPrintCheck;
+
+  /// No description provided for @deskRowPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get deskRowPrint;
+
+  /// No description provided for @deskRowReprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reprint'**
+  String get deskRowReprint;
+
+  /// No description provided for @deskRowMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get deskRowMore;
+
+  /// No description provided for @deskRowEditPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit patient'**
+  String get deskRowEditPatient;
+
+  /// No description provided for @deskRowCancelToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel token'**
+  String get deskRowCancelToken;
+
+  /// No description provided for @deskCancelTokenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel token'**
+  String get deskCancelTokenTitle;
+
+  /// No description provided for @deskCancelTokenKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep token'**
+  String get deskCancelTokenKeep;
+
+  /// No description provided for @deskTokenCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Token cancelled.'**
+  String get deskTokenCancelled;
+
+  /// No description provided for @deskReprintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print again'**
+  String get deskReprintTitle;
+
+  /// No description provided for @deskReprintConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get deskReprintConfirm;
+
+  /// No description provided for @deskSessionEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a patient to start the queue.'**
+  String get deskSessionEmptyHint;
+
+  /// No description provided for @deskPatientAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient added to the session.'**
+  String get deskPatientAdded;
+
+  /// No description provided for @deskPatientAddedPrinted.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient added and token printed.'**
+  String get deskPatientAddedPrinted;
+
+  /// No description provided for @deskIssuedNotPrinted.
+  ///
+  /// In en, this message translates to:
+  /// **'Token issued. It did not print, check the printer.'**
+  String get deskIssuedNotPrinted;
+
+  /// No description provided for @deskIssuedPrintUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Token issued. The printer did not answer, check the slip.'**
+  String get deskIssuedPrintUnknown;
+
+  /// No description provided for @deskPrintSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Token printed.'**
+  String get deskPrintSent;
+
+  /// No description provided for @deskPrintFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not print. Check the printer and try again.'**
+  String get deskPrintFailed;
+
+  /// No description provided for @deskPrinterBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Another slip is printing. Try again in a moment.'**
+  String get deskPrinterBusy;
+
+  /// No description provided for @deskSearchStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a name, phone number or patient ID.'**
+  String get deskSearchStart;
+
+  /// No description provided for @deskIssueTokenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue token'**
+  String get deskIssueTokenTitle;
+
+  /// No description provided for @deskIssueTokenAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue token'**
+  String get deskIssueTokenAction;
+
+  /// No description provided for @deskEditPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit patient'**
+  String get deskEditPatient;
+
+  /// No description provided for @deskChangePatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Change patient'**
+  String get deskChangePatient;
+
+  /// No description provided for @deskEditPatientTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit patient'**
+  String get deskEditPatientTitle;
+
+  /// No description provided for @deskEditPatientSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get deskEditPatientSave;
+
+  /// No description provided for @deskPatientUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient updated.'**
+  String get deskPatientUpdated;
+
+  /// No description provided for @deskChooseQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a queue'**
+  String get deskChooseQueue;
+
+  /// No description provided for @deskCancelTokenBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel token {serial} for {name}? The serial number is not used again.'**
+  String deskCancelTokenBody(String serial, String name);
+
+  /// No description provided for @deskReprintBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Print token {serial} again? The slip is marked REPRINT.'**
+  String deskReprintBody(String serial);
+
+  /// No description provided for @deskWaitingShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting'**
+  String deskWaitingShort(String count);
+
+  /// No description provided for @deskFieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get deskFieldRequired;
+
+  /// No description provided for @deskNoMatchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No patient matches. Register a new patient instead.'**
+  String get deskNoMatchHint;
+
+  /// No description provided for @deskSearchFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Search failed. Try again.'**
+  String get deskSearchFailed;
+
+  /// No description provided for @deskSearchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get deskSearchClear;
+
+  /// No description provided for @deskPrintConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print token'**
+  String get deskPrintConfirmTitle;
+
+  /// No description provided for @deskPrintConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Print token {serial}?'**
+  String deskPrintConfirmBody(String serial);
+
+  /// No description provided for @deskColPatientId.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient ID'**
+  String get deskColPatientId;
+
+  /// No description provided for @deskSearchPatients.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get deskSearchPatients;
+
+  /// No description provided for @deskFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get deskFilterAll;
+
+  /// No description provided for @deskFilterNotPrinted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not printed'**
+  String get deskFilterNotPrinted;
+
+  /// No description provided for @deskFilterAllQueues.
+  ///
+  /// In en, this message translates to:
+  /// **'All queues'**
+  String get deskFilterAllQueues;
+
+  /// No description provided for @deskFilterAllStatuses.
+  ///
+  /// In en, this message translates to:
+  /// **'All statuses'**
+  String get deskFilterAllStatuses;
+
+  /// No description provided for @deskNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No patients match.'**
+  String get deskNoMatch;
+
+  /// No description provided for @deskClearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get deskClearFilters;
+
+  /// No description provided for @deskPrintNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not printed. Print now.'**
+  String get deskPrintNeeded;
+
+  /// No description provided for @deskPrintBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Printing'**
+  String get deskPrintBusy;
+
+  /// No description provided for @deskSortAscending.
+  ///
+  /// In en, this message translates to:
+  /// **'sorted ascending'**
+  String get deskSortAscending;
+
+  /// No description provided for @deskSortDescending.
+  ///
+  /// In en, this message translates to:
+  /// **'sorted descending'**
+  String get deskSortDescending;
+
+  /// No description provided for @deskLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load patients.'**
+  String get deskLoadFailed;
+
+  /// No description provided for @deskSortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get deskSortBy;
+
+  /// No description provided for @deskColIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Time added'**
+  String get deskColIssued;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -2355,25 +2989,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['bn', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['bn', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'bn': return AppLocalizationsBn();
-    case 'en': return AppLocalizationsEn();
+    case 'bn':
+      return AppLocalizationsBn();
+    case 'en':
+      return AppLocalizationsEn();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

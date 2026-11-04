@@ -1,5 +1,7 @@
 # 2. Kotlin Android Application for Android TV
 
+Engineering principles, standards, and dev setup: [tv-app/docs/README.md](../../tv-app/docs/README.md).
+
 ## Purpose
 
 The Android TV app is the waiting-room display client.

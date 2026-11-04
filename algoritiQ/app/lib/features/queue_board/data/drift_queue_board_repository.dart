@@ -13,6 +13,7 @@ import '../../queue/domain/queue_models.dart';
 import '../domain/board_models.dart';
 import '../domain/patient_id.dart';
 import '../domain/phone_normalize.dart';
+import '../domain/token_query.dart';
 
 const _nextPatientNumberKey = 'patients.nextNumber';
 
@@ -62,7 +63,9 @@ class DriftQueueBoardRepository {
       next = maxRow.patientNumber + 1;
     }
     final assigned = next;
-    await _db.into(_db.appSettings).insertOnConflictUpdate(
+    await _db
+        .into(_db.appSettings)
+        .insertOnConflictUpdate(
           AppSettingsCompanion.insert(
             key: key,
             value: jsonEncode({'next': assigned + 1}),
@@ -73,16 +76,18 @@ class DriftQueueBoardRepository {
 
   /// Allocates the next patient id for [chamberId] (prefix + sequence transaction).
   Future<
-      ({
-        int patientNumber,
-        String patientIdPrefix,
-        int patientIdSequence,
-        String clinicPatientId,
-      })> allocatePatientIdForChamber(String chamberId) async {
+    ({
+      int patientNumber,
+      String patientIdPrefix,
+      int patientIdSequence,
+      String clinicPatientId,
+    })
+  >
+  allocatePatientIdForChamber(String chamberId) async {
     return _db.transaction(() async {
-      final chamber =
-          await (_db.select(_db.chambers)..where((c) => c.id.equals(chamberId)))
-              .getSingleOrNull();
+      final chamber = await (_db.select(
+        _db.chambers,
+      )..where((c) => c.id.equals(chamberId))).getSingleOrNull();
       if (chamber == null) {
         throw StateError('chamber_not_found');
       }
@@ -91,11 +96,7 @@ class DriftQueueBoardRepository {
       final clinicPatientId = formatChamberPatientId(prefix, sequence);
       final patientNumber = await _nextInternalPatientNumber();
       await (_db.update(_db.chambers)..where((c) => c.id.equals(chamberId)))
-          .write(
-        ChambersCompanion(
-          patientIdNextSequence: Value(sequence + 1),
-        ),
-      );
+          .write(ChambersCompanion(patientIdNextSequence: Value(sequence + 1)));
       return (
         patientNumber: patientNumber,
         patientIdPrefix: prefix,
@@ -112,37 +113,225 @@ class DriftQueueBoardRepository {
     });
   }
 
-  Future<List<PatientSummary>> searchPatients(String query) async {
-    final trimmed = query.trim();
-    if (trimmed.isEmpty) return [];
-    final byNumber = parseLegacyPatientNumberQuery(trimmed);
-    if (byNumber != null) {
-      final rows =
-          await (_db.select(_db.patients)
-                ..where((p) => p.patientNumber.equals(byNumber))
-                ..limit(20))
-              .get();
-      return [for (final row in rows) _patientSummary(row)];
+  /// A page of the session table, with the total after all filters and the
+  /// per-status counts (which ignore the status filter, so the chips can show
+  /// what each would list).
+  Future<TokenRows> querySessionTokens({
+    required String sessionId,
+    required TokenQuery query,
+    required int nowMs,
+    required Map<String, int> queueOrder,
+  }) async {
+    final t = _db.queueTokens;
+    final p = _db.patients;
+    final join = innerJoin(p, p.id.equalsExp(t.patientId));
+
+    Expression<bool> where({required bool withStatus}) {
+      var predicate = t.sessionId.equals(sessionId);
+      final search = query.search.trim();
+      if (search.isNotEmpty) predicate &= _tokenSearch(search);
+      if (withStatus && query.status != null) {
+        predicate &= t.status.equals(query.status!.apiValue);
+      }
+      if (query.queueTypeId != null) {
+        predicate &= t.queueTypeId.equals(query.queueTypeId!);
+      }
+      if (query.notPrintedOnly) {
+        predicate &=
+            t.latestPrintStatus.isNull() |
+            t.latestPrintStatus.isNotValue('SENT');
+      }
+      return predicate;
     }
-    if (RegExp(r'^[0-9]+$').hasMatch(trimmed)) {
-      final rows =
-          await (_db.select(_db.patients)
-                ..where((p) => p.clinicPatientId.equals(trimmed))
-                ..limit(20))
-              .get();
-      if (rows.isNotEmpty) {
-        return [for (final row in rows) _patientSummary(row)];
+
+    final rowsQuery = _db.select(t).join([join])
+      ..where(where(withStatus: true))
+      ..orderBy(_tokenOrder(query, nowMs, queueOrder))
+      ..limit(query.limit, offset: query.offset);
+    final rows = [for (final row in await rowsQuery.get()) row.readTable(t)];
+
+    final totalCount = t.id.count();
+    final totalQuery = _db.selectOnly(t).join([join])
+      ..addColumns([totalCount])
+      ..where(where(withStatus: true));
+    final total = (await totalQuery.getSingle()).read(totalCount) ?? 0;
+
+    final perStatus = t.id.count();
+    final countsQuery = _db.selectOnly(t).join([join])
+      ..addColumns([t.status, perStatus])
+      ..where(where(withStatus: false))
+      ..groupBy([t.status]);
+    final counts = <TokenStatus, int>{};
+    for (final row in await countsQuery.get()) {
+      final status = TokenStatus.parse(row.read(t.status));
+      if (status != null) counts[status] = row.read(perStatus) ?? 0;
+    }
+    return TokenRows(rows: rows, total: total, counts: counts);
+  }
+
+  /// Name, patient ID, serial or phone, as plain text (no wildcards).
+  Expression<bool> _tokenSearch(String typed) {
+    final p = _db.patients;
+    final search = _asciiDigits(typed);
+    final digits = RegExp(r'^[0-9]+$').hasMatch(search);
+    var match =
+        _likeContains(p.bengaliName, search) |
+        _likeContains(p.englishName, search) |
+        _likeStarts(p.clinicPatientId, search);
+    if (digits) {
+      final phone = normalizeClinicPhone(search);
+      match |= _likeStarts(_db.queueTokens.serial.cast<String>(), search);
+      // A short run of digits is a serial or an ID; as a phone prefix it would
+      // match every number on the same operator.
+      if (phone.isNotEmpty && search.length >= _minPhoneSearchDigits) {
+        match |= _likeStarts(p.phoneNormalized, phone);
       }
     }
+    return match;
+  }
+
+  static const _minPhoneSearchDigits = 5;
+
+  /// Bengali digits (০-৯) typed on the Bengali keyboard, as 0-9.
+  static String _asciiDigits(String text) => text.replaceAllMapped(
+    RegExp('[০-৯]'),
+    (m) => String.fromCharCode(m[0]!.codeUnitAt(0) - 0x09E6 + 0x30),
+  );
+
+  List<OrderingTerm> _tokenOrder(
+    TokenQuery query,
+    int nowMs,
+    Map<String, int> queueOrder,
+  ) {
+    final t = _db.queueTokens;
+    final p = _db.patients;
+    final mode = query.ascending ? OrderingMode.asc : OrderingMode.desc;
+    OrderingTerm by(Expression<Object> e) =>
+        OrderingTerm(expression: e, mode: mode);
+    final terms = switch (query.sort) {
+      TokenSort.issued => [by(t.issuedAt)],
+      // Same length first, so 7769 sorts before 77610.
+      TokenSort.id => [by(p.clinicPatientId.length), by(p.clinicPatientId)],
+      TokenSort.name => [by(p.bengaliName)],
+      TokenSort.serial => [by(t.serial)],
+      TokenSort.queue => [
+        by(
+          t.queueTypeId.caseMatch<int>(
+            when: {
+              for (final e in queueOrder.entries)
+                Constant<String>(e.key): Constant<int>(e.value),
+            },
+            orElse: const Constant<int>(1 << 20),
+          ),
+        ),
+        by(t.serial),
+      ],
+      TokenSort.wait => [by(_waitMs(nowMs))],
+      TokenSort.status => [
+        by(
+          t.status.caseMatch<int>(
+            when: {
+              for (final (i, s) in _statusOrder.indexed)
+                Constant<String>(s.apiValue): Constant<int>(i),
+            },
+            orElse: const Constant<int>(99),
+          ),
+        ),
+      ],
+    };
+    // The id last, so ties never move between pages.
+    return [...terms, by(t.id)];
+  }
+
+  static const _statusOrder = [
+    TokenStatus.waiting,
+    TokenStatus.called,
+    TokenStatus.skipped,
+    TokenStatus.entered,
+    TokenStatus.cancelled,
+  ];
+
+  /// Time waited: until the first call, entry or cancellation, otherwise
+  /// until now.
+  Expression<int> _waitMs(int nowMs) {
+    final t = _db.queueTokens;
+    final end = coalesce<int>([
+      t.firstCalledAt,
+      t.enteredAt,
+      t.cancelledAt,
+      Variable<int>(nowMs),
+    ]);
+    final wait = end - t.issuedAt;
+    return const Constant<int>(0).iif(wait.isSmallerThanValue(0), wait);
+  }
+
+  static Expression<bool> _likeContains(
+    Expression<String> column,
+    String text,
+  ) => column.like('%${_escapeLike(text)}%', escapeChar: r'\');
+
+  static Expression<bool> _likeStarts(Expression<String> column, String text) =>
+      column.like('${_escapeLike(text)}%', escapeChar: r'\');
+
+  /// Makes `%`, `_` and `\` match themselves in a `LIKE` pattern.
+  static String _escapeLike(String text) => text
+      .replaceAll(r'\', r'\\')
+      .replaceAll('%', r'\%')
+      .replaceAll('_', r'\_');
+
+  /// Suggestions for the desk search box: Bengali or English name (any part),
+  /// phone (any leading digits), clinic patient id, or legacy `P-` number.
+  /// Newest registrations first, at most [searchLimit].
+  Future<List<PatientSummary>> searchPatients(String query) async {
+    final trimmed = _asciiDigits(query.trim());
+    if (trimmed.isEmpty) return [];
+    final digitsOnly = RegExp(r'^[0-9]+$').hasMatch(trimmed);
+    final legacyNumber = parseLegacyPatientNumberQuery(trimmed);
     final phone = normalizeClinicPhone(trimmed);
-    if (phone.isEmpty) return [];
-    final rows =
-        await (_db.select(_db.patients)
-              ..where((p) => p.phoneNormalized.equals(phone))
-              ..orderBy([(p) => OrderingTerm.asc(p.patientNumber)])
-              ..limit(20))
-            .get();
-    return [for (final row in rows) _patientSummary(row)];
+    final select = _db.select(_db.patients)
+      ..where((p) {
+        final byId = _likeStarts(p.clinicPatientId, trimmed);
+        final byNumber = legacyNumber == null
+            ? const Constant(false)
+            : p.patientNumber.equals(legacyNumber);
+        if (digitsOnly) {
+          final byPhone = phone.isEmpty
+              ? const Constant(false)
+              : _likeStarts(p.phoneNormalized, phone);
+          return byId | byNumber | byPhone;
+        }
+        return byId |
+            byNumber |
+            _likeContains(p.bengaliName, trimmed) |
+            _likeContains(p.englishName, trimmed);
+      })
+      ..orderBy([(p) => OrderingTerm.desc(p.createdAt)])
+      ..limit(searchLimit);
+    return [for (final row in await select.get()) _patientSummary(row)];
+  }
+
+  static const searchLimit = 20;
+
+  Future<PatientRow> updatePatient({
+    required String id,
+    required PatientInput input,
+    required int nowMs,
+  }) async {
+    await (_db.update(_db.patients)..where((p) => p.id.equals(id))).write(
+      PatientsCompanion(
+        bengaliName: Value(input.bengaliName.trim()),
+        englishName: Value(input.englishName?.trim()),
+        phoneNormalized: Value(normalizeClinicPhone(input.phone)),
+        gender: Value(input.gender?.apiValue),
+        approximateAgeYears: Value(input.approximateAgeYears),
+        approximateAgeRecordedAt: input.approximateAgeYears == null
+            ? const Value(null)
+            : Value(nowMs),
+      ),
+    );
+    return (_db.select(
+      _db.patients,
+    )..where((p) => p.id.equals(id))).getSingle();
   }
 
   Future<List<PatientSummary>> patientsWithPhone(String phoneNormalized) async {
@@ -260,9 +449,14 @@ class DriftQueueBoardRepository {
               ))
               .getSingle();
       final serial = counter.nextNumber;
-      final typeRow = await (_db.select(
-        _db.queueTypes,
-      )..where((t) => t.id.equals(queueTypeId))).getSingleOrNull();
+      // A type id repeats per owner (clinic default and chamber override), so
+      // the lookup must name the owner or it can match two rows.
+      final owner = await _queueRepo.effectiveOwnerKey(chamberId);
+      final typeRow =
+          await (_db.select(_db.queueTypes)..where(
+                (t) => t.id.equals(queueTypeId) & t.ownerKey.equals(owner),
+              ))
+              .getSingleOrNull();
       final end = typeRow?.endNumber ?? serial;
       if (serial > end) {
         throw StateError('exhausted');
@@ -319,6 +513,26 @@ class DriftQueueBoardRepository {
       );
     final row = await query.getSingle();
     return row.read(count) ?? 0;
+  }
+
+  /// Waiting serials per queue type, ascending, for the TV waiting lists.
+  Future<Map<String, List<int>>> waitingSerialsByQueueType(
+    String sessionId,
+  ) async {
+    final rows =
+        await (_db.select(_db.queueTokens)
+              ..where(
+                (t) =>
+                    t.sessionId.equals(sessionId) &
+                    t.status.equals(TokenStatus.waiting.apiValue),
+              )
+              ..orderBy([(t) => OrderingTerm.asc(t.serial)]))
+            .get();
+    final map = <String, List<int>>{};
+    for (final row in rows) {
+      map.putIfAbsent(row.queueTypeId, () => []).add(row.serial);
+    }
+    return map;
   }
 
   Future<QueueTokenRow?> latestCalledForQueueType(
@@ -425,6 +639,45 @@ class DriftQueueBoardRepository {
     )..where((a) => a.id.equals(id))).getSingle();
   }
 
+  Future<T> inTransaction<T>(Future<T> Function() action) =>
+      _db.transaction(action);
+
+  Future<void> setPrintAttemptStatus(String attemptId, String status) async {
+    await (_db.update(_db.tokenPrintAttempts)
+          ..where((a) => a.id.equals(attemptId)))
+        .write(TokenPrintAttemptsCompanion(status: Value(status)));
+  }
+
+  /// Marks print attempts still pending since before [cutoffMs] as failed, so
+  /// a print that never reported back cannot lock the printer for good.
+  Future<void> expireStalePrintAttempts(int cutoffMs) async {
+    final stale =
+        await (_db.select(_db.tokenPrintAttempts)..where(
+              (a) =>
+                  a.status.equals('PENDING') &
+                  a.createdAt.isSmallerThanValue(cutoffMs),
+            ))
+            .get();
+    await _db.transaction(() async {
+      for (final attempt in stale) {
+        await setPrintAttemptStatus(attempt.id, 'FAILED');
+      }
+      // A token left PENDING with no pending attempt (the app was closed
+      // between the two writes) would otherwise block printing for good.
+      await _db.customUpdate(
+        'UPDATE queue_tokens SET latest_print_status = ? '
+        'WHERE latest_print_status = ? AND id NOT IN '
+        '(SELECT token_id FROM token_print_attempts WHERE status = ?)',
+        variables: [
+          Variable.withString('FAILED'),
+          Variable.withString('PENDING'),
+          Variable.withString('PENDING'),
+        ],
+        updates: {_db.queueTokens},
+      );
+    });
+  }
+
   Future<int> printAttemptCount(String tokenId) async {
     final count = _db.tokenPrintAttempts.id.count();
     final query = _db.selectOnly(_db.tokenPrintAttempts)
@@ -490,4 +743,22 @@ class DriftQueueBoardRepository {
       ageLabel: ageLabel,
     );
   }
+}
+
+/// One page of tokens straight from the database.
+final class TokenRows {
+  const TokenRows({
+    required this.rows,
+    required this.total,
+    required this.counts,
+  });
+
+  final List<QueueTokenRow> rows;
+
+  /// Matches after every filter, across all pages.
+  final int total;
+
+  /// Tokens per status for the search and queue filter, whatever the status
+  /// filter is.
+  final Map<TokenStatus, int> counts;
 }

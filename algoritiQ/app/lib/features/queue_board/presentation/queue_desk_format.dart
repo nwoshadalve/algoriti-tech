@@ -46,3 +46,33 @@ String queueDeskWaitingMinutes(DateTime issuedAt, DateTime now, Locale locale) {
   }
   return '$text min';
 }
+
+/// A stored phone (without the leading zero) the way it is dialled and typed.
+String queueDeskDisplayPhone(String normalized) =>
+    normalized.isEmpty ? '' : '0$normalized';
+
+/// A running wait as a clock: `mm:ss`, or `h:mm:ss` from one hour. Never
+/// negative (a clock that went back reads `00:00`).
+/// A whole number typed in English or Bengali digits; null when it is not one.
+int? queueDeskParseNumber(String text) {
+  final ascii = text.trim().replaceAllMapped(
+    RegExp('[০-৯]'),
+    (m) => String.fromCharCode(m[0]!.codeUnitAt(0) - 0x09E6 + 0x30),
+  );
+  return int.tryParse(ascii);
+}
+
+String queueDeskWaitClock(Duration wait, Locale locale) {
+  final total = wait.isNegative ? 0 : wait.inSeconds;
+  String two(int n) => n.toString().padLeft(2, '0');
+  final h = total ~/ 3600;
+  final m = (total % 3600) ~/ 60;
+  final s = total % 60;
+  final text = h > 0 ? '$h:${two(m)}:${two(s)}' : '${two(m)}:${two(s)}';
+  return locale.languageCode == 'bn' ? _bengaliDigits(text) : text;
+}
+
+String _bengaliDigits(String text) {
+  const bn = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  return text.replaceAllMapped(RegExp(r'\d'), (m) => bn[int.parse(m[0]!)]);
+}

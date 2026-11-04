@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Token slip preview</title>
+  <style>
+    @font-face {
+      font-family: 'Plus Jakarta Sans';
+      src: url('../assets/fonts/PlusJakartaSans.ttf') format('truetype');
+      font-weight: 100 800;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Noto Sans Bengali';
+      src: url('../assets/fonts/NotoSansBengali-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Noto Sans Bengali';
+      src: url('../assets/fonts/NotoSansBengali-Bold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 1rem;
+      background: #e8e8e8;
+      font-family: system-ui, sans-serif;
+    }
+    .note {
+      max-width: 28rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    .slip {
+      width: 384px;
+      padding: 14px 14px 46px;
+      background: #fff;
+      color: #000;
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Bengali', sans-serif;
+      line-height: 1.35;
+    }
+    .chamber {
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .doctor {
+      margin-top: 4px;
+      font-size: 24px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .rule {
+      margin: 10px 0;
+      border: none;
+      border-top: 2px dashed #000;
+      height: 0;
+    }
+    .queue-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .pill {
+      padding: 8px 18px;
+      background: #000;
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .serial {
+      font-size: 104px;
+      font-weight: 700;
+      line-height: 1;
+      text-align: center;
+      width: 100%;
+    }
+    .id {
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .when {
+      margin-top: 2px;
+      font-size: 22px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <p class="note">Design mock-up only (58&nbsp;mm / 384&nbsp;dot width). Real slips are rasterized by <code>TokenSlipRenderer</code> with the same bundled fonts. Open this file from the repo so fonts resolve.</p>
+  <article class="slip" aria-label="Token slip">
+    <div class="chamber">আল-খিদমাহ্ মেডিকেল সার্ভিসেস, চাঁদপুর</div>
+    <div class="doctor">ডাঃ মোঃ রহিম উদ্দিন</div>
+    <hr class="rule"/>
+    <div class="queue-block">
+      <span class="pill">নিয়মিত</span>
+      <span class="serial">১২৩৪</span>
+    </div>
+    <hr class="rule"/>
+    <div class="id">আইডি: PT-২৬-০০৪২১</div>
+    <div class="when">৩০/১০/২৬ · ১২:১৪ PM</div>
+  </article>
+</body>
+</html>

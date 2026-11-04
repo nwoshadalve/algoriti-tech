@@ -143,6 +143,12 @@ Only one active token is allowed per patient per chamber session, regardless of 
 
 ## 6. Token issue and printing
 
+### Tablet desk: save and issue in one step (accepted change)
+
+On the tablet queue desk the confirmation screen below is **not used**. **Save and issue token** (new patient) and **Issue token** (existing patient) save the patient and issue the token at once, so the patient is in today's session table whether or not the slip prints. The slip is printed right after; if the printer is off or fails, the token stays, the row shows **Not printed**, and **Print** / **Reprint** is offered in the table. A new patient is saved together with the token, so a failed issue never leaves a patient saved without one.
+
+Existing-patient search matches Bengali or English name (any part), phone (leading digits) and clinic patient ID. The web board keeps the confirmation step.
+
 ### Confirmation before issue
 
 Before allocating the serial or printing, show a token confirmation screen containing:

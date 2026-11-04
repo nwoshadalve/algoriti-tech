@@ -127,11 +127,15 @@ def main() -> int:
     if not OUT_PHOTO.is_file() or OUT_PHOTO.stat().st_size < 1000:
         _try_adb_doctor_photo(photo_path)
 
-    session_row = con.execute(
-        "SELECT business_date, config_snapshot_json FROM queue_sessions "
-        "WHERE chamber_id = ? ORDER BY opened_at DESC LIMIT 1",
-        (chamber["id"],),
-    ).fetchone()
+    session_row = None
+    if con.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='queue_sessions'"
+    ).fetchone():
+        session_row = con.execute(
+            "SELECT business_date, config_snapshot_json FROM queue_sessions "
+            "WHERE chamber_id = ? ORDER BY opened_at DESC LIMIT 1",
+            (chamber["id"],),
+        ).fetchone()
 
     queue_types = []
     if session_row and session_row["config_snapshot_json"]:

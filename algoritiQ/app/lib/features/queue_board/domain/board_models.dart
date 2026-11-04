@@ -117,6 +117,7 @@ final class BoardTokenView {
     required this.issuedAt,
     this.firstCalledAt,
     this.enteredAt,
+    this.cancelledAt,
     this.feeBdt,
     this.latestPrintStatus,
   });
@@ -133,8 +134,25 @@ final class BoardTokenView {
   final DateTime issuedAt;
   final DateTime? firstCalledAt;
   final DateTime? enteredAt;
+  final DateTime? cancelledAt;
   final int? feeBdt;
   final String? latestPrintStatus;
+}
+
+/// One page of the session table: the tokens asked for, how many match in
+/// all, and how many tokens each status has (for the filter chips).
+final class TokenPage {
+  const TokenPage({
+    required this.items,
+    required this.total,
+    required this.counts,
+  });
+
+  static const empty = TokenPage(items: [], total: 0, counts: {});
+
+  final List<BoardTokenView> items;
+  final int total;
+  final Map<TokenStatus, int> counts;
 }
 
 final class QueueTypeBoardControl {

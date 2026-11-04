@@ -201,7 +201,9 @@
   "pinLoginTitle": "Welcome back, {name}",
   "@pinLoginTitle": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "pinLoginIntro": "Enter your PIN to sign in on this tablet.",
@@ -211,7 +213,9 @@
   "pinWrong": "That PIN is not correct. {count} tries left.",
   "@pinWrong": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pinLocked": "Too many wrong PINs. Sign in with your password.",
@@ -225,7 +229,9 @@
   "signInWait": "Too many attempts. Try again in {seconds} seconds.",
   "@signInWait": {
     "placeholders": {
-      "seconds": {"type": "int"}
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "showPasswordTooltip": "Show password",
@@ -253,8 +259,12 @@
   "resetStepOf": "Step {current} of {total}",
   "@resetStepOf": {
     "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "resetStepUsername": "Enter your username",
@@ -266,7 +276,9 @@
   "resetPasswordIntro": "The key was accepted. Choose a new password for {username}.",
   "@resetPasswordIntro": {
     "placeholders": {
-      "username": {"type": "String"}
+      "username": {
+        "type": "String"
+      }
     }
   },
   "resetContinue": "Continue",
@@ -280,7 +292,9 @@
   "boardGreeting": "Welcome back, {name}",
   "@boardGreeting": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "workScopeTitle": "Where are you working?",
@@ -291,7 +305,9 @@
   "workScopeSidebarLabel": "Working at",
   "@workScopeActive": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "navChangeWorkScope": "Change chamber",
@@ -311,14 +327,46 @@
   "deskSessionClosedTitle": "Session not open",
   "deskSessionClosedHint": "Start today's session to issue tokens and call patients.",
   "deskStartSession": "Start session",
+  "deskEndSession": "End session",
+  "deskOtherSessionOpen": "The session of {chamber} is still open. End it before starting this one.",
+  "@deskOtherSessionOpen": {
+    "placeholders": {
+      "chamber": {
+        "type": "String"
+      }
+    }
+  },
+  "deskEndSessionTitle": "End today's session?",
+  "deskEndSessionBody": "{waiting, plural, =0{No patient is waiting.} =1{1 patient is still waiting and will not be called.} other{{waiting} patients are still waiting and will not be called.}} You can start a new session afterwards.",
+  "@deskEndSessionBody": {
+    "placeholders": {
+      "waiting": {
+        "type": "int"
+      }
+    }
+  },
+  "deskEndSessionKeep": "Keep open",
+  "deskSessionEnded": "Session ended.",
   "deskWorking": "Working…",
   "deskCurrentCallTitle": "Now calling",
   "deskCurrentCallEmpty": "No patient is being called.",
   "deskQueueControlsTitle": "Queues",
   "deskCallBlocked": "Resolve serial {serial} before calling the next patient.",
-  "@deskCallBlocked": {"placeholders": {"serial": {"type": "String"}}},
+  "@deskCallBlocked": {
+    "placeholders": {
+      "serial": {
+        "type": "String"
+      }
+    }
+  },
   "deskWaitingCount": "Waiting: {count}",
-  "@deskWaitingCount": {"placeholders": {"count": {"type": "int"}}},
+  "@deskWaitingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "deskCallNext": "Call next",
   "deskRecall": "Recall",
   "deskCallBtn": "Call",
@@ -348,7 +396,7 @@
   "deskFieldGender": "Gender",
   "deskFieldFee": "Fee (BDT)",
   "deskFieldAdminNote": "Admin note",
-  "deskFieldPaperFile": "Existing",
+  "deskFieldPaperFile": "Has existing paper file",
   "deskFieldPatient": "Patient",
   "deskFieldChamber": "Chamber",
   "deskFieldPreviewSerial": "Serial",
@@ -359,12 +407,18 @@
   "deskGenderNotStated": "Prefer not to say",
   "deskExistingPatient": "Existing patient",
   "deskSearchLabel": "Search",
-  "deskSearchHint": "Search by phone or clinic patient number.",
+  "deskSearchHint": "Search by name, phone or patient ID.",
   "deskSearchEmpty": "No matching patients.",
   "deskSearching": "Searching…",
   "deskRegisterNew": "Register as new patient",
   "deskIssueFor": "Issue token for {name}",
-  "@deskIssueFor": {"placeholders": {"name": {"type": "String"}}},
+  "@deskIssueFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "deskIssuePreview": "Review and print",
   "deskIssueConfirmTitle": "Confirm token",
   "deskIssueConfirmIntro": "Check the details before printing.",
@@ -454,7 +508,13 @@
   "printerBodyBtDenied": "Allow Bluetooth for this app so the tablet can reach the printer.",
   "printerBodyBtMissing": "This tablet cannot connect to a Bluetooth printer.",
   "printerRetryIn": "Trying again in {seconds} s",
-  "@printerRetryIn": {"placeholders": {"seconds": {"type": "int"}}},
+  "@printerRetryIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "printerActionChoose": "Choose printer",
   "printerActionRetry": "Connect now",
   "printerActionTest": "Test print",
@@ -475,11 +535,146 @@
   "printerToastTestOk": "Test token printed.",
   "printerToastTestFailed": "The test token did not print. Check paper and cover.",
   "tvTitle": "TV screen",
-  "tvStatus": "Coming soon",
-  "tvBody": "You will check and connect the waiting-room TV here.",
+  "tvStatusNotPaired": "Not paired",
+  "tvStatusConnected": "Connected",
+  "tvStatusNotConnected": "Not connected",
+  "tvBodyNotPaired": "Pair the waiting-room TV with this chamber to show the queue and play announcements.",
+  "tvBodyConnected": "The TV is connected and receiving live updates from this tablet.",
+  "tvBodyNotConnected": "Switch the TV on and join it to the same Wi-Fi as this tablet.",
+  "tvActionPair": "Pair TV",
+  "tvActionUnpair": "Unpair",
+  "tvActionTestScreen": "Test screen",
+  "tvActionTestSound": "Test sound",
+  "tvPairTitle": "Pair a TV",
+  "tvPairIntro": "Open the AlgoritiQ TV app and type the 6-digit PIN it shows.",
+  "tvPairPinLabel": "PIN shown on the TV",
+  "tvPairCodeTitle": "Security code",
+  "tvPairCodeHint": "The TV shows the same code. If it is different, do not pair.",
+  "tvPairConfirm": "Pair",
+  "tvPairNoMatch": "No TV is showing this PIN. Check the number on the TV screen.",
+  "tvPairLocked": "Too many wrong PINs. Wait a few minutes and try again.",
+  "tvPairNoServer": "The tablet is not sharing on the network yet.",
+  "tvToastPaired": "TV paired.",
+  "tvUnpairTitle": "Unpair this TV?",
+  "tvUnpairBody": "{name} will stop showing this chamber's queue. You can pair it again later.",
+  "@tvUnpairBody": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "tvUnpairConfirm": "Unpair",
+  "tvToastUnpaired": "TV unpaired.",
+  "tvTestScreenConfirmTitle": "Show a test screen on the TV?",
+  "tvTestScreenConfirmBody": "The TV will show a test screen for a few seconds. The real queue is not changed.",
+  "tvTestScreenConfirmAction": "Show on TV",
+  "tvTestSoundConfirmTitle": "Play a test sound?",
+  "tvTestSoundConfirmBody": "The TV will show the test screen and play a short sound sent from this tablet.",
+  "tvTestSoundConfirmAction": "Play test sound",
+  "tvToastTestScreenOk": "The TV showed the test screen.",
+  "tvToastTestSoundOk": "The TV played the test sound.",
+  "tvToastSoundFailed": "The test screen is showing but the sound did not play. Check the TV volume and audio output.",
+  "tvToastNoReply": "The TV did not answer. Try again.",
+  "tvToastNotConnected": "The TV is not connected.",
+  "tvToastNoDetails": "The chamber details for the test could not be found.",
   "dialogClose": "Close",
   "printerTestConfirmTitle": "Print a test token?",
   "printerTestConfirmBody": "A sample token with a dummy number will print, using the chamber and doctor details set up here.",
   "printerTestConfirmAction": "Print test token",
-  "printerToastNoDetails": "The chamber or doctor details for the token could not be found."
+  "printerToastNoDetails": "The chamber or doctor details for the token could not be found.",
+  "deskColSerial": "Serial",
+  "deskColQueue": "Queue",
+  "deskColId": "ID",
+  "deskColName": "Name",
+  "deskColWait": "Wait",
+  "deskColStatus": "Status",
+  "deskStatusWaiting": "Waiting",
+  "deskStatusCalled": "Called",
+  "deskStatusEntered": "Entered",
+  "deskStatusMissed": "Missed",
+  "deskStatusCancelled": "Cancelled",
+  "deskPrintNotPrinted": "Not printed",
+  "deskPrintPrinting": "Printing",
+  "deskPrintCheck": "Check slip",
+  "deskRowPrint": "Print",
+  "deskRowReprint": "Reprint",
+  "deskRowMore": "More actions",
+  "deskRowEditPatient": "Edit patient",
+  "deskRowCancelToken": "Cancel token",
+  "deskCancelTokenTitle": "Cancel token",
+  "deskCancelTokenKeep": "Keep token",
+  "deskTokenCancelled": "Token cancelled.",
+  "deskReprintTitle": "Print again",
+  "deskReprintConfirm": "Print",
+  "deskSessionEmptyHint": "Add a patient to start the queue.",
+  "deskPatientAdded": "Patient added to the session.",
+  "deskPatientAddedPrinted": "Patient added and token printed.",
+  "deskIssuedNotPrinted": "Token issued. It did not print, check the printer.",
+  "deskIssuedPrintUnknown": "Token issued. The printer did not answer, check the slip.",
+  "deskPrintSent": "Token printed.",
+  "deskPrintFailed": "Could not print. Check the printer and try again.",
+  "deskPrinterBusy": "Another slip is printing. Try again in a moment.",
+  "deskSearchStart": "Type a name, phone number or patient ID.",
+  "deskIssueTokenTitle": "Issue token",
+  "deskIssueTokenAction": "Issue token",
+  "deskEditPatient": "Edit patient",
+  "deskChangePatient": "Change patient",
+  "deskEditPatientTitle": "Edit patient",
+  "deskEditPatientSave": "Save changes",
+  "deskPatientUpdated": "Patient updated.",
+  "deskChooseQueue": "Choose a queue",
+  "deskCancelTokenBody": "Cancel token {serial} for {name}? The serial number is not used again.",
+  "@deskCancelTokenBody": {
+    "placeholders": {
+      "serial": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskReprintBody": "Print token {serial} again? The slip is marked REPRINT.",
+  "@deskReprintBody": {
+    "placeholders": {
+      "serial": {
+        "type": "String"
+      }
+    }
+  },
+  "deskWaitingShort": "{count} waiting",
+  "@deskWaitingShort": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "deskFieldRequired": "Required",
+  "deskNoMatchHint": "No patient matches. Register a new patient instead.",
+  "deskSearchFailed": "Search failed. Try again.",
+  "deskSearchClear": "Clear search",
+  "deskPrintConfirmTitle": "Print token",
+  "deskPrintConfirmBody": "Print token {serial}?",
+  "@deskPrintConfirmBody": {
+    "placeholders": {
+      "serial": {
+        "type": "String"
+      }
+    }
+  },
+  "deskColPatientId": "Patient ID",
+  "deskSearchPatients": "Search",
+  "deskFilterAll": "All",
+  "deskFilterNotPrinted": "Not printed",
+  "deskFilterAllQueues": "All queues",
+  "deskFilterAllStatuses": "All statuses",
+  "deskNoMatch": "No patients match.",
+  "deskClearFilters": "Clear filters",
+  "deskPrintNeeded": "Not printed. Print now.",
+  "deskPrintBusy": "Printing",
+  "deskSortAscending": "sorted ascending",
+  "deskSortDescending": "sorted descending",
+  "deskLoadFailed": "Could not load patients.",
+  "deskSortBy": "Sort by",
+  "deskColIssued": "Time added"
 }

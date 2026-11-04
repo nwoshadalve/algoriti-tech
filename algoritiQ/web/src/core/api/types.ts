@@ -294,6 +294,21 @@ export type RegisterPatientInput = {
   confirmDuplicatePhone?: boolean
 }
 
+export type UpdatePatientInput = {
+  bengaliName: string
+  phone: string
+  englishName?: string
+  gender?: PatientGender | null
+  dateOfBirthMs?: number | null
+  birthYear?: number | null
+  approximateAgeYears?: number | null
+  locality?: string | null
+  legacyFileNumber?: string | null
+  adminNote?: string | null
+  hasPaperFile?: boolean
+  confirmDuplicatePhone?: boolean
+}
+
 export type BoardTokenView = {
   id: string
   serial: number
@@ -331,6 +346,25 @@ export type BoardSnapshot = {
   queueControls: QueueTypeBoardControl[]
   tokens: BoardTokenView[]
   printerBusyTokenId: string | null
+}
+
+export type TokenSort = 'issued' | 'id' | 'name' | 'serial' | 'queue' | 'wait' | 'status'
+
+export type SessionTokenQuery = {
+  search?: string
+  status?: TokenStatus
+  queueTypeId?: string
+  notPrintedOnly?: boolean
+  sort?: TokenSort
+  ascending?: boolean
+  limit?: number
+  offset?: number
+}
+
+export type TokenPage = {
+  items: BoardTokenView[]
+  total: number
+  counts: Partial<Record<TokenStatus, number>>
 }
 
 export type IssuePreview = {

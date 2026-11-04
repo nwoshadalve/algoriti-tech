@@ -13,7 +13,6 @@ import { useToast } from '@/core/toast/toastContext'
 import { secondaryButton } from '@/core/ui/buttonStyles'
 import { LoadingButton } from '@/core/ui/LoadingButton'
 import { Modal } from '@/core/ui/Modal'
-import { TextField } from '@/core/ui/TextField'
 import { readSession } from '@/features/auth/session'
 import { boardErrorKey } from '@/features/board/boardErrors'
 import { newBoardCommandId } from '@/features/board/boardFormat'
@@ -25,20 +24,19 @@ type CancelTokenModalProps = {
   onDone: () => void
 }
 
-/** Cancels a token with a mandatory reason. */
+/** Confirms cancel — no reason required (tablet desk). */
 export function CancelTokenModal({ token, onClose, onDone }: CancelTokenModalProps) {
   const { t, locale } = useLocale()
   const toast = useToast()
-  const [reason, setReason] = useState('')
   const [busy, setBusy] = useState(false)
   const serial = formatQueueSerial(token.serial, locale)
 
   async function confirm() {
     const sessionToken = readSession()
-    if (!sessionToken || busy || !reason.trim()) return
+    if (!sessionToken || busy) return
     setBusy(true)
     try {
-      await cancelToken(sessionToken, token.id, newBoardCommandId(), reason.trim())
+      await cancelToken(sessionToken, token.id, newBoardCommandId(), '')
       toast.success(t('boardTokenCancelledToast'))
       onDone()
     } catch (error) {
@@ -50,7 +48,7 @@ export function CancelTokenModal({ token, onClose, onDone }: CancelTokenModalPro
   return (
     <Modal
       title={t('boardCancelTitle')}
-      description={t('boardCancelIntro', { serial })}
+      description={t('boardCancelIntro', { serial, name: token.patientBengaliName })}
       busy={busy}
       onClose={onClose}
       footer={
@@ -61,7 +59,6 @@ export function CancelTokenModal({ token, onClose, onDone }: CancelTokenModalPro
           <LoadingButton
             isLoading={busy}
             loadingLabel={t('boardWorking')}
-            disabled={!reason.trim()}
             onClick={() => void confirm()}
             className="sm:w-auto sm:min-w-40"
           >
@@ -70,13 +67,7 @@ export function CancelTokenModal({ token, onClose, onDone }: CancelTokenModalPro
         </>
       }
     >
-      <TextField
-        id="cancel-reason"
-        label={t('boardCancelReason')}
-        value={reason}
-        onChange={(event) => setReason(event.target.value)}
-        autoComplete="off"
-      />
+      <span className="sr-only">{serial}</span>
     </Modal>
   )
 }

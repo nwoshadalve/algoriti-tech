@@ -17,6 +17,7 @@ void main() {
     Brightness brightness = Brightness.light,
     Widget body = const Text('Body'),
     double keyboard = 0,
+    bool fixedSizeWithKeyboard = false,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -43,6 +44,7 @@ void main() {
                 context: context,
                 title: 'Title',
                 body: body,
+                fixedSizeWithKeyboard: fixedSizeWithKeyboard,
                 actions: [
                   TextButton(onPressed: () {}, child: const Text('Cancel')),
                   FilledButton(onPressed: () {}, child: const Text('Print')),
@@ -138,6 +140,62 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(dialogSize(tester).height, lessThanOrEqualTo((700 - 300) * 0.7 + 1));
+  });
+
+  testWidgets(
+    'should keep the fields visible above a tall landscape keyboard',
+    (tester) async {
+      // Regression: the fixed footer used up the little room left above the
+      // keyboard, so the focused field had no visible space.
+      await open(
+        tester,
+        size: const Size(1340, 800),
+        keyboard: 450,
+        fixedSizeWithKeyboard: true,
+        body: Column(
+          children: [
+            for (var i = 0; i < 6; i++) TextField(key: Key('field$i')),
+          ],
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      final first = tester.getRect(find.byKey(const Key('field0')));
+      expect(first.height, greaterThan(0));
+      expect(first.bottom, lessThanOrEqualTo(800 - 450));
+      final dialog = tester.getRect(
+        find
+            .descendant(of: find.byType(Dialog), matching: find.byType(Column))
+            .first,
+      );
+      expect(dialog.bottom, lessThanOrEqualTo(800 - 450));
+      expect(
+        tester.getRect(find.byType(SingleChildScrollView)).height,
+        greaterThan(150),
+        reason: 'the body gets the room, not a fixed footer',
+      );
+    },
+  );
+
+  testWidgets('should keep focus when the keyboard opens', (tester) async {
+    // Regression: the body moved in the tree as the keyboard opened, which
+    // rebuilt the fields, dropped focus and closed the keyboard again.
+    final node = FocusNode();
+    addTearDown(node.dispose);
+    await open(
+      tester,
+      size: const Size(1340, 800),
+      fixedSizeWithKeyboard: true,
+      body: TextField(focusNode: node),
+    );
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+    expect(node.hasFocus, isTrue);
+
+    tester.view.viewInsets = const FakeViewPadding(bottom: 450);
+    await tester.pumpAndSettle();
+
+    expect(node.hasFocus, isTrue);
   });
 
   testWidgets('should close from the header', (tester) async {

@@ -1,4 +1,5 @@
 import { applyDocumentLocale, t } from "./tv-l10n.js";
+import { startAudienceClock } from "./tv-display.js";
 
 /** @param {Record<string, unknown>} cfg */
 function applyPreview(cfg) {
@@ -17,6 +18,7 @@ window.addEventListener("message", (event) => {
 });
 
 applyDocumentLocale();
+startAudienceClock(document.querySelector("[data-tv-display-root]"));
 window.parent.postMessage({ type: "mock-screen-ready" }, "*");
 
 export { t };

@@ -31,9 +31,9 @@ class ConnectivityPage extends ConsumerWidget {
         return SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(
             Spacing.md,
+            Spacing.sm,
             Spacing.md,
-            Spacing.md,
-            Spacing.lg + MediaQuery.paddingOf(context).bottom,
+            Spacing.sm + MediaQuery.paddingOf(context).bottom,
           ),
           child: Align(
             alignment: Alignment.topCenter,
@@ -43,17 +43,21 @@ class ConnectivityPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   PageHeader(
+                    dense: true,
                     title: l10n.connectivityTitle,
                     description: l10n.connectivityIntro,
                   ),
                   if (sideBySide)
-                    const Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: PrinterCard()),
-                        SizedBox(width: Spacing.md),
-                        Expanded(child: TvCard()),
-                      ],
+                    // Equal heights, so the two devices read as a pair.
+                    const IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(child: PrinterCard()),
+                          SizedBox(width: Spacing.md),
+                          Expanded(child: TvCard()),
+                        ],
+                      ),
                     )
                   else ...const [
                     PrinterCard(),

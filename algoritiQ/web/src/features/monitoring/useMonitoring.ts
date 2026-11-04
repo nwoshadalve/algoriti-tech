@@ -12,10 +12,13 @@ import {
   getMonitoring,
   retryService,
   testPrinter,
+  testTvDisplay,
+  testTvSound,
   type BluetoothEnableOutcome,
   type Monitoring,
   type PrinterTestOutcome,
   type ServiceId,
+  type TvTestOutcome,
 } from '@/core/api/monitoring'
 import { monitoringQueryKeys } from '@/features/monitoring/monitoringQueryKeys'
 import { readSession } from '@/features/auth/session'
@@ -39,6 +42,9 @@ export type MonitoringState = {
   /** Sends a test token to the POS printer; returns the outcome or null on failure. */
   testPrint: () => Promise<PrinterTestOutcome | null>
   testPrintBusy: boolean
+  testTvDisplay: () => Promise<TvTestOutcome | null>
+  testTvSound: () => Promise<TvTestOutcome | null>
+  tvTestBusy: boolean
 }
 
 function requireSessionToken(): string {
@@ -90,6 +96,18 @@ export function useMonitoring(): MonitoringState {
     onError: () => setActionFailed(true),
   })
 
+  const testTvDisplayMutation = useMutation({
+    mutationFn: async () => testTvDisplay(requireSessionToken()),
+    onSuccess: (result) => setSnapshot(result),
+    onError: () => setActionFailed(true),
+  })
+
+  const testTvSoundMutation = useMutation({
+    mutationFn: async () => testTvSound(requireSessionToken()),
+    onSuccess: (result) => setSnapshot(result),
+    onError: () => setActionFailed(true),
+  })
+
   const retry = useCallback(
     async (id: ServiceId) => {
       await retryMutation.mutateAsync(id)
@@ -122,6 +140,26 @@ export function useMonitoring(): MonitoringState {
     }
   }, [testPrintMutation])
 
+  const testTvDisplayAction = useCallback(async () => {
+    if (testTvDisplayMutation.isPending || testTvSoundMutation.isPending) return null
+    try {
+      const result = await testTvDisplayMutation.mutateAsync()
+      return result.outcome
+    } catch {
+      return null
+    }
+  }, [testTvDisplayMutation, testTvSoundMutation])
+
+  const testTvSoundAction = useCallback(async () => {
+    if (testTvDisplayMutation.isPending || testTvSoundMutation.isPending) return null
+    try {
+      const result = await testTvSoundMutation.mutateAsync()
+      return result.outcome
+    } catch {
+      return null
+    }
+  }, [testTvDisplayMutation, testTvSoundMutation])
+
   const data = snapshotQuery.data ?? null
   const failed =
     actionFailed ||
@@ -137,5 +175,8 @@ export function useMonitoring(): MonitoringState {
     bluetoothBusy: bluetoothMutation.isPending,
     testPrint,
     testPrintBusy: testPrintMutation.isPending,
+    testTvDisplay: testTvDisplayAction,
+    testTvSound: testTvSoundAction,
+    tvTestBusy: testTvDisplayMutation.isPending || testTvSoundMutation.isPending,
   }
 }

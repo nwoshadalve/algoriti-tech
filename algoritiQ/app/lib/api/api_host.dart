@@ -6,7 +6,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/security/secure_storage_secret_store.dart';
-import '../features/home/application/receptionist_scope_service.dart';
 import '../features/home/application/receptionist_work.dart';
 import '../features/access/application/access_providers.dart';
 import '../features/clinic/application/clinic_providers.dart';
@@ -16,6 +15,7 @@ import '../features/queue/application/queue_providers.dart';
 import '../features/queue_board/application/queue_board_providers.dart';
 import '../features/audit/application/audit_query_service.dart';
 import '../platform/keep_alive_gateway.dart';
+import 'live_providers.dart';
 import 'local_api_server.dart';
 import 'mdns/local_name_responder.dart';
 import 'mdns/mdns_socket.dart';
@@ -141,6 +141,7 @@ final apiHostProvider = Provider<ApiHost>((ref) {
   final host = LocalApiHost(
     addresses: gateway.localAddresses,
     createServer: () async => LocalApiServer(
+      liveEvents: ref.read(liveEventBusProvider),
       access: () => ref.read(accessServiceProvider.future),
       users: () => ref.read(userManagementServiceProvider.future),
       doctor: () async => ref.read(doctorProfileServiceProvider),
@@ -150,7 +151,21 @@ final apiHostProvider = Provider<ApiHost>((ref) {
       backup: () => ref.read(backupServiceProvider.future),
       queue: () async => ref.read(queueServiceProvider),
       queueBoard: () async => ref.read(queueBoardServiceProvider),
+      tokenPrint: () async => ref.read(tokenPrintServiceProvider),
       auditQuery: ref.read(auditQueryServiceProvider),
+      tvDoctorPhoto: (doctorId) async {
+        final doctors = await ref
+            .read(clinicRepositoryProvider)
+            .watchDoctors()
+            .first;
+        final path = doctors
+            .where((d) => d.id == doctorId)
+            .firstOrNull
+            ?.photoPath;
+        return path == null
+            ? null
+            : ref.read(doctorPhotoFilesProvider).read(path);
+      },
       web: WebSite(BundledWebFiles()),
     ),
     tls: TlsIdentityStore(ref.watch(secretStoreProvider)),

@@ -53,7 +53,8 @@ class Chambers extends Table {
   TextColumn get patientIdPrefix => text()();
 
   /// Next sequence value to append to [patientIdPrefix] on register.
-  IntColumn get patientIdNextSequence => integer().withDefault(const Constant(1))();
+  IntColumn get patientIdNextSequence =>
+      integer().withDefault(const Constant(1))();
 
   @override
   Set<Column<Object>> get primaryKey => {id};
@@ -119,6 +120,23 @@ class AuthSessions extends Table {
   IntColumn get createdAt => integer()();
   IntColumn get expiresAt => integer()();
   BoolColumn get revoked => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// A waiting-room TV paired to one chamber. It signs in with its own
+/// read-only token, of which only the hash is kept. Unpairing sets
+/// `revokedAt`; the row stays as history.
+@DataClassName('TvDeviceRow')
+class TvDevices extends Table {
+  TextColumn get id => text()();
+  TextColumn get chamberId => text().references(Chambers, #id)();
+  TextColumn get name => text()();
+  TextColumn get tokenHash => text().unique()();
+  IntColumn get pairedAt => integer()();
+  IntColumn get lastSeenAt => integer().nullable()();
+  IntColumn get revokedAt => integer().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};

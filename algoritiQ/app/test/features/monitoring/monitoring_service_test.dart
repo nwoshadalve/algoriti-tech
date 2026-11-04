@@ -140,16 +140,28 @@ void main() {
     );
 
     test(
-      'should show the printer and the TV app as unavailable with a reason',
+      'should show the TV as unavailable when no live clients are connected',
       () async {
-        final s = await snapshot(build());
+        final s = await snapshot(build(), clients: 0);
 
-        expect(part(s, ServiceId.printer).status, HealthStatus.unavailable);
-        expect(part(s, ServiceId.printer).reason, HealthReason.printerNotSetUp);
         expect(part(s, ServiceId.tv).status, HealthStatus.unavailable);
         expect(part(s, ServiceId.tv).reason, HealthReason.tvNotConnected);
       },
     );
+
+    test('should show the printer as unavailable when not set up', () async {
+      final s = await snapshot(build());
+
+      expect(part(s, ServiceId.printer).status, HealthStatus.unavailable);
+      expect(part(s, ServiceId.printer).reason, HealthReason.printerNotSetUp);
+    });
+
+    test('should show the TV as ok when a live client is connected', () async {
+      final tv = part(await snapshot(build(), clients: 1), ServiceId.tv);
+
+      expect(tv.status, HealthStatus.ok);
+      expect(tv.clients, 1);
+    });
 
     test('should warn while the printer is connecting', () async {
       final device = PrinterDevice(name: 'POS', address: '00:11:22:33:44:55');
@@ -197,13 +209,16 @@ void main() {
         final monitoring = build();
         final running = monitoring.retry(ServiceId.tv);
 
-        final tv = part(await snapshot(monitoring), ServiceId.tv);
+        final tv = part(await snapshot(monitoring, clients: 0), ServiceId.tv);
         expect(tv.status, HealthStatus.retrying);
         expect(tv.retry!.attempt, 1);
         expect(tv.retry!.max, 3);
 
         await running;
-        final after = part(await snapshot(monitoring), ServiceId.tv);
+        final after = part(
+          await snapshot(monitoring, clients: 0),
+          ServiceId.tv,
+        );
         expect(after.status, HealthStatus.unavailable);
         expect(after.retry, isNull);
       },

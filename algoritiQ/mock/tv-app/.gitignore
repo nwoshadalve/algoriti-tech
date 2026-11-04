@@ -1,2 +1,5 @@
 node_modules/
 dist/
+_clinic-backup.zip
+_from_tablet.sqlite
+_backup_extract/

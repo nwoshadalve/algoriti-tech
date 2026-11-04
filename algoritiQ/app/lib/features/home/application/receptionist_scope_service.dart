@@ -13,11 +13,19 @@ import '../../licensing/domain/license_core.dart';
 
 /// One chamber or doctor a receptionist may work with today.
 final class WorkScopeOption {
-  const WorkScopeOption({required this.id, required this.name, this.detail});
+  const WorkScopeOption({
+    required this.id,
+    required this.name,
+    this.detail,
+    this.deskChamberId,
+  });
 
   final String id;
   final String name;
   final String? detail;
+
+  /// Chamber id for queue-desk HTTP calls when [id] is a doctor assignment.
+  final String? deskChamberId;
 }
 
 final class ReceptionistScopeLoad {
@@ -75,11 +83,17 @@ final class ReceptionistScopeService {
                 id: c.id,
                 name: c.name,
                 detail: _chamberDetail(c),
+                deskChamberId: c.id,
               ),
         ];
       case AssignmentTarget.doctor:
         final doctors = await _clinic.watchDoctors().first;
+        final chambers = await _clinic.watchChambers().first;
         final byId = {for (final d in doctors) d.id: d};
+        final chamberByDoctor = <String, String>{};
+        for (final chamber in chambers) {
+          chamberByDoctor.putIfAbsent(chamber.doctorId, () => chamber.id);
+        }
         return [
           for (final id in scopeIds)
             if (byId[id] case final Doctor d)
@@ -89,6 +103,7 @@ final class ReceptionistScopeService {
                 detail: d.workplace?.trim().isNotEmpty == true
                     ? d.workplace
                     : d.designation,
+                deskChamberId: chamberByDoctor[d.id],
               ),
         ];
     }

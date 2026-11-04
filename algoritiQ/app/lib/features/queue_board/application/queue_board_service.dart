@@ -18,6 +18,8 @@ import '../data/drift_queue_board_repository.dart';
 import '../domain/board_models.dart';
 import '../domain/patient_id.dart';
 import '../domain/phone_normalize.dart';
+import '../domain/token_query.dart';
+import '../../tv_live/application/tv_live_publisher.dart';
 
 enum QueueBoardProblem {
   forbidden,
@@ -32,6 +34,9 @@ enum QueueBoardProblem {
   unresolvedCalledToken,
   commandRequired,
   printerBusy,
+
+  /// Another chamber's session is open; [QueueBoardRefused.code] is its name.
+  otherSessionOpen,
 }
 
 final class QueueBoardRefused implements Exception {
@@ -50,12 +55,14 @@ class QueueBoardService {
     required AccountRepository accounts,
     required Clock clock,
     required IdGenerator newId,
+    TvLivePublisher tvLive = const NullTvLivePublisher(),
   }) : _board = boardRepo,
        _queue = queueService,
        _clinic = clinic,
        _accounts = accounts,
        _clock = clock,
-       _newId = newId;
+       _newId = newId,
+       _tvLive = tvLive;
 
   final DriftQueueBoardRepository _board;
   final QueueService _queue;
@@ -63,6 +70,11 @@ class QueueBoardService {
   final AccountRepository _accounts;
   final Clock _clock;
   final IdGenerator _newId;
+  final TvLivePublisher _tvLive;
+
+  /// A print that has not reported back by then counts as failed, so it cannot
+  /// lock the printer.
+  static const printAttemptTimeout = Duration(seconds: 60);
 
   /// Admin or receptionist assigned to [chamberId] when it is set.
   Future<void> _requireDeskUser(Account account, [String? chamberId]) async {
@@ -88,6 +100,21 @@ class QueueBoardService {
     await _requireDeskUser(account, row.chamberId);
   }
 
+  /// Token view and chamber for printing from the HTTP desk API.
+  Future<({BoardTokenView view, String chamberId})> deskTokenContext(
+    Account account,
+    String tokenId,
+  ) async {
+    await _requireTokenDeskUser(account, tokenId);
+    final row = await _board.tokenById(tokenId);
+    if (row == null) {
+      throw const QueueBoardRefused(QueueBoardProblem.validation);
+    }
+    final types = await _board.typesForChamber(row.chamberId);
+    final view = await _tokenView(row, types);
+    return (view: view, chamberId: row.chamberId);
+  }
+
   Future<void> _audit(
     Account admin,
     String action,
@@ -105,13 +132,24 @@ class QueueBoardService {
     return _clinic.chamberById(chamberId);
   }
 
-  Future<BoardSnapshot> loadBoard(Account account, String chamberId) async {
+  /// The board: queue controls, the called patient and, unless
+  /// [includeTokens] is false, every token of the session. The desk reads its
+  /// table through [searchSessionTokens] instead and skips the full list.
+  Future<BoardSnapshot> loadBoard(
+    Account account,
+    String chamberId, {
+    bool includeTokens = true,
+  }) async {
     await _requireDeskUser(account, chamberId);
     final chamber = await _chamber(chamberId);
     if (chamber == null) {
       throw const QueueBoardRefused(QueueBoardProblem.chamberNotFound);
     }
     await _board.ensureClinicDefaults();
+    await _board.expireStalePrintAttempts(
+      _clock().toUtc().millisecondsSinceEpoch -
+          printAttemptTimeout.inMilliseconds,
+    );
     final session = await _board.openSessionForChamber(chamberId);
     final types = (await _board.typesForChamber(chamberId))
         .where((t) => t.enabled)
@@ -139,23 +177,55 @@ class QueueBoardService {
         printerBusyTokenId: await _board.pendingPrintTokenId(),
       );
     }
-    return _snapshotForSession(chamber, session, types);
+    return _snapshotForSession(chamber, session, types, includeTokens);
+  }
+
+  /// Clears print attempts that stayed pending too long (web desk without UI refresh).
+  Future<void> expireStalePrintAttempts() async {
+    await _board.expireStalePrintAttempts(
+      _clock().toUtc().millisecondsSinceEpoch -
+          printAttemptTimeout.inMilliseconds,
+    );
+  }
+
+  Future<TokenPage> searchSessionTokens(
+    Account account,
+    String chamberId,
+    TokenQuery query,
+  ) async {
+    await _requireDeskUser(account, chamberId);
+    final session = await _board.openSessionForChamber(chamberId);
+    if (session == null) return TokenPage.empty;
+    final types = await _board.typesForChamber(chamberId);
+    final found = await _board.querySessionTokens(
+      sessionId: session.id,
+      query: query,
+      nowMs: _clock().toUtc().millisecondsSinceEpoch,
+      queueOrder: {for (final t in types) t.id: t.displayOrder},
+    );
+    return TokenPage(
+      items: [for (final row in found.rows) await _tokenView(row, types)],
+      total: found.total,
+      counts: found.counts,
+    );
   }
 
   Future<BoardSnapshot> _snapshotForSession(
     Chamber chamber,
     QueueSessionRow session,
     List<QueueTypeConfig> types,
+    bool includeTokens,
   ) async {
     final called = await _board.calledTokenForSession(session.id);
     BoardTokenView? calledView;
     if (called != null) {
       calledView = await _tokenView(called, types);
     }
-    final tokenRows = await _board.tokensForSession(session.id);
     final tokens = <BoardTokenView>[];
-    for (final row in tokenRows) {
-      tokens.add(await _tokenView(row, types));
+    if (includeTokens) {
+      for (final row in await _board.tokensForSession(session.id)) {
+        tokens.add(await _tokenView(row, types));
+      }
     }
     final controls = <QueueTypeBoardControl>[];
     final blocked = called != null;
@@ -195,7 +265,26 @@ class QueueBoardService {
 
   Future<void> startSession(Account admin, String chamberId) async {
     await _requireDeskUser(admin, chamberId);
-    await _queue.startSession(admin, chamberId);
+    try {
+      await _queue.startSession(admin, chamberId);
+    } on QueueServiceRefused catch (refused) {
+      if (refused.problem == QueueServiceProblem.otherChamberOpen) {
+        throw QueueBoardRefused(
+          QueueBoardProblem.otherSessionOpen,
+          code: refused.code,
+        );
+      }
+      rethrow;
+    }
+    await _tvLive.notifyQueueUpdated(chamberId);
+  }
+
+  /// Ends the open session. Patients still waiting stay in it, as history;
+  /// a new session starts from empty queues.
+  Future<void> endSession(Account admin, String chamberId) async {
+    await _requireDeskUser(admin, chamberId);
+    await _queue.closeSession(admin, chamberId);
+    await _tvLive.notifyQueueUpdated(chamberId);
   }
 
   Future<List<PatientSummary>> searchPatients(
@@ -252,6 +341,93 @@ class QueueBoardService {
     await _audit(admin, 'patient.created', {'patientId': id});
     return summary;
   }
+
+  /// Saves a new patient and puts them in the session queue in one step, so a
+  /// patient is never left saved without a token. Printing is separate and
+  /// must never be a condition of this call.
+  Future<IssuedTokenResult> registerAndIssue(
+    Account admin,
+    PatientInput input,
+    String queueTypeId, {
+    required String chamberId,
+    required String commandId,
+    int? feeBdt,
+  }) async {
+    await _requireDeskUser(admin, chamberId);
+    if (commandId.trim().isEmpty) {
+      throw const QueueBoardRefused(QueueBoardProblem.commandRequired);
+    }
+    final session = await _requireOpenSession(chamberId);
+    final type = _typeById(
+      await _board.typesForChamber(chamberId),
+      queueTypeId,
+    );
+    if (await _board.previewNextSerial(session.id, type.id) > type.endNumber) {
+      throw const QueueBoardRefused(QueueBoardProblem.rangeExhausted);
+    }
+    return _board.inTransaction(() async {
+      final patient = await registerPatient(
+        admin,
+        input,
+        chamberId: chamberId,
+        commandId: commandId,
+      );
+      return issueToken(
+        admin,
+        chamberId,
+        patient.id,
+        queueTypeId,
+        feeBdt: feeBdt,
+        commandId: '$commandId:issue',
+      );
+    });
+  }
+
+  Future<PatientSummary> getPatient(Account admin, String patientId) async {
+    await _requireDeskUser(admin);
+    final row = await _board.patientById(patientId);
+    if (row == null) {
+      throw const QueueBoardRefused(QueueBoardProblem.validation);
+    }
+    return _board.patientSummaryOf(row);
+  }
+
+  /// Changes name, phone, age and gender; the clinic ID and the paper-file
+  /// flag are never touched here.
+  Future<PatientSummary> updatePatient(
+    Account admin,
+    String patientId,
+    PatientInput input,
+  ) async {
+    await _requireDeskUser(admin);
+    if (input.bengaliName.trim().isEmpty || input.phone.trim().isEmpty) {
+      throw const QueueBoardRefused(QueueBoardProblem.validation);
+    }
+    if (await _board.patientById(patientId) == null) {
+      throw const QueueBoardRefused(QueueBoardProblem.validation);
+    }
+    final row = await _board.updatePatient(
+      id: patientId,
+      input: input,
+      nowMs: _clock().toUtc().millisecondsSinceEpoch,
+    );
+    await _audit(admin, 'patient.updated', {'patientId': patientId});
+    return _board.patientSummaryOf(row);
+  }
+
+  /// Records how a print attempt ended; the token itself is unaffected.
+  Future<void> recordPrintResult(
+    Account admin,
+    String tokenId,
+    String attemptId,
+    PrintAttemptStatus status,
+  ) async {
+    await _requireTokenDeskUser(admin, tokenId);
+    await _board.setPrintAttemptStatus(attemptId, status.apiValue);
+    await _board.setLatestPrintStatus(tokenId, status.apiValue);
+  }
+
+  Future<String?> pendingPrintTokenId() => _board.pendingPrintTokenId();
 
   Future<IssuePreview> previewIssue(
     Account admin,
@@ -349,6 +525,7 @@ class QueueBoardService {
       'chamberId': chamberId,
       'serial': issued.serial,
     });
+    await _tvLive.notifyQueueUpdated(chamberId);
     return result;
   }
 
@@ -374,7 +551,15 @@ class QueueBoardService {
     );
     final types = await _board.typesForChamber(chamberId);
     await _audit(admin, 'queue.token.called', {'tokenId': next.id});
-    return _tokenView(updated, types);
+    final view = await _tokenView(updated, types);
+    await _tvLive.notifyTokenCalled(
+      chamberId: chamberId,
+      tokenId: view.id,
+      queueTypeId: view.queueTypeId,
+      serial: view.serial,
+      callId: _newId(),
+    );
+    return view;
   }
 
   Future<void> recall(
@@ -392,6 +577,15 @@ class QueueBoardService {
       throw const QueueBoardRefused(QueueBoardProblem.noCalledToken);
     }
     await _audit(admin, 'queue.token.recalled', {'tokenId': called.id});
+    final types = await _board.typesForChamber(chamberId);
+    final view = await _tokenView(called, types);
+    await _tvLive.notifyTokenCalled(
+      chamberId: chamberId,
+      tokenId: view.id,
+      queueTypeId: view.queueTypeId,
+      serial: view.serial,
+      callId: _newId(),
+    );
   }
 
   Future<BoardTokenView> markEntered(Account admin, String tokenId) async {
@@ -419,7 +613,9 @@ class QueueBoardService {
     );
     final types = await _board.typesForChamber(updated.chamberId);
     await _audit(admin, 'queue.token.cancelled', {'tokenId': tokenId});
-    return _tokenView(updated, types);
+    final view = await _tokenView(updated, types);
+    await _tvLive.notifyQueueUpdated(updated.chamberId);
+    return view;
   }
 
   Future<String> reprint(Account admin, String tokenId, String reason) async {
@@ -477,7 +673,9 @@ class QueueBoardService {
     await _audit(admin, 'queue.token.${status.apiValue.toLowerCase()}', {
       'tokenId': tokenId,
     });
-    return _tokenView(updated, types);
+    final view = await _tokenView(updated, types);
+    await _tvLive.notifyQueueUpdated(updated.chamberId);
+    return view;
   }
 
   Future<BoardTokenView> _tokenView(
@@ -518,6 +716,9 @@ class QueueBoardService {
       enteredAt: row.enteredAt == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(row.enteredAt!, isUtc: true),
+      cancelledAt: row.cancelledAt == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(row.cancelledAt!, isUtc: true),
       feeBdt: row.feeBdt,
       latestPrintStatus: row.latestPrintStatus,
     );

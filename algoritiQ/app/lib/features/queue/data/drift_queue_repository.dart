@@ -50,14 +50,15 @@ class DriftQueueRepository {
 
   Future<void> ensureClinicDefaultsSeeded() async {
     for (final seed in seededTypes) {
-      final existing = await (_db.select(_db.queueTypes)
-            ..where(
-              (t) =>
-                  t.id.equals(seed.id) & t.ownerKey.equals(clinicOwnerKey),
-            ))
-          .getSingleOrNull();
+      final existing =
+          await (_db.select(_db.queueTypes)..where(
+                (t) => t.id.equals(seed.id) & t.ownerKey.equals(clinicOwnerKey),
+              ))
+              .getSingleOrNull();
       if (existing != null) continue;
-      await _db.into(_db.queueTypes).insert(
+      await _db
+          .into(_db.queueTypes)
+          .insert(
             QueueTypesCompanion.insert(
               id: seed.id,
               ownerKey: clinicOwnerKey,
@@ -77,7 +78,9 @@ class DriftQueueRepository {
       _db.appSettings,
     )..where((s) => s.key.equals(_policyKey))).getSingleOrNull();
     if (policy != null) return;
-    await _db.into(_db.appSettings).insertOnConflictUpdate(
+    await _db
+        .into(_db.appSettings)
+        .insertOnConflictUpdate(
           AppSettingsCompanion.insert(
             key: _policyKey,
             value: jsonEncode({
@@ -105,10 +108,12 @@ class DriftQueueRepository {
       return QueuePolicy(
         timeZone:
             decoded['timeZone'] as String? ?? QueuePolicy.defaults.timeZone,
-        dayBoundary: decoded['dayBoundary'] as String? ??
+        dayBoundary:
+            decoded['dayBoundary'] as String? ??
             QueuePolicy.defaults.dayBoundary,
         autoStart:
-            _readStoredBool(decoded['autoStart']) ?? QueuePolicy.defaults.autoStart,
+            _readStoredBool(decoded['autoStart']) ??
+            QueuePolicy.defaults.autoStart,
       );
     } on Object {
       return QueuePolicy.defaults;
@@ -217,11 +222,9 @@ class DriftQueueRepository {
   }
 
   Future<void> deleteType(String ownerKey, String typeId) async {
-    await (_db.delete(_db.queueTypes)
-          ..where(
-            (t) => t.id.equals(typeId) & t.ownerKey.equals(ownerKey),
-          ))
-        .go();
+    await (_db.delete(
+      _db.queueTypes,
+    )..where((t) => t.id.equals(typeId) & t.ownerKey.equals(ownerKey))).go();
   }
 
   Future<QueueSessionRow?> openSessionForChamber(String chamberId) async {
@@ -236,6 +239,16 @@ class DriftQueueRepository {
               ..orderBy([(s) => OrderingTerm.desc(s.openedAt)]))
             .get();
     return rows.isEmpty ? null : rows.first;
+  }
+
+  /// A chamber other than [chamberId] that has a session open, or null.
+  Future<ChamberRow?> otherChamberWithOpenSession(String chamberId) async {
+    final chambers = await _db.select(_db.chambers).get();
+    for (final chamber in chambers) {
+      if (chamber.id == chamberId) continue;
+      if (await openSessionForChamber(chamber.id) != null) return chamber;
+    }
+    return null;
   }
 
   Future<bool> hasOpenSessionForOwner(String ownerKey) async {
@@ -317,7 +330,9 @@ class DriftQueueRepository {
     )..where((s) => s.id.equals(sessionId))).getSingleOrNull();
   }
 
-  Future<List<SessionQueueCounterRow>> countersForSession(String sessionId) async {
+  Future<List<SessionQueueCounterRow>> countersForSession(
+    String sessionId,
+  ) async {
     return (_db.select(
       _db.sessionQueueCounters,
     )..where((c) => c.sessionId.equals(sessionId))).get();

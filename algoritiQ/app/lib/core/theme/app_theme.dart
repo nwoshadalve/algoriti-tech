@@ -12,6 +12,10 @@ import 'brand_colors.dart';
 /// Brand font bundled in `assets/fonts` (SIL OFL). Works offline.
 const brandFontFamily = 'PlusJakartaSans';
 
+/// Bengali script on slips and in the UI (bundled OFL). Plus Jakarta has no
+/// Bengali glyphs; [TextStyle.fontFamilyFallback] must include this family.
+const bengaliFontFamily = 'NotoSansBengali';
+
 /// Minimum touch target height for primary actions (dp).
 const _buttonHeight = 52.0;
 
@@ -55,6 +59,7 @@ abstract final class AppTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor: page,
       fontFamily: brandFontFamily,
+      fontFamilyFallback: const [bengaliFontFamily],
       cardTheme: CardThemeData(
         elevation: 0,
         margin: EdgeInsets.zero,

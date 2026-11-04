@@ -18,6 +18,9 @@ export function boardErrorKey(error: unknown): MessageKey {
         return 'boardErrorChamberNotFound'
       case 'session_closed':
         return 'boardErrorSessionClosed'
+      case 'printer_busy':
+        return 'boardPrinterBusy'
+      case 'duplicate_phone':
       case 'duplicate_phone_needs_confirm':
         return 'boardErrorDuplicatePhone'
       case 'patient_has_active_token':

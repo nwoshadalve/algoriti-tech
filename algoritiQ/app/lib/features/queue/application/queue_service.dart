@@ -19,6 +19,10 @@ enum QueueServiceProblem {
   typeNotFound,
   validation,
   openSession,
+
+  /// Another chamber's session is still open; [QueueServiceRefused.code]
+  /// holds that chamber's name.
+  otherChamberOpen,
   noOpenSession,
   reasonRequired,
   inheritClinicDefaults,
@@ -361,6 +365,15 @@ class QueueService {
     if (await _repo.openSessionForChamber(chamberId) != null) {
       throw const QueueServiceRefused(QueueServiceProblem.openSession);
     }
+    // One session at a time on this tablet: the waiting-room TV and the desk
+    // serve a single chamber at once.
+    final busy = await _repo.otherChamberWithOpenSession(chamberId);
+    if (busy != null) {
+      throw QueueServiceRefused(
+        QueueServiceProblem.otherChamberOpen,
+        code: busy.name,
+      );
+    }
     final owner = await _repo.effectiveOwnerKey(chamberId);
     final types = await _repo.loadTypesForOwner(owner);
     final settings = await _repo.loadChamberSettings(chamberId);
@@ -407,11 +420,13 @@ class QueueService {
     return _sessionView(chamberId, types);
   }
 
+  /// Ends the chamber's open session. An admin may end any; a receptionist
+  /// only the session of a chamber they are assigned to, as with starting it.
   Future<QueueSessionView?> closeSession(
     Account admin,
     String chamberId,
   ) async {
-    await _requireAdmin(admin);
+    await _requireDeskSessionStarter(admin, chamberId);
     final open = await _repo.openSessionForChamber(chamberId);
     if (open == null) {
       throw const QueueServiceRefused(QueueServiceProblem.noOpenSession);

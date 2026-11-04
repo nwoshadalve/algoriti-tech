@@ -10,6 +10,7 @@ import '../../../platform/keep_alive_gateway.dart';
 import '../../../platform/system_health_gateway.dart';
 import '../../connectivity/application/printer_controller.dart';
 import '../../connectivity/application/test_token_service.dart';
+import '../../connectivity/application/tv_test_service.dart';
 import '../../connectivity/domain/printer.dart';
 import '../domain/health_snapshot.dart';
 
@@ -18,7 +19,7 @@ import '../domain/health_snapshot.dart';
 /// that fails can be tried again; progress is kept here so every browser sees
 /// the same retry.
 ///
-/// The printer uses [PrinterController]; the TV app is not built yet.
+/// The printer uses [PrinterController]; TV health follows live WebSocket clients.
 class MonitoringService {
   MonitoringService({
     required SystemHealthGateway health,
@@ -27,6 +28,8 @@ class MonitoringService {
     PrinterState Function()? printerState,
     Future<bool> Function()? retryPrinter,
     Future<TestTokenOutcome> Function()? testPrinter,
+    Future<TvTestOutcome> Function()? testTvDisplay,
+    Future<TvTestOutcome> Function()? testTvSound,
     this.retryDelay = const Duration(seconds: 2),
     this.maxAttempts = 3,
   }) : _health = health,
@@ -34,7 +37,9 @@ class MonitoringService {
        _clock = clock,
        _printerState = printerState,
        _retryPrinter = retryPrinter,
-       _testPrinter = testPrinter;
+       _testPrinter = testPrinter,
+       _testTvDisplay = testTvDisplay,
+       _testTvSound = testTvSound;
 
   final SystemHealthGateway _health;
   final KeepAliveGateway _keepAlive;
@@ -42,6 +47,8 @@ class MonitoringService {
   final PrinterState Function()? _printerState;
   final Future<bool> Function()? _retryPrinter;
   final Future<TestTokenOutcome> Function()? _testPrinter;
+  final Future<TvTestOutcome> Function()? _testTvDisplay;
+  final Future<TvTestOutcome> Function()? _testTvSound;
 
   /// Wait between two tries.
   final Duration retryDelay;
@@ -96,9 +103,22 @@ class MonitoringService {
         ),
         _androidService(system, keepAlive),
         _printerService(),
-        _unavailable(ServiceId.tv, HealthReason.tvNotConnected),
+        _tvService(liveClients),
       ],
     );
+  }
+
+  /// Sends a test call to the waiting-room TV (admin monitoring).
+  Future<TvTestOutcome?> testTvDisplay() async {
+    final run = _testTvDisplay;
+    if (run == null) return null;
+    return run();
+  }
+
+  Future<TvTestOutcome?> testTvSound() async {
+    final run = _testTvSound;
+    if (run == null) return null;
+    return run();
   }
 
   /// Asks Android to turn Bluetooth on; the person confirms on the tablet.
@@ -220,6 +240,20 @@ class MonitoringService {
           retryable: reason != HealthReason.bluetoothMissing,
         );
     }
+  }
+
+  ServiceHealth _tvService(int liveClients) {
+    final retry = _retries[ServiceId.tv];
+    if (retry != null) return _retrying(ServiceId.tv, retry);
+    if (liveClients > 0) {
+      return ServiceHealth(
+        id: ServiceId.tv,
+        status: HealthStatus.ok,
+        clients: liveClients,
+        retryable: true,
+      );
+    }
+    return _unavailable(ServiceId.tv, HealthReason.tvNotConnected);
   }
 
   ServiceHealth _unavailable(ServiceId id, HealthReason reason) {

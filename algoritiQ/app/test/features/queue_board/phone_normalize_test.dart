@@ -12,6 +12,10 @@ void main() {
     expect(normalizeClinicPhone('+880 1712 345678'), '1712345678');
   });
 
+  test('should read a phone typed in Bengali digits', () {
+    expect(normalizeClinicPhone('০১৭১২-৩৪৫৬৭৮'), '1712345678');
+  });
+
   test('should parse clinic patient id queries', () {
     expect(parsePatientNumberQuery('P-000042'), 42);
     expect(parsePatientNumberQuery('42'), 42);

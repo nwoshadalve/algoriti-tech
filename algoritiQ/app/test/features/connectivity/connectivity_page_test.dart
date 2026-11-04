@@ -115,7 +115,7 @@ void main() {
     expect(find.text('No printer set up'), findsOneWidget);
     expect(find.text('Choose printer'), findsOneWidget);
     expect(find.text('TV screen'), findsOneWidget);
-    expect(find.text('Coming soon'), findsOneWidget);
+    expect(find.text('Not connected'), findsOneWidget);
   });
 
   pageTest('should show only the connection when connected', (tester) async {
@@ -146,7 +146,7 @@ void main() {
     await pumpPage(tester);
     await tester.pump(const Duration(milliseconds: 50));
 
-    expect(find.text('Not connected'), findsOneWidget);
+    expect(find.text('Not connected'), findsNWidgets(2));
     expect(find.text('Connect now'), findsOneWidget);
     expect(find.textContaining('Trying again in'), findsOneWidget);
   });

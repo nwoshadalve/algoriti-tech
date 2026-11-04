@@ -28,7 +28,10 @@ const _deskButtonFontSize = 13.0;
 ButtonStyle deskDialogFilledButtonStyle(BuildContext context) =>
     FilledButton.styleFrom(
       minimumSize: const Size(0, _deskButtonHeight),
-      padding: const EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: Spacing.md,
+        vertical: Spacing.sm,
+      ),
       textStyle: const TextStyle(
         fontSize: _deskButtonFontSize,
         fontWeight: FontWeight.w600,
@@ -39,7 +42,10 @@ ButtonStyle deskDialogFilledButtonStyle(BuildContext context) =>
 ButtonStyle deskDialogOutlinedButtonStyle(BuildContext context) =>
     OutlinedButton.styleFrom(
       minimumSize: const Size(0, _deskButtonHeight),
-      padding: const EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: Spacing.md,
+        vertical: Spacing.sm,
+      ),
       textStyle: const TextStyle(
         fontSize: _deskButtonFontSize,
         fontWeight: FontWeight.w600,
@@ -50,7 +56,10 @@ ButtonStyle deskDialogOutlinedButtonStyle(BuildContext context) =>
 ButtonStyle deskDialogTextButtonStyle(BuildContext context) =>
     TextButton.styleFrom(
       minimumSize: const Size(0, _deskButtonHeight),
-      padding: const EdgeInsets.symmetric(horizontal: Spacing.sm, vertical: Spacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: Spacing.sm,
+        vertical: Spacing.sm,
+      ),
       textStyle: const TextStyle(
         fontSize: _deskButtonFontSize,
         fontWeight: FontWeight.w600,
@@ -97,6 +106,7 @@ class DeskFormDialog extends StatelessWidget {
         actions: actions,
         maxWidth: deskDialogMaxWidth,
         compact: true,
+        fixedSizeWithKeyboard: true,
       ),
     );
   }
@@ -119,9 +129,8 @@ Widget deskFormRow(List<Widget> children) {
 }
 
 TextStyle? deskFormLabelStyle(BuildContext context) =>
-    Theme.of(context).textTheme.labelMedium?.copyWith(
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
-    );
+    Theme.of(context).textTheme.labelMedium
+        ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant);
 
 TextStyle? deskFormBodyStyle(BuildContext context) =>
     Theme.of(context).textTheme.bodySmall;
@@ -165,10 +174,7 @@ class DeskLabeledDropdown<T> extends StatelessWidget {
               for (final entry in entries)
                 DropdownMenuItem<T>(
                   value: entry.value,
-                  child: Text(
-                    entry.label,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  child: Text(entry.label, overflow: TextOverflow.ellipsis),
                 ),
             ],
             onChanged: enabled ? onSelected : null,

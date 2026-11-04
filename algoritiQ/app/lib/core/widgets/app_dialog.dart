@@ -21,13 +21,18 @@ abstract final class DialogSize {
   static const minWidth = 280.0;
   static const maxWidth = 640.0;
 
-  static Size maxFor(Size screen, {double keyboard = 0}) {
+  static Size maxFor(
+    Size screen, {
+    double keyboard = 0,
+    bool ignoreKeyboardInset = false,
+  }) {
     final landscape = screen.width > screen.height;
     final width = (screen.width * (landscape ? landscapeWidth : portraitWidth))
         .clamp(minWidth, maxWidth);
-    final height =
-        (screen.height - keyboard) *
-        (landscape ? landscapeHeight : portraitHeight);
+    final heightBase = ignoreKeyboardInset
+        ? screen.height
+        : (screen.height - keyboard);
+    final height = heightBase * (landscape ? landscapeHeight : portraitHeight);
     return Size(width, height);
   }
 }
@@ -41,6 +46,7 @@ Future<T?> showAppDialog<T>({
   bool dismissible = true,
   double? maxWidth,
   bool compact = false,
+  bool fixedSizeWithKeyboard = false,
 }) {
   return showDialog<T>(
     context: context,
@@ -51,6 +57,7 @@ Future<T?> showAppDialog<T>({
       actions: actions,
       maxWidth: maxWidth,
       compact: compact,
+      fixedSizeWithKeyboard: fixedSizeWithKeyboard,
     ),
   );
 }
@@ -70,6 +77,7 @@ class AppDialog extends StatelessWidget {
     this.actions = const [],
     this.maxWidth,
     this.compact = false,
+    this.fixedSizeWithKeyboard = false,
   });
 
   final String title;
@@ -84,17 +92,32 @@ class AppDialog extends StatelessWidget {
   /// Smaller title and body padding, for dense tablet forms.
   final bool compact;
 
+  /// Keep the dialog's max height when the keyboard opens; body scrolls inside
+  /// and the dialog shifts up above the keyboard.
+  final bool fixedSizeWithKeyboard;
+
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
     final baseMax = DialogSize.maxFor(
       media.size,
       keyboard: media.viewInsets.bottom,
+      ignoreKeyboardInset: fixedSizeWithKeyboard,
     );
     final widthCap = maxWidth ?? DialogSize.maxWidth;
+    var maxHeight = baseMax.height;
+    if (fixedSizeWithKeyboard) {
+      final inset = media.viewInsets;
+      final margin = Spacing.md * 2;
+      final availableHeight =
+          media.size.height - inset.top - inset.bottom - margin;
+      if (availableHeight > 0) {
+        maxHeight = maxHeight.clamp(0, availableHeight);
+      }
+    }
     final max = Size(
       baseMax.width.clamp(DialogSize.minWidth, widthCap),
-      baseMax.height,
+      maxHeight,
     );
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
@@ -102,9 +125,21 @@ class AppDialog extends StatelessWidget {
     final titleStyle = compact
         ? theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)
         : theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700);
-    final bodyPadding = compact ? Spacing.md : Spacing.lg;
-    final headerPadding = compact
-        ? const EdgeInsets.fromLTRB(Spacing.md, Spacing.sm, Spacing.xs, Spacing.sm)
+    // Everything shrinks while the keyboard is up: a landscape tablet leaves
+    // ~200 dp for the whole dialog, and the fields need that room.
+    final keyboardOpen = fixedSizeWithKeyboard && media.viewInsets.bottom > 0;
+    final bodyPadding = keyboardOpen
+        ? Spacing.sm
+        : (compact ? Spacing.md : Spacing.lg);
+    final headerPadding = keyboardOpen
+        ? const EdgeInsets.fromLTRB(Spacing.md, 0, Spacing.xs, 0)
+        : compact
+        ? const EdgeInsets.fromLTRB(
+            Spacing.md,
+            Spacing.sm,
+            Spacing.xs,
+            Spacing.sm,
+          )
         : const EdgeInsets.fromLTRB(
             Spacing.lg,
             Spacing.sm,
@@ -112,11 +147,22 @@ class AppDialog extends StatelessWidget {
             Spacing.sm,
           );
     final footerPadding = compact ? Spacing.sm : Spacing.md;
+    // A fixed footer would take the room the fields need, so with the keyboard
+    // up the buttons move into the scrolling body.
+    final footer = Wrap(
+      alignment: WrapAlignment.end,
+      spacing: Spacing.sm + Spacing.xs,
+      runSpacing: Spacing.sm,
+      children: actions,
+    );
 
     return Dialog(
       backgroundColor: scheme.surface,
       surfaceTintColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(Spacing.md),
+      insetPadding: keyboardOpen
+          ? const EdgeInsets.all(Spacing.xs)
+          : const EdgeInsets.all(Spacing.md),
+      alignment: fixedSizeWithKeyboard ? Alignment.topCenter : Alignment.center,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Radii.card),
         side: BorderSide(color: scheme.outlineVariant),
@@ -128,54 +174,76 @@ class AppDialog extends StatelessWidget {
           maxWidth: max.width,
           maxHeight: max.height,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: headerPadding,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Semantics(
-                      header: true,
-                      child: Text(title, style: titleStyle),
+        child: SizedBox(
+          width: max.width,
+          height: fixedSizeWithKeyboard ? max.height : null,
+          child: Column(
+            mainAxisSize: fixedSizeWithKeyboard
+                ? MainAxisSize.max
+                : MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: headerPadding,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Semantics(
+                        header: true,
+                        child: Text(title, style: titleStyle),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      tooltip: l10n.dialogClose,
+                      iconSize: compact ? 20 : 24,
+                      visualDensity: compact || keyboardOpen
+                          ? VisualDensity.compact
+                          : VisualDensity.standard,
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(height: 1, color: scheme.outlineVariant),
+              if (fixedSizeWithKeyboard)
+                Expanded(
+                  child: Scrollbar(
+                    child: SingleChildScrollView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.manual,
+                      padding: EdgeInsets.all(bodyPadding),
+                      // Always a Column so [body] keeps its place in the tree
+                      // when the keyboard opens; a different parent would
+                      // rebuild the fields, drop focus and close the keyboard.
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          body,
+                          if (keyboardOpen && actions.isNotEmpty) ...[
+                            const SizedBox(height: Spacing.md),
+                            footer,
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    tooltip: l10n.dialogClose,
-                    iconSize: compact ? 20 : 24,
-                    visualDensity: compact
-                        ? VisualDensity.compact
-                        : VisualDensity.standard,
-                    icon: const Icon(Icons.close_rounded),
+                )
+              else
+                Flexible(
+                  child: Scrollbar(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(bodyPadding),
+                      child: body,
+                    ),
                   ),
-                ],
-              ),
-            ),
-            Divider(height: 1, color: scheme.outlineVariant),
-            Flexible(
-              child: Scrollbar(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(bodyPadding),
-                  child: body,
                 ),
-              ),
-            ),
-            if (actions.isNotEmpty) ...[
-              Divider(height: 1, color: scheme.outlineVariant),
-              Padding(
-                padding: EdgeInsets.all(footerPadding),
-                child: Wrap(
-                  alignment: WrapAlignment.end,
-                  spacing: Spacing.sm + Spacing.xs,
-                  runSpacing: Spacing.sm,
-                  children: actions,
-                ),
-              ),
+              if (actions.isNotEmpty && !keyboardOpen) ...[
+                Divider(height: 1, color: scheme.outlineVariant),
+                Padding(padding: EdgeInsets.all(footerPadding), child: footer),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

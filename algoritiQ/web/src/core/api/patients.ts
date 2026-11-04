@@ -6,7 +6,7 @@
  * or distribution is prohibited.
  */
 import { apiFetch, bearer } from '@/core/api/client'
-import type { PatientSummary, RegisterPatientInput } from '@/core/api/types'
+import type { PatientSummary, RegisterPatientInput, UpdatePatientInput } from '@/core/api/types'
 
 export async function searchPatients(token: string, query: string): Promise<PatientSummary[]> {
   const result = await apiFetch<{ patients: PatientSummary[] }>('/patients/search', {
@@ -23,6 +23,18 @@ export async function registerPatient(
 ): Promise<PatientSummary> {
   return apiFetch<PatientSummary>('/patients', {
     method: 'POST',
+    headers: bearer(token),
+    body: JSON.stringify(input),
+  })
+}
+
+export async function updatePatient(
+  token: string,
+  patientId: string,
+  input: UpdatePatientInput,
+): Promise<PatientSummary> {
+  return apiFetch<PatientSummary>(`/patients/${encodeURIComponent(patientId)}`, {
+    method: 'PATCH',
     headers: bearer(token),
     body: JSON.stringify(input),
   })

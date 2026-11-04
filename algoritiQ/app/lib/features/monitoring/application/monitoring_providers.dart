@@ -10,6 +10,7 @@ import '../../../platform/keep_alive_gateway.dart';
 import '../../../platform/system_health_gateway.dart';
 import '../../connectivity/application/printer_controller.dart';
 import '../../connectivity/application/test_token_service.dart';
+import '../../connectivity/application/tv_test_service.dart';
 import '../../connectivity/domain/printer.dart';
 import 'monitoring_service.dart';
 
@@ -28,5 +29,7 @@ final monitoringServiceProvider = Provider<MonitoringService>(
       return outcome == ConnectOutcome.connected;
     },
     testPrinter: () => ref.read(testTokenServiceProvider).runForAdmin(),
+    testTvDisplay: () => ref.read(tvTestServiceProvider).testDisplayForAdmin(),
+    testTvSound: () => ref.read(tvTestServiceProvider).testSoundForAdmin(),
   ),
 );

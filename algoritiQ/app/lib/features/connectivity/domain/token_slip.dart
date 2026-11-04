@@ -25,6 +25,8 @@ final class TokenSlip {
     required this.tokenNumber,
     required this.registrationId,
     required this.issuedAt,
+    this.queueLabel,
+    this.isReprint = false,
   });
 
   final String chamberName;
@@ -37,6 +39,15 @@ final class TokenSlip {
   /// The patient's registration ID, as it should read (e.g. `PT-26-00421`).
   final String registrationId;
   final DateTime issuedAt;
+
+  /// Printed instead of [queueType]'s label for queues the clinic renamed or
+  /// added; null uses the built-in label.
+  final String? queueLabel;
+
+  /// Marks a repeat print of an already issued token.
+  final bool isReprint;
+
+  String get queueText => queueLabel ?? queueType.bengaliLabel;
 
   /// `০১`, `১২`: Bengali digits, at least two.
   String get tokenText => bengaliDigits(tokenNumber.toString().padLeft(2, '0'));

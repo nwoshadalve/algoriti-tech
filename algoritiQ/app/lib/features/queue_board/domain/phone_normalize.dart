@@ -19,6 +19,9 @@ String normalizeClinicPhone(String input) {
   for (final unit in input.runes) {
     if (unit >= 0x30 && unit <= 0x39) {
       digits.writeCharCode(unit);
+    } else if (unit >= 0x09E6 && unit <= 0x09EF) {
+      // Bengali digits ০-৯, typed on the Bengali keyboard.
+      digits.writeCharCode(unit - 0x09E6 + 0x30);
     }
   }
   var raw = digits.toString();

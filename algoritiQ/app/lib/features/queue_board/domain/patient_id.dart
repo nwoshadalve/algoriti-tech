@@ -25,7 +25,8 @@ String clinicPatientIdFromRow({
   required String clinicPatientId,
 }) {
   if (clinicPatientId.isNotEmpty) return clinicPatientId;
-  if (patientIdPrefix.isEmpty) return formatLegacyClinicPatientId(patientNumber);
+  if (patientIdPrefix.isEmpty)
+    return formatLegacyClinicPatientId(patientNumber);
   return formatChamberPatientId(patientIdPrefix, patientNumber);
 }
 
@@ -55,4 +56,5 @@ String formatClinicPatientId(int patientNumber) =>
     formatLegacyClinicPatientId(patientNumber);
 
 /// @deprecated Use [parseLegacyPatientNumberQuery].
-int? parsePatientNumberQuery(String query) => parseLegacyPatientNumberQuery(query);
+int? parsePatientNumberQuery(String query) =>
+    parseLegacyPatientNumberQuery(query);

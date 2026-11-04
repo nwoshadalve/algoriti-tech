@@ -247,11 +247,10 @@ export function PatientEntrySection({
       {dialog?.kind === 'register' ? (
         <RegisterPatientModal
           initialPhone={dialog.phone}
-          confirmDuplicatePhone={dialog.confirmDuplicate}
           chamberId={chamberId}
           queueControls={queueControls}
           onClose={() => setDialog(null)}
-          onRegistered={() => {
+          onDone={() => {
             setDialog(null)
             setMode('search')
             onIssued()

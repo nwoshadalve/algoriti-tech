@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AlgoritiQ TV</string>
+
+    <!-- Pairing: a PIN for the tablet and a code to compare, nothing technical on screen -->
+    <string name="pairing_title">টিভি যুক্ত করুন</string>
+    <string name="pairing_subtitle">ট্যাবলেটের সংযোগ পাতায় ‘টিভি যুক্ত করুন’ চাপুন এবং এই পিনটি লিখুন</string>
+    <string name="pairing_pin_label">পিন</string>
+    <string name="pairing_code_label">নিরাপত্তা কোড</string>
+    <string name="pairing_code_hint">ট্যাবলেটেও একই কোড দেখা যাবে। না মিললে যুক্ত করবেন না।</string>
+    <string name="pairing_starting">ট্যাবলেটের সাথে যোগাযোগ হচ্ছে…</string>
+    <string name="pairing_waiting">ট্যাবলেটে পিন লেখার অপেক্ষায়…</string>
+    <string name="pairing_unreachable">ট্যাবলেটের সাথে যোগাযোগ করা যাচ্ছে না। টিভি ও ট্যাবলেট একই ওয়াই-ফাইয়ে আছে কি না দেখুন।</string>
+    <string name="pairing_certificate_changed">ট্যাবলেটের পরিচয় বদলে গেছে। নতুন পিন নেওয়া হচ্ছে।</string>
+
+    <!-- Test screen asked for from the tablet -->
+    <string name="test_title">টিভি পরীক্ষা</string>
+    <string name="test_display_ok">পর্দা ঠিক আছে</string>
+    <string name="test_sound_playing">শব্দ বাজছে…</string>
+    <string name="test_sound_ok">শব্দ ঠিক আছে</string>
+    <string name="test_sound_failed">শব্দ বাজেনি — ভলিউম ও অডিও আউটপুট দেখুন</string>
+
+    <!-- Legacy screens (kept for future use) -->
+    <string name="setup_audio_title">শব্দ পরীক্ষা</string>
+    <string name="setup_audio_subtitle">ঘোষণার জন্য ভলিউম ঠিক করুন</string>
+    <string name="setup_audio_test">পরীক্ষা ঘোষণা</string>
+    <string name="setup_audio_continue">ডিসপ্লে খুলুন</string>
+
+    <!-- Connecting (no URLs, tokens, or hostnames on screen) -->
+    <string name="connecting_title">ক্লিনিকের সাথে সংযোগ হচ্ছে</string>
+    <string name="connecting_please_wait">অনুগ্রহ করে অপেক্ষা করুন</string>
+
+    <!-- Display -->
+    <string name="display_called_heading">ঘোষণা</string>
+    <string name="display_waiting_heading">অপেক্ষমাণ</string>
+    <string name="display_more_waiting">আর %1$d জন</string>
+    <string name="display_idle_hint">এখনও কোনো টোকেন ডাকা হয়নি</string>
+    <string name="display_connected">সংযুক্ত</string>
+    <string name="display_disconnected">সংযোগ নেই</string>
+    <string name="display_now_serving">এখন ডাকা হচ্ছে</string>
+    <string name="display_please_wait">অপেক্ষা করুন</string>
+    <string name="display_registration">বিএমডিসি নং %1$s</string>
+    <string name="display_disconnected_banner">সংযোগ বিচ্ছিন্ন — শেষ আপডেট %1$s</string>
+
+    <!-- Navigation (dev) -->
+    <string name="nav_pairing">যুক্ত করা</string>
+    <string name="nav_setup_audio">শব্দ</string>
+    <string name="nav_display_idle">অপেক্ষা</string>
+    <string name="nav_display_live">লাইভ</string>
+    <string name="nav_display_disconnected">বিচ্ছিন্ন</string>
+</resources>

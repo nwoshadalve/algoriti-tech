@@ -14,11 +14,15 @@ class PageHeader extends StatelessWidget {
     required this.title,
     this.description,
     this.actions,
+    this.dense = false,
   });
 
   final String title;
   final String? description;
   final Widget? actions;
+
+  /// Smaller title and intro, like the native queue desk chrome.
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -31,24 +35,29 @@ class PageHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+          style: dense
+              ? theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                )
+              : theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
         ),
         if (description != null) ...[
-          const SizedBox(height: Spacing.sm),
+          SizedBox(height: dense ? Spacing.xs : Spacing.sm),
           Text(
             description,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            style:
+                (dense ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium)
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
         ],
       ],
     );
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: Spacing.lg),
+      padding: EdgeInsets.only(bottom: dense ? Spacing.md : Spacing.lg),
       child: wide && actions != null
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.end,

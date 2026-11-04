@@ -102,21 +102,26 @@ void main() {
     expect((result.body['types']! as List).length, 3);
   });
 
-  test('should recover when types exist but policy settings were missing', () async {
-    final repo = DriftQueueRepository(kit.database);
-    await repo.ensureClinicDefaultsSeeded();
-    await kit.database.delete(kit.database.appSettings).go();
+  test(
+    'should recover when types exist but policy settings were missing',
+    () async {
+      final repo = DriftQueueRepository(kit.database);
+      await repo.ensureClinicDefaultsSeeded();
+      await kit.database.delete(kit.database.appSettings).go();
 
-    final token = await signIn();
-    final result = await call('GET', '/api/v1/queue/defaults', token: token);
+      final token = await signIn();
+      final result = await call('GET', '/api/v1/queue/defaults', token: token);
 
-    expect(result.status, 200);
-    final policy = result.body['policy']! as Map<String, Object?>;
-    expect(policy['dayBoundary'], '03:00');
-  });
+      expect(result.status, 200);
+      final policy = result.body['policy']! as Map<String, Object?>;
+      expect(policy['dayBoundary'], '03:00');
+    },
+  );
 
   test('should tolerate invalid stored policy json', () async {
-    await kit.database.into(kit.database.appSettings).insertOnConflictUpdate(
+    await kit.database
+        .into(kit.database.appSettings)
+        .insertOnConflictUpdate(
           AppSettingsCompanion.insert(
             key: 'queue.policy.clinic',
             value: 'not-json',
@@ -139,11 +144,7 @@ void main() {
       for (final raw in loaded.body['types']! as List)
         Map<String, Object?>.from(raw as Map),
     ];
-    types[0] = {
-      ...types[0],
-      'startNumber': 101,
-      'endNumber': 199,
-    };
+    types[0] = {...types[0], 'startNumber': 101, 'endNumber': 199};
 
     final patched = await call(
       'PATCH',
@@ -164,90 +165,95 @@ void main() {
 
     final again = await call('GET', '/api/v1/queue/defaults', token: token);
     expect(again.status, 200);
-    final reloaded = (again.body['types']! as List).first as Map<String, Object?>;
+    final reloaded =
+        (again.body['types']! as List).first as Map<String, Object?>;
     expect(reloaded['startNumber'], 101);
     expect(reloaded['endNumber'], 199);
   });
 
-  test('should save queue types for one chamber without changing another', () async {
-    const chamberA = 'chamber-a';
-    const chamberB = 'chamber-b';
-    await seedDoctor(kit.database);
-    for (final (i, entry) in <(String, String)>[
-      (chamberA, 'Chamber A'),
-      (chamberB, 'Chamber B'),
-    ].indexed) {
-      await kit.database.into(kit.database.chambers).insertOnConflictUpdate(
-            ChambersCompanion.insert(
-              id: entry.$1,
-              doctorId: 'seed-doctor',
-              name: entry.$2,
-              patientIdPrefix: '${801 + i}',
-              createdAt: DateTime.utc(2026).millisecondsSinceEpoch,
+  test(
+    'should save queue types for one chamber without changing another',
+    () async {
+      const chamberA = 'chamber-a';
+      const chamberB = 'chamber-b';
+      await seedDoctor(kit.database);
+      for (final (i, entry) in <(String, String)>[
+        (chamberA, 'Chamber A'),
+        (chamberB, 'Chamber B'),
+      ].indexed) {
+        await kit.database
+            .into(kit.database.chambers)
+            .insertOnConflictUpdate(
+              ChambersCompanion.insert(
+                id: entry.$1,
+                doctorId: 'seed-doctor',
+                name: entry.$2,
+                patientIdPrefix: '${801 + i}',
+                createdAt: DateTime.utc(2026).millisecondsSinceEpoch,
+              ),
+            );
+      }
+
+      final token = await signIn();
+      final loadedA = await call(
+        'GET',
+        '/api/v1/queue/chambers/$chamberA',
+        token: token,
+      );
+      expect(loadedA.status, 200);
+      final typesA = [
+        for (final raw in loadedA.body['types']! as List)
+          Map<String, Object?>.from(raw as Map),
+      ];
+      typesA[0] = {...typesA[0], 'startNumber': 501, 'endNumber': 599};
+
+      final patched = await call(
+        'PATCH',
+        '/api/v1/queue/chambers/$chamberA',
+        token: token,
+        json: {'types': typesA},
+      );
+      expect(patched.status, 200);
+      expect((patched.body['settings'] as Map)['useClinicDefaults'], isFalse);
+      final savedRegular =
+          (patched.body['types']! as List).first as Map<String, Object?>;
+      expect(savedRegular['startNumber'], 501);
+
+      final loadedB = await call(
+        'GET',
+        '/api/v1/queue/chambers/$chamberB',
+        token: token,
+      );
+      expect(loadedB.status, 200);
+      expect((loadedB.body['settings'] as Map)['useClinicDefaults'], isTrue);
+      final otherRegular =
+          (loadedB.body['types']! as List).first as Map<String, Object?>;
+      expect(otherRegular['startNumber'], 1001);
+    },
+  );
+
+  test(
+    'should seed clinic defaults when another owner uses the same type ids',
+    () async {
+      await kit.database
+          .into(kit.database.queueTypes)
+          .insert(
+            QueueTypesCompanion.insert(
+              id: 'regular',
+              ownerKey: 'chamber-1',
+              englishName: 'Regular',
+              bengaliName: 'সাধারণ',
+              startNumber: 1001,
+              endNumber: 1099,
+              displayOrder: 1,
             ),
           );
-    }
 
-    final token = await signIn();
-    final loadedA = await call(
-      'GET',
-      '/api/v1/queue/chambers/$chamberA',
-      token: token,
-    );
-    expect(loadedA.status, 200);
-    final typesA = [
-      for (final raw in loadedA.body['types']! as List)
-        Map<String, Object?>.from(raw as Map),
-    ];
-    typesA[0] = {...typesA[0], 'startNumber': 501, 'endNumber': 599};
+      final token = await signIn();
+      final result = await call('GET', '/api/v1/queue/defaults', token: token);
 
-    final patched = await call(
-      'PATCH',
-      '/api/v1/queue/chambers/$chamberA',
-      token: token,
-      json: {'types': typesA},
-    );
-    expect(patched.status, 200);
-    expect(
-      (patched.body['settings'] as Map)['useClinicDefaults'],
-      isFalse,
-    );
-    final savedRegular =
-        (patched.body['types']! as List).first as Map<String, Object?>;
-    expect(savedRegular['startNumber'], 501);
-
-    final loadedB = await call(
-      'GET',
-      '/api/v1/queue/chambers/$chamberB',
-      token: token,
-    );
-    expect(loadedB.status, 200);
-    expect(
-      (loadedB.body['settings'] as Map)['useClinicDefaults'],
-      isTrue,
-    );
-    final otherRegular =
-        (loadedB.body['types']! as List).first as Map<String, Object?>;
-    expect(otherRegular['startNumber'], 1001);
-  });
-
-  test('should seed clinic defaults when another owner uses the same type ids', () async {
-    await kit.database.into(kit.database.queueTypes).insert(
-          QueueTypesCompanion.insert(
-            id: 'regular',
-            ownerKey: 'chamber-1',
-            englishName: 'Regular',
-            bengaliName: 'সাধারণ',
-            startNumber: 1001,
-            endNumber: 1099,
-            displayOrder: 1,
-          ),
-        );
-
-    final token = await signIn();
-    final result = await call('GET', '/api/v1/queue/defaults', token: token);
-
-    expect(result.status, 200);
-    expect((result.body['types']! as List).length, 3);
-  });
+      expect(result.status, 200);
+      expect((result.body['types']! as List).length, 3);
+    },
+  );
 }

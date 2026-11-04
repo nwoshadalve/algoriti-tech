@@ -7833,6 +7833,479 @@ class TokenPrintAttemptsCompanion
   }
 }
 
+class $TvDevicesTable extends TvDevices
+    with TableInfo<$TvDevicesTable, TvDeviceRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvDevicesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _chamberIdMeta = const VerificationMeta(
+    'chamberId',
+  );
+  @override
+  late final GeneratedColumn<String> chamberId = GeneratedColumn<String>(
+    'chamber_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES chambers (id)',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tokenHashMeta = const VerificationMeta(
+    'tokenHash',
+  );
+  @override
+  late final GeneratedColumn<String> tokenHash = GeneratedColumn<String>(
+    'token_hash',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _pairedAtMeta = const VerificationMeta(
+    'pairedAt',
+  );
+  @override
+  late final GeneratedColumn<int> pairedAt = GeneratedColumn<int>(
+    'paired_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastSeenAtMeta = const VerificationMeta(
+    'lastSeenAt',
+  );
+  @override
+  late final GeneratedColumn<int> lastSeenAt = GeneratedColumn<int>(
+    'last_seen_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revokedAtMeta = const VerificationMeta(
+    'revokedAt',
+  );
+  @override
+  late final GeneratedColumn<int> revokedAt = GeneratedColumn<int>(
+    'revoked_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    chamberId,
+    name,
+    tokenHash,
+    pairedAt,
+    lastSeenAt,
+    revokedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_devices';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TvDeviceRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('chamber_id')) {
+      context.handle(
+        _chamberIdMeta,
+        chamberId.isAcceptableOrUnknown(data['chamber_id']!, _chamberIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_chamberIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('token_hash')) {
+      context.handle(
+        _tokenHashMeta,
+        tokenHash.isAcceptableOrUnknown(data['token_hash']!, _tokenHashMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tokenHashMeta);
+    }
+    if (data.containsKey('paired_at')) {
+      context.handle(
+        _pairedAtMeta,
+        pairedAt.isAcceptableOrUnknown(data['paired_at']!, _pairedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pairedAtMeta);
+    }
+    if (data.containsKey('last_seen_at')) {
+      context.handle(
+        _lastSeenAtMeta,
+        lastSeenAt.isAcceptableOrUnknown(
+          data['last_seen_at']!,
+          _lastSeenAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('revoked_at')) {
+      context.handle(
+        _revokedAtMeta,
+        revokedAt.isAcceptableOrUnknown(data['revoked_at']!, _revokedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TvDeviceRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvDeviceRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      chamberId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}chamber_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      tokenHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token_hash'],
+      )!,
+      pairedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}paired_at'],
+      )!,
+      lastSeenAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_seen_at'],
+      ),
+      revokedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revoked_at'],
+      ),
+    );
+  }
+
+  @override
+  $TvDevicesTable createAlias(String alias) {
+    return $TvDevicesTable(attachedDatabase, alias);
+  }
+}
+
+class TvDeviceRow extends DataClass implements Insertable<TvDeviceRow> {
+  final String id;
+  final String chamberId;
+  final String name;
+  final String tokenHash;
+  final int pairedAt;
+  final int? lastSeenAt;
+  final int? revokedAt;
+  const TvDeviceRow({
+    required this.id,
+    required this.chamberId,
+    required this.name,
+    required this.tokenHash,
+    required this.pairedAt,
+    this.lastSeenAt,
+    this.revokedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['chamber_id'] = Variable<String>(chamberId);
+    map['name'] = Variable<String>(name);
+    map['token_hash'] = Variable<String>(tokenHash);
+    map['paired_at'] = Variable<int>(pairedAt);
+    if (!nullToAbsent || lastSeenAt != null) {
+      map['last_seen_at'] = Variable<int>(lastSeenAt);
+    }
+    if (!nullToAbsent || revokedAt != null) {
+      map['revoked_at'] = Variable<int>(revokedAt);
+    }
+    return map;
+  }
+
+  TvDevicesCompanion toCompanion(bool nullToAbsent) {
+    return TvDevicesCompanion(
+      id: Value(id),
+      chamberId: Value(chamberId),
+      name: Value(name),
+      tokenHash: Value(tokenHash),
+      pairedAt: Value(pairedAt),
+      lastSeenAt: lastSeenAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSeenAt),
+      revokedAt: revokedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(revokedAt),
+    );
+  }
+
+  factory TvDeviceRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvDeviceRow(
+      id: serializer.fromJson<String>(json['id']),
+      chamberId: serializer.fromJson<String>(json['chamberId']),
+      name: serializer.fromJson<String>(json['name']),
+      tokenHash: serializer.fromJson<String>(json['tokenHash']),
+      pairedAt: serializer.fromJson<int>(json['pairedAt']),
+      lastSeenAt: serializer.fromJson<int?>(json['lastSeenAt']),
+      revokedAt: serializer.fromJson<int?>(json['revokedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'chamberId': serializer.toJson<String>(chamberId),
+      'name': serializer.toJson<String>(name),
+      'tokenHash': serializer.toJson<String>(tokenHash),
+      'pairedAt': serializer.toJson<int>(pairedAt),
+      'lastSeenAt': serializer.toJson<int?>(lastSeenAt),
+      'revokedAt': serializer.toJson<int?>(revokedAt),
+    };
+  }
+
+  TvDeviceRow copyWith({
+    String? id,
+    String? chamberId,
+    String? name,
+    String? tokenHash,
+    int? pairedAt,
+    Value<int?> lastSeenAt = const Value.absent(),
+    Value<int?> revokedAt = const Value.absent(),
+  }) => TvDeviceRow(
+    id: id ?? this.id,
+    chamberId: chamberId ?? this.chamberId,
+    name: name ?? this.name,
+    tokenHash: tokenHash ?? this.tokenHash,
+    pairedAt: pairedAt ?? this.pairedAt,
+    lastSeenAt: lastSeenAt.present ? lastSeenAt.value : this.lastSeenAt,
+    revokedAt: revokedAt.present ? revokedAt.value : this.revokedAt,
+  );
+  TvDeviceRow copyWithCompanion(TvDevicesCompanion data) {
+    return TvDeviceRow(
+      id: data.id.present ? data.id.value : this.id,
+      chamberId: data.chamberId.present ? data.chamberId.value : this.chamberId,
+      name: data.name.present ? data.name.value : this.name,
+      tokenHash: data.tokenHash.present ? data.tokenHash.value : this.tokenHash,
+      pairedAt: data.pairedAt.present ? data.pairedAt.value : this.pairedAt,
+      lastSeenAt: data.lastSeenAt.present
+          ? data.lastSeenAt.value
+          : this.lastSeenAt,
+      revokedAt: data.revokedAt.present ? data.revokedAt.value : this.revokedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvDeviceRow(')
+          ..write('id: $id, ')
+          ..write('chamberId: $chamberId, ')
+          ..write('name: $name, ')
+          ..write('tokenHash: $tokenHash, ')
+          ..write('pairedAt: $pairedAt, ')
+          ..write('lastSeenAt: $lastSeenAt, ')
+          ..write('revokedAt: $revokedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    chamberId,
+    name,
+    tokenHash,
+    pairedAt,
+    lastSeenAt,
+    revokedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvDeviceRow &&
+          other.id == this.id &&
+          other.chamberId == this.chamberId &&
+          other.name == this.name &&
+          other.tokenHash == this.tokenHash &&
+          other.pairedAt == this.pairedAt &&
+          other.lastSeenAt == this.lastSeenAt &&
+          other.revokedAt == this.revokedAt);
+}
+
+class TvDevicesCompanion extends UpdateCompanion<TvDeviceRow> {
+  final Value<String> id;
+  final Value<String> chamberId;
+  final Value<String> name;
+  final Value<String> tokenHash;
+  final Value<int> pairedAt;
+  final Value<int?> lastSeenAt;
+  final Value<int?> revokedAt;
+  final Value<int> rowid;
+  const TvDevicesCompanion({
+    this.id = const Value.absent(),
+    this.chamberId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.tokenHash = const Value.absent(),
+    this.pairedAt = const Value.absent(),
+    this.lastSeenAt = const Value.absent(),
+    this.revokedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvDevicesCompanion.insert({
+    required String id,
+    required String chamberId,
+    required String name,
+    required String tokenHash,
+    required int pairedAt,
+    this.lastSeenAt = const Value.absent(),
+    this.revokedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       chamberId = Value(chamberId),
+       name = Value(name),
+       tokenHash = Value(tokenHash),
+       pairedAt = Value(pairedAt);
+  static Insertable<TvDeviceRow> custom({
+    Expression<String>? id,
+    Expression<String>? chamberId,
+    Expression<String>? name,
+    Expression<String>? tokenHash,
+    Expression<int>? pairedAt,
+    Expression<int>? lastSeenAt,
+    Expression<int>? revokedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (chamberId != null) 'chamber_id': chamberId,
+      if (name != null) 'name': name,
+      if (tokenHash != null) 'token_hash': tokenHash,
+      if (pairedAt != null) 'paired_at': pairedAt,
+      if (lastSeenAt != null) 'last_seen_at': lastSeenAt,
+      if (revokedAt != null) 'revoked_at': revokedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvDevicesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? chamberId,
+    Value<String>? name,
+    Value<String>? tokenHash,
+    Value<int>? pairedAt,
+    Value<int?>? lastSeenAt,
+    Value<int?>? revokedAt,
+    Value<int>? rowid,
+  }) {
+    return TvDevicesCompanion(
+      id: id ?? this.id,
+      chamberId: chamberId ?? this.chamberId,
+      name: name ?? this.name,
+      tokenHash: tokenHash ?? this.tokenHash,
+      pairedAt: pairedAt ?? this.pairedAt,
+      lastSeenAt: lastSeenAt ?? this.lastSeenAt,
+      revokedAt: revokedAt ?? this.revokedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (chamberId.present) {
+      map['chamber_id'] = Variable<String>(chamberId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (tokenHash.present) {
+      map['token_hash'] = Variable<String>(tokenHash.value);
+    }
+    if (pairedAt.present) {
+      map['paired_at'] = Variable<int>(pairedAt.value);
+    }
+    if (lastSeenAt.present) {
+      map['last_seen_at'] = Variable<int>(lastSeenAt.value);
+    }
+    if (revokedAt.present) {
+      map['revoked_at'] = Variable<int>(revokedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvDevicesCompanion(')
+          ..write('id: $id, ')
+          ..write('chamberId: $chamberId, ')
+          ..write('name: $name, ')
+          ..write('tokenHash: $tokenHash, ')
+          ..write('pairedAt: $pairedAt, ')
+          ..write('lastSeenAt: $lastSeenAt, ')
+          ..write('revokedAt: $revokedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -7855,6 +8328,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $QueueTokensTable queueTokens = $QueueTokensTable(this);
   late final $TokenPrintAttemptsTable tokenPrintAttempts =
       $TokenPrintAttemptsTable(this);
+  late final $TvDevicesTable tvDevices = $TvDevicesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7875,6 +8349,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idempotentCommands,
     queueTokens,
     tokenPrintAttempts,
+    tvDevices,
   ];
 }
 
@@ -8314,6 +8789,24 @@ final class $$ChambersTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$TvDevicesTable, List<TvDeviceRow>>
+  _tvDevicesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.tvDevices,
+    aliasName: 'chambers__id__tv_devices__chamber_id',
+  );
+
+  $$TvDevicesTableProcessedTableManager get tvDevicesRefs {
+    final manager = $$TvDevicesTableTableManager(
+      $_db,
+      $_db.tvDevices,
+    ).filter((f) => f.chamberId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_tvDevicesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$ChambersTableFilterComposer
@@ -8424,6 +8917,31 @@ class $$ChambersTableFilterComposer
           }) => $$QueueTokensTableFilterComposer(
             $db: $db,
             $table: $db.queueTokens,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> tvDevicesRefs(
+    Expression<bool> Function($$TvDevicesTableFilterComposer f) f,
+  ) {
+    final $$TvDevicesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.tvDevices,
+      getReferencedColumn: (t) => t.chamberId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TvDevicesTableFilterComposer(
+            $db: $db,
+            $table: $db.tvDevices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -8608,6 +9126,31 @@ class $$ChambersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> tvDevicesRefs<T extends Object>(
+    Expression<T> Function($$TvDevicesTableAnnotationComposer a) f,
+  ) {
+    final $$TvDevicesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.tvDevices,
+      getReferencedColumn: (t) => t.chamberId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TvDevicesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tvDevices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ChambersTableTableManager
@@ -8627,6 +9170,7 @@ class $$ChambersTableTableManager
             bool doctorId,
             bool queueSessionsRefs,
             bool queueTokensRefs,
+            bool tvDevicesRefs,
           })
         > {
   $$ChambersTableTableManager(_$AppDatabase db, $ChambersTable table)
@@ -8697,12 +9241,14 @@ class $$ChambersTableTableManager
                 doctorId = false,
                 queueSessionsRefs = false,
                 queueTokensRefs = false,
+                tvDevicesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (queueSessionsRefs) db.queueSessions,
                     if (queueTokensRefs) db.queueTokens,
+                    if (tvDevicesRefs) db.tvDevices,
                   ],
                   addJoins:
                       <
@@ -8776,6 +9322,26 @@ class $$ChambersTableTableManager
                           referencedColumn: 'chamber_id',
                           typedResults: items,
                         ),
+                      if (tvDevicesRefs)
+                        await $_getPrefetchedDataByColumns<
+                          ChamberRow,
+                          $ChambersTable,
+                          TvDeviceRow,
+                          $TvDevicesTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ChambersTableReferences
+                              ._tvDevicesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ChambersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).tvDevicesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'chamber_id',
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -8800,6 +9366,7 @@ typedef $$ChambersTableProcessedTableManager =
         bool doctorId,
         bool queueSessionsRefs,
         bool queueTokensRefs,
+        bool tvDevicesRefs,
       })
     >;
 typedef $$AppSettingsTableCreateCompanionBuilder =
@@ -13963,6 +14530,359 @@ typedef $$TokenPrintAttemptsTableProcessedTableManager =
       TokenPrintAttemptRow,
       PrefetchHooks Function({bool tokenId})
     >;
+typedef $$TvDevicesTableCreateCompanionBuilder = TvDevicesCompanion Function({
+  required String id,
+  required String chamberId,
+  required String name,
+  required String tokenHash,
+  required int pairedAt,
+  Value<int?> lastSeenAt,
+  Value<int?> revokedAt,
+  Value<int> rowid,
+});
+typedef $$TvDevicesTableUpdateCompanionBuilder = TvDevicesCompanion Function({
+  Value<String> id,
+  Value<String> chamberId,
+  Value<String> name,
+  Value<String> tokenHash,
+  Value<int> pairedAt,
+  Value<int?> lastSeenAt,
+  Value<int?> revokedAt,
+  Value<int> rowid,
+});
+
+final class $$TvDevicesTableReferences
+    extends BaseReferences<_$AppDatabase, $TvDevicesTable, TvDeviceRow> {
+  $$TvDevicesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ChambersTable _chamberIdTable(_$AppDatabase db) =>
+      db.chambers.createAlias('tv_devices__chamber_id__chambers__id');
+
+  $$ChambersTableProcessedTableManager get chamberId {
+    final $_column = $_itemColumn<String>('chamber_id')!;
+
+    final manager = $$ChambersTableTableManager(
+      $_db,
+      $_db.chambers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_chamberIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TvDevicesTableFilterComposer
+    extends Composer<_$AppDatabase, $TvDevicesTable> {
+  $$TvDevicesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tokenHash => $composableBuilder(
+    column: $table.tokenHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pairedAt => $composableBuilder(
+    column: $table.pairedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revokedAt => $composableBuilder(
+    column: $table.revokedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ChambersTableFilterComposer get chamberId {
+    final $$ChambersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chamberId,
+      referencedTable: $db.chambers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChambersTableFilterComposer(
+            $db: $db,
+            $table: $db.chambers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TvDevicesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TvDevicesTable> {
+  $$TvDevicesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tokenHash => $composableBuilder(
+    column: $table.tokenHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pairedAt => $composableBuilder(
+    column: $table.pairedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revokedAt => $composableBuilder(
+    column: $table.revokedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ChambersTableOrderingComposer get chamberId {
+    final $$ChambersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chamberId,
+      referencedTable: $db.chambers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChambersTableOrderingComposer(
+            $db: $db,
+            $table: $db.chambers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TvDevicesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TvDevicesTable> {
+  $$TvDevicesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get tokenHash =>
+      $composableBuilder(column: $table.tokenHash, builder: (column) => column);
+
+  GeneratedColumn<int> get pairedAt =>
+      $composableBuilder(column: $table.pairedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get revokedAt =>
+      $composableBuilder(column: $table.revokedAt, builder: (column) => column);
+
+  $$ChambersTableAnnotationComposer get chamberId {
+    final $$ChambersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.chamberId,
+      referencedTable: $db.chambers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChambersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.chambers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TvDevicesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TvDevicesTable,
+          TvDeviceRow,
+          $$TvDevicesTableFilterComposer,
+          $$TvDevicesTableOrderingComposer,
+          $$TvDevicesTableAnnotationComposer,
+          $$TvDevicesTableCreateCompanionBuilder,
+          $$TvDevicesTableUpdateCompanionBuilder,
+          (TvDeviceRow, $$TvDevicesTableReferences),
+          TvDeviceRow,
+          PrefetchHooks Function({bool chamberId})
+        > {
+  $$TvDevicesTableTableManager(_$AppDatabase db, $TvDevicesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvDevicesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvDevicesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvDevicesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> chamberId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> tokenHash = const Value.absent(),
+                Value<int> pairedAt = const Value.absent(),
+                Value<int?> lastSeenAt = const Value.absent(),
+                Value<int?> revokedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TvDevicesCompanion(
+                id: id,
+                chamberId: chamberId,
+                name: name,
+                tokenHash: tokenHash,
+                pairedAt: pairedAt,
+                lastSeenAt: lastSeenAt,
+                revokedAt: revokedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String chamberId,
+                required String name,
+                required String tokenHash,
+                required int pairedAt,
+                Value<int?> lastSeenAt = const Value.absent(),
+                Value<int?> revokedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TvDevicesCompanion.insert(
+                id: id,
+                chamberId: chamberId,
+                name: name,
+                tokenHash: tokenHash,
+                pairedAt: pairedAt,
+                lastSeenAt: lastSeenAt,
+                revokedAt: revokedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TvDevicesTable, TvDeviceRow>(table),
+                  $$TvDevicesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({chamberId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (chamberId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.chamberId,
+                        referencedTable: $$TvDevicesTableReferences
+                            ._chamberIdTable(db),
+                        referencedColumn: $$TvDevicesTableReferences
+                            ._chamberIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TvDevicesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TvDevicesTable,
+      TvDeviceRow,
+      $$TvDevicesTableFilterComposer,
+      $$TvDevicesTableOrderingComposer,
+      $$TvDevicesTableAnnotationComposer,
+      $$TvDevicesTableCreateCompanionBuilder,
+      $$TvDevicesTableUpdateCompanionBuilder,
+      (TvDeviceRow, $$TvDevicesTableReferences),
+      TvDeviceRow,
+      PrefetchHooks Function({bool chamberId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -13997,4 +14917,6 @@ class $AppDatabaseManager {
       $$QueueTokensTableTableManager(_db, _db.queueTokens);
   $$TokenPrintAttemptsTableTableManager get tokenPrintAttempts =>
       $$TokenPrintAttemptsTableTableManager(_db, _db.tokenPrintAttempts);
+  $$TvDevicesTableTableManager get tvDevices =>
+      $$TvDevicesTableTableManager(_db, _db.tvDevices);
 }

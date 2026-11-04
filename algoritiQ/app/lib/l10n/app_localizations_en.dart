@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -12,7 +13,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activationTitle => 'Activate this device';
 
   @override
-  String get activationIntro => 'Send this device code to your provider to get an activation key.';
+  String get activationIntro =>
+      'Send this device code to your provider to get an activation key.';
 
   @override
   String get deviceCodeLabel => 'Device code';
@@ -33,19 +35,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activateButton => 'Activate';
 
   @override
-  String get licenseErrorMalformed => 'This doesn\'t look like an activation key. Check it and try again.';
+  String get licenseErrorMalformed =>
+      'This doesn\'t look like an activation key. Check it and try again.';
 
   @override
-  String get licenseErrorUnknownKey => 'This version of the app doesn\'t recognise this key.';
+  String get licenseErrorUnknownKey =>
+      'This version of the app doesn\'t recognise this key.';
 
   @override
   String get licenseErrorBadSignature => 'This key is not valid.';
 
   @override
-  String get licenseErrorWrongDevice => 'This key was issued for a different device.';
+  String get licenseErrorWrongDevice =>
+      'This key was issued for a different device.';
 
   @override
-  String get licenseErrorExpired => 'Your license has expired. Enter a renewed key to continue.';
+  String get licenseErrorExpired =>
+      'Your license has expired. Enter a renewed key to continue.';
 
   @override
   String get deviceUnavailable => 'Couldn\'t read this device\'s identity.';
@@ -87,7 +93,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get licenseNoExpiry => 'No expiry';
 
   @override
-  String get licenseGraceNotice => 'License expired. Enter a renewed key soon to avoid interruption.';
+  String get licenseGraceNotice =>
+      'License expired. Enter a renewed key soon to avoid interruption.';
 
   @override
   String get activationStepCopy => 'Copy code';
@@ -105,7 +112,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stepCurrent => 'current step';
 
   @override
-  String get activationFooter => 'Your license is tied to this device and works offline.';
+  String get activationFooter =>
+      'Your license is tied to this device and works offline.';
 
   @override
   String get activating => 'Activating…';
@@ -218,7 +226,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readyTitle => 'You\'re all set';
 
   @override
-  String get readyIntro => 'Your profile and chambers are saved. You can change them later in settings.';
+  String get readyIntro =>
+      'Your profile and chambers are saved. You can change them later in settings.';
 
   @override
   String get startButton => 'Start';
@@ -241,7 +250,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workplaceLabel => 'Hospital or institution (optional)';
 
   @override
-  String get registrationLabel => 'Medical council registration number (optional)';
+  String get registrationLabel =>
+      'Medical council registration number (optional)';
 
   @override
   String get photoLabel => 'Photo (optional)';
@@ -289,7 +299,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminGuideTitle => 'Create the admin account';
 
   @override
-  String get adminGuideIntro => 'Someone you trust sets up the clinic from a laptop or phone on the same Wi-Fi.';
+  String get adminGuideIntro =>
+      'Someone you trust sets up the clinic from a laptop or phone on the same Wi-Fi.';
 
   @override
   String get guideStepOpen => 'Open this address';
@@ -327,13 +338,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverRunning => 'Server running';
 
   @override
-  String get serverNoNetwork => 'Connect this tablet to the clinic Wi-Fi to continue.';
+  String get serverNoNetwork =>
+      'Connect this tablet to the clinic Wi-Fi to continue.';
 
   @override
   String get serverFailed => 'The server could not start.';
 
   @override
-  String get certNote => 'Your browser will say the connection is not private. That is expected: the tablet uses its own certificate. Check the fingerprint, then continue.';
+  String get certNote =>
+      'Your browser will say the connection is not private. That is expected: the tablet uses its own certificate. Check the fingerprint, then continue.';
 
   @override
   String get certFingerprintLabel => 'Certificate fingerprint';
@@ -342,31 +355,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readinessTitle => 'Keep the tablet ready';
 
   @override
-  String get readinessIntro => 'So the queue stays reachable for patients, the TV and the web app, even with the screen locked or after a restart.';
+  String get readinessIntro =>
+      'So the queue stays reachable for patients, the TV and the web app, even with the screen locked or after a restart.';
 
   @override
   String get readinessBackgroundTitle => 'Run in the background';
 
   @override
-  String get readinessBackgroundBody => 'Stops Android from pausing the server to save battery.';
+  String get readinessBackgroundBody =>
+      'Stops Android from pausing the server to save battery.';
 
   @override
   String get readinessNotificationsTitle => 'Show the running notice';
 
   @override
-  String get readinessNotificationsBody => 'A small notice tells Android this app must keep running.';
+  String get readinessNotificationsBody =>
+      'A small notice tells Android this app must keep running.';
 
   @override
   String get readinessBluetoothTitle => 'Allow Bluetooth';
 
   @override
-  String get readinessBluetoothBody => 'Lets the app see whether Bluetooth is on or off and ask to turn it on when needed for printing.';
+  String get readinessBluetoothBody =>
+      'Lets the app see whether Bluetooth is on or off and ask to turn it on when needed for printing.';
 
   @override
   String get readinessAutoStartTitle => 'Start after a restart';
 
   @override
-  String get readinessAutoStartBody => 'Restart the tablet once to check. This is ticked when the server starts by itself after the restart. If it stays unticked, tap the settings icon, allow AlgoritiQ to start automatically (App launch), and restart again.';
+  String get readinessAutoStartBody =>
+      'Restart the tablet once to check. This is ticked when the server starts by itself after the restart. If it stays unticked, tap the settings icon, allow AlgoritiQ to start automatically (App launch), and restart again.';
 
   @override
   String get readinessServiceTitle => 'Background service';
@@ -405,7 +423,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clinicDataTitle => 'Clinic data';
 
   @override
-  String get clinicDataIntro => 'Start fresh on this tablet, or bring back a zip you saved from Backup in the web app.';
+  String get clinicDataIntro =>
+      'Start fresh on this tablet, or bring back a zip you saved from Backup in the web app.';
 
   @override
   String get clinicDataStartNew => 'Start new';
@@ -414,19 +433,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clinicDataRestore => 'Restore from backup';
 
   @override
-  String get clinicDataRestoreHint => 'Choose the zip file you downloaded from Backup on another session.';
+  String get clinicDataRestoreHint =>
+      'Choose the zip file you downloaded from Backup on another session.';
 
   @override
   String get clinicDataRestoreBusy => 'Restoring…';
 
   @override
-  String get clinicDataRestoreFailed => 'Could not restore this backup. Check the file and try again.';
+  String get clinicDataRestoreFailed =>
+      'Could not restore this backup. Check the file and try again.';
 
   @override
   String get signInTitle => 'Sign in';
 
   @override
-  String get signInIntro => 'Use the username or email and the password of your admin account.';
+  String get signInIntro =>
+      'Use the username or email and the password of your admin account.';
 
   @override
   String get signInIdentifierLabel => 'Username or email';
@@ -450,7 +472,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInRemember => 'Remember me on this tablet';
 
   @override
-  String get signInRememberHint => 'Stay signed in for 30 days. Use only on your own device.';
+  String get signInRememberHint =>
+      'Stay signed in for 30 days. Use only on your own device.';
 
   @override
   String pinLoginTitle(String name) {
@@ -484,16 +507,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminNoticeTitle => 'Admin sign-in is on the web';
 
   @override
-  String get adminNoticeBody => 'This tablet only has the receptionist screen for now. To manage the clinic as an admin, open the address below in a web browser on your phone or laptop and sign in there. Admin sign-in on the tablet may come in a later update.';
+  String get adminNoticeBody =>
+      'This tablet only has the receptionist screen for now. To manage the clinic as an admin, open the address below in a web browser on your phone or laptop and sign in there. Admin sign-in on the tablet may come in a later update.';
 
   @override
-  String get adminNoticeSignOut => 'Press OK to go back to the sign-in screen. You are also signed out when this app is closed.';
+  String get adminNoticeSignOut =>
+      'Press OK to go back to the sign-in screen. You are also signed out when this app is closed.';
 
   @override
   String get adminNoticeOk => 'OK';
 
   @override
-  String get signInFieldsRequired => 'Enter your username or email and your password.';
+  String get signInFieldsRequired =>
+      'Enter your username or email and your password.';
 
   @override
   String get signInWrong => 'Wrong username, email or password.';
@@ -516,13 +542,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetTitle => 'Reset your password';
 
   @override
-  String get resetIntro => 'Enter the username of the admin account whose password you forgot.';
+  String get resetIntro =>
+      'Enter the username of the admin account whose password you forgot.';
 
   @override
   String get resetKeyLabel => 'Activation key';
 
   @override
-  String get resetKeyHint => 'The full key this tablet was activated with. Ask the clinic owner or the vendor. Spaces and dashes are optional.';
+  String get resetKeyHint =>
+      'The full key this tablet was activated with. Ask the clinic owner or the vendor. Spaces and dashes are optional.';
 
   @override
   String get resetNewPasswordLabel => 'New password';
@@ -531,7 +559,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetConfirmLabel => 'Confirm new password';
 
   @override
-  String get resetPasswordHint => 'At least 8 characters. Must not include your username.';
+  String get resetPasswordHint =>
+      'At least 8 characters. Must not include your username.';
 
   @override
   String get resetButton => 'Reset password';
@@ -546,7 +575,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetDone => 'Password changed. Sign in with your new password.';
 
   @override
-  String get resetRefused => 'The activation key or the username is not correct.';
+  String get resetRefused =>
+      'The activation key or the username is not correct.';
 
   @override
   String get resetNeedUsername => 'Enter your username.';
@@ -587,7 +617,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetKeyTitle => 'Confirm it is you';
 
   @override
-  String get resetKeyIntro => 'Enter the key this tablet was activated with. Ask the clinic owner or the vendor if you do not have it.';
+  String get resetKeyIntro =>
+      'Enter the key this tablet was activated with. Ask the clinic owner or the vendor if you do not have it.';
 
   @override
   String get resetPasswordTitle => 'Choose a new password';
@@ -607,7 +638,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetPrevious => 'Back';
 
   @override
-  String get resetExpired => 'This reset has expired. Enter the activation key again.';
+  String get resetExpired =>
+      'This reset has expired. Enter the activation key again.';
 
   @override
   String get navPrimaryLabel => 'Dashboard sections';
@@ -630,13 +662,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workScopeTitle => 'Where are you working?';
 
   @override
-  String get workScopeIntroChamber => 'Choose a chamber to open the board and patient queue.';
+  String get workScopeIntroChamber =>
+      'Choose a chamber to open the board and patient queue.';
 
   @override
-  String get workScopeIntroDoctor => 'Choose a doctor to open the board and patient queue.';
+  String get workScopeIntroDoctor =>
+      'Choose a doctor to open the board and patient queue.';
 
   @override
-  String get workScopeEmpty => 'You are not assigned to any chamber yet. Ask your administrator to assign you.';
+  String get workScopeEmpty =>
+      'You are not assigned to any chamber yet. Ask your administrator to assign you.';
 
   @override
   String workScopeActive(String name) {
@@ -650,19 +685,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navChangeWorkScope => 'Change chamber';
 
   @override
-  String get boardIntro => 'Run the counter from here. Live queue tools appear on the queue desk.';
+  String get boardIntro =>
+      'Run the counter from here. Live queue tools appear on the queue desk.';
 
   @override
   String get boardServerTitle => 'Clinic server';
 
   @override
-  String get boardServerOk => 'This tablet is serving the web app and other devices.';
+  String get boardServerOk =>
+      'This tablet is serving the web app and other devices.';
 
   @override
   String get boardServerStarting => 'Starting the clinic server…';
 
   @override
-  String get boardServerFailed => 'The clinic server could not start. Check readiness settings or restart the app.';
+  String get boardServerFailed =>
+      'The clinic server could not start. Check readiness settings or restart the app.';
 
   @override
   String get boardAccountTitle => 'Your account';
@@ -686,16 +724,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get boardQueueTitle => 'Patient queue';
 
   @override
-  String get boardQueueSoon => 'Live queue tools will appear here once they are ready.';
+  String get boardQueueSoon =>
+      'Live queue tools will appear here once they are ready.';
 
   @override
   String get deskSessionClosedTitle => 'Session not open';
 
   @override
-  String get deskSessionClosedHint => 'Start today\'s session to issue tokens and call patients.';
+  String get deskSessionClosedHint =>
+      'Start today\'s session to issue tokens and call patients.';
 
   @override
   String get deskStartSession => 'Start session';
+
+  @override
+  String get deskEndSession => 'End session';
+
+  @override
+  String deskOtherSessionOpen(String chamber) {
+    return 'The session of $chamber is still open. End it before starting this one.';
+  }
+
+  @override
+  String get deskEndSessionTitle => 'End today\'s session?';
+
+  @override
+  String deskEndSessionBody(int waiting) {
+    String _temp0 = intl.Intl.pluralLogic(
+      waiting,
+      locale: localeName,
+      other: '$waiting patients are still waiting and will not be called.',
+      one: '1 patient is still waiting and will not be called.',
+      zero: 'No patient is waiting.',
+    );
+    return '$_temp0 You can start a new session afterwards.';
+  }
+
+  @override
+  String get deskEndSessionKeep => 'Keep open';
+
+  @override
+  String get deskSessionEnded => 'Session ended.';
 
   @override
   String get deskWorking => 'Working…';
@@ -753,7 +822,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskErrorGeneric => 'Something went wrong. Try again.';
 
   @override
-  String get deskResolveCallFirst => 'Mark the current call entered, missed, or cancelled first.';
+  String get deskResolveCallFirst =>
+      'Mark the current call entered, missed, or cancelled first.';
 
   @override
   String get deskNoWaiting => 'No one is waiting in this queue.';
@@ -777,7 +847,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskRegisterIntro => 'Required fields are marked with *.';
 
   @override
-  String get deskDuplicatePhoneConfirm => 'This phone is already on file. Confirm to save anyway.';
+  String get deskDuplicatePhoneConfirm =>
+      'This phone is already on file. Confirm to save anyway.';
 
   @override
   String get deskRegisterSave => 'Confirm and save';
@@ -807,7 +878,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskFieldAdminNote => 'Admin note';
 
   @override
-  String get deskFieldPaperFile => 'Existing';
+  String get deskFieldPaperFile => 'Has existing paper file';
 
   @override
   String get deskFieldPatient => 'Patient';
@@ -840,7 +911,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSearchLabel => 'Search';
 
   @override
-  String get deskSearchHint => 'Search by phone or clinic patient number.';
+  String get deskSearchHint => 'Search by name, phone or patient ID.';
 
   @override
   String get deskSearchEmpty => 'No matching patients.';
@@ -875,10 +946,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskIssueSuccess => 'Token issued.';
 
   @override
-  String get deskErrorDuplicatePhone => 'This phone is already on file. Confirm to continue.';
+  String get deskErrorDuplicatePhone =>
+      'This phone is already on file. Confirm to continue.';
 
   @override
-  String get deskErrorActiveToken => 'This patient already has an active token today.';
+  String get deskErrorActiveToken =>
+      'This patient already has an active token today.';
 
   @override
   String get deskErrorRangeExhausted => 'This queue has no serials left.';
@@ -899,7 +972,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSettings => 'Settings';
 
   @override
-  String get settingsIntro => 'Your profile photo, name, password, and PIN for this device.';
+  String get settingsIntro =>
+      'Your profile photo, name, password, and PIN for this device.';
 
   @override
   String get userMenuLabel => 'Account menu';
@@ -923,7 +997,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPhotoTitle => 'Profile photo';
 
   @override
-  String get settingsPhotoHelp => 'JPEG, PNG or WebP. The picture is stored on this tablet.';
+  String get settingsPhotoHelp =>
+      'JPEG, PNG or WebP. The picture is stored on this tablet.';
 
   @override
   String get settingsProfileTitle => 'Personal information';
@@ -974,13 +1049,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get securityCardTitle => 'Password and PIN';
 
   @override
-  String get securityCardIntro => 'Change your password or set a quick sign-in PIN on this tablet. Changing your password removes every PIN.';
+  String get securityCardIntro =>
+      'Change your password or set a quick sign-in PIN on this tablet. Changing your password removes every PIN.';
 
   @override
   String get passwordCardTitle => 'Password';
 
   @override
-  String get passwordCardIntro => 'Choose a new password. Your other sign-ins will end.';
+  String get passwordCardIntro =>
+      'Choose a new password. Your other sign-ins will end.';
 
   @override
   String get passwordChangeButton => 'Change password';
@@ -998,7 +1075,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordConfirmLabel => 'Confirm new password';
 
   @override
-  String get passwordChanged => 'Password changed. Your other sign-ins were ended.';
+  String get passwordChanged =>
+      'Password changed. Your other sign-ins were ended.';
 
   @override
   String get passwordCurrentWrong => 'Current password is not correct.';
@@ -1010,7 +1088,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pinCardTitle => 'Quick sign-in PIN';
 
   @override
-  String get pinCardIntro => 'Sign in on this tablet with a 6-digit PIN instead of your password.';
+  String get pinCardIntro =>
+      'Sign in on this tablet with a 6-digit PIN instead of your password.';
 
   @override
   String get pinNone => 'No PIN is set on this tablet yet.';
@@ -1076,7 +1155,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectivityTitle => 'Connectivity';
 
   @override
-  String get connectivityIntro => 'Check that the printer and the TV screen are connected.';
+  String get connectivityIntro =>
+      'Check that the printer and the TV screen are connected.';
 
   @override
   String get printerTitle => 'Printer';
@@ -1103,22 +1183,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get printerStatusBtMissing => 'No Bluetooth on this tablet';
 
   @override
-  String get printerBodyNotPaired => 'Switch the printer on and choose it from the list. You only do this once.';
+  String get printerBodyNotPaired =>
+      'Switch the printer on and choose it from the list. You only do this once.';
 
   @override
-  String get printerBodyDisconnected => 'Trying to connect by itself. Make sure the printer is on and close by.';
+  String get printerBodyDisconnected =>
+      'Trying to connect by itself. Make sure the printer is on and close by.';
 
   @override
   String get printerBodyConnected => 'Ready to print tokens.';
 
   @override
-  String get printerBodyBtOff => 'Turn Bluetooth on so the tablet can reach the printer.';
+  String get printerBodyBtOff =>
+      'Turn Bluetooth on so the tablet can reach the printer.';
 
   @override
-  String get printerBodyBtDenied => 'Allow Bluetooth for this app so the tablet can reach the printer.';
+  String get printerBodyBtDenied =>
+      'Allow Bluetooth for this app so the tablet can reach the printer.';
 
   @override
-  String get printerBodyBtMissing => 'This tablet cannot connect to a Bluetooth printer.';
+  String get printerBodyBtMissing =>
+      'This tablet cannot connect to a Bluetooth printer.';
 
   @override
   String printerRetryIn(int seconds) {
@@ -1144,10 +1229,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get printerPickerTitle => 'Choose your printer';
 
   @override
-  String get printerPickerBody => 'Switch the printer on and keep it close. Printers nearby appear below.';
+  String get printerPickerBody =>
+      'Switch the printer on and keep it close. Printers nearby appear below.';
 
   @override
-  String get printerPickerPairHint => 'Android may ask for a pairing code. For most printers it is 0000 or 1234.';
+  String get printerPickerPairHint =>
+      'Android may ask for a pairing code. For most printers it is 0000 or 1234.';
 
   @override
   String get printerPickerEmpty => 'No printer found yet.';
@@ -1165,31 +1252,151 @@ class AppLocalizationsEn extends AppLocalizations {
   String get printerToastConnected => 'Printer connected.';
 
   @override
-  String get printerToastLost => 'Printer disconnected. The tablet is reconnecting.';
+  String get printerToastLost =>
+      'Printer disconnected. The tablet is reconnecting.';
 
   @override
-  String get printerToastRejected => 'Pairing was cancelled or the code was wrong.';
+  String get printerToastRejected =>
+      'Pairing was cancelled or the code was wrong.';
 
   @override
-  String get printerToastChooseFailed => 'Could not connect to the printer. Check that it is on and close by.';
+  String get printerToastChooseFailed =>
+      'Could not connect to the printer. Check that it is on and close by.';
 
   @override
-  String get printerToastConnectFailed => 'Still cannot reach the printer. The tablet will keep trying.';
+  String get printerToastConnectFailed =>
+      'Still cannot reach the printer. The tablet will keep trying.';
 
   @override
   String get printerToastTestOk => 'Test token printed.';
 
   @override
-  String get printerToastTestFailed => 'The test token did not print. Check paper and cover.';
+  String get printerToastTestFailed =>
+      'The test token did not print. Check paper and cover.';
 
   @override
   String get tvTitle => 'TV screen';
 
   @override
-  String get tvStatus => 'Coming soon';
+  String get tvStatusNotPaired => 'Not paired';
 
   @override
-  String get tvBody => 'You will check and connect the waiting-room TV here.';
+  String get tvStatusConnected => 'Connected';
+
+  @override
+  String get tvStatusNotConnected => 'Not connected';
+
+  @override
+  String get tvBodyNotPaired =>
+      'Pair the waiting-room TV with this chamber to show the queue and play announcements.';
+
+  @override
+  String get tvBodyConnected =>
+      'The TV is connected and receiving live updates from this tablet.';
+
+  @override
+  String get tvBodyNotConnected =>
+      'Switch the TV on and join it to the same Wi-Fi as this tablet.';
+
+  @override
+  String get tvActionPair => 'Pair TV';
+
+  @override
+  String get tvActionUnpair => 'Unpair';
+
+  @override
+  String get tvActionTestScreen => 'Test screen';
+
+  @override
+  String get tvActionTestSound => 'Test sound';
+
+  @override
+  String get tvPairTitle => 'Pair a TV';
+
+  @override
+  String get tvPairIntro =>
+      'Open the AlgoritiQ TV app and type the 6-digit PIN it shows.';
+
+  @override
+  String get tvPairPinLabel => 'PIN shown on the TV';
+
+  @override
+  String get tvPairCodeTitle => 'Security code';
+
+  @override
+  String get tvPairCodeHint =>
+      'The TV shows the same code. If it is different, do not pair.';
+
+  @override
+  String get tvPairConfirm => 'Pair';
+
+  @override
+  String get tvPairNoMatch =>
+      'No TV is showing this PIN. Check the number on the TV screen.';
+
+  @override
+  String get tvPairLocked =>
+      'Too many wrong PINs. Wait a few minutes and try again.';
+
+  @override
+  String get tvPairNoServer => 'The tablet is not sharing on the network yet.';
+
+  @override
+  String get tvToastPaired => 'TV paired.';
+
+  @override
+  String get tvUnpairTitle => 'Unpair this TV?';
+
+  @override
+  String tvUnpairBody(String name) {
+    return '$name will stop showing this chamber\'s queue. You can pair it again later.';
+  }
+
+  @override
+  String get tvUnpairConfirm => 'Unpair';
+
+  @override
+  String get tvToastUnpaired => 'TV unpaired.';
+
+  @override
+  String get tvTestScreenConfirmTitle => 'Show a test screen on the TV?';
+
+  @override
+  String get tvTestScreenConfirmBody =>
+      'The TV will show a test screen for a few seconds. The real queue is not changed.';
+
+  @override
+  String get tvTestScreenConfirmAction => 'Show on TV';
+
+  @override
+  String get tvTestSoundConfirmTitle => 'Play a test sound?';
+
+  @override
+  String get tvTestSoundConfirmBody =>
+      'The TV will show the test screen and play a short sound sent from this tablet.';
+
+  @override
+  String get tvTestSoundConfirmAction => 'Play test sound';
+
+  @override
+  String get tvToastTestScreenOk => 'The TV showed the test screen.';
+
+  @override
+  String get tvToastTestSoundOk => 'The TV played the test sound.';
+
+  @override
+  String get tvToastSoundFailed =>
+      'The test screen is showing but the sound did not play. Check the TV volume and audio output.';
+
+  @override
+  String get tvToastNoReply => 'The TV did not answer. Try again.';
+
+  @override
+  String get tvToastNotConnected => 'The TV is not connected.';
+
+  @override
+  String get tvToastNoDetails =>
+      'The chamber details for the test could not be found.';
 
   @override
   String get dialogClose => 'Close';
@@ -1198,11 +1405,221 @@ class AppLocalizationsEn extends AppLocalizations {
   String get printerTestConfirmTitle => 'Print a test token?';
 
   @override
-  String get printerTestConfirmBody => 'A sample token with a dummy number will print, using the chamber and doctor details set up here.';
+  String get printerTestConfirmBody =>
+      'A sample token with a dummy number will print, using the chamber and doctor details set up here.';
 
   @override
   String get printerTestConfirmAction => 'Print test token';
 
   @override
-  String get printerToastNoDetails => 'The chamber or doctor details for the token could not be found.';
+  String get printerToastNoDetails =>
+      'The chamber or doctor details for the token could not be found.';
+
+  @override
+  String get deskColSerial => 'Serial';
+
+  @override
+  String get deskColQueue => 'Queue';
+
+  @override
+  String get deskColId => 'ID';
+
+  @override
+  String get deskColName => 'Name';
+
+  @override
+  String get deskColWait => 'Wait';
+
+  @override
+  String get deskColStatus => 'Status';
+
+  @override
+  String get deskStatusWaiting => 'Waiting';
+
+  @override
+  String get deskStatusCalled => 'Called';
+
+  @override
+  String get deskStatusEntered => 'Entered';
+
+  @override
+  String get deskStatusMissed => 'Missed';
+
+  @override
+  String get deskStatusCancelled => 'Cancelled';
+
+  @override
+  String get deskPrintNotPrinted => 'Not printed';
+
+  @override
+  String get deskPrintPrinting => 'Printing';
+
+  @override
+  String get deskPrintCheck => 'Check slip';
+
+  @override
+  String get deskRowPrint => 'Print';
+
+  @override
+  String get deskRowReprint => 'Reprint';
+
+  @override
+  String get deskRowMore => 'More actions';
+
+  @override
+  String get deskRowEditPatient => 'Edit patient';
+
+  @override
+  String get deskRowCancelToken => 'Cancel token';
+
+  @override
+  String get deskCancelTokenTitle => 'Cancel token';
+
+  @override
+  String get deskCancelTokenKeep => 'Keep token';
+
+  @override
+  String get deskTokenCancelled => 'Token cancelled.';
+
+  @override
+  String get deskReprintTitle => 'Print again';
+
+  @override
+  String get deskReprintConfirm => 'Print';
+
+  @override
+  String get deskSessionEmptyHint => 'Add a patient to start the queue.';
+
+  @override
+  String get deskPatientAdded => 'Patient added to the session.';
+
+  @override
+  String get deskPatientAddedPrinted => 'Patient added and token printed.';
+
+  @override
+  String get deskIssuedNotPrinted =>
+      'Token issued. It did not print, check the printer.';
+
+  @override
+  String get deskIssuedPrintUnknown =>
+      'Token issued. The printer did not answer, check the slip.';
+
+  @override
+  String get deskPrintSent => 'Token printed.';
+
+  @override
+  String get deskPrintFailed =>
+      'Could not print. Check the printer and try again.';
+
+  @override
+  String get deskPrinterBusy =>
+      'Another slip is printing. Try again in a moment.';
+
+  @override
+  String get deskSearchStart => 'Type a name, phone number or patient ID.';
+
+  @override
+  String get deskIssueTokenTitle => 'Issue token';
+
+  @override
+  String get deskIssueTokenAction => 'Issue token';
+
+  @override
+  String get deskEditPatient => 'Edit patient';
+
+  @override
+  String get deskChangePatient => 'Change patient';
+
+  @override
+  String get deskEditPatientTitle => 'Edit patient';
+
+  @override
+  String get deskEditPatientSave => 'Save changes';
+
+  @override
+  String get deskPatientUpdated => 'Patient updated.';
+
+  @override
+  String get deskChooseQueue => 'Choose a queue';
+
+  @override
+  String deskCancelTokenBody(String serial, String name) {
+    return 'Cancel token $serial for $name? The serial number is not used again.';
+  }
+
+  @override
+  String deskReprintBody(String serial) {
+    return 'Print token $serial again? The slip is marked REPRINT.';
+  }
+
+  @override
+  String deskWaitingShort(String count) {
+    return '$count waiting';
+  }
+
+  @override
+  String get deskFieldRequired => 'Required';
+
+  @override
+  String get deskNoMatchHint =>
+      'No patient matches. Register a new patient instead.';
+
+  @override
+  String get deskSearchFailed => 'Search failed. Try again.';
+
+  @override
+  String get deskSearchClear => 'Clear search';
+
+  @override
+  String get deskPrintConfirmTitle => 'Print token';
+
+  @override
+  String deskPrintConfirmBody(String serial) {
+    return 'Print token $serial?';
+  }
+
+  @override
+  String get deskColPatientId => 'Patient ID';
+
+  @override
+  String get deskSearchPatients => 'Search';
+
+  @override
+  String get deskFilterAll => 'All';
+
+  @override
+  String get deskFilterNotPrinted => 'Not printed';
+
+  @override
+  String get deskFilterAllQueues => 'All queues';
+
+  @override
+  String get deskFilterAllStatuses => 'All statuses';
+
+  @override
+  String get deskNoMatch => 'No patients match.';
+
+  @override
+  String get deskClearFilters => 'Clear filters';
+
+  @override
+  String get deskPrintNeeded => 'Not printed. Print now.';
+
+  @override
+  String get deskPrintBusy => 'Printing';
+
+  @override
+  String get deskSortAscending => 'sorted ascending';
+
+  @override
+  String get deskSortDescending => 'sorted descending';
+
+  @override
+  String get deskLoadFailed => 'Could not load patients.';
+
+  @override
+  String get deskSortBy => 'Sort by';
+
+  @override
+  String get deskColIssued => 'Time added';
 }

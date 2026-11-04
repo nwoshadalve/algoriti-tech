@@ -258,7 +258,10 @@ void main() {
           email: 'owner@clinic.test',
         );
         expect(initial.status, 409);
-        expect((initial.json['error']! as Map)['code'], 'cannot_disable_initial_admin');
+        expect(
+          (initial.json['error']! as Map)['code'],
+          'cannot_disable_initial_admin',
+        );
       },
     );
   });

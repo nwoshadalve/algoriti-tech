@@ -15,6 +15,7 @@ import { PagePreloader } from '@/core/ui/PagePreloader'
 import { LoadingButton } from '@/core/ui/LoadingButton'
 import { bluetoothOutcomeKey } from '@/features/monitoring/bluetoothOutcome'
 import { printerTestOutcomeKey } from '@/features/monitoring/printerTestOutcome'
+import { tvTestOutcomeKey } from '@/features/monitoring/tvTestOutcome'
 import { ResourcesGrid } from '@/features/monitoring/ResourcesGrid'
 import { ServicesPanel } from '@/features/monitoring/ServicesPanel'
 import { formatUptime } from '@/features/monitoring/format'
@@ -37,9 +38,10 @@ export function MonitoringPage() {
   const { t, locale } = useLocale()
   const toast = useToast()
   const live = useLiveChannel()
-  const { data, failed, retry, reload, turnBluetoothOn, bluetoothBusy, testPrint, testPrintBusy } =
+  const { data, failed, retry, reload, turnBluetoothOn, bluetoothBusy, testPrint, testPrintBusy, testTvDisplay, testTvSound, tvTestBusy } =
     useMonitoring()
   const [testConfirmOpen, setTestConfirmOpen] = useState(false)
+  const [tvTestConfirm, setTvTestConfirm] = useState<'screen' | 'sound' | null>(null)
 
   async function onTurnBluetoothOn() {
     const outcome = await turnBluetoothOn()
@@ -60,6 +62,19 @@ export function MonitoringPage() {
     }
     if (outcome === 'printed') toast.success(t(printerTestOutcomeKey(outcome)))
     else toast.error(t(printerTestOutcomeKey(outcome)))
+  }
+
+  async function onConfirmTvTest() {
+    const mode = tvTestConfirm
+    setTvTestConfirm(null)
+    if (!mode) return
+    const outcome = mode === 'screen' ? await testTvDisplay() : await testTvSound()
+    if (!outcome) {
+      toast.error(t('monitorLoadFailed'))
+      return
+    }
+    if (outcome === 'sent') toast.success(t(tvTestOutcomeKey(outcome)))
+    else toast.error(t(tvTestOutcomeKey(outcome)))
   }
 
   const services = data ? withBrowserWebsocket(data, live) : []
@@ -113,6 +128,9 @@ export function MonitoringPage() {
             onRetry={onRetry}
             onTestPrint={() => setTestConfirmOpen(true)}
             testPrintBusy={testPrintBusy}
+            onTestTvDisplay={() => setTvTestConfirm('screen')}
+            onTestTvSound={() => setTvTestConfirm('sound')}
+            tvTestBusy={tvTestBusy}
           />
 
           {testConfirmOpen ? (
@@ -144,6 +162,55 @@ export function MonitoringPage() {
             >
               <p className="text-sm text-brand-navy/80 dark:text-white/80">
                 {t('monitorPrinterTestConfirmBody')}
+              </p>
+            </Modal>
+          ) : null}
+
+          {tvTestConfirm ? (
+            <Modal
+              title={t(
+                tvTestConfirm === 'screen'
+                  ? 'monitorTvTestScreenConfirmTitle'
+                  : 'monitorTvTestSoundConfirmTitle',
+              )}
+              onClose={() => setTvTestConfirm(null)}
+              busy={tvTestBusy}
+              footer={
+                <div className="flex flex-wrap justify-end gap-2">
+                  <button
+                    type="button"
+                    disabled={tvTestBusy}
+                    className="inline-flex min-h-11 items-center rounded-xl border border-brand-navy/15 px-4 text-sm font-medium dark:border-white/20"
+                    onClick={() => setTvTestConfirm(null)}
+                  >
+                    {t('actionCancel')}
+                  </button>
+                  <LoadingButton
+                    type="button"
+                    isLoading={tvTestBusy}
+                    loadingLabel={t(
+                      tvTestConfirm === 'screen'
+                        ? 'monitorTvTestScreenConfirmAction'
+                        : 'monitorTvTestSoundConfirmAction',
+                    )}
+                    className="min-h-11"
+                    onClick={() => void onConfirmTvTest()}
+                  >
+                    {t(
+                      tvTestConfirm === 'screen'
+                        ? 'monitorTvTestScreenConfirmAction'
+                        : 'monitorTvTestSoundConfirmAction',
+                    )}
+                  </LoadingButton>
+                </div>
+              }
+            >
+              <p className="text-sm text-brand-navy/80 dark:text-white/80">
+                {t(
+                  tvTestConfirm === 'screen'
+                    ? 'monitorTvTestScreenConfirmBody'
+                    : 'monitorTvTestSoundConfirmBody',
+                )}
               </p>
             </Modal>
           ) : null}

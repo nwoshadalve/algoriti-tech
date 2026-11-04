@@ -63,13 +63,12 @@ export function callNextFromQueue(kind) {
 /** @param {HTMLElement | null | undefined} root */
 export function renderIdentity(root) {
   if (!root) return;
-  const { doctor, chamber, session: sess } = session;
+  const { doctor, chamber } = session;
 
   const img = root.querySelector("[data-tv-doctor-photo]");
   const fallback = root.querySelector("[data-tv-doctor-photo-fallback]");
   if (img instanceof HTMLImageElement) {
     img.onload = () => {
-      img.hidden = false;
       if (fallback) fallback.hidden = true;
     };
     img.onerror = () => {
@@ -97,7 +96,28 @@ export function renderIdentity(root) {
     "[data-tv-chamber-phone]",
     t("chamberPhoneLabel", { phone: formatPhoneBn(chamber.phone) }),
   );
-  setText(root, "[data-tv-session-label]", sess.label || sess.businessDate);
+}
+
+const AUDIENCE_CLOCK_TZ = "Asia/Dhaka";
+
+/** @param {ParentNode | null | undefined} root */
+export function startAudienceClock(root) {
+  const el = root?.querySelector("[data-tv-clock]");
+  if (!(el instanceof HTMLElement)) return;
+
+  const tick = () => {
+    const now = new Date();
+    const formatted = new Intl.DateTimeFormat("bn-BD", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: AUDIENCE_CLOCK_TZ,
+    }).format(now);
+    el.textContent = toBnDigits(formatted);
+  };
+
+  tick();
+  window.setInterval(tick, 30_000);
 }
 
 /** @param {HTMLElement | null | undefined} root */

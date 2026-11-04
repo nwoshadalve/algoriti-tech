@@ -23,6 +23,9 @@ type ServicesPanelProps = {
   onRetry: (id: ServiceId) => void
   onTestPrint?: () => void
   testPrintBusy?: boolean
+  onTestTvDisplay?: () => void
+  onTestTvSound?: () => void
+  tvTestBusy?: boolean
 }
 
 function byId(services: HealthService[], id: ServiceId): HealthService | undefined {
@@ -30,7 +33,7 @@ function byId(services: HealthService[], id: ServiceId): HealthService | undefin
 }
 
 /** Printer and TV first, then server connectivity in a compact list. */
-export function ServicesPanel({ services, onRetry, onTestPrint, testPrintBusy }: ServicesPanelProps) {
+export function ServicesPanel({ services, onRetry, onTestPrint, testPrintBusy, onTestTvDisplay, onTestTvSound, tvTestBusy }: ServicesPanelProps) {
   const { t } = useLocale()
 
   return (
@@ -56,6 +59,9 @@ export function ServicesPanel({ services, onRetry, onTestPrint, testPrintBusy }:
                 onRetry={() => onRetry(id)}
                 onTestPrint={id === 'printer' ? onTestPrint : undefined}
                 testPrintBusy={id === 'printer' ? testPrintBusy : undefined}
+                onTestTvDisplay={id === 'tv' ? onTestTvDisplay : undefined}
+                onTestTvSound={id === 'tv' ? onTestTvSound : undefined}
+                tvTestBusy={id === 'tv' ? tvTestBusy : undefined}
               />
             )
           })}

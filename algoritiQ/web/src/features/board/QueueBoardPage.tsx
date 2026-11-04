@@ -5,10 +5,11 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { listChambers } from '@/core/api/chambers'
-import { getQueueDeskSnapshot, startQueueDeskSession } from '@/core/api/queueDesk'
-import type { BoardSnapshot, BoardTokenView, Chamber } from '@/core/api/types'
+import { getQueueDeskSnapshot, pickChamberIdWithOpenSession, startQueueDeskSession } from '@/core/api/queueDesk'
+import type { BoardTokenView, Chamber } from '@/core/api/types'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import { useToast } from '@/core/toast/toastContext'
 import { secondaryButton } from '@/core/ui/buttonStyles'
@@ -23,15 +24,22 @@ import { readSession } from '@/features/auth/session'
 import { boardErrorKey } from '@/features/board/boardErrors'
 import { CancelTokenModal } from '@/features/board/CancelTokenModal'
 import { CurrentCallPanel } from '@/features/board/CurrentCallPanel'
+import { EditPatientModal } from '@/features/board/EditPatientModal'
 import { ExistingPatientModal } from '@/features/board/ExistingPatientModal'
 import { QueueControlsSection } from '@/features/board/QueueControlsSection'
+import { QueueDeskTableToolbar } from '@/features/board/QueueDeskTableToolbar'
+import { queueDeskQueryKeys } from '@/features/board/queueDeskQueryKeys'
 import { RegisterPatientModal } from '@/features/board/RegisterPatientModal'
-import { ReprintModal } from '@/features/board/ReprintModal'
 import { SessionPatientActions } from '@/features/board/SessionPatientActions'
 import { SessionTokensTable } from '@/features/board/SessionTokensTable'
+import { TokenPrintConfirmModal } from '@/features/board/TokenPrintConfirmModal'
+import {
+  invalidateQueueDeskBoard,
+  useQueueDeskSessionTable,
+} from '@/features/board/useQueueDeskSessionTable'
 import { WorkScopeContext } from '@/features/work/workScopeContext'
 
-type TokenDialog = { kind: 'reprint'; token: BoardTokenView } | { kind: 'cancel'; token: BoardTokenView } | null
+type TokenDialog = { kind: 'print'; token: BoardTokenView } | { kind: 'cancel'; token: BoardTokenView } | null
 
 type PatientDialog = { kind: 'new' } | { kind: 'existing' } | null
 
@@ -39,10 +47,11 @@ type QueueBoardPageProps = {
   role: 'admin' | 'receptionist'
 }
 
-/** Queue desk: left queue control (⅓), right session table (⅔); patient entry in modals. */
+/** Queue desk: controls + session table; responsive from phone to desktop. */
 export function QueueBoardPage({ role }: QueueBoardPageProps) {
   const { t } = useLocale()
   const toast = useToast()
+  const queryClient = useQueryClient()
   const { state } = useAuth()
   const account = state.status === 'signedIn' ? state.account : null
   const workScopeCtx = useContext(WorkScopeContext)
@@ -53,68 +62,59 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
 
   const [chambers, setChambers] = useState<Chamber[]>([])
   const [chamberId, setChamberId] = useState('')
-  const [snapshot, setSnapshot] = useState<BoardSnapshot | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [failed, setFailed] = useState(false)
+  const [chambersLoading, setChambersLoading] = useState(role === 'admin')
+  const [chambersFailed, setChambersFailed] = useState(false)
   const [startingSession, setStartingSession] = useState(false)
   const [tokenDialog, setTokenDialog] = useState<TokenDialog>(null)
   const [patientDialog, setPatientDialog] = useState<PatientDialog>(null)
+  const [editPatientToken, setEditPatientToken] = useState<BoardTokenView | null>(null)
 
   const receptionistReady = workScopeState?.status === 'ready'
-  const fixedChamberId = receptionistReady ? workScopeState.selected.id : ''
+  const fixedChamberId = receptionistReady
+    ? workScopeState.selected.deskChamberId ?? workScopeState.selected.id
+    : ''
   const activeChamberId = role === 'admin' ? chamberId : fixedChamberId
+  const authToken = readSession()
+  const boardEnabled = Boolean(
+    authToken && activeChamberId && (role !== 'receptionist' || receptionistReady),
+  )
 
-  const refresh = useCallback(async (id: string) => {
-    const token = readSession()
-    if (!token || !id) return
-    const board = await getQueueDeskSnapshot(token, id)
-    setSnapshot(board)
-    setFailed(false)
-  }, [])
+  const snapshotQuery = useQuery({
+    queryKey: queueDeskQueryKeys.snapshot(activeChamberId),
+    queryFn: () =>
+      getQueueDeskSnapshot(authToken!, activeChamberId, { includeTokens: false }),
+    enabled: boardEnabled,
+  })
 
-  const load = useCallback(async () => {
+  const sessionOpen = snapshotQuery.data?.sessionOpen ?? false
+  const table = useQueueDeskSessionTable(activeChamberId, sessionOpen)
+
+  const refreshBoard = useCallback(
+    (id: string) => {
+      invalidateQueueDeskBoard(queryClient, id)
+    },
+    [queryClient],
+  )
+
+  const deskRefresh = useCallback(async () => {
+    if (activeChamberId) refreshBoard(activeChamberId)
+  }, [activeChamberId, refreshBoard])
+
+  useEffect(() => {
+    if (!account || role !== 'admin') return
     const token = readSession()
     if (!token) return
-    if (role === 'receptionist') {
-      if (workScopeState?.status !== 'ready') {
-        setLoading(false)
-        return
-      }
-      setLoading(true)
-      setFailed(false)
-      try {
-        await refresh(workScopeState.selected.id)
-      } catch {
-        setFailed(true)
-      } finally {
-        setLoading(false)
-      }
-      return
-    }
-    setLoading(true)
-    setFailed(false)
-    try {
-      const chamberList = await listChambers(token).catch(() => [] as Chamber[])
-      setChambers(chamberList)
-      const id = chamberList[0]?.id ?? ''
-      setChamberId((current) => current || id)
-      if (id) await refresh(id)
-    } catch {
-      setFailed(true)
-    } finally {
-      setLoading(false)
-    }
-  }, [refresh, role, workScopeState])
-
-  useEffect(() => {
-    if (account) void load()
-  }, [account, load])
-
-  useEffect(() => {
-    if (!activeChamberId || loading) return
-    if (role === 'receptionist' && !receptionistReady) return
-    void refresh(activeChamberId).catch(() => setFailed(true))
-  }, [activeChamberId, loading, receptionistReady, refresh, role])
+    setChambersLoading(true)
+    setChambersFailed(false)
+    void listChambers(token)
+      .then(async (chamberList) => {
+        setChambers(chamberList)
+        const preferred = await pickChamberIdWithOpenSession(token, chamberList)
+        setChamberId((current) => current || preferred)
+      })
+      .catch(() => setChambersFailed(true))
+      .finally(() => setChambersLoading(false))
+  }, [account, role])
 
   async function startSession() {
     const token = readSession()
@@ -123,7 +123,7 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
     try {
       await startQueueDeskSession(token, activeChamberId)
       toast.success(t('boardSessionStarted'))
-      await refresh(activeChamberId)
+      refreshBoard(activeChamberId)
     } catch (error) {
       toast.error(t(boardErrorKey(error)))
     } finally {
@@ -144,16 +144,24 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
     )
   }
 
-  if (loading && !snapshot) {
+  const snapshot = snapshotQuery.data
+  const boardLoading = boardEnabled && snapshotQuery.isLoading && !snapshot
+  const boardFailed = snapshotQuery.isError || chambersFailed
+
+  if ((role === 'admin' && chambersLoading) || boardLoading) {
     return (
       <div>
         <PageHeader
           title={t('navQueueDesk')}
           description={role === 'admin' ? t('boardAdminIntro') : t('boardIntro')}
         />
-        {failed ? (
+        {boardFailed ? (
           <NoticeBanner tone="error">
-            <button type="button" className={secondaryButton} onClick={() => void load()}>
+            <button
+              type="button"
+              className={secondaryButton}
+              onClick={() => refreshBoard(activeChamberId)}
+            >
               {t('usersRetry')}
             </button>
           </NoticeBanner>
@@ -165,7 +173,6 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
   }
 
   const chamberOptions = chambers.map((row) => ({ value: row.id, label: row.name }))
-  const sessionOpen = snapshot?.sessionOpen ?? false
   const intro =
     snapshot && role === 'admin'
       ? t('boardAdminIntroNamed', { name: snapshot.chamberName })
@@ -174,7 +181,7 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
         : t('boardAdminIntro')
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 pb-6">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 pb-6 lg:max-h-[calc(100dvh-8rem)]">
       <PageHeader
         title={t('navQueueDesk')}
         description={intro}
@@ -187,15 +194,28 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
               value={chamberId}
               onChange={(event) => setChamberId(event.target.value)}
               options={chamberOptions}
-              className="min-w-[12rem]"
+              className="min-w-0 w-full sm:min-w-[12rem] sm:w-auto"
             />
           ) : null
         }
       />
 
-      {failed ? (
+      {boardFailed ? (
         <NoticeBanner tone="error">
-          <button type="button" className={secondaryButton} onClick={() => void refresh(activeChamberId)}>
+          <button type="button" className={secondaryButton} onClick={() => refreshBoard(activeChamberId)}>
+            {t('usersRetry')}
+          </button>
+        </NoticeBanner>
+      ) : null}
+
+      {sessionOpen && table.isError ? (
+        <NoticeBanner tone="error">
+          {t(boardErrorKey(table.error))}
+          <button
+            type="button"
+            className={`${secondaryButton} mt-2`}
+            onClick={() => table.refreshTable()}
+          >
             {t('usersRetry')}
           </button>
         </NoticeBanner>
@@ -210,7 +230,7 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
           </h2>
           <p className="mt-1 text-sm text-brand-navy/70 dark:text-white/70">{t('boardSessionClosedHelp')}</p>
           <LoadingButton
-            className="mt-4 sm:w-auto sm:min-w-48"
+            className="mt-4 w-full sm:w-auto sm:min-w-48"
             isLoading={startingSession}
             loadingLabel={t('boardWorking')}
             onClick={() => void startSession()}
@@ -220,14 +240,14 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
         </Card>
       ) : null}
 
-      {snapshot && activeChamberId ? (
-        <div className="grid min-h-0 min-w-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-          <div className="flex min-w-0 flex-col gap-4">
+      {snapshot && activeChamberId && sessionOpen ? (
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 xl:flex-row xl:items-stretch">
+          <aside className="flex w-full shrink-0 flex-col gap-3 xl:w-[min(100%,20rem)] xl:max-w-xs">
             <CurrentCallPanel
               layout="desk"
               chamberId={activeChamberId}
               called={snapshot.calledToken}
-              onRefresh={() => void refresh(activeChamberId)}
+              onRefresh={() => refreshBoard(activeChamberId)}
               onCancel={(token) => setTokenDialog({ kind: 'cancel', token })}
             />
             <QueueControlsSection
@@ -236,16 +256,19 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
               controls={snapshot.queueControls}
               calledToken={snapshot.calledToken}
               sessionOpen={sessionOpen}
-              onRefresh={() => void refresh(activeChamberId)}
+              onRefresh={() => refreshBoard(activeChamberId)}
             />
-          </div>
+          </aside>
 
           <section
             aria-labelledby="board-session-table"
-            className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-brand-navy/10 bg-white shadow-sm dark:border-white/10 dark:bg-brand-navy-raised"
+            className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-brand-navy/10 bg-white shadow-sm dark:border-white/10 dark:bg-brand-navy-raised xl:min-h-[20rem]"
           >
-            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-navy/10 px-4 py-3 dark:border-white/10">
-              <h2 id="board-session-table" className="text-xs font-bold tracking-wide text-brand-navy/70 uppercase dark:text-white/70">
+            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-navy/10 px-3 py-3 dark:border-white/10 sm:px-4">
+              <h2
+                id="board-session-table"
+                className="text-xs font-bold tracking-wide text-brand-navy/70 uppercase dark:text-white/70"
+              >
                 {t('boardSessionTableTitle')}
               </h2>
               <SessionPatientActions
@@ -254,14 +277,41 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
                 onAddExisting={() => setPatientDialog({ kind: 'existing' })}
               />
             </header>
-            <div className="min-h-0 flex-1 overflow-hidden p-2 pt-0">
-              <SessionTokensTable
-                tokens={snapshot.tokens}
-                printerBusyTokenId={snapshot.printerBusyTokenId}
-                onReprint={(token) => setTokenDialog({ kind: 'reprint', token })}
-                embedded
-              />
-            </div>
+            <QueueDeskTableToolbar
+              search={table.searchInput}
+              onSearchChange={table.setSearchInput}
+              status={table.status}
+              onStatusChange={table.setStatus}
+              queueTypeId={table.queueTypeId}
+              onQueueChange={table.setQueueTypeId}
+              notPrintedOnly={table.notPrintedOnly}
+              onToggleNotPrinted={table.setNotPrintedOnly}
+              sort={table.sort}
+              ascending={table.ascending}
+              onSort={table.toggleSort}
+              counts={table.counts}
+              total={table.total}
+              queues={snapshot.queueControls}
+              hasFilters={table.hasFilters}
+              onClear={table.clearFilters}
+            />
+            <SessionTokensTable
+              tokens={table.tokens}
+              printerBusyTokenId={snapshot.printerBusyTokenId}
+              sort={table.sort}
+              ascending={table.ascending}
+              onSort={table.toggleSort}
+              emptyFiltered={table.hasFilters && table.tokens.length === 0 && !table.isLoading}
+              onClearFilters={table.clearFilters}
+              hasMore={table.hasMore}
+              isLoadingMore={table.isLoadingMore}
+              onLoadMore={table.loadMore}
+              onPrint={(token) => setTokenDialog({ kind: 'print', token })}
+              onReprint={(token) => setTokenDialog({ kind: 'print', token })}
+              onEditPatient={(token) => setEditPatientToken(token)}
+              onCancel={(token) => setTokenDialog({ kind: 'cancel', token })}
+              embedded
+            />
           </section>
         </div>
       ) : null}
@@ -271,10 +321,7 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
           chamberId={activeChamberId}
           queueControls={snapshot.queueControls}
           onClose={() => setPatientDialog(null)}
-          onRegistered={() => {
-            setPatientDialog(null)
-            void refresh(activeChamberId)
-          }}
+          onDone={() => deskRefresh()}
         />
       ) : null}
       {patientDialog?.kind === 'existing' && snapshot ? (
@@ -282,21 +329,16 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
           chamberId={activeChamberId}
           queueControls={snapshot.queueControls}
           onClose={() => setPatientDialog(null)}
-          onIssued={() => {
-            setPatientDialog(null)
-            void refresh(activeChamberId)
-          }}
+          onDone={() => deskRefresh()}
         />
       ) : null}
 
-      {tokenDialog?.kind === 'reprint' ? (
-        <ReprintModal
+      {tokenDialog?.kind === 'print' ? (
+        <TokenPrintConfirmModal
           token={tokenDialog.token}
           onClose={() => setTokenDialog(null)}
-          onDone={() => {
-            setTokenDialog(null)
-            void refresh(activeChamberId)
-          }}
+          onRefresh={() => deskRefresh()}
+          onDone={() => setTokenDialog(null)}
         />
       ) : null}
       {tokenDialog?.kind === 'cancel' ? (
@@ -305,7 +347,17 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
           onClose={() => setTokenDialog(null)}
           onDone={() => {
             setTokenDialog(null)
-            void refresh(activeChamberId)
+            void deskRefresh()
+          }}
+        />
+      ) : null}
+      {editPatientToken ? (
+        <EditPatientModal
+          token={editPatientToken}
+          onClose={() => setEditPatientToken(null)}
+          onSaved={() => {
+            setEditPatientToken(null)
+            refreshBoard(activeChamberId)
           }}
         />
       ) : null}

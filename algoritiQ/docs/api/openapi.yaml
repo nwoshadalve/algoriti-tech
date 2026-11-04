@@ -458,6 +458,11 @@ paths:
                         id: { type: string }
                         name: { type: string }
                         detail: { type: string }
+                        deskChamberId:
+                          type: string
+                          description: >
+                            Chamber id for queue-desk API calls when the assignment
+                            is a doctor (chamber-license clinics).
         '401':
           description: Not signed in (`unauthorized`).
           content:
@@ -1413,6 +1418,495 @@ paths:
         '401': { description: Not signed in (`unauthorized`). }
         '403': { description: Not an admin (`forbidden`). }
         '404': { description: No open session (`queue_session_missing`). }
+  /patients/search:
+    post:
+      summary: Find patients for the queue desk
+      description: >
+        Admin or receptionist with access to the chamber. Search by Bengali or
+        English name, clinic patient ID, or phone prefix.
+      operationId: searchPatients
+      tags: [Patients]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string }
+      responses:
+        '200':
+          description: Matching patients (may be empty).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [patients]
+                properties:
+                  patients:
+                    type: array
+                    items: { $ref: '#/components/schemas/PatientSummary' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not allowed on the desk (`forbidden`). }
+  /patients:
+    post:
+      summary: Register a new patient at the desk
+      operationId: registerPatient
+      tags: [Patients]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PatientRegisterInput' }
+      responses:
+        '200':
+          description: Saved patient.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PatientSummary' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not allowed on the desk (`forbidden`). }
+        '409': { description: Duplicate phone needs confirmation (`duplicate_phone`), or other desk conflict. }
+  /patients/{patientId}:
+    patch:
+      summary: Update a patient profile from the desk
+      operationId: updatePatient
+      tags: [Patients]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: patientId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bengaliName, phone]
+              properties:
+                bengaliName: { type: string }
+                phone: { type: string }
+                englishName: { type: string }
+                gender:
+                  type: string
+                  enum: [male, female, other, not_stated]
+                dateOfBirthMs: { type: integer }
+                birthYear: { type: integer }
+                approximateAgeYears: { type: integer }
+                locality: { type: string }
+                legacyFileNumber: { type: string }
+                adminNote: { type: string }
+                hasPaperFile: { type: boolean }
+                confirmDuplicatePhone: { type: boolean }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PatientSummary' }
+        '403': { description: Not allowed on the desk (`forbidden`). }
+        '400': { description: Validation failed (`validation_failed`). }
+  /queue-desk/chambers/{chamberId}:
+    get:
+      summary: Queue desk snapshot for one chamber
+      description: >
+        Live controls, the called token and optionally every session token.
+        Web clients should pass `includeTokens=false` and load the table via
+        `GET .../session/tokens`.
+      operationId: getQueueDeskBoard
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+        - in: query
+          name: includeTokens
+          schema: { type: boolean, default: true }
+          description: When false, `tokens` is always an empty array.
+      responses:
+        '200':
+          description: Board snapshot.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BoardSnapshot' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not allowed for this chamber (`forbidden`). }
+        '404': { description: Unknown chamber (`not_found`). }
+  /queue-desk/chambers/{chamberId}/session/start:
+    post:
+      summary: Open today's queue session
+      operationId: startQueueDeskSession
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Session opened. }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not allowed (`forbidden`). }
+        '404': { description: Unknown chamber (`not_found`). }
+  /queue-desk/chambers/{chamberId}/session/tokens:
+    get:
+      summary: Search and page today's session tokens
+      operationId: searchQueueDeskSessionTokens
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+        - in: query
+          name: search
+          schema: { type: string, default: '' }
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [WAITING, CALLED, SKIPPED, ENTERED, CANCELLED]
+        - in: query
+          name: queueTypeId
+          schema: { type: string }
+        - in: query
+          name: notPrintedOnly
+          schema: { type: boolean, default: false }
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [issued, id, name, serial, queue, wait, status]
+            default: issued
+        - in: query
+          name: ascending
+          schema: { type: boolean, default: false }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100, default: 30 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200':
+          description: One page of tokens plus totals.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPage' }
+        '400': { description: Invalid query (`validation_failed`). }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not allowed (`forbidden`). }
+        '404': { description: Unknown chamber (`not_found`). }
+  /queue-desk/chambers/{chamberId}/issue-preview:
+    post:
+      summary: Preview the next serial before issuing
+      operationId: previewQueueDeskIssue
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [patientId, queueTypeId]
+              properties:
+                patientId: { type: string }
+                queueTypeId: { type: string }
+                feeBdt: { type: integer, nullable: true }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/IssuePreview' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not allowed (`forbidden`). }
+        '409': { description: Session closed or validation conflict. }
+  /queue-desk/chambers/{chamberId}/register-and-issue:
+    post:
+      summary: Register a patient and issue a token in one step
+      operationId: registerAndIssueQueueDeskToken
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [commandId, bengaliName, phone, queueTypeId]
+              properties:
+                commandId: { type: string, format: uuid }
+                bengaliName: { type: string }
+                phone: { type: string }
+                englishName: { type: string }
+                gender:
+                  type: string
+                  enum: [male, female, other, not_stated]
+                approximateAgeYears: { type: integer }
+                hasPaperFile: { type: boolean }
+                confirmDuplicatePhone: { type: boolean }
+                queueTypeId: { type: string }
+                feeBdt: { type: integer, nullable: true }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/IssuedTokenResult' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not allowed (`forbidden`). }
+        '409': { description: Desk conflict (session, duplicate phone, …). }
+  /queue-desk/chambers/{chamberId}/issue:
+    post:
+      summary: Issue a token and start printing
+      operationId: issueQueueDeskToken
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [commandId, patientId, queueTypeId]
+              properties:
+                commandId: { type: string, format: uuid }
+                patientId: { type: string }
+                queueTypeId: { type: string }
+                feeBdt: { type: integer, nullable: true }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/IssuedTokenResult' }
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not allowed (`forbidden`). }
+        '409': { description: Desk conflict (session, range, duplicate token, …). }
+  /queue-desk/chambers/{chamberId}/call-next:
+    post:
+      summary: Call the next waiting token in a queue
+      operationId: callNextQueueDeskToken
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [queueTypeId]
+              properties:
+                commandId: { type: string, format: uuid }
+                queueTypeId: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BoardTokenView' }
+        '409': { description: No waiting token or unresolved call (`no_waiting_token`, `unresolved_called_token`). }
+  /queue-desk/chambers/{chamberId}/recall:
+    post:
+      summary: Recall the latest called token for a queue
+      operationId: recallQueueDeskToken
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chamberId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [queueTypeId]
+              properties:
+                commandId: { type: string, format: uuid }
+                queueTypeId: { type: string }
+      responses:
+        '204': { description: Recall signalled. }
+        '409': { description: Nothing to recall (`no_called_token`). }
+  /queue-desk/tokens/{tokenId}/entered:
+    post:
+      summary: Mark the called patient as entered
+      operationId: markQueueDeskTokenEntered
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: tokenId
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commandId: { type: string, format: uuid }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BoardTokenView' }
+  /queue-desk/tokens/{tokenId}/skipped:
+    post:
+      summary: Mark the called patient as missed
+      operationId: markQueueDeskTokenSkipped
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: tokenId
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commandId: { type: string, format: uuid }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BoardTokenView' }
+  /queue-desk/tokens/{tokenId}/cancel:
+    post:
+      summary: Cancel an active token
+      operationId: cancelQueueDeskToken
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: tokenId
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commandId: { type: string, format: uuid }
+                reason: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BoardTokenView' }
+  /queue-desk/tokens/{tokenId}/reprint:
+    post:
+      summary: Reprint a token slip
+      description: Creates a print attempt and sends the job to the chamber printer (same as the tablet desk).
+      operationId: reprintQueueDeskToken
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: tokenId
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commandId: { type: string, format: uuid }
+                reason: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [printAttemptId, printResult]
+                properties:
+                  printAttemptId: { type: string }
+                  printResult:
+                    type: string
+                    enum: [sent, failed, notConnected, unknown]
+        '409': { description: Printer busy (`printer_busy`). }
+  /queue-desk/tokens/{tokenId}/print:
+    post:
+      summary: Send an existing pending print attempt to the printer
+      description: Used after issue/register-and-issue when a pending attempt already exists.
+      operationId: sendQueueDeskTokenPrint
+      tags: [QueueDesk]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: tokenId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [printAttemptId]
+              properties:
+                printAttemptId: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [printResult]
+                properties:
+                  printResult:
+                    type: string
+                    enum: [sent, failed, notConnected, unknown]
+        '409': { description: Printer busy (`printer_busy`). }
   /audit:
     get:
       summary: Paginated audit log for admins
@@ -1807,6 +2301,155 @@ components:
               nextNumber: { type: integer }
               enabled: { type: boolean }
               capacity: { type: integer }
+    PatientSummary:
+      type: object
+      required: [id, patientNumber, clinicPatientId, bengaliName]
+      properties:
+        id: { type: string }
+        patientNumber: { type: integer }
+        clinicPatientId: { type: string }
+        bengaliName: { type: string }
+        englishName: { type: string, nullable: true }
+        phoneNormalized: { type: string }
+        gender:
+          type: string
+          nullable: true
+          enum: [male, female, other, not_stated]
+        ageLabel: { type: string, nullable: true }
+    PatientRegisterInput:
+      allOf:
+        - type: object
+          required: [bengaliName, phone, chamberId, commandId]
+          properties:
+            chamberId: { type: string }
+            commandId: { type: string, format: uuid }
+            bengaliName: { type: string }
+            phone: { type: string }
+            englishName: { type: string }
+            gender:
+              type: string
+              enum: [male, female, other, not_stated]
+            dateOfBirthMs: { type: integer }
+            birthYear: { type: integer }
+            approximateAgeYears: { type: integer }
+            locality: { type: string }
+            legacyFileNumber: { type: string }
+            adminNote: { type: string }
+            hasPaperFile: { type: boolean }
+            confirmDuplicatePhone: { type: boolean }
+    BoardTokenView:
+      type: object
+      required:
+        - id
+        - serial
+        - queueTypeId
+        - queueEnglishName
+        - queueBengaliName
+        - patientId
+        - clinicPatientId
+        - patientBengaliName
+        - status
+        - issuedAt
+      properties:
+        id: { type: string }
+        serial: { type: integer }
+        queueTypeId: { type: string }
+        queueEnglishName: { type: string }
+        queueBengaliName: { type: string }
+        patientId: { type: string }
+        clinicPatientId: { type: string }
+        patientBengaliName: { type: string }
+        status:
+          type: string
+          enum: [WAITING, CALLED, SKIPPED, ENTERED, CANCELLED]
+        issuedAt: { type: string, format: date-time }
+        firstCalledAt: { type: string, format: date-time, nullable: true }
+        enteredAt: { type: string, format: date-time, nullable: true }
+        feeBdt: { type: integer, nullable: true }
+        latestPrintStatus:
+          type: string
+          nullable: true
+          enum: [PENDING, SENT, FAILED, UNKNOWN]
+    QueueTypeBoardControl:
+      type: object
+      required:
+        - queueTypeId
+        - englishName
+        - bengaliName
+        - waitingCount
+        - nextSerial
+        - canCallNext
+        - canRecall
+      properties:
+        queueTypeId: { type: string }
+        englishName: { type: string }
+        bengaliName: { type: string }
+        waitingCount: { type: integer }
+        nextSerial: { type: integer }
+        canCallNext: { type: boolean }
+        canRecall: { type: boolean }
+    BoardSnapshot:
+      type: object
+      required:
+        - chamberId
+        - chamberName
+        - sessionOpen
+        - queueControls
+        - tokens
+        - printerBusyTokenId
+      properties:
+        chamberId: { type: string }
+        chamberName: { type: string }
+        sessionId: { type: string, nullable: true }
+        sessionOpen: { type: boolean }
+        calledToken:
+          allOf: [{ $ref: '#/components/schemas/BoardTokenView' }]
+          nullable: true
+        queueControls:
+          type: array
+          items: { $ref: '#/components/schemas/QueueTypeBoardControl' }
+        tokens:
+          type: array
+          items: { $ref: '#/components/schemas/BoardTokenView' }
+        printerBusyTokenId: { type: string, nullable: true }
+    TokenPage:
+      type: object
+      required: [items, total, counts]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/BoardTokenView' }
+        total: { type: integer }
+        counts:
+          type: object
+          additionalProperties: { type: integer }
+          description: Per-status totals ignoring the status filter.
+    IssuePreview:
+      type: object
+      required:
+        - patient
+        - chamberName
+        - queueTypeId
+        - queueEnglishName
+        - queueBengaliName
+        - previewSerial
+      properties:
+        patient: { $ref: '#/components/schemas/PatientSummary' }
+        chamberName: { type: string }
+        queueTypeId: { type: string }
+        queueEnglishName: { type: string }
+        queueBengaliName: { type: string }
+        previewSerial: { type: integer }
+        feeBdt: { type: integer, nullable: true }
+    IssuedTokenResult:
+      type: object
+      required: [token, printAttemptId, printStatus]
+      properties:
+        token: { $ref: '#/components/schemas/BoardTokenView' }
+        printAttemptId: { type: string }
+        printStatus:
+          type: string
+          enum: [PENDING, SENT, FAILED, UNKNOWN]
     AuditLogEntry:
       type: object
       required: [id, occurredAt, action, category, outcome, actorDisplayName, actorRole, safeMetadata, detail]

@@ -703,6 +703,34 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deskStartSession => 'সেশন শুরু';
 
   @override
+  String get deskEndSession => 'সেশন শেষ করুন';
+
+  @override
+  String deskOtherSessionOpen(String chamber) {
+    return '$chamber-এর সেশন এখনও চালু আছে। এটি শুরু করার আগে সেটি শেষ করুন।';
+  }
+
+  @override
+  String get deskEndSessionTitle => 'আজকের সেশন শেষ করবেন?';
+
+  @override
+  String deskEndSessionBody(int waiting) {
+    String _temp0 = intl.Intl.pluralLogic(
+      waiting,
+      locale: localeName,
+      other: '$waiting জন রোগী এখনও অপেক্ষায় আছেন, তাঁদের আর ডাকা হবে না।',
+      zero: 'কেউ অপেক্ষায় নেই।',
+    );
+    return '$_temp0 এরপর নতুন সেশন শুরু করতে পারবেন।';
+  }
+
+  @override
+  String get deskEndSessionKeep => 'চালু রাখুন';
+
+  @override
+  String get deskSessionEnded => 'সেশন শেষ হয়েছে।';
+
+  @override
   String get deskWorking => 'কাজ চলছে…';
 
   @override
@@ -813,7 +841,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deskFieldAdminNote => 'অ্যাডমিন নোট';
 
   @override
-  String get deskFieldPaperFile => 'Existing';
+  String get deskFieldPaperFile => 'আগের কাগজের ফাইল আছে';
 
   @override
   String get deskFieldPatient => 'রোগী';
@@ -846,7 +874,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deskSearchLabel => 'খুঁজুন';
 
   @override
-  String get deskSearchHint => 'ফোন বা ক্লিনিক রোগী নম্বর দিয়ে খুঁজুন।';
+  String get deskSearchHint => 'নাম, ফোন বা রোগীর আইডি দিয়ে খুঁজুন।';
 
   @override
   String get deskSearchEmpty => 'কোনো রোগী পাওয়া যায়নি।';
@@ -1211,10 +1239,124 @@ class AppLocalizationsBn extends AppLocalizations {
   String get tvTitle => 'টিভি স্ক্রিন';
 
   @override
-  String get tvStatus => 'শীঘ্রই আসছে';
+  String get tvStatusNotPaired => 'যুক্ত করা নেই';
 
   @override
-  String get tvBody => 'ওয়েটিং রুমের টিভি এখান থেকে দেখে যুক্ত করবেন।';
+  String get tvStatusConnected => 'সংযুক্ত';
+
+  @override
+  String get tvStatusNotConnected => 'সংযুক্ত নয়';
+
+  @override
+  String get tvBodyNotPaired =>
+      'সারি দেখাতে ও ঘোষণা বাজাতে ওয়েটিং রুমের টিভি এই চেম্বারের সাথে যুক্ত করুন।';
+
+  @override
+  String get tvBodyConnected =>
+      'টিভি সংযুক্ত আছে এবং এই ট্যাবলেট থেকে লাইভ আপডেট পাচ্ছে।';
+
+  @override
+  String get tvBodyNotConnected =>
+      'টিভি চালু করুন এবং এই ট্যাবলেটের একই ওয়াই-ফাইয়ে যুক্ত করুন।';
+
+  @override
+  String get tvActionPair => 'টিভি যুক্ত করুন';
+
+  @override
+  String get tvActionUnpair => 'বিচ্ছিন্ন করুন';
+
+  @override
+  String get tvActionTestScreen => 'পর্দা পরীক্ষা';
+
+  @override
+  String get tvActionTestSound => 'শব্দ পরীক্ষা';
+
+  @override
+  String get tvPairTitle => 'টিভি যুক্ত করুন';
+
+  @override
+  String get tvPairIntro =>
+      'AlgoritiQ টিভি অ্যাপ খুলুন এবং সেখানে দেখানো ৬ সংখ্যার পিন লিখুন।';
+
+  @override
+  String get tvPairPinLabel => 'টিভিতে দেখানো পিন';
+
+  @override
+  String get tvPairCodeTitle => 'নিরাপত্তা কোড';
+
+  @override
+  String get tvPairCodeHint =>
+      'টিভিতেও একই কোড দেখা যাবে। না মিললে যুক্ত করবেন না।';
+
+  @override
+  String get tvPairConfirm => 'যুক্ত করুন';
+
+  @override
+  String get tvPairNoMatch =>
+      'এই পিন কোনো টিভিতে দেখানো হচ্ছে না। টিভির পর্দার নম্বরটি দেখুন।';
+
+  @override
+  String get tvPairLocked =>
+      'অনেকবার ভুল পিন দেওয়া হয়েছে। কয়েক মিনিট পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get tvPairNoServer => 'ট্যাবলেট এখনও নেটওয়ার্কে শেয়ার করছে না।';
+
+  @override
+  String get tvToastPaired => 'টিভি যুক্ত হয়েছে।';
+
+  @override
+  String get tvUnpairTitle => 'এই টিভি বিচ্ছিন্ন করবেন?';
+
+  @override
+  String tvUnpairBody(String name) {
+    return '$name আর এই চেম্বারের সারি দেখাবে না। পরে আবার যুক্ত করতে পারবেন।';
+  }
+
+  @override
+  String get tvUnpairConfirm => 'বিচ্ছিন্ন করুন';
+
+  @override
+  String get tvToastUnpaired => 'টিভি বিচ্ছিন্ন হয়েছে।';
+
+  @override
+  String get tvTestScreenConfirmTitle => 'টিভিতে পরীক্ষার পর্দা দেখাবেন?';
+
+  @override
+  String get tvTestScreenConfirmBody =>
+      'টিভিতে কয়েক সেকেন্ডের জন্য একটি পরীক্ষার পর্দা দেখা যাবে। আসল সারি বদলাবে না।';
+
+  @override
+  String get tvTestScreenConfirmAction => 'টিভিতে দেখান';
+
+  @override
+  String get tvTestSoundConfirmTitle => 'পরীক্ষার শব্দ বাজাবেন?';
+
+  @override
+  String get tvTestSoundConfirmBody =>
+      'টিভিতে পরীক্ষার পর্দা দেখা যাবে এবং এই ট্যাবলেট থেকে পাঠানো ছোট একটি শব্দ বাজবে।';
+
+  @override
+  String get tvTestSoundConfirmAction => 'পরীক্ষার শব্দ';
+
+  @override
+  String get tvToastTestScreenOk => 'টিভি পরীক্ষার পর্দা দেখিয়েছে।';
+
+  @override
+  String get tvToastTestSoundOk => 'টিভি পরীক্ষার শব্দ বাজিয়েছে।';
+
+  @override
+  String get tvToastSoundFailed =>
+      'পরীক্ষার পর্দা দেখা যাচ্ছে কিন্তু শব্দ বাজেনি। টিভির ভলিউম ও অডিও আউটপুট দেখুন।';
+
+  @override
+  String get tvToastNoReply => 'টিভি সাড়া দেয়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get tvToastNotConnected => 'টিভি সংযুক্ত নয়।';
+
+  @override
+  String get tvToastNoDetails => 'পরীক্ষার জন্য কক্ষের তথ্য পাওয়া যায়নি।';
 
   @override
   String get dialogClose => 'বন্ধ করুন';
@@ -1232,4 +1374,212 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get printerToastNoDetails =>
       'টোকেনের জন্য চেম্বার বা ডাক্তারের তথ্য পাওয়া যায়নি।';
+
+  @override
+  String get deskColSerial => 'সিরিয়াল';
+
+  @override
+  String get deskColQueue => 'কিউ';
+
+  @override
+  String get deskColId => 'আইডি';
+
+  @override
+  String get deskColName => 'নাম';
+
+  @override
+  String get deskColWait => 'অপেক্ষা';
+
+  @override
+  String get deskColStatus => 'অবস্থা';
+
+  @override
+  String get deskStatusWaiting => 'অপেক্ষায়';
+
+  @override
+  String get deskStatusCalled => 'ডাকা হয়েছে';
+
+  @override
+  String get deskStatusEntered => 'ঢুকেছেন';
+
+  @override
+  String get deskStatusMissed => 'আসেননি';
+
+  @override
+  String get deskStatusCancelled => 'বাতিল';
+
+  @override
+  String get deskPrintNotPrinted => 'প্রিন্ট হয়নি';
+
+  @override
+  String get deskPrintPrinting => 'প্রিন্ট হচ্ছে';
+
+  @override
+  String get deskPrintCheck => 'স্লিপ দেখুন';
+
+  @override
+  String get deskRowPrint => 'প্রিন্ট';
+
+  @override
+  String get deskRowReprint => 'আবার প্রিন্ট';
+
+  @override
+  String get deskRowMore => 'আরও কাজ';
+
+  @override
+  String get deskRowEditPatient => 'রোগীর তথ্য বদলান';
+
+  @override
+  String get deskRowCancelToken => 'টোকেন বাতিল';
+
+  @override
+  String get deskCancelTokenTitle => 'টোকেন বাতিল';
+
+  @override
+  String get deskCancelTokenKeep => 'টোকেন রাখুন';
+
+  @override
+  String get deskTokenCancelled => 'টোকেন বাতিল হয়েছে।';
+
+  @override
+  String get deskReprintTitle => 'আবার প্রিন্ট';
+
+  @override
+  String get deskReprintConfirm => 'প্রিন্ট';
+
+  @override
+  String get deskSessionEmptyHint => 'রোগী যোগ করে কিউ শুরু করুন।';
+
+  @override
+  String get deskPatientAdded => 'রোগীকে আজকের সেশনে যোগ করা হয়েছে।';
+
+  @override
+  String get deskPatientAddedPrinted =>
+      'রোগী যোগ হয়েছে ও টোকেন প্রিন্ট হয়েছে।';
+
+  @override
+  String get deskIssuedNotPrinted =>
+      'টোকেন দেওয়া হয়েছে, কিন্তু প্রিন্ট হয়নি। প্রিন্টার দেখুন।';
+
+  @override
+  String get deskIssuedPrintUnknown =>
+      'টোকেন দেওয়া হয়েছে। প্রিন্টার সাড়া দেয়নি, স্লিপ দেখুন।';
+
+  @override
+  String get deskPrintSent => 'টোকেন প্রিন্ট হয়েছে।';
+
+  @override
+  String get deskPrintFailed =>
+      'প্রিন্ট করা যায়নি। প্রিন্টার দেখে আবার চেষ্টা করুন।';
+
+  @override
+  String get deskPrinterBusy =>
+      'আরেকটি স্লিপ প্রিন্ট হচ্ছে। একটু পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get deskSearchStart => 'নাম, ফোন নম্বর বা রোগীর আইডি লিখুন।';
+
+  @override
+  String get deskIssueTokenTitle => 'টোকেন দিন';
+
+  @override
+  String get deskIssueTokenAction => 'টোকেন দিন';
+
+  @override
+  String get deskEditPatient => 'রোগীর তথ্য বদলান';
+
+  @override
+  String get deskChangePatient => 'অন্য রোগী';
+
+  @override
+  String get deskEditPatientTitle => 'রোগীর তথ্য';
+
+  @override
+  String get deskEditPatientSave => 'পরিবর্তন সংরক্ষণ';
+
+  @override
+  String get deskPatientUpdated => 'রোগীর তথ্য বদলানো হয়েছে।';
+
+  @override
+  String get deskChooseQueue => 'কিউ বেছে নিন';
+
+  @override
+  String deskCancelTokenBody(String serial, String name) {
+    return '$name-এর টোকেন $serial বাতিল করবেন? এই নম্বর আর ব্যবহার হবে না।';
+  }
+
+  @override
+  String deskReprintBody(String serial) {
+    return 'টোকেন $serial আবার প্রিন্ট করবেন? স্লিপে REPRINT লেখা থাকবে।';
+  }
+
+  @override
+  String deskWaitingShort(String count) {
+    return '$count জন অপেক্ষায়';
+  }
+
+  @override
+  String get deskFieldRequired => 'আবশ্যক';
+
+  @override
+  String get deskNoMatchHint => 'কোনো রোগী মেলেনি। নতুন রোগী যোগ করুন।';
+
+  @override
+  String get deskSearchFailed => 'খোঁজা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get deskSearchClear => 'খোঁজা মুছুন';
+
+  @override
+  String get deskPrintConfirmTitle => 'টোকেন প্রিন্ট';
+
+  @override
+  String deskPrintConfirmBody(String serial) {
+    return 'টোকেন $serial প্রিন্ট করবেন?';
+  }
+
+  @override
+  String get deskColPatientId => 'রোগীর আইডি';
+
+  @override
+  String get deskSearchPatients => 'খুঁজুন';
+
+  @override
+  String get deskFilterAll => 'সব';
+
+  @override
+  String get deskFilterNotPrinted => 'প্রিন্ট হয়নি';
+
+  @override
+  String get deskFilterAllQueues => 'সব কিউ';
+
+  @override
+  String get deskFilterAllStatuses => 'সব অবস্থা';
+
+  @override
+  String get deskNoMatch => 'কোনো রোগী মেলেনি।';
+
+  @override
+  String get deskClearFilters => 'ফিল্টার মুছুন';
+
+  @override
+  String get deskPrintNeeded => 'প্রিন্ট হয়নি। এখন প্রিন্ট করুন।';
+
+  @override
+  String get deskPrintBusy => 'প্রিন্ট হচ্ছে';
+
+  @override
+  String get deskSortAscending => 'ছোট থেকে বড়';
+
+  @override
+  String get deskSortDescending => 'বড় থেকে ছোট';
+
+  @override
+  String get deskLoadFailed => 'রোগীদের তালিকা আনা যায়নি।';
+
+  @override
+  String get deskSortBy => 'সাজান';
+
+  @override
+  String get deskColIssued => 'যোগের সময়';
 }

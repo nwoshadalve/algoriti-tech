@@ -40,8 +40,5 @@ abstract interface class ClinicRepository {
   Future<void> setStage(SetupStage stage);
 
   /// Whether another chamber already uses [prefix].
-  Future<bool> patientIdPrefixInUse(
-    String prefix, {
-    String? exceptChamberId,
-  });
+  Future<bool> patientIdPrefixInUse(String prefix, {String? exceptChamberId});
 }

@@ -129,9 +129,7 @@ void main() {
               'has_paper_file INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, '
               'PRIMARY KEY (id))',
             )
-            ..execute(
-              "INSERT INTO doctors (id, name) VALUES ('d1', 'Doctor')",
-            )
+            ..execute("INSERT INTO doctors (id, name) VALUES ('d1', 'Doctor')")
             ..execute(
               "INSERT INTO chambers (id, doctor_id, name, created_at) "
               "VALUES ('c1', 'd1', 'Chamber', 1)",
@@ -150,7 +148,10 @@ void main() {
 
     final patients = await database.select(database.patients).get();
     expect(patients, hasLength(2));
-    expect(patients.map((p) => p.clinicPatientId).toSet(), {'P-000001', 'P-000002'});
+    expect(patients.map((p) => p.clinicPatientId).toSet(), {
+      'P-000001',
+      'P-000002',
+    });
 
     final chamber = await database.select(database.chambers).getSingle();
     expect(chamber.patientIdPrefix, isNotEmpty);

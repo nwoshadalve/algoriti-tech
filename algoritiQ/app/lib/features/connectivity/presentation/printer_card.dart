@@ -25,7 +25,6 @@ class PrinterCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(printerControllerProvider);
-    final theme = Theme.of(context);
 
     final (label, tone) = _headline(l10n, state);
 
@@ -35,26 +34,19 @@ class PrinterCard extends ConsumerWidget {
       statusLabel: label,
       tone: tone,
       child: !state.loaded
-          ? const SizedBox(height: Spacing.lg)
+          ? const SizedBox(height: Spacing.md)
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  _body(l10n, state),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
+                ConnectivityBody(_body(l10n, state)),
                 if (state.link == PrinterLink.disconnected &&
                     state.nextTryAt != null)
                   _RetryCountdown(until: state.nextTryAt!),
                 if (state.saved != null) ...[
-                  const SizedBox(height: Spacing.sm),
-                  Text(
-                    state.saved!.name,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                  const SizedBox(height: Spacing.md),
+                  ConnectivityDeviceChip(
+                    icon: Icons.bluetooth_rounded,
+                    name: state.saved!.name,
                   ),
                 ],
                 const SizedBox(height: Spacing.md),
@@ -136,15 +128,27 @@ class _RetryCountdownState extends State<_RetryCountdown> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(top: Spacing.xs),
+      padding: const EdgeInsets.only(top: Spacing.sm),
       child: StreamBuilder<int>(
         stream: _tick,
-        builder: (context, _) => Text(
-          AppLocalizations.of(context).printerRetryIn(_seconds),
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w600,
-          ),
+        builder: (context, _) => Row(
+          children: [
+            Icon(
+              Icons.timer_outlined,
+              size: 18,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: Spacing.xs + 2),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context).printerRetryIn(_seconds),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

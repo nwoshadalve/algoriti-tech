@@ -16,6 +16,8 @@ export function queueErrorKey(error: unknown): MessageKey {
         return 'queueErrorValidation'
       case 'queue_session_open':
         return 'queueErrorSessionOpen'
+      case 'queue_other_session_open':
+        return 'queueErrorOtherSessionOpen'
       case 'queue_chamber_inherits_defaults':
         return 'queueErrorInheritDefaults'
       case 'forbidden':

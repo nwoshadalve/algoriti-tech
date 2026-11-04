@@ -43,7 +43,7 @@ function mount() {
     <div class="mock-shell mock-shell--minimal">
       <aside class="mock-controls" aria-label="Preview controls (not part of TV UI)">
         <h1 class="mock-controls__title">AlgoritiQ TV mock</h1>
-        <p class="mock-controls__hint">Developer picker only. The TV screen has no logo, nav, or language toggle — left: doctor/chamber, right: queue and announcement.</p>
+        <p class="mock-controls__hint">Developer picker only. Open <code>/screens/display-live.html</code> full-screen on the TV for true 100% scaling (any resolution). Layout: <strong>left</strong> doctor/chamber, <strong>right</strong> announcement + queue — no scrolling.</p>
         <label class="mock-field">
           <span>Screen</span>
           <select id="screen-select"></select>

@@ -35,6 +35,7 @@ part 'app_database.g.dart';
 /// - v13: composite primary key on queue types (`id`, `owner_key`).
 /// - v14: one-time data cleanup on upgrade (removed orphan per-chamber type rows). Per-chamber queue overrides remain the product model; see `docs/features/queue-configuration.md` §4.
 /// - v15: chamber patient ID prefix + sequence; canonical `clinic_patient_id` on patients.
+/// - v16: paired TVs (`tv_devices`).
 @DriftDatabase(
   tables: [
     Doctors,
@@ -52,6 +53,7 @@ part 'app_database.g.dart';
     IdempotentCommands,
     QueueTokens,
     TokenPrintAttempts,
+    TvDevices,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -68,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -143,6 +145,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 15) {
         await _migrateChamberPatientIdPrefixes(m);
+      }
+      if (from < 16) {
+        await m.createTable(tvDevices);
       }
     },
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
@@ -254,7 +259,10 @@ FROM queue_types''');
         if (decoded['useClinicDefaults'] != false) continue;
         await db.customStatement(
           'UPDATE app_settings SET value = ? WHERE key = ?',
-          [jsonEncode({'useClinicDefaults': true}), key],
+          [
+            jsonEncode({'useClinicDefaults': true}),
+            key,
+          ],
         );
       } on Object {
         // Leave malformed settings untouched.
@@ -303,7 +311,9 @@ FROM queue_types''');
 
     if (hasChambers) {
       final usedPrefixes = <String>{};
-      final chamberRows = await db.customSelect('SELECT id FROM chambers').get();
+      final chamberRows = await db
+          .customSelect('SELECT id FROM chambers')
+          .get();
       final rng = Random.secure();
       for (final row in chamberRows) {
         final id = row.read<String>('id');

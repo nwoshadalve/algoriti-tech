@@ -47,15 +47,18 @@ The patient token, always in **Bengali**, one slip about 3 cm of paper long:
  আল-খিদমাহ্ মেডিকেল সার্ভিসেস, চাঁদপুর     chamber (up to 2 lines)
         ডাঃ মোঃ রহিম উদ্দিন                doctor
  - - - - - - - - - - - - - - - - - - - -
- [ নিয়মিত ]                       ১২     queue type, token number (big)
+        [ নিয়মিত ]                       queue type (pill)
+              ১২৩৪                         token number (big, below)
  - - - - - - - - - - - - - - - - - - - -
-          ID: PT-২৬-০০৪২১                registration ID
+        আইডি: PT-২৬-০০৪২১              registration ID
         ৩০/১০/২৬ · ১২:১৪ PM              date and time
 ```
 
 No product name, no patient name or phone. Queue types: **নিয়মিত** (Regular), **রিপোর্ট** (Report), **ড্রেসিং** (Dressing). The token number counts from 1 per queue type per day (decided with the owner; the queue itself is built later and will use `TokenSlip`).
 
-How it prints: `TokenSlipRenderer` (`data/`) draws the slip with Flutter's text engine (the printer has no Bengali font) onto a **384-dot-wide** picture, `encodeRasterJob` turns it into black and white and wraps it as ESC/POS (`ESC @`, `GS v 0` raster, `ESC d 3` feed), and `PrinterChannel.kt` sends the bytes in 1 KB chunks. The Bengali glyphs come from Android's system Bengali font (only Plus Jakarta Sans is bundled today); bundling Noto Sans Bengali would make slips identical on every tablet.
+How it prints: `TokenSlipRenderer` (`data/`) draws the slip with Flutter's text engine (the printer has no Bengali font) onto a **384-dot-wide** picture (extra blank space at the bottom for cutting), `encodeRasterJob` turns it into black and white and wraps it as ESC/POS (`ESC @`, `GS v 0` raster, `ESC d 8` feed), and `PrinterChannel.kt` sends the bytes in 1 KB chunks. **Plus Jakarta Sans** (Latin) and **Noto Sans Bengali** (bundled under `assets/fonts/`) are loaded before rasterizing; Bengali must not rely on the device font ([localization](../principles/localization.md)).
+
+**Layout preview:** open `tool/token-slip-preview.html` in a browser (same sample slip, relative font URLs). Do **not** use Flutter PNG export for review — headless raster often shows missing-glyph boxes even when the tablet print is correct. Regenerate the HTML with `flutter test test/features/connectivity/slip_preview_test.dart`.
 
 ### Layout
 

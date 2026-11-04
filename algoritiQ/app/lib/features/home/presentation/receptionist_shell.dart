@@ -30,6 +30,11 @@ class ReceptionistShell extends ConsumerStatefulWidget {
 class _ReceptionistShellState extends ConsumerState<ReceptionistShell> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   var _destination = ReceptionistDestination.board;
+
+  /// The board's text fields all live in popups, which handle the keyboard
+  /// themselves. Shrinking the board behind them for the keyboard only
+  /// squeezes the desk (and overflows it); other pages have inline fields.
+  bool get _resizesForKeyboard => _destination != ReceptionistDestination.board;
   var _drawerOpen = false;
 
   void _goTo(ReceptionistDestination destination) {
@@ -121,6 +126,7 @@ class _ReceptionistShellState extends ConsumerState<ReceptionistShell> {
     if (wideNav) {
       return Scaffold(
         backgroundColor: pageBg,
+        resizeToAvoidBottomInset: _resizesForKeyboard,
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -158,6 +164,7 @@ class _ReceptionistShellState extends ConsumerState<ReceptionistShell> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: pageBg,
+      resizeToAvoidBottomInset: _resizesForKeyboard,
       onDrawerChanged: (opened) => setState(() => _drawerOpen = opened),
       drawer: Drawer(
         width: (width * 0.85).clamp(0, 288),

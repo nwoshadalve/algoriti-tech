@@ -207,6 +207,7 @@ export type Messages = {
   queueErrorOverlap: string
   queueErrorValidation: string
   queueErrorSessionOpen: string
+  queueErrorOtherSessionOpen: string
   queueErrorInheritDefaults: string
   auditIntro: string
   auditFilterAction: string
@@ -329,6 +330,18 @@ export type Messages = {
   monitorPrinterTestFailed: string
   monitorPrinterTestNotConnected: string
   monitorPrinterTestNoDetails: string
+  monitorTvTestScreen: string
+  monitorTvTestSound: string
+  monitorTvTestScreenConfirmTitle: string
+  monitorTvTestScreenConfirmBody: string
+  monitorTvTestScreenConfirmAction: string
+  monitorTvTestSoundConfirmTitle: string
+  monitorTvTestSoundConfirmBody: string
+  monitorTvTestSoundConfirmAction: string
+  monitorTvTestSent: string
+  monitorTvTestFailed: string
+  monitorTvTestNotConnected: string
+  monitorTvTestNoDetails: string
   monitorReasonTvNotConnected: string
   monitorReasonBluetoothOff: string
   monitorReasonBluetoothMissing: string
@@ -659,6 +672,15 @@ export type Messages = {
   boardRegisterIntro: string
   boardRegisterSave: string
   boardDuplicatePhoneConfirm: string
+  boardFieldRequired: string
+  boardPatientAddedPrinted: string
+  boardIssueTokenTitle: string
+  boardIssueTokenAction: string
+  boardChangePatient: string
+  boardSearchStart: string
+  boardSearchFailed: string
+  boardSortBy: string
+  boardColIssued: string
   boardPatientRegistered: string
   boardIssueFor: string
   boardChooseQueue: string
@@ -736,6 +758,26 @@ export type Messages = {
   boardCancelConfirm: string
   boardTokenCancelledToast: string
   boardWorking: string
+  boardDeskSearchLabel: string
+  boardDeskSearchHint: string
+  boardFilterAllStatuses: string
+  boardFilterAllQueues: string
+  boardFilterNotPrinted: string
+  boardClearFilters: string
+  boardNoPatientsMatch: string
+  boardLoadMore: string
+  boardRowMore: string
+  boardRowEditPatient: string
+  boardRowCancelToken: string
+  boardPrintNeeded: string
+  boardPrintConfirmTitle: string
+  boardPrintConfirmBody: string
+  boardPrintConfirmAction: string
+  boardPrintSent: string
+  boardEditPatientTitle: string
+  boardEditPatientIntro: string
+  boardEditPatientSave: string
+  boardEditPatientSaved: string
 }
 
 export type Locale = 'en' | 'bn'

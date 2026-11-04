@@ -59,6 +59,10 @@ export type PrinterTestOutcome = 'printed' | 'failed' | 'not_connected' | 'no_de
 
 export type PrinterTestResult = Monitoring & { outcome: PrinterTestOutcome }
 
+export type TvTestOutcome = 'sent' | 'not_connected' | 'no_details'
+
+export type TvTestResult = Monitoring & { outcome: TvTestOutcome }
+
 export function getMonitoring(token: string, signal?: AbortSignal): Promise<Monitoring> {
   return apiFetch<Monitoring>('/monitoring', { headers: bearer(token), signal })
 }
@@ -82,6 +86,20 @@ export function enableBluetooth(token: string): Promise<EnableBluetoothResult> {
 /** Prints a sample token on the paired POS printer (tablet must be connected). */
 export function testPrinter(token: string): Promise<PrinterTestResult> {
   return apiFetch<PrinterTestResult>('/monitoring/services/printer/test', {
+    method: 'POST',
+    headers: bearer(token),
+  })
+}
+
+export function testTvDisplay(token: string): Promise<TvTestResult> {
+  return apiFetch<TvTestResult>('/monitoring/services/tv/test-display', {
+    method: 'POST',
+    headers: bearer(token),
+  })
+}
+
+export function testTvSound(token: string): Promise<TvTestResult> {
+  return apiFetch<TvTestResult>('/monitoring/services/tv/test-sound', {
     method: 'POST',
     headers: bearer(token),
   })

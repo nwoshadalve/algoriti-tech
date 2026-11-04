@@ -26,6 +26,9 @@ type ServiceCardProps = {
   showRetry?: boolean
   onTestPrint?: () => void
   testPrintBusy?: boolean
+  onTestTvDisplay?: () => void
+  onTestTvSound?: () => void
+  tvTestBusy?: boolean
 }
 
 const accent: Record<HealthService['status'], string> = {
@@ -47,6 +50,9 @@ export function ServiceCard({
   showRetry = true,
   onTestPrint,
   testPrintBusy,
+  onTestTvDisplay,
+  onTestTvSound,
+  tvTestBusy,
 }: ServiceCardProps) {
   const { t } = useLocale()
 
@@ -60,6 +66,8 @@ export function ServiceCard({
   const detail = serviceProblemDetail(service, t) ?? serviceOkFallback(service, t, metrics.length > 0)
   const showTest =
     serviceId === 'printer' && service.status === 'ok' && onTestPrint !== undefined
+  const showTvTests =
+    serviceId === 'tv' && service.status === 'ok' && onTestTvDisplay !== undefined
 
   return (
     <li
@@ -97,6 +105,28 @@ export function ServiceCard({
           >
             {t('monitorPrinterTest')}
           </LoadingButton>
+        ) : null}
+        {showTvTests ? (
+          <>
+            <LoadingButton
+              type="button"
+              isLoading={tvTestBusy}
+              loadingLabel={t('monitorTvTestScreen')}
+              className="min-h-10 sm:min-h-11"
+              onClick={onTestTvDisplay}
+            >
+              {t('monitorTvTestScreen')}
+            </LoadingButton>
+            <LoadingButton
+              type="button"
+              isLoading={tvTestBusy}
+              loadingLabel={t('monitorTvTestSound')}
+              className="min-h-10 sm:min-h-11"
+              onClick={onTestTvSound}
+            >
+              {t('monitorTvTestSound')}
+            </LoadingButton>
+          </>
         ) : null}
         {showRetry ? <RetryControl service={service} name={name} onRetry={onRetry} /> : null}
       </div>

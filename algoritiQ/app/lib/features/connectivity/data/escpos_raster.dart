@@ -8,6 +8,12 @@ import 'dart:typed_data';
 /// A 58 mm printer prints 384 dots across.
 const printerDotsWide = 384;
 
+/// Blank tail after token slips: white band in the bitmap plus ESC/POS feed.
+const tokenSlipBottomBlankDots = 32;
+
+/// Lines fed after the raster (`ESC d n`) so staff can cut below the slip.
+const tokenSlipFeedLines = 8;
+
 /// Turns a picture into an ESC/POS job: initialise, `GS v 0` raster, feed.
 ///
 /// [rgba] is [width] x [height] pixels, 4 bytes each. A pixel prints black

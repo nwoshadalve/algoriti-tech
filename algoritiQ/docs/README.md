@@ -12,6 +12,8 @@ Source of truth for *what* each component is and how they connect:
 
 The Flutter tablet app has its own principles under [`app/docs/`](../app/docs/README.md).
 
+The Kotlin Android TV app has engineering docs under [`tv-app/docs/`](../tv-app/docs/README.md).
+
 ## Web dashboard (`algoritiQ/web`)
 
 Mandatory for humans and AI working on the React SPA:
