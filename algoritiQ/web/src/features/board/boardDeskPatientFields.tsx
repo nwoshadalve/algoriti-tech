@@ -21,13 +21,11 @@ const genderOptions: {
 ]
 
 export type BoardDeskPatientFieldsProps = {
-  bengaliName: string
-  englishName: string
+  name: string
   phone: string
   age: string
   gender: PatientGender | ''
-  onBengaliNameChange: (value: string) => void
-  onEnglishNameChange: (value: string) => void
+  onNameChange: (value: string) => void
   onPhoneChange: (value: string) => void
   onAgeChange: (value: string) => void
   onGenderChange: (value: PatientGender | '') => void
@@ -37,13 +35,11 @@ export type BoardDeskPatientFieldsProps = {
 
 /** Patient name, phone, age, and gender — same field set as the tablet desk dialogs. */
 export function BoardDeskPatientFields({
-  bengaliName,
-  englishName,
+  name,
   phone,
   age,
   gender,
-  onBengaliNameChange,
-  onEnglishNameChange,
+  onNameChange,
   onPhoneChange,
   onAgeChange,
   onGenderChange,
@@ -58,23 +54,14 @@ export function BoardDeskPatientFields({
     <div className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
-          id="desk-patient-bn"
-          label={`${t('boardFieldBengaliName')} *`}
-          value={bengaliName}
-          onChange={(event) => onBengaliNameChange(event.target.value)}
-          error={required(bengaliName)}
+          id="desk-patient-name"
+          label={`${t('boardFieldName')} *`}
+          value={name}
+          onChange={(event) => onNameChange(event.target.value)}
+          error={required(name)}
           disabled={disabled}
           autoComplete="name"
         />
-        <TextField
-          id="desk-patient-en"
-          label={t('boardFieldEnglishName')}
-          value={englishName}
-          onChange={(event) => onEnglishNameChange(event.target.value)}
-          disabled={disabled}
-        />
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           id="desk-patient-phone"
           label={`${t('fieldPhone')} *`}
@@ -84,6 +71,8 @@ export function BoardDeskPatientFields({
           disabled={disabled}
           autoComplete="tel"
         />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           id="desk-patient-age"
           label={t('boardFieldAge')}

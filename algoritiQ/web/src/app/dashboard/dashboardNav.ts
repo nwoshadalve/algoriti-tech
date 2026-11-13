@@ -11,12 +11,15 @@ import type { LicenseType, Role } from '@/core/api/types'
 import { effectiveLicenseType } from '@/core/clinic/clinicLicenseCache'
 import {
   ActivityIcon,
+  AnalyticsIcon,
   AuditIcon,
   QueueDeskIcon,
   ConfigIcon,
   HardDriveIcon,
   HelpIcon,
+  HistoryIcon,
   OverviewIcon,
+  PersonIcon,
   QueueIcon,
   StethoscopeIcon,
   KeyIcon,
@@ -50,7 +53,10 @@ export type DashboardNavEntry = DashboardNavLink | DashboardNavGroup
 /** Primary dashboard navigation: top-level order and nested configuration items. */
 export const dashboardNavEntries: DashboardNavEntry[] = [
   { kind: 'link', to: '/home', labelKey: 'navOverview', icon: OverviewIcon, end: true, roles: ['admin'] },
+  { kind: 'link', to: '/analytics', labelKey: 'navAnalytics', icon: AnalyticsIcon, roles: ['admin'] },
   { kind: 'link', to: '/queue-desk', labelKey: 'navQueueDesk', icon: QueueDeskIcon, end: true, roles: ['admin', 'receptionist'] },
+  { kind: 'link', to: '/patients', labelKey: 'navPatients', icon: PersonIcon, roles: ['admin', 'receptionist'] },
+  { kind: 'link', to: '/session-history', labelKey: 'navSessionHistory', icon: HistoryIcon, roles: ['admin', 'receptionist'] },
   { kind: 'link', to: '/users', labelKey: 'navUsers', icon: UsersIcon, roles: ['admin'] },
   {
     kind: 'group',

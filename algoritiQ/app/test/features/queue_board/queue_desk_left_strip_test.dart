@@ -19,7 +19,7 @@ BoardTokenView _called({String? name}) => BoardTokenView(
   queueBengaliName: 'সাধারণ',
   patientId: 'patient-1',
   clinicPatientId: '7761',
-  patientBengaliName: name ?? 'করিম',
+  patientName: name ?? 'করিম',
   status: TokenStatus.called,
   issuedAt: DateTime.utc(2026),
 );
@@ -41,14 +41,14 @@ void main() {
   late List<String> log;
   setUp(() => log = []);
 
-  Widget nowCalling(BoardTokenView? called) => Align(
+  Widget nowCalling(List<BoardTokenView> called) => Align(
     alignment: Alignment.topLeft,
     child: DeskNowCalling(
       called: called,
-      onRecall: () => log.add('recall'),
-      onEntered: () => log.add('entered'),
-      onMissed: () => log.add('missed'),
-      onCancel: () => log.add('cancel'),
+      onRecall: (t) => log.add('recall ${t.serial}'),
+      onEntered: (t) => log.add('entered ${t.serial}'),
+      onMissed: (t) => log.add('missed ${t.serial}'),
+      onCancel: (t) => log.add('cancel ${t.serial}'),
     ),
   );
 
@@ -63,7 +63,7 @@ void main() {
           tester,
           SizedBox(
             width: width,
-            child: nowCalling(_called(name: longName)),
+            child: nowCalling([_called(name: longName)]),
           ),
           size: Size(width, 700),
         );
@@ -81,7 +81,7 @@ void main() {
     ) async {
       await pumpDeskApp(
         tester,
-        SizedBox(width: 360, child: nowCalling(null)),
+        SizedBox(width: 360, child: nowCalling(const [])),
         size: const Size(360, 700),
       );
 
@@ -94,7 +94,7 @@ void main() {
     ) async {
       await pumpDeskApp(
         tester,
-        SizedBox(width: 360, child: nowCalling(_called())),
+        SizedBox(width: 360, child: nowCalling([_called()])),
         size: const Size(360, 700),
       );
 
@@ -104,7 +104,41 @@ void main() {
       for (final action in ['Recall', 'Entered', 'Missed', 'Cancel']) {
         await tester.tap(find.text(action));
       }
-      expect(log, ['recall', 'entered', 'missed', 'cancel']);
+      expect(log, [
+        'recall 1001',
+        'entered 1001',
+        'missed 1001',
+        'cancel 1001',
+      ]);
+    });
+
+    testWidgets('should list every called patient with their own actions', (
+      tester,
+    ) async {
+      final second = BoardTokenView(
+        id: 'token-2',
+        serial: 2001,
+        queueTypeId: 'report',
+        queueEnglishName: 'Report',
+        queueBengaliName: 'রিপোর্ট',
+        patientId: 'patient-2',
+        clinicPatientId: '7762',
+        patientName: 'রহিম',
+        status: TokenStatus.called,
+        issuedAt: DateTime.utc(2026),
+      );
+      await pumpDeskApp(
+        tester,
+        SizedBox(width: 360, child: nowCalling([_called(), second])),
+        size: const Size(360, 900),
+      );
+
+      expect(find.text('1001'), findsOneWidget);
+      expect(find.text('2001'), findsOneWidget);
+      // Each row acts on its own patient.
+      await tester.tap(find.text('Entered').last);
+      await tester.tap(find.text('Missed').first);
+      expect(log, ['entered 2001', 'missed 1001']);
     });
   });
 

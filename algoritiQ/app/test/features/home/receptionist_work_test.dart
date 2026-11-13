@@ -128,4 +128,82 @@ void main() {
       );
     },
   );
+
+  Future<ProviderContainer> twoChambers({String? openChamber}) async {
+    final container = ProviderContainer(
+      overrides: kit.overrides(
+        store: licensed,
+        signedIn: false,
+        seed: (database) async {
+          await seedSignedInReceptionist(database);
+          await database
+              .into(database.chambers)
+              .insertOnConflictUpdate(
+                ChambersCompanion.insert(
+                  id: 'seed-chamber-2',
+                  doctorId: 'seed-doctor',
+                  name: 'Second chamber',
+                  patientIdPrefix: '665',
+                  createdAt: testNow.millisecondsSinceEpoch,
+                ),
+              );
+          await database
+              .into(database.userScopeAssignments)
+              .insertOnConflictUpdate(
+                UserScopeAssignmentsCompanion.insert(
+                  userId: 'seed-desk',
+                  scopeId: 'seed-chamber-2',
+                ),
+              );
+          if (openChamber != null) {
+            await database
+                .into(database.queueSessions)
+                .insert(
+                  QueueSessionsCompanion.insert(
+                    id: 'open-session',
+                    chamberId: openChamber,
+                    businessDate: '2026-01-01',
+                    status: 'OPEN',
+                    openedAt: testNow.millisecondsSinceEpoch,
+                    configSnapshotJson: '{}',
+                  ),
+                );
+          }
+        },
+      ),
+    );
+    addTearDown(container.dispose);
+    final accounts = container.read(accountRepositoryProvider);
+    for (var attempt = 0; attempt < 50; attempt++) {
+      if ((await accounts.getUserScopes('seed-desk')).length >= 2) break;
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+    await pumpEventQueue();
+    return container;
+  }
+
+  test('should open the chamber that has a session running', () async {
+    final container = await twoChambers(openChamber: 'seed-chamber-2');
+    final notifier = container.read(receptionistWorkProvider.notifier);
+
+    await notifier.syncSession(_deskSession());
+
+    final work = container.read(receptionistWorkProvider);
+    expect(work, isA<ReceptionistWorkReady>());
+    expect((work as ReceptionistWorkReady).selected.id, 'seed-chamber-2');
+    expect(notifier.canChangeWorkScope, isTrue);
+  });
+
+  test('should still ask when no chamber has a session running', () async {
+    final container = await twoChambers();
+
+    await container
+        .read(receptionistWorkProvider.notifier)
+        .syncSession(_deskSession());
+
+    expect(
+      container.read(receptionistWorkProvider),
+      isA<ReceptionistWorkChoose>(),
+    );
+  });
 }

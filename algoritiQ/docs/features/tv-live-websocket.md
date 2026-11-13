@@ -19,7 +19,8 @@ Each entry in **`displays`** matches one chamber (see `mock/tv-app/src/mock-sess
 | `doctor` | OpenAPI `Doctor` + `photoUrl` (`/api/v1/doctor/photo`) |
 | `chamber` | Name, location, phone |
 | `queueTypes` | Enabled types (id, bilingual names) |
-| `called` | `{ tokenId, queueTypeId, serial }` or null |
+| `called` | The most recently called token, `{ tokenId, queueTypeId, serial }`, or null. Kept for TV builds that show one call |
+| `calledList` | Every token being called now, one per queue type at most, in queue order: `[{ tokenId, queueTypeId, serial }]` (empty when none). A board shows one tile per entry |
 | `waiting` | Map of queue type id → ascending waiting serials |
 
 On-screen rules: **serials and queue type labels only** ([queue-product-decisions.md](./queue-product-decisions.md)).

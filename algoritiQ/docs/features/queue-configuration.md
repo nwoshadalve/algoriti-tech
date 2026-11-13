@@ -142,6 +142,7 @@ The web UI labels this **automatic stop time**.
 - The policy modal saves with **`PATCH /queue/chambers/{chamberId}/policy`** and body `{ "dayBoundary": "HH:mm" }` only — not a full policy object.
 - The modal can apply one time to **multiple selected chambers** (sequential PATCH per chamber).
 - The configuration page footer shows the clinic **time zone**; the header summary shows the **effective** stop time for the selected chamber.
+- **The tablet enforces it.** A session stops at the first time the clinic clock shows the stop time after the session opened (opened Friday 10:00 with `03:00` → stops Saturday 03:00; opened at 01:00 → stops at 03:00 that morning). The check runs when the app starts (so a stop time that passed while the tablet was off is caught), every 30 seconds after, and on each queue-desk API call (`closeSessionsDueForAutoStop`). The stop time used is the one on the configuration page when the check runs, so a change applies to sessions already open. The session closes as if ended by hand: patients still waiting stay in it as history, there is no close reason, and the audit log gets `queue.session.auto_closed` with no actor.
 
 The web UI does not edit clinic `autoStart`, time zone, or rollover policy; those values stay at seeded defaults unless changed through the API.
 
@@ -193,13 +194,25 @@ Admin-only route **`/config/queue`** (`QueueConfigurationPage`).
 2. **Inherit vs customized** — **Uses clinic defaults** / **Customized for this chamber** from `settings.useClinicDefaults`.
 3. **Queue types table** — English/Bengali names, localized range, enabled badge, edit and enable/disable actions.
 4. **Automatic stop time** — summary in the page header; edit opens the policy modal (§4). Saves per chamber via **`PATCH …/policy`**.
-5. **Sessions** — start and run on **queue desk** (§5), not on this page.
+5. **Fee codes** — a card below the queue types: rows of **code** and **amount (BDT)**, add, remove, save as one list. See §7a.
+6. **Sessions** — start and run on **queue desk** (§5), not on this page.
 
 The page does **not** offer “use clinic defaults again” (`clear-override`).
 
 Configuration changes publish live refresh hints so open `/config/queue` tabs update after saves elsewhere ([web interaction](../principles/web-interaction.md)).
 
 Create, update, enable/disable, policy, and session API actions emit audit events defined in [Audit log](./audit-log.md).
+
+### 7a. Fee codes
+
+One **clinic-wide** list (not per chamber) of fee codes the admin defines on `/config/queue`.
+
+- A fee code is a short **code** (1–16 characters, unique ignoring case) and a **whole amount in BDT** (1 to 9,999,999). At most 50 codes.
+- **No codes defined:** patient entry works as before — the optional **Fee (BDT)** field is typed by hand.
+- **Codes defined:** everywhere a patient is put into a queue (register new patient, existing patient, and editing the fee of a token in the open session) the fee is a **dropdown**: **No fee** (the default), then each code shown as `CODE — amount`. Choosing a code fills the visit fee with its amount. The fee can then only be one of the codes (or none); there is no free amount while codes exist.
+- The visit/token stores **the amount only** (`feeBdt`), never the code, so later edits or removal of a code never change past visits, session fees or analytics.
+- A token whose fee matches no code (entered before codes existed, or its code was removed) keeps its fee: the dropdown shows that amount as the current value until another choice is made.
+- Defined on the web admin only; the tablet desk and the web desk both read the list (`GET /fee-codes`). Saving replaces the whole list (`PUT /fee-codes`, admin only) and is audited as `fee_codes.updated` (counts only).
 
 ---
 
@@ -212,6 +225,11 @@ ClinicQueueDefaults
   timeZone
   dayBoundary
   autoStart
+
+FeeCode                 # clinic-wide, stored as one JSON list in the settings table
+  id
+  code
+  amountBdt
 
 QueueType
   ownerKey          # `clinic` = template, or chamberId = that chamber's override

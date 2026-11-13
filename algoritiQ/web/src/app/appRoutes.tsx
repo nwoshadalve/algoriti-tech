@@ -19,6 +19,10 @@ import { MonitoringPage } from '@/features/monitoring/MonitoringPage'
 import { BackupPage } from '@/features/backup/BackupPage'
 import { QueueConfigurationPage } from '@/features/queue/QueueConfigurationPage'
 import { AuditLogPage } from '@/features/audit/AuditLogPage'
+import { AnalyticsPage } from '@/features/analytics/AnalyticsPage'
+import { PatientsPage } from '@/features/patients/PatientsPage'
+import { SessionHistoryPage } from '@/features/sessions/SessionHistoryPage'
+import { SessionDetailPage } from '@/features/sessions/SessionDetailPage'
 import { HelpPage } from '@/features/help/HelpPage'
 import { UsersPage } from '@/features/dashboard/UsersPage'
 import { WorkScopePage } from '@/features/work/WorkScopePage'
@@ -60,8 +64,12 @@ export const appRoutes = [
                         element: <DashboardLayout />,
                         children: [
                       { path: '/home', element: <OverviewPage /> },
+                      { path: '/analytics', element: <AnalyticsPage /> },
                       { path: '/board', element: <Navigate to="/queue-desk" replace /> },
                       { path: '/queue-desk', element: <QueueDeskPage /> },
+                      { path: '/patients', element: <PatientsPage /> },
+                      { path: '/session-history', element: <SessionHistoryPage /> },
+                      { path: '/session-history/:sessionId', element: <SessionDetailPage /> },
                       { path: '/doctor', element: <Navigate to="/config/doctor" replace /> },
                       { path: '/license', element: <Navigate to="/config/chamber" replace /> },
                       { path: '/config/doctor', element: <DoctorPage /> },

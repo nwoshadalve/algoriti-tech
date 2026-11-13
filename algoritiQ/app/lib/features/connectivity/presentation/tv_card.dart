@@ -95,24 +95,23 @@ class _TvCardState extends ConsumerState<TvCard> {
     final l10n = AppLocalizations.of(context);
     final work = ref.watch(receptionistWorkProvider);
     final chamberId = work is ReceptionistWorkReady ? work.selected.id : null;
-    final connected =
+    // The TV app linked to the tablet.
+    final linked =
         chamberId != null &&
         (ref.watch(tvConnectedProvider(chamberId)).value ?? false);
 
     return ConnectivityCard(
       icon: Icons.tv_rounded,
       title: l10n.tvTitle,
-      statusLabel: connected
-          ? l10n.tvStatusConnected
-          : l10n.tvStatusNotConnected,
-      tone: connected ? ConnectivityTone.good : ConnectivityTone.problem,
+      statusLabel: linked ? l10n.tvStatusConnected : l10n.tvStatusNotConnected,
+      tone: linked ? ConnectivityTone.good : ConnectivityTone.problem,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ConnectivityBody(
-            connected ? l10n.tvBodyConnected : l10n.tvBodyNotConnected,
+            linked ? l10n.tvBodyConnected : l10n.tvBodyNotConnected,
           ),
-          if (connected) ...[
+          if (linked) ...[
             const SizedBox(height: Spacing.md),
             Wrap(
               spacing: Spacing.sm,

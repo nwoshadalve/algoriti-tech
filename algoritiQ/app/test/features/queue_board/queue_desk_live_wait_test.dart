@@ -22,7 +22,7 @@ BoardTokenView _token({
   queueBengaliName: 'সাধারণ',
   patientId: 'p',
   clinicPatientId: '7761',
-  patientBengaliName: 'করিম',
+  patientName: 'করিম',
   status: status,
   issuedAt: issuedAt,
   firstCalledAt: firstCalledAt,

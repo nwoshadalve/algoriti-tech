@@ -23,129 +23,38 @@ const _statusOrder = [
   TokenStatus.cancelled,
 ];
 
-/// Search on one line; under it the queue and status menus, the "not
-/// printed" toggle and sorting. It only reports what the receptionist chose;
-/// the table answers.
-class QueueDeskTableToolbar extends StatefulWidget {
+/// The queue and status menus, the "not printed" toggle and sorting. It only
+/// reports what the receptionist chose; the table answers.
+class QueueDeskTableToolbar extends StatelessWidget {
   const QueueDeskTableToolbar({
     super.key,
     required this.state,
     required this.queues,
-    required this.onSearch,
     required this.onStatus,
     required this.onQueue,
     required this.onToggleNotPrinted,
     required this.onSort,
     required this.onClear,
-    this.onSearchFocus,
-    this.compact = false,
   });
 
   final DeskTableState state;
   final List<QueueTypeBoardControl> queues;
-  final ValueChanged<String> onSearch;
   final ValueChanged<TokenStatus?> onStatus;
   final ValueChanged<String?> onQueue;
   final VoidCallback onToggleNotPrinted;
   final ValueChanged<TokenSort> onSort;
   final VoidCallback onClear;
 
-  /// Told when the search box gains or loses focus, so the desk can make room
-  /// above the keyboard.
-  final ValueChanged<bool>? onSearchFocus;
-
-  /// Leaves only the search box, to save height while the keyboard is open.
-  final bool compact;
-
-  @override
-  State<QueueDeskTableToolbar> createState() => _QueueDeskTableToolbarState();
-}
-
-class _QueueDeskTableToolbarState extends State<QueueDeskTableToolbar> {
-  late final TextEditingController _search;
-  final _focus = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _search = TextEditingController(text: widget.state.query.search);
-    _focus.addListener(_reportFocus);
-  }
-
-  void _reportFocus() => widget.onSearchFocus?.call(_focus.hasFocus);
-
-  @override
-  void didUpdateWidget(QueueDeskTableToolbar old) {
-    super.didUpdateWidget(old);
-    // Cleared from outside (Clear filters): the box follows. Typing never
-    // lands here with a different text, because the box is the source.
-    final search = widget.state.query.search;
-    if (search != old.state.query.search && search != _search.text) {
-      _search.text = search;
-    }
-  }
-
-  @override
-  void dispose() {
-    _focus
-      ..removeListener(_reportFocus)
-      ..dispose();
-    _search.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _searchBox(context),
-        // Offstage keeps the tree as it is, so the search box keeps its focus.
-        Offstage(
-          offstage: widget.compact,
-          child: Padding(
-            padding: const EdgeInsets.only(top: Spacing.sm),
-            child: _Filters(
-              state: widget.state,
-              queues: widget.queues,
-              onQueue: widget.onQueue,
-              onStatus: widget.onStatus,
-              onToggleNotPrinted: widget.onToggleNotPrinted,
-              onSort: widget.onSort,
-              onClear: widget.onClear,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _searchBox(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return ListenableBuilder(
-      listenable: _search,
-      builder: (context, _) => TextField(
-        controller: _search,
-        focusNode: _focus,
-        onChanged: widget.onSearch,
-        autocorrect: false,
-        textInputAction: TextInputAction.search,
-        decoration: InputDecoration(
-          isDense: true,
-          hintText: l10n.deskSearchPatients,
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: _search.text.isEmpty
-              ? null
-              : IconButton(
-                  tooltip: l10n.deskSearchClear,
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    _search.clear();
-                    widget.onSearch('');
-                  },
-                ),
-        ),
-      ),
+    return _Filters(
+      state: state,
+      queues: queues,
+      onQueue: onQueue,
+      onStatus: onStatus,
+      onToggleNotPrinted: onToggleNotPrinted,
+      onSort: onSort,
+      onClear: onClear,
     );
   }
 }

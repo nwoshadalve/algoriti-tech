@@ -12,6 +12,7 @@ import '../../queue/data/drift_queue_repository.dart';
 import '../../queue/domain/queue_models.dart';
 import '../domain/board_models.dart';
 import '../domain/patient_id.dart';
+import '../domain/patient_query.dart';
 import '../domain/phone_normalize.dart';
 import '../domain/token_query.dart';
 
@@ -175,7 +176,7 @@ class DriftQueueBoardRepository {
     final search = _asciiDigits(typed);
     final digits = RegExp(r'^[0-9]+$').hasMatch(search);
     var match =
-        _likeContains(p.bengaliName, search) |
+        _likeContains(p.name, search) |
         _likeContains(p.englishName, search) |
         _likeStarts(p.clinicPatientId, search);
     if (digits) {
@@ -212,7 +213,7 @@ class DriftQueueBoardRepository {
       TokenSort.issued => [by(t.issuedAt)],
       // Same length first, so 7769 sorts before 77610.
       TokenSort.id => [by(p.clinicPatientId.length), by(p.clinicPatientId)],
-      TokenSort.name => [by(p.bengaliName)],
+      TokenSort.name => [by(p.name)],
       TokenSort.serial => [by(t.serial)],
       TokenSort.queue => [
         by(
@@ -279,32 +280,131 @@ class DriftQueueBoardRepository {
       .replaceAll('%', r'\%')
       .replaceAll('_', r'\_');
 
+  /// A patient whose ID, legacy number, phone or name matches [trimmed].
+  Expression<bool> _patientMatch($PatientsTable p, String trimmed) {
+    final digitsOnly = RegExp(r'^[0-9]+$').hasMatch(trimmed);
+    final legacyNumber = parseLegacyPatientNumberQuery(trimmed);
+    final phone = normalizeClinicPhone(trimmed);
+    final byId = _likeStarts(p.clinicPatientId, trimmed);
+    final byNumber = legacyNumber == null
+        ? const Constant(false)
+        : p.patientNumber.equals(legacyNumber);
+    if (digitsOnly) {
+      final byPhone = phone.isEmpty
+          ? const Constant(false)
+          : _likeStarts(p.phoneNormalized, phone);
+      return byId | byNumber | byPhone;
+    }
+    return byId |
+        byNumber |
+        _likeContains(p.name, trimmed) |
+        _likeContains(p.englishName, trimmed);
+  }
+
+  /// A per-patient aggregate over the tokens in queue sessions, for ordering.
+  Expression<int> _patientTokenSql(String aggregate) => CustomExpression<int>(
+    '(SELECT $aggregate FROM queue_tokens WHERE queue_tokens.patient_id = patients.id)',
+  );
+
+  /// A page of the patient list: searched, filtered and ordered here.
+  Future<({List<PatientSummary> rows, int total, int registeredTotal})>
+  queryPatients(PatientQuery query) async {
+    final p = _db.patients;
+    Expression<bool> where() {
+      Expression<bool> predicate = const Constant(true);
+      final search = _asciiDigits(query.search.trim());
+      if (search.isNotEmpty) predicate &= _patientMatch(p, search);
+      if (query.gender != null) {
+        predicate &= p.gender.equals(query.gender!.apiValue);
+      } else if (query.genderUnset) {
+        predicate &=
+            p.gender.isNull() |
+            p.gender.equals(PatientGender.notStated.apiValue);
+      }
+      if (query.paperFileOnly) predicate &= p.hasPaperFile.equals(true);
+      return predicate;
+    }
+
+    final mode = query.ascending ? OrderingMode.asc : OrderingMode.desc;
+    OrderingTerm by(Expression<Object> e) =>
+        OrderingTerm(expression: e, mode: mode);
+    final terms = switch (query.sort) {
+      PatientSort.registered => [by(p.createdAt)],
+      PatientSort.name => [by(p.name)],
+      // Same length first, so 7769 sorts before 77610.
+      PatientSort.id => [by(p.clinicPatientId.length), by(p.clinicPatientId)],
+      PatientSort.phone => [by(p.phoneNormalized)],
+      PatientSort.visits => [by(_patientTokenSql('COUNT(*)'))],
+      // Patients who never had a token count as 0 and sort last when newest first.
+      PatientSort.lastVisit => [
+        by(_patientTokenSql('COALESCE(MAX(issued_at), 0)')),
+      ],
+    };
+    final rows =
+        await (_db.select(p)
+              ..where((_) => where())
+              ..orderBy([
+                for (final term in terms) (_) => term,
+                // The id last, so ties never move between pages.
+                (t) => OrderingTerm(expression: t.id, mode: mode),
+              ])
+              ..limit(query.limit, offset: query.offset))
+            .get();
+    final count = p.id.count();
+    final total =
+        (await (_db.selectOnly(p)
+                  ..addColumns([count])
+                  ..where(where()))
+                .getSingle())
+            .read(count) ??
+        0;
+    final registeredTotal =
+        (await (_db.selectOnly(
+          p,
+        )..addColumns([count])).getSingle()).read(count) ??
+        0;
+
+    // Visits of this page's patients: every token they have in a queue session, whatever its status.
+    final visits = <String, ({int count, int? lastMs})>{};
+    if (rows.isNotEmpty) {
+      final t = _db.queueTokens;
+      final tokenCount = t.id.count();
+      final latest = t.issuedAt.max();
+      final grouped =
+          await (_db.selectOnly(t)
+                ..addColumns([t.patientId, tokenCount, latest])
+                ..where(t.patientId.isIn([for (final row in rows) row.id]))
+                ..groupBy([t.patientId]))
+              .get();
+      for (final row in grouped) {
+        visits[row.read(t.patientId)!] = (
+          count: row.read(tokenCount) ?? 0,
+          lastMs: row.read(latest),
+        );
+      }
+    }
+    return (
+      rows: [
+        for (final row in rows)
+          _patientSummary(
+            row,
+            visitCount: visits[row.id]?.count ?? 0,
+            lastVisitMs: visits[row.id]?.lastMs,
+          ),
+      ],
+      total: total,
+      registeredTotal: registeredTotal,
+    );
+  }
+
   /// Suggestions for the desk search box: Bengali or English name (any part),
   /// phone (any leading digits), clinic patient id, or legacy `P-` number.
   /// Newest registrations first, at most [searchLimit].
   Future<List<PatientSummary>> searchPatients(String query) async {
     final trimmed = _asciiDigits(query.trim());
     if (trimmed.isEmpty) return [];
-    final digitsOnly = RegExp(r'^[0-9]+$').hasMatch(trimmed);
-    final legacyNumber = parseLegacyPatientNumberQuery(trimmed);
-    final phone = normalizeClinicPhone(trimmed);
     final select = _db.select(_db.patients)
-      ..where((p) {
-        final byId = _likeStarts(p.clinicPatientId, trimmed);
-        final byNumber = legacyNumber == null
-            ? const Constant(false)
-            : p.patientNumber.equals(legacyNumber);
-        if (digitsOnly) {
-          final byPhone = phone.isEmpty
-              ? const Constant(false)
-              : _likeStarts(p.phoneNormalized, phone);
-          return byId | byNumber | byPhone;
-        }
-        return byId |
-            byNumber |
-            _likeContains(p.bengaliName, trimmed) |
-            _likeContains(p.englishName, trimmed);
-      })
+      ..where((p) => _patientMatch(p, trimmed))
       ..orderBy([(p) => OrderingTerm.desc(p.createdAt)])
       ..limit(searchLimit);
     return [for (final row in await select.get()) _patientSummary(row)];
@@ -319,8 +419,9 @@ class DriftQueueBoardRepository {
   }) async {
     await (_db.update(_db.patients)..where((p) => p.id.equals(id))).write(
       PatientsCompanion(
-        bengaliName: Value(input.bengaliName.trim()),
-        englishName: Value(input.englishName?.trim()),
+        name: Value(input.name.trim()),
+        // The old Bengali column is kept in step so an older app still reads it.
+        bengaliName: Value(input.name.trim()),
         phoneNormalized: Value(normalizeClinicPhone(input.phone)),
         gender: Value(input.gender?.apiValue),
         approximateAgeYears: Value(input.approximateAgeYears),
@@ -362,8 +463,9 @@ class DriftQueueBoardRepository {
             clinicPatientId: clinicPatientId,
             patientIdPrefix: Value(patientIdPrefix),
             patientIdSequence: Value(patientIdSequence),
-            bengaliName: input.bengaliName.trim(),
-            englishName: Value(input.englishName?.trim()),
+            name: Value(input.name.trim()),
+            // The old Bengali column is NOT NULL and kept in step with the name.
+            bengaliName: input.name.trim(),
             phoneNormalized: phone,
             gender: Value(input.gender?.apiValue),
             dateOfBirthMs: Value(input.dateOfBirthMs),
@@ -408,16 +510,15 @@ class DriftQueueBoardRepository {
     return rows.isEmpty ? null : rows.first;
   }
 
-  Future<QueueTokenRow?> calledTokenForSession(String sessionId) async {
-    final rows =
-        await (_db.select(_db.queueTokens)
-              ..where(
-                (t) =>
-                    t.sessionId.equals(sessionId) & t.status.equals('CALLED'),
-              )
-              ..limit(1))
-            .get();
-    return rows.isEmpty ? null : rows.first;
+  /// Every token being called in the session, oldest call first. A queue holds
+  /// at most one, so this is at most one per queue.
+  Future<List<QueueTokenRow>> calledTokensForSession(String sessionId) {
+    return (_db.select(_db.queueTokens)
+          ..where(
+            (t) => t.sessionId.equals(sessionId) & t.status.equals('CALLED'),
+          )
+          ..orderBy([(t) => OrderingTerm.asc(t.firstCalledAt)]))
+        .get();
   }
 
   Future<int> previewNextSerial(String sessionId, String queueTypeId) async {
@@ -438,6 +539,7 @@ class DriftQueueBoardRepository {
     required String patientId,
     required String queueTypeId,
     required int? feeBdt,
+    bool isFree = false,
     required int issuedAtMs,
   }) async {
     return _db.transaction(() async {
@@ -484,6 +586,7 @@ class DriftQueueBoardRepository {
               serial: serial,
               status: TokenStatus.waiting.apiValue,
               feeBdt: Value(feeBdt),
+              isFree: Value(isFree),
               issuedAt: issuedAtMs,
               latestPrintStatus: const Value('PENDING'),
             ),
@@ -535,6 +638,28 @@ class DriftQueueBoardRepository {
     return map;
   }
 
+  /// When each waiting serial was issued (epoch milliseconds), per queue type,
+  /// in the same order as [waitingSerialsByQueueType], so the TV can show how
+  /// long each patient has waited.
+  Future<Map<String, List<int>>> waitingIssuedAtByQueueType(
+    String sessionId,
+  ) async {
+    final rows =
+        await (_db.select(_db.queueTokens)
+              ..where(
+                (t) =>
+                    t.sessionId.equals(sessionId) &
+                    t.status.equals(TokenStatus.waiting.apiValue),
+              )
+              ..orderBy([(t) => OrderingTerm.asc(t.serial)]))
+            .get();
+    final map = <String, List<int>>{};
+    for (final row in rows) {
+      map.putIfAbsent(row.queueTypeId, () => []).add(row.issuedAt);
+    }
+    return map;
+  }
+
   Future<QueueTokenRow?> latestCalledForQueueType(
     String sessionId,
     String queueTypeId,
@@ -581,6 +706,7 @@ class DriftQueueBoardRepository {
     required String tokenId,
     required String status,
     int? firstCalledAt,
+    int? announcedAt,
     int? enteredAt,
     int? cancelledAt,
     String? cancelReason,
@@ -593,6 +719,9 @@ class DriftQueueBoardRepository {
         firstCalledAt: firstCalledAt == null
             ? const Value.absent()
             : Value(firstCalledAt),
+        announcedAt: announcedAt == null
+            ? const Value.absent()
+            : Value(announcedAt),
         enteredAt: enteredAt == null ? const Value.absent() : Value(enteredAt),
         cancelledAt: cancelledAt == null
             ? const Value.absent()
@@ -606,6 +735,21 @@ class DriftQueueBoardRepository {
       _db.queueTokens,
     )..where((t) => t.id.equals(tokenId))).getSingle();
   }
+
+  /// Sets (or, with null, clears) the fee on a token, and whether it is free.
+  Future<void> setTokenFee(
+    String tokenId,
+    int? feeBdt, {
+    bool isFree = false,
+  }) => (_db.update(_db.queueTokens)..where((t) => t.id.equals(tokenId))).write(
+    QueueTokensCompanion(feeBdt: Value(feeBdt), isFree: Value(isFree)),
+  );
+
+  /// Notes that the token's call has now been announced.
+  Future<void> markAnnounced(String tokenId, int atMs) =>
+      (_db.update(_db.queueTokens)..where((t) => t.id.equals(tokenId))).write(
+        QueueTokensCompanion(announcedAt: Value(atMs)),
+      );
 
   Future<void> setLatestPrintStatus(String tokenId, String status) async {
     await (_db.update(_db.queueTokens)..where((t) => t.id.equals(tokenId)))
@@ -707,9 +851,200 @@ class DriftQueueBoardRepository {
     return _queueRepo.loadTypesForOwner(owner);
   }
 
+  Future<QueueSessionRow?> sessionById(String sessionId) => (_db.select(
+    _db.queueSessions,
+  )..where((s) => s.id.equals(sessionId))).getSingleOrNull();
+
+  /// Sessions, newest first. [chamberIds] null means every chamber.
+  Future<({List<QueueSessionRow> rows, int total})> sessionsPage({
+    Set<String>? chamberIds,
+    int? fromMs,
+    int? toMs,
+    required int limit,
+    required int offset,
+  }) async {
+    final s = _db.queueSessions;
+    Expression<bool> where() {
+      Expression<bool> predicate = const Constant(true);
+      if (chamberIds != null) predicate &= s.chamberId.isIn(chamberIds);
+      if (fromMs != null) predicate &= s.openedAt.isBiggerOrEqualValue(fromMs);
+      if (toMs != null) predicate &= s.openedAt.isSmallerThanValue(toMs);
+      return predicate;
+    }
+
+    final rows =
+        await (_db.select(s)
+              ..where((_) => where())
+              ..orderBy([
+                (t) => OrderingTerm.desc(t.openedAt),
+                // Opened in the same instant: the later one first.
+                (_) => OrderingTerm.desc(const CustomExpression<int>('rowid')),
+              ])
+              ..limit(limit, offset: offset))
+            .get();
+    final count = s.id.count();
+    final total =
+        (await (_db.selectOnly(s)
+                  ..addColumns([count])
+                  ..where(where()))
+                .getSingle())
+            .read(count) ??
+        0;
+    return (rows: rows, total: total);
+  }
+
+  /// Tokens per status, and the first and last call, for each session.
+  Future<
+    Map<
+      String,
+      ({Map<TokenStatus, int> counts, int? firstCalledAt, int? lastCalledAt})
+    >
+  >
+  sessionTotals(List<String> sessionIds) async {
+    if (sessionIds.isEmpty) return {};
+    final t = _db.queueTokens;
+    final count = t.id.count();
+    final first = t.firstCalledAt.min();
+    final last = t.firstCalledAt.max();
+    final query = _db.selectOnly(t)
+      ..addColumns([t.sessionId, t.status, count, first, last])
+      ..where(t.sessionId.isIn(sessionIds))
+      ..groupBy([t.sessionId, t.status]);
+    final counts = <String, Map<TokenStatus, int>>{};
+    final firsts = <String, int>{};
+    final lasts = <String, int>{};
+    for (final row in await query.get()) {
+      final id = row.read(t.sessionId)!;
+      final status = TokenStatus.parse(row.read(t.status));
+      if (status != null) {
+        (counts[id] ??= {})[status] = row.read(count) ?? 0;
+      }
+      final f = row.read(first);
+      final l = row.read(last);
+      if (f != null && (firsts[id] == null || f < firsts[id]!)) firsts[id] = f;
+      if (l != null && (lasts[id] == null || l > lasts[id]!)) lasts[id] = l;
+    }
+    return {
+      for (final id in sessionIds)
+        id: (
+          counts: counts[id] ?? const {},
+          firstCalledAt: firsts[id],
+          lastCalledAt: lasts[id],
+        ),
+    };
+  }
+
+  /// Fees (BDT) per session, cancelled tokens left out.
+  Future<Map<String, int>> sessionFees(List<String> sessionIds) async {
+    if (sessionIds.isEmpty) return {};
+    final t = _db.queueTokens;
+    final sum = t.feeBdt.sum();
+    final query = _db.selectOnly(t)
+      ..addColumns([t.sessionId, sum])
+      ..where(
+        t.sessionId.isIn(sessionIds) &
+            t.status.equals(TokenStatus.cancelled.apiValue).not(),
+      )
+      ..groupBy([t.sessionId]);
+    return {
+      for (final row in await query.get())
+        row.read(t.sessionId)!: row.read(sum) ?? 0,
+    };
+  }
+
+  /// Free visits per session, cancelled tokens left out.
+  Future<Map<String, int>> sessionFreeCounts(List<String> sessionIds) async {
+    if (sessionIds.isEmpty) return {};
+    final t = _db.queueTokens;
+    final count = t.id.count();
+    final query = _db.selectOnly(t)
+      ..addColumns([t.sessionId, count])
+      ..where(
+        t.sessionId.isIn(sessionIds) &
+            t.isFree.equals(true) &
+            t.status.equals(TokenStatus.cancelled.apiValue).not(),
+      )
+      ..groupBy([t.sessionId]);
+    return {
+      for (final row in await query.get())
+        row.read(t.sessionId)!: row.read(count) ?? 0,
+    };
+  }
+
+  /// Fees (BDT) per queue in one session, cancelled tokens left out.
+  Future<Map<String, int>> queueFees(String sessionId) async {
+    final t = _db.queueTokens;
+    final sum = t.feeBdt.sum();
+    final query = _db.selectOnly(t)
+      ..addColumns([t.queueTypeId, sum])
+      ..where(
+        t.sessionId.equals(sessionId) &
+            t.status.equals(TokenStatus.cancelled.apiValue).not(),
+      )
+      ..groupBy([t.queueTypeId]);
+    return {
+      for (final row in await query.get())
+        row.read<String>(t.queueTypeId)!: row.read(sum) ?? 0,
+    };
+  }
+
+  /// Different patients, and the average and longest wait between issuing a
+  /// token and its first call, in one session.
+  Future<({int patients, int? averageWaitMs, int? longestWaitMs})>
+  sessionPeopleAndWaits(String sessionId) async {
+    final t = _db.queueTokens;
+    final patients = t.patientId.count(distinct: true);
+    final people =
+        (await (_db.selectOnly(t)
+                  ..addColumns([patients])
+                  ..where(t.sessionId.equals(sessionId)))
+                .getSingle())
+            .read(patients) ??
+        0;
+    final wait = t.firstCalledAt - t.issuedAt;
+    final average = wait.avg();
+    final longest = wait.max();
+    final waits =
+        await (_db.selectOnly(t)
+              ..addColumns([average, longest])
+              ..where(
+                t.sessionId.equals(sessionId) & t.firstCalledAt.isNotNull(),
+              ))
+            .getSingle();
+    return (
+      patients: people,
+      averageWaitMs: waits.read(average)?.round(),
+      longestWaitMs: waits.read(longest),
+    );
+  }
+
+  /// Tokens per queue and status in one session.
+  Future<Map<String, Map<TokenStatus, int>>> queueTotals(
+    String sessionId,
+  ) async {
+    final t = _db.queueTokens;
+    final count = t.id.count();
+    final query = _db.selectOnly(t)
+      ..addColumns([t.queueTypeId, t.status, count])
+      ..where(t.sessionId.equals(sessionId))
+      ..groupBy([t.queueTypeId, t.status]);
+    final out = <String, Map<TokenStatus, int>>{};
+    for (final row in await query.get()) {
+      final status = TokenStatus.parse(row.read(t.status));
+      if (status == null) continue;
+      final queueId = row.read<String>(t.queueTypeId)!;
+      (out[queueId] ??= {})[status] = row.read(count) ?? 0;
+    }
+    return out;
+  }
+
   PatientSummary patientSummaryOf(PatientRow row) => _patientSummary(row);
 
-  PatientSummary _patientSummary(PatientRow row) {
+  PatientSummary _patientSummary(
+    PatientRow row, {
+    int visitCount = 0,
+    int? lastVisitMs,
+  }) {
     String? ageLabel;
     if (row.dateOfBirthMs != null) {
       final dob = DateTime.fromMillisecondsSinceEpoch(
@@ -736,11 +1071,21 @@ class DriftQueueBoardRepository {
         patientIdPrefix: row.patientIdPrefix,
         clinicPatientId: row.clinicPatientId,
       ),
-      bengaliName: row.bengaliName,
-      englishName: row.englishName ?? '',
+      // Rows from before the single name are filled by the migration; this
+      // only guards a row written by an older app since.
+      name: row.name.trim().isNotEmpty ? row.name : row.bengaliName,
       phoneNormalized: row.phoneNormalized,
       gender: PatientGender.parse(row.gender),
       ageLabel: ageLabel,
+      hasPaperFile: row.hasPaperFile,
+      registeredAt: DateTime.fromMillisecondsSinceEpoch(
+        row.createdAt,
+        isUtc: true,
+      ),
+      visitCount: visitCount,
+      lastVisitAt: lastVisitMs == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(lastVisitMs, isUtc: true),
     );
   }
 }

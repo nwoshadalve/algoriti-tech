@@ -7,20 +7,26 @@
  */
 import { useEffect, useState } from 'react'
 import { registerAndIssueToken } from '@/core/api/queueDesk'
-import type { PatientGender, QueueTypeBoardControl } from '@/core/api/types'
+import type { QueueTypeBoardControl } from '@/core/api/types'
 import { ApiError } from '@/core/api/client'
 import { useLocale } from '@/core/i18n/LocaleProvider'
 import { useToast } from '@/core/toast/toastContext'
 import { secondaryButton } from '@/core/ui/buttonStyles'
 import { LoadingButton } from '@/core/ui/LoadingButton'
 import { Modal } from '@/core/ui/Modal'
-import { TextField } from '@/core/ui/TextField'
 import { readSession } from '@/features/auth/session'
 import { boardErrorKey } from '@/features/board/boardErrors'
 import { newBoardCommandId, parseDeskNumber } from '@/features/board/boardFormat'
 import { BoardDeskPatientFields } from '@/features/board/boardDeskPatientFields'
 import { afterDeskIssue } from '@/features/board/deskAfterIssue'
 import { QueueDeskQueuePicker } from '@/features/board/QueueDeskQueuePicker'
+import { PatientDraftNotice } from '@/features/patients/PatientDraftNotice'
+import {
+  emptyPatientForm,
+  usePatientFormDraft,
+  type PatientFormValues,
+} from '@/features/patients/patientDrafts'
+import { FeeField } from '@/features/fees/FeeField'
 
 type RegisterPatientModalProps = {
   initialPhone?: string
@@ -31,9 +37,12 @@ type RegisterPatientModalProps = {
   onDone: () => void | Promise<void>
 }
 
-const bengaliRe = /[ঀ-৿]/
 
-/** Registers a new patient and issues a token in one step (tablet desk flow). */
+/**
+ * Registers a new patient and issues a token in one step (tablet desk flow).
+ * What is typed is kept as a draft when the form is closed, until it is
+ * saved or discarded.
+ */
 export function RegisterPatientModal({
   initialPhone = '',
   initialName = '',
@@ -46,27 +55,27 @@ export function RegisterPatientModal({
   const toast = useToast()
   const [busy, setBusy] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [bengaliName, setBengaliName] = useState(() =>
-    bengaliRe.test(initialName) ? initialName : '',
-  )
-  const [phone, setPhone] = useState(initialPhone)
-  const [englishName, setEnglishName] = useState(() =>
-    initialName && !bengaliRe.test(initialName) ? initialName : '',
-  )
-  const [gender, setGender] = useState<PatientGender | ''>('')
-  const [ageLabel, setAgeLabel] = useState('')
-  const [hasPaperFile, setHasPaperFile] = useState(false)
-  const [queueTypeId, setQueueTypeId] = useState('')
-  const [feeBdt, setFeeBdt] = useState('')
   const [duplicateConfirm, setDuplicateConfirm] = useState(false)
 
-  useEffect(() => {
-    if (queueControls.length === 1) {
-      setQueueTypeId(queueControls[0]!.queueTypeId)
-    }
-  }, [queueControls])
+  const [baseline] = useState<PatientFormValues>(() => ({
+    ...emptyPatientForm,
+    name: initialName,
+    phone: initialPhone,
+    queueTypeId: queueControls.length === 1 ? queueControls[0]!.queueTypeId : '',
+  }))
+  // A draft comes back unless the desk opened this form for a typed search.
+  const draft = usePatientFormDraft(`desk-new:${chamberId}`, baseline, {
+    ignoreDraft: Boolean(initialPhone || initialName),
+  })
+  const { values, setValues } = draft
 
-  const valid = Boolean(bengaliName.trim() && phone.trim() && queueTypeId)
+  useEffect(() => {
+    if (queueControls.length === 1 && !values.queueTypeId) {
+      setValues({ queueTypeId: queueControls[0]!.queueTypeId })
+    }
+  }, [queueControls, values.queueTypeId, setValues])
+
+  const valid = Boolean(values.name.trim() && values.phone.trim() && values.queueTypeId)
 
   async function submit() {
     const token = readSession()
@@ -77,21 +86,21 @@ export function RegisterPatientModal({
       return
     }
     setBusy(true)
-    const fee = parseDeskNumber(feeBdt)
     try {
       const issued = await registerAndIssueToken(token, chamberId, {
         commandId: newBoardCommandId(),
         chamberId,
-        bengaliName: bengaliName.trim(),
-        phone: phone.trim(),
-        englishName: englishName.trim() || undefined,
-        gender: gender || undefined,
-        approximateAgeYears: parseDeskNumber(ageLabel) ?? undefined,
-        hasPaperFile,
+        name: values.name.trim(),
+        phone: values.phone.trim(),
+        gender: values.gender || undefined,
+        approximateAgeYears: parseDeskNumber(values.age) ?? undefined,
+        hasPaperFile: values.hasPaperFile,
         confirmDuplicatePhone: duplicateConfirm,
-        queueTypeId,
-        feeBdt: fee,
+        queueTypeId: values.queueTypeId,
+        feeBdt: values.isFree ? null : parseDeskNumber(values.feeBdt),
+        isFree: values.isFree,
       })
+      draft.finish()
       onClose()
       await afterDeskIssue(issued, onDone, toast, t)
     } catch (error) {
@@ -128,51 +137,59 @@ export function RegisterPatientModal({
         </>
       }
     >
+      <PatientDraftNotice
+        visible={draft.dirty}
+        restored={draft.restored}
+        onDiscard={() => {
+          draft.discard()
+          setSubmitted(false)
+          setDuplicateConfirm(false)
+        }}
+        disabled={busy}
+      />
       {duplicateConfirm ? (
         <p className="mb-4 text-sm text-brand-navy/80 dark:text-white/80">
           {t('boardDuplicatePhoneConfirm')}
         </p>
       ) : null}
       <BoardDeskPatientFields
-        bengaliName={bengaliName}
-        englishName={englishName}
-        phone={phone}
-        age={ageLabel}
-        gender={gender}
-        onBengaliNameChange={setBengaliName}
-        onEnglishNameChange={setEnglishName}
-        onPhoneChange={setPhone}
-        onAgeChange={setAgeLabel}
-        onGenderChange={setGender}
+        name={values.name}
+        phone={values.phone}
+        age={values.age}
+        gender={values.gender}
+        onNameChange={(name) => setValues({ name })}
+        onPhoneChange={(phone) => setValues({ phone })}
+        onAgeChange={(age) => setValues({ age })}
+        onGenderChange={(gender) => setValues({ gender })}
         disabled={busy}
         showErrors={submitted}
       />
       <div className="mt-4">
         <QueueDeskQueuePicker
           controls={queueControls}
-          selectedId={queueTypeId || null}
-          onSelected={setQueueTypeId}
+          selectedId={values.queueTypeId || null}
+          onSelected={(queueTypeId) => setValues({ queueTypeId })}
           disabled={busy}
-          errorText={submitted && !queueTypeId ? t('boardFieldRequired') : undefined}
+          errorText={submitted && !values.queueTypeId ? t('boardFieldRequired') : undefined}
         />
       </div>
       <div className="mt-4">
-        <TextField
+        <FeeField
           id="reg-fee"
-          label={t('boardFieldFee')}
-          inputMode="numeric"
-          value={feeBdt}
-          onChange={(event) => setFeeBdt(event.target.value)}
+          value={values.feeBdt}
+          onChange={(feeBdt) => setValues({ feeBdt })}
           disabled={busy}
+          free={values.isFree}
+          onFreeChange={(isFree) => setValues({ isFree })}
         />
       </div>
       <label className="mt-4 flex items-start gap-3 text-sm">
         <input
           type="checkbox"
           className="mt-1 h-4 w-4 rounded border-brand-navy/20"
-          checked={hasPaperFile}
+          checked={values.hasPaperFile}
           disabled={busy}
-          onChange={(event) => setHasPaperFile(event.target.checked)}
+          onChange={(event) => setValues({ hasPaperFile: event.target.checked })}
         />
         <span>{t('boardFieldPaperFile')}</span>
       </label>

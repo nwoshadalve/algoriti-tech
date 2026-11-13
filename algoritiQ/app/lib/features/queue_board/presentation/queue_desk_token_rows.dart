@@ -171,14 +171,17 @@ class DeskTokenTableRow extends StatelessWidget {
           children: [
             _Cell(
               flex: _flexId,
-              child: Text(token.clinicPatientId, style: body),
+              child: Text(
+                queueDeskFormatDigits(token.clinicPatientId, locale),
+                style: body,
+              ),
             ),
             _Cell(
               flex: _flexName,
               child: Tooltip(
-                message: token.patientBengaliName,
+                message: token.patientName,
                 child: Text(
-                  token.patientBengaliName,
+                  token.patientName,
                   style: body?.copyWith(fontWeight: FontWeight.w600),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -265,7 +268,7 @@ class DeskTokenCardRow extends StatelessWidget {
               const SizedBox(width: Spacing.sm),
               Expanded(
                 child: Text(
-                  token.patientBengaliName,
+                  token.patientName,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -282,7 +285,7 @@ class DeskTokenCardRow extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${token.clinicPatientId} · '
+                  '${queueDeskFormatDigits(token.clinicPatientId, locale)} · '
                   '${queueDeskQueueNameForToken(locale, token)}',
                   style: muted,
                   maxLines: 2,

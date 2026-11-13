@@ -48,7 +48,7 @@ export function CancelTokenModal({ token, onClose, onDone }: CancelTokenModalPro
   return (
     <Modal
       title={t('boardCancelTitle')}
-      description={t('boardCancelIntro', { serial, name: token.patientBengaliName })}
+      description={t('boardCancelIntro', { serial, name: token.patientName })}
       busy={busy}
       onClose={onClose}
       footer={

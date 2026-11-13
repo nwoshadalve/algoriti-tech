@@ -10,6 +10,8 @@ import 'package:algoritiq_app/features/access/domain/account.dart';
 import 'package:algoritiq_app/features/clinic/data/drift_clinic_repository.dart';
 import 'package:algoritiq_app/features/queue/application/queue_service.dart';
 import 'package:algoritiq_app/features/queue/data/drift_queue_repository.dart';
+import 'package:algoritiq_app/features/tv_live/application/announcement_service.dart';
+import 'package:algoritiq_app/features/tv_live/application/tv_live_publisher.dart';
 import 'package:algoritiq_app/features/queue_board/application/queue_board_service.dart';
 import 'package:algoritiq_app/features/queue_board/data/drift_queue_board_repository.dart';
 import 'package:algoritiq_app/features/queue_board/domain/board_models.dart';
@@ -37,7 +39,10 @@ class QueueDeskKit {
   final DriftQueueRepository queueRepo;
   final DriftQueueBoardRepository boardRepo;
 
-  static Future<QueueDeskKit> open() async {
+  static Future<QueueDeskKit> open({
+    TvLivePublisher tvLive = const NullTvLivePublisher(),
+    AnnouncementPreparer announcer = const NullAnnouncementPreparer(),
+  }) async {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     final kit = await AccessKit.create();
     addTearDown(kit.close);
@@ -80,6 +85,8 @@ class QueueDeskKit {
       accounts: accounts,
       clock: kit.clock.call,
       newId: newId,
+      tvLive: tvLive,
+      announcer: announcer,
     );
     // The first board load seeds the clinic's default queue types.
     await board.loadBoard(account, deskChamberId);
@@ -87,24 +94,19 @@ class QueueDeskKit {
   }
 
   Future<IssuedTokenResult> addPatient(
-    String bengaliName,
+    String name,
     String phone, {
-    String? englishName,
     String queue = 'regular',
     String command = 'cmd',
   }) => board.registerAndIssue(
     account,
-    PatientInput(
-      bengaliName: bengaliName,
-      englishName: englishName,
-      phone: phone,
-    ),
+    PatientInput(name: name, phone: phone),
     queue,
     chamberId: deskChamberId,
     commandId: command,
   );
 
   Future<List<String>> searchNames(String query) async => [
-    for (final p in await board.searchPatients(account, query)) p.bengaliName,
+    for (final p in await board.searchPatients(account, query)) p.name,
   ];
 }

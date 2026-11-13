@@ -28,6 +28,25 @@ class TvDisplayMapperTest {
     }
 
     @Test
+    fun readsHowLongEachWaitingSerialHasWaited() {
+        val state =
+            map(
+                """{"queueTypes":[{"id":"regular","bengaliName":"নিয়মিত"}],"called":null,
+                "waiting":{"regular":[5,6,7]},"waitedSeconds":{"regular":[600,95]}}""",
+            )
+
+        // A serial the tablet sent no time for counts as just arrived.
+        assertEquals(listOf(600, 95, 0), state.queueTypes.single().waitedSeconds)
+    }
+
+    @Test
+    fun waitingTimesAreZeroWhenTheTabletSendsNone() {
+        val state = map("""{"queueTypes":[{"id":"regular"}],"waiting":{"regular":[5]}}""")
+
+        assertEquals(listOf(0), state.queueTypes.single().waitedSeconds)
+    }
+
+    @Test
     fun readsTheCalledSerialAndItsQueue() {
         val state =
             map(
@@ -37,6 +56,51 @@ class TvDisplayMapperTest {
 
         assertEquals(1003, state.calledSerial)
         assertEquals("নিয়মিত", state.calledTypeLabelBn)
+    }
+
+    @Test
+    fun readsEveryCallGoingOnInTheQueuesOrder() {
+        val state =
+            map(
+                """{"queueTypes":[{"id":"regular","bengaliName":"নিয়মিত"},{"id":"report","bengaliName":"রিপোর্ট"}],
+                "called":{"tokenId":"b","queueTypeId":"report","serial":201},
+                "calledList":[{"tokenId":"a","queueTypeId":"regular","serial":104},
+                {"tokenId":"b","queueTypeId":"report","serial":201}],"waiting":{}}""",
+            )
+
+        assertEquals(listOf(104, 201), state.calls.map { it.serial })
+        assertEquals(listOf("নিয়মিত", "রিপোর্ট"), state.calls.map { it.queueLabelBn })
+        // The newest call is the one that flashes.
+        assertEquals(201, state.calledSerial)
+    }
+
+    @Test
+    fun takesTheOneCallOfAnOlderTabletAsTheOnlyCall() {
+        val state =
+            map(
+                """{"queueTypes":[{"id":"regular","bengaliName":"নিয়মিত"}],
+                "called":{"tokenId":"t","queueTypeId":"regular","serial":1003},"waiting":{}}""",
+            )
+
+        assertEquals(listOf(1003), state.calls.map { it.serial })
+    }
+
+    @Test
+    fun knowsWhichCallsAreNotAnnouncedYet() {
+        val state =
+            map(
+                """{"queueTypes":[{"id":"regular","bengaliName":"নিয়মিত"},{"id":"report","bengaliName":"রিপোর্ট"}],
+                "called":{"tokenId":"b","queueTypeId":"report","serial":201},
+                "calledList":[{"tokenId":"a","queueTypeId":"regular","serial":104,"announced":true},
+                {"tokenId":"b","queueTypeId":"report","serial":201,"announced":false}],"waiting":{}}""",
+            )
+
+        assertEquals(listOf(true, false), state.calls.map { it.announced })
+    }
+
+    @Test
+    fun hasNoCallsWhenNobodyIsCalled() {
+        assertEquals(emptyList<Any>(), map("""{"queueTypes":[],"called":null,"calledList":[],"waiting":{}}""").calls)
     }
 
     @Test

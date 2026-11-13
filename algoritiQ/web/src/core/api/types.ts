@@ -270,19 +270,46 @@ export type PatientSummary = {
   id: string
   patientNumber: number
   clinicPatientId: string
-  bengaliName: string
-  englishName: string
+  /** The patient's one name, in whatever language it was written. */
+  name: string
   phoneNormalized: string
   gender?: PatientGender | null
   ageLabel?: string | null
+  hasPaperFile?: boolean
+  /** ISO date-time. */
+  registeredAt?: string | null
+  /** Tokens the patient has had, cancelled ones left out (patient list only). */
+  visitCount?: number
+  /** ISO date-time of the latest token, or null if none. */
+  lastVisitAt?: string | null
+}
+
+export type PatientSort = 'registered' | 'name' | 'id' | 'phone' | 'visits' | 'lastVisit'
+
+export type PatientListQuery = {
+  search?: string
+  /** A gender, or `unset` for patients with none stated. */
+  gender?: PatientGender | 'unset'
+  paperFileOnly?: boolean
+  sort?: PatientSort
+  ascending?: boolean
+  limit?: number
+  offset?: number
+}
+
+export type PatientListPage = {
+  items: PatientSummary[]
+  /** Patients matching the search and filters. */
+  total: number
+  /** Every registered patient (older tablet builds do not send it). */
+  registeredTotal?: number
 }
 
 export type RegisterPatientInput = {
   commandId: string
   chamberId: string
-  bengaliName: string
+  name: string
   phone: string
-  englishName?: string
   gender?: PatientGender | null
   dateOfBirthMs?: number | null
   birthYear?: number | null
@@ -295,9 +322,13 @@ export type RegisterPatientInput = {
 }
 
 export type UpdatePatientInput = {
-  bengaliName: string
+  name: string
   phone: string
-  englishName?: string
+  /** With a token of the open session, the fee on that token is changed too; null clears it. */
+  tokenId?: string
+  feeBdt?: number | null
+  /** With 	okenId: the visit is free (any fee is dropped). */
+  isFree?: boolean
   gender?: PatientGender | null
   dateOfBirthMs?: number | null
   birthYear?: number | null
@@ -317,14 +348,20 @@ export type BoardTokenView = {
   queueBengaliName: string
   patientId: string
   clinicPatientId: string
-  patientBengaliName: string
+  patientName: string
   status: TokenStatus
   /** ISO date-time. */
   issuedAt: string
   firstCalledAt?: string | null
   enteredAt?: string | null
+  cancelledAt?: string | null
+  cancelReason?: string | null
   feeBdt?: number | null
+  /** A free visit: no fee is taken (older tablets send none). */
+  isFree?: boolean
   latestPrintStatus?: PrintAttemptStatus | null
+  /** False while the token is on the board as the next one but its call has not been announced yet. */
+  announced?: boolean
 }
 
 export type QueueTypeBoardControl = {
@@ -342,7 +379,10 @@ export type BoardSnapshot = {
   chamberName: string
   sessionId: string | null
   sessionOpen: boolean
+  /** The newest call, kept for desks that know one call. */
   calledToken: BoardTokenView | null
+  /** Every call going on now, one per queue at most, in the queues' order. */
+  calledTokens: BoardTokenView[]
   queueControls: QueueTypeBoardControl[]
   tokens: BoardTokenView[]
   printerBusyTokenId: string | null
@@ -375,10 +415,60 @@ export type IssuePreview = {
   queueBengaliName: string
   previewSerial: number
   feeBdt?: number | null
+  isFree?: boolean
 }
 
 export type IssuedTokenResult = {
   token: BoardTokenView
   printAttemptId: string
   printStatus: PrintAttemptStatus
+}
+
+/** One queue session (today's or an earlier one) and what happened in it. */
+export type SessionSummary = {
+  id: string
+  chamberId: string
+  chamberName: string
+  /** Local calendar day the session was opened for (YYYY-MM-DD). */
+  businessDate: string
+  status: string
+  /** ISO date-times. */
+  openedAt: string
+  openedByName?: string | null
+  closedAt?: string | null
+  closedByName?: string | null
+  /** Why an admin ended it by force; empty for a normal end. */
+  closeReason?: string | null
+  firstCalledAt?: string | null
+  lastCalledAt?: string | null
+  counts: Partial<Record<TokenStatus, number>>
+  /** Fees in BDT of the tokens, cancelled ones left out (older tablets send none). */
+  totalFeeBdt?: number
+  /** Patients seen free, cancelled ones left out (older tablets send none). */
+  freeCount?: number
+}
+
+export type SessionQueueStat = {
+  queueTypeId: string
+  englishName: string
+  bengaliName: string
+  counts: Partial<Record<TokenStatus, number>>
+  feeBdt?: number
+}
+
+export type SessionDetail = {
+  session: SessionSummary
+  queues: SessionQueueStat[]
+  /** Different patients who had a token. */
+  patientCount?: number
+  /** From issuing a token to its first call, over the tokens that were called. */
+  averageWaitSeconds?: number | null
+  longestWaitSeconds?: number | null
+}
+
+export type SessionHistoryPage = {
+  items: SessionSummary[]
+  total: number
+  /** Chambers this person may look at. */
+  chambers: { id: string; name: string }[]
 }

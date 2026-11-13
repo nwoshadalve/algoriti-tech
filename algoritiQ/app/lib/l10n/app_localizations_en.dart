@@ -346,10 +346,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get certNote =>
-      'Your browser will say the connection is not private. That is expected: the tablet uses its own certificate. Check the fingerprint, then continue.';
+      'The tablet makes its own security certificate, so a phone shows a warning until it trusts it. Open /ca.crt on this address from the phone, then install it in Android Settings: Security, Encryption and credentials, Install a certificate, CA certificate. After that the warning is gone and the web app can be installed.';
 
   @override
-  String get certFingerprintLabel => 'Certificate fingerprint';
+  String get certFingerprintLabel => 'Certificate fingerprint (SHA-256)';
 
   @override
   String get readinessTitle => 'Keep the tablet ready';
@@ -810,6 +810,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSessionTableTitle => 'Today\'s session';
 
   @override
+  String get deskFieldName => 'Name';
+
+  @override
+  String get deskTabCalling => 'Calling';
+
+  @override
+  String get deskTabPatients => 'Patients';
+
+  @override
   String get deskSessionEmpty => 'No tokens issued yet.';
 
   @override
@@ -857,12 +866,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSaveAndIssue => 'Save and issue token';
 
   @override
-  String get deskFieldBengaliName => 'Name (Bengali)';
-
-  @override
-  String get deskFieldEnglishName => 'Name (English)';
-
-  @override
   String get deskFieldQueue => 'Queue';
 
   @override
@@ -873,6 +876,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskFieldFee => 'Fee (BDT)';
+
+  @override
+  String get deskFeeNone => 'No fee';
+
+  @override
+  String get deskFreeShort => 'F';
+
+  @override
+  String get deskFreeLabel => 'Free patient';
+
+  @override
+  String get deskFreeTooltip => 'Free patient: no fee is taken';
 
   @override
   String get deskFieldAdminNote => 'Admin note';
@@ -1622,4 +1637,257 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskColIssued => 'Time added';
+
+  @override
+  String get navHistory => 'Session history';
+
+  @override
+  String get historyTitle => 'Session history';
+
+  @override
+  String get historyIntro =>
+      'Look back at earlier queue sessions: when each ran and what happened in it.';
+
+  @override
+  String get historyAllChambers => 'All chambers';
+
+  @override
+  String get historyChamberLabel => 'Chamber';
+
+  @override
+  String get historyRange7 => 'Last 7 days';
+
+  @override
+  String get historyRange30 => 'Last 30 days';
+
+  @override
+  String get historyRangeAll => 'All time';
+
+  @override
+  String get historyEmpty => 'No sessions in this period.';
+
+  @override
+  String get historyLoadFailed => 'Could not load the session history.';
+
+  @override
+  String get historyShowMore => 'Show more';
+
+  @override
+  String get historyStatusOpen => 'Running now';
+
+  @override
+  String get historyStatusEnded => 'Ended';
+
+  @override
+  String get historyStatusForced => 'Ended by admin';
+
+  @override
+  String get historyTokens => 'Tokens';
+
+  @override
+  String get historyNotSeen => 'Not seen';
+
+  @override
+  String get historyFree => 'Free patients';
+
+  @override
+  String historyOpenedBy(String name) {
+    return 'Opened by $name';
+  }
+
+  @override
+  String historyEndedBy(String name) {
+    return 'Ended by $name';
+  }
+
+  @override
+  String historyTime(String start, String end) {
+    return '$start to $end';
+  }
+
+  @override
+  String historyTimeOpen(String start) {
+    return '$start to now';
+  }
+
+  @override
+  String historyDurationHM(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String historyDurationM(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String historyReason(String reason) {
+    return 'Reason: $reason';
+  }
+
+  @override
+  String get historyDetailTitle => 'Session details';
+
+  @override
+  String get historyBack => 'Back to sessions';
+
+  @override
+  String get historyOpened => 'Opened';
+
+  @override
+  String get historyEnded => 'Ended';
+
+  @override
+  String get historyDuration => 'Duration';
+
+  @override
+  String get historyFirstCall => 'First call';
+
+  @override
+  String get historyLastCall => 'Last call';
+
+  @override
+  String get historyByQueue => 'By queue';
+
+  @override
+  String get historyPatients => 'Patients';
+
+  @override
+  String get historyNoPatients => 'No tokens were issued in this session.';
+
+  @override
+  String get historyColToken => 'Token';
+
+  @override
+  String get historyColPatient => 'Patient';
+
+  @override
+  String get historyColQueue => 'Queue';
+
+  @override
+  String get historyColIssued => 'Issued';
+
+  @override
+  String get historyColCalled => 'Called';
+
+  @override
+  String get historyColOutcome => 'Outcome';
+
+  @override
+  String get draftRestored => 'Continuing your saved draft.';
+
+  @override
+  String get draftDiscard => 'Discard draft';
+
+  @override
+  String get draftKept =>
+      'Unsaved changes are kept as a draft until you save or discard them.';
+
+  @override
+  String get draftBadge => 'Draft';
+
+  @override
+  String get navPatients => 'Patients';
+
+  @override
+  String get patientsTitle => 'Patients';
+
+  @override
+  String get patientsIntro =>
+      'Find patients, add new ones and update their details.';
+
+  @override
+  String get patientsSearch => 'Search by name, patient ID or phone';
+
+  @override
+  String get patientsAdd => 'Add patient';
+
+  @override
+  String get patientsAddTitle => 'Add patient';
+
+  @override
+  String get patientsAddSave => 'Save patient';
+
+  @override
+  String get patientsEmpty => 'No patients yet.';
+
+  @override
+  String get patientsEmptyFiltered => 'No patients match.';
+
+  @override
+  String get patientsLoadFailed => 'Could not load patients.';
+
+  @override
+  String get patientsGender => 'Gender';
+
+  @override
+  String get patientsGenderAll => 'All genders';
+
+  @override
+  String get patientsGenderUnset => 'Not stated';
+
+  @override
+  String get patientsPaperOnly => 'Paper file';
+
+  @override
+  String get patientsSortNewest => 'Newest first';
+
+  @override
+  String get patientsSortName => 'Name';
+
+  @override
+  String get patientsSortId => 'Patient ID';
+
+  @override
+  String get patientsSortPhone => 'Phone';
+
+  @override
+  String get patientsSortOrder => 'Sort';
+
+  @override
+  String get patientsReverse => 'Reverse order';
+
+  @override
+  String get patientsClearFilters => 'Clear filters';
+
+  @override
+  String get patientsSaved => 'Patient added.';
+
+  @override
+  String get patientsEdit => 'Edit';
+
+  @override
+  String get patientsNoChamber => 'You are not assigned to a chamber yet.';
+
+  @override
+  String get patientsAge => 'Age';
+
+  @override
+  String patientsCount(int count) {
+    return '$count patients';
+  }
+
+  @override
+  String get patientsTotalLabel => 'Total patients';
+
+  @override
+  String get patientsShownLabel => 'Showing';
+
+  @override
+  String get patientsVisits => 'Visits';
+
+  @override
+  String get patientsLastVisit => 'Last visit';
+
+  @override
+  String get patientsNoVisits => 'No visits yet';
+
+  @override
+  String get patientsRegistered => 'Registered';
+
+  @override
+  String get patientsSortVisits => 'Most visits';
+
+  @override
+  String get patientsSortLastVisit => 'Latest visit';
 }

@@ -12,6 +12,7 @@ import '../../clinic/application/clinic_providers.dart';
 import '../../connectivity/application/printer_controller.dart';
 import '../../queue/application/queue_providers.dart';
 import '../../../api/live_providers.dart';
+import '../../tv_live/application/announcement_providers.dart';
 import '../application/queue_board_service.dart';
 import 'queue_board_repository_provider.dart';
 import 'token_print_service.dart';
@@ -25,6 +26,7 @@ final queueBoardServiceProvider = Provider<QueueBoardService>(
     clock: ref.watch(clockProvider),
     newId: ref.watch(idGeneratorProvider),
     tvLive: ref.watch(tvLivePublisherProvider),
+    announcer: ref.watch(announcementServiceProvider),
   ),
 );
 

@@ -105,7 +105,7 @@ String _initial(String name) {
 /// "ID · phone", then age and gender when known.
 String _meta(PatientSummary p, AppLocalizations l10n) {
   final parts = [
-    p.clinicPatientId,
+    queueDeskFormatDigits(p.clinicPatientId, Locale(l10n.localeName)),
     queueDeskDisplayPhone(p.phoneNormalized),
     ?p.ageLabel,
     if (p.gender == PatientGender.male) l10n.deskGenderMale,
@@ -168,14 +168,14 @@ class DeskPatientTile extends StatelessWidget {
             ),
             child: Row(
               children: [
-                DeskPatientAvatar(patient.bengaliName),
+                DeskPatientAvatar(patient.name),
                 const SizedBox(width: Spacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        patient.bengaliName,
+                        patient.name,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -224,14 +224,14 @@ class DeskPatientCard extends StatelessWidget {
         padding: const EdgeInsets.all(Spacing.md),
         child: Row(
           children: [
-            DeskPatientAvatar(patient.bengaliName),
+            DeskPatientAvatar(patient.name),
             const SizedBox(width: Spacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    patient.bengaliName,
+                    patient.name,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),

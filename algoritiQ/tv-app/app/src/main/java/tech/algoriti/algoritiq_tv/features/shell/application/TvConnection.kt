@@ -9,8 +9,9 @@ import kotlin.random.Random
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import tech.algoriti.algoritiq_tv.core.network.ApiConfig
 import tech.algoriti.algoritiq_tv.features.sync.domain.LiveSessionRepository
 
@@ -28,6 +29,13 @@ class TvConnection
     ) {
         private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         private var started = false
+        private val wake = Channel<Unit>(Channel.CONFLATED)
+
+        /** Drops the current attempt and tries again now, without the usual wait (a new address was saved). */
+        fun reconnectNow() {
+            wake.trySend(Unit)
+            live.stopSession()
+        }
 
         /** Starts linking (once). Call from [android.app.Application.onCreate]. */
         fun start() {
@@ -43,7 +51,7 @@ class TvConnection
                 live.runSession(config.defaultHost)
                 // A link that held for a while was healthy: start the waits again from short.
                 wait = if (System.currentTimeMillis() - began > STABLE_MS) MIN_WAIT_MS else minOf(wait * 2, MAX_WAIT_MS)
-                delay(wait + Random.nextLong(JITTER_MS))
+                withTimeoutOrNull(wait + Random.nextLong(JITTER_MS)) { wake.receive() }
             }
         }
 

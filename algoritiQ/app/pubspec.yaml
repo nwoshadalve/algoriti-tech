@@ -79,6 +79,7 @@ flutter:
     - assets/web/
     - assets/web/assets/
     - assets/web/fonts/
+    - assets/announcements/
 
   fonts:
     - family: PlusJakartaSans

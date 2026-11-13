@@ -41,7 +41,9 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun onDestroy() {
-        if (EngineHolder.activity === this) EngineHolder.activity = null
+        if (EngineHolder.activity === this) {
+            EngineHolder.activity = null
+        }
         SplashHold.onRelease = null
         super.onDestroy()
     }

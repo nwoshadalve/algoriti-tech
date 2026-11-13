@@ -241,6 +241,14 @@ class Patients extends Table {
   /// Sequence copied at registration; legacy rows use [patientNumber].
   IntColumn get patientIdSequence => integer().withDefault(const Constant(0))();
 
+  /// The patient's name, in whatever language it was written. Since v17 this
+  /// is the only name the app reads or writes.
+  TextColumn get name => text().withDefault(const Constant(''))();
+
+  /// The Bengali and English names of before v17. Never dropped (old data stays
+  /// safe, and an older app can still read the table); new rows copy [name]
+  /// into [bengaliName] to satisfy its NOT NULL, and the English name is left
+  /// as it was. Search still looks in both.
   TextColumn get bengaliName => text()();
   TextColumn get englishName => text().nullable()();
   TextColumn get phoneNormalized => text()();
@@ -281,8 +289,15 @@ class QueueTokens extends Table {
   IntColumn get serial => integer()();
   TextColumn get status => text()();
   IntColumn get feeBdt => integer().nullable()();
+
+  /// A free visit: no fee is taken, and [feeBdt] stays null.
+  BoolColumn get isFree => boolean().withDefault(const Constant(false))();
   IntColumn get issuedAt => integer()();
   IntColumn get firstCalledAt => integer().nullable()();
+
+  /// When the receptionist first announced the call (voice and board flash).
+  /// Null while the token is on the board as the next one but not yet spoken.
+  IntColumn get announcedAt => integer().nullable()();
   IntColumn get enteredAt => integer().nullable()();
   IntColumn get cancelledAt => integer().nullable()();
   TextColumn get cancelReason => text().nullable()();

@@ -11,6 +11,7 @@ import '../../access/application/user_management_service.dart';
 import '../../access/domain/account.dart';
 import '../../clinic/application/clinic_providers.dart';
 import '../../licensing/application/license_controller.dart';
+import '../../queue/application/queue_providers.dart';
 import 'receptionist_scope_service.dart';
 
 /// Resolves which chamber/doctor context a receptionist may work in after sign-in.
@@ -19,6 +20,11 @@ final receptionistScopeServiceProvider = Provider<ReceptionistScopeService>(
     accounts: ref.watch(accountRepositoryProvider),
     clinic: ref.watch(clinicRepositoryProvider),
     licensePayload: () => readLicensePayload(ref),
+    hasOpenSession: (chamberId) async =>
+        await ref
+            .read(queueRepositoryProvider)
+            .openSessionForChamber(chamberId) !=
+        null,
   ),
 );
 
@@ -86,6 +92,12 @@ class ReceptionistWorkController extends Notifier<ReceptionistWorkState?> {
     _scopeIds = loaded.scopeIds;
     if (loaded.options.isEmpty) {
       state = const ReceptionistWorkUnassigned();
+      return;
+    }
+    // Several chambers, but only one has a session running: go straight to its
+    // desk. The receptionist can still switch via the change-chamber option.
+    if (loaded.options.length > 1 && loaded.activeOptions.length == 1) {
+      state = ReceptionistWorkReady(loaded.activeOptions.single);
       return;
     }
     state = switch (loaded.scopeIds.length) {

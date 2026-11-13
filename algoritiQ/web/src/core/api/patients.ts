@@ -6,7 +6,30 @@
  * or distribution is prohibited.
  */
 import { apiFetch, bearer } from '@/core/api/client'
-import type { PatientSummary, RegisterPatientInput, UpdatePatientInput } from '@/core/api/types'
+import type {
+  PatientListPage,
+  PatientListQuery,
+  PatientSummary,
+  RegisterPatientInput,
+  UpdatePatientInput,
+} from '@/core/api/types'
+
+/** One page of the patient list: searched, filtered and sorted on the tablet. */
+export async function listPatients(
+  token: string,
+  query: PatientListQuery = {},
+): Promise<PatientListPage> {
+  const params = new URLSearchParams()
+  if (query.search?.trim()) params.set('search', query.search.trim())
+  if (query.gender) params.set('gender', query.gender)
+  if (query.paperFileOnly) params.set('paperFileOnly', 'true')
+  if (query.sort) params.set('sort', query.sort)
+  if (query.ascending) params.set('ascending', 'true')
+  if (query.limit != null) params.set('limit', String(query.limit))
+  if (query.offset != null) params.set('offset', String(query.offset))
+  const text = params.toString()
+  return apiFetch<PatientListPage>(`/patients${text ? `?${text}` : ''}`, { headers: bearer(token) })
+}
 
 export async function searchPatients(token: string, query: string): Promise<PatientSummary[]> {
   const result = await apiFetch<{ patients: PatientSummary[] }>('/patients/search', {

@@ -12,6 +12,7 @@ import '../../access/domain/account_repository.dart';
 import '../data/drift_queue_repository.dart';
 import '../domain/queue_models.dart';
 import '../domain/queue_validation.dart';
+import '../domain/session_stop_time.dart';
 
 enum QueueServiceProblem {
   forbidden,
@@ -443,6 +444,49 @@ class QueueService {
       'category': 'session',
     });
     return null;
+  }
+
+  /// Closes every open session whose automatic stop time has passed and
+  /// returns the chambers they belonged to. Closing is the same as ending the
+  /// session by hand: patients still waiting stay in it, as history. The stop
+  /// time is the chamber's own, else the clinic's, as set on the queue
+  /// configuration page.
+  Future<List<String>> closeSessionsDueForAutoStop() async {
+    final sessions = await _repo.openSessions();
+    if (sessions.isEmpty) return const [];
+    final clinicPolicy = await _repo.loadClinicPolicy();
+    final now = _clock();
+    final closed = <String>[];
+    for (final session in sessions) {
+      final settings = await _repo.loadChamberSettings(session.chamberId);
+      final boundary = settings.dayBoundaryOverride ?? clinicPolicy.dayBoundary;
+      final stopAt = sessionStopAt(
+        openedAt: DateTime.fromMillisecondsSinceEpoch(
+          session.openedAt,
+          isUtc: true,
+        ),
+        boundary: boundary,
+        timeZone: clinicPolicy.timeZone,
+      );
+      if (stopAt == null || now.isBefore(stopAt)) continue;
+      await _repo.closeSession(
+        sessionId: session.id,
+        // The session ended at its stop time, even if the app only noticed later.
+        closedAt: stopAt,
+        closedByAccountId: null,
+      );
+      await _audit(null, 'queue.session.auto_closed', {
+        'chamberId': session.chamberId,
+        'sessionId': session.id,
+        'boundary': boundary,
+        'timeZone': clinicPolicy.timeZone,
+        'stopAt': stopAt.toUtc().toIso8601String(),
+        'outcome': 'success',
+        'category': 'session',
+      });
+      closed.add(session.chamberId);
+    }
+    return closed;
   }
 
   Future<void> forceCloseSession(

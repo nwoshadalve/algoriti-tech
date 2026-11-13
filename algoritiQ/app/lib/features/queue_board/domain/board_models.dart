@@ -56,28 +56,40 @@ final class PatientSummary {
     required this.id,
     required this.patientNumber,
     required this.clinicPatientId,
-    required this.bengaliName,
-    required this.englishName,
+    required this.name,
     required this.phoneNormalized,
     this.gender,
     this.ageLabel,
+    this.hasPaperFile = false,
+    this.registeredAt,
+    this.visitCount = 0,
+    this.lastVisitAt,
   });
 
   final String id;
   final int patientNumber;
   final String clinicPatientId;
-  final String bengaliName;
-  final String englishName;
+
+  /// How many times the patient is on a queue session: every token record,
+  /// whatever its status. Filled for the patient list; 0 where not asked for.
+  final int visitCount;
+
+  /// When the patient last took a token; null if never.
+  final DateTime? lastVisitAt;
+
+  /// The patient's one name, in whatever language it was written.
+  final String name;
   final String phoneNormalized;
   final PatientGender? gender;
   final String? ageLabel;
+  final bool hasPaperFile;
+  final DateTime? registeredAt;
 }
 
 final class PatientInput {
   const PatientInput({
-    required this.bengaliName,
+    required this.name,
     required this.phone,
-    this.englishName,
     this.gender,
     this.dateOfBirthMs,
     this.birthYear,
@@ -89,9 +101,8 @@ final class PatientInput {
     this.confirmDuplicatePhone = false,
   });
 
-  final String bengaliName;
+  final String name;
   final String phone;
-  final String? englishName;
   final PatientGender? gender;
   final int? dateOfBirthMs;
   final int? birthYear;
@@ -103,6 +114,20 @@ final class PatientInput {
   final bool confirmDuplicatePhone;
 }
 
+/// A change of the fee on a patient's token, made together with editing the
+/// patient. [feeBdt] null clears the fee. A free visit ([isFree]) has no fee.
+final class TokenFeeChange {
+  const TokenFeeChange({
+    required this.tokenId,
+    this.feeBdt,
+    this.isFree = false,
+  });
+
+  final String tokenId;
+  final int? feeBdt;
+  final bool isFree;
+}
+
 final class BoardTokenView {
   const BoardTokenView({
     required this.id,
@@ -112,14 +137,17 @@ final class BoardTokenView {
     required this.queueBengaliName,
     required this.patientId,
     required this.clinicPatientId,
-    required this.patientBengaliName,
+    required this.patientName,
     required this.status,
     required this.issuedAt,
     this.firstCalledAt,
     this.enteredAt,
     this.cancelledAt,
+    this.cancelReason,
     this.feeBdt,
+    this.isFree = false,
     this.latestPrintStatus,
+    this.announced = true,
   });
 
   final String id;
@@ -129,14 +157,22 @@ final class BoardTokenView {
   final String queueBengaliName;
   final String patientId;
   final String clinicPatientId;
-  final String patientBengaliName;
+  final String patientName;
   final TokenStatus status;
   final DateTime issuedAt;
   final DateTime? firstCalledAt;
   final DateTime? enteredAt;
   final DateTime? cancelledAt;
+  final String? cancelReason;
   final int? feeBdt;
+
+  /// The patient was seen without a fee ([feeBdt] is then null).
+  final bool isFree;
   final String? latestPrintStatus;
+
+  /// False for a token that is on the board as the next one (the queue moved
+  /// on by itself) but whose call has not been announced yet.
+  final bool announced;
 }
 
 /// One page of the session table: the tokens asked for, how many match in
@@ -181,7 +217,7 @@ final class BoardSnapshot {
     required this.chamberName,
     required this.sessionId,
     required this.sessionOpen,
-    required this.calledToken,
+    required this.calledTokens,
     required this.queueControls,
     required this.tokens,
     required this.printerBusyTokenId,
@@ -191,7 +227,25 @@ final class BoardSnapshot {
   final String chamberName;
   final String? sessionId;
   final bool sessionOpen;
-  final BoardTokenView? calledToken;
+
+  /// The tokens being called now, one per queue at most, in queue order.
+  final List<BoardTokenView> calledTokens;
+
+  /// The token called most recently, or null when none is being called.
+  BoardTokenView? get calledToken {
+    BoardTokenView? latest;
+    for (final token in calledTokens) {
+      final at = token.firstCalledAt;
+      if (latest == null ||
+          (at != null &&
+              (latest.firstCalledAt == null ||
+                  at.isAfter(latest.firstCalledAt!)))) {
+        latest = token;
+      }
+    }
+    return latest;
+  }
+
   final List<QueueTypeBoardControl> queueControls;
   final List<BoardTokenView> tokens;
   final String? printerBusyTokenId;
@@ -206,6 +260,7 @@ final class IssuePreview {
     required this.queueBengaliName,
     required this.previewSerial,
     this.feeBdt,
+    this.isFree = false,
   });
 
   final PatientSummary patient;
@@ -215,6 +270,7 @@ final class IssuePreview {
   final String queueBengaliName;
   final int previewSerial;
   final int? feeBdt;
+  final bool isFree;
 }
 
 final class IssuedTokenResult {

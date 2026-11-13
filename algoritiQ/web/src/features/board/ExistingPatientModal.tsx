@@ -27,6 +27,8 @@ import { afterDeskIssue } from '@/features/board/deskAfterIssue'
 import { EditPatientModal } from '@/features/board/EditPatientModal'
 import { QueueDeskQueuePicker } from '@/features/board/QueueDeskQueuePicker'
 import { RegisterPatientModal } from '@/features/board/RegisterPatientModal'
+import { formatDigits } from '@/features/queue/formatQueueSerial'
+import { FeeField } from '@/features/fees/FeeField'
 
 type ExistingPatientModalProps = {
   chamberId: string
@@ -35,9 +37,9 @@ type ExistingPatientModalProps = {
   onDone: () => void | Promise<void>
 }
 
-function patientMeta(patient: PatientSummary, t: (key: MessageKey) => string): string {
+function patientMeta(patient: PatientSummary, t: (key: MessageKey) => string, locale: string): string {
   const parts = [
-    patient.clinicPatientId,
+    formatDigits(patient.clinicPatientId, locale),
     patient.phoneNormalized ? `0${patient.phoneNormalized}` : '',
     patient.ageLabel ?? '',
     patient.gender === 'male'
@@ -58,7 +60,7 @@ export function ExistingPatientModal({
   onClose,
   onDone,
 }: ExistingPatientModalProps) {
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
   const toast = useToast()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<PatientSummary[]>([])
@@ -67,6 +69,7 @@ export function ExistingPatientModal({
   const [selected, setSelected] = useState<PatientSummary | null>(null)
   const [queueTypeId, setQueueTypeId] = useState('')
   const [feeBdt, setFeeBdt] = useState('')
+  const [isFree, setIsFree] = useState(false)
   const [issuing, setIssuing] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [registerOpen, setRegisterOpen] = useState(false)
@@ -129,13 +132,14 @@ export function ExistingPatientModal({
       return
     }
     setIssuing(true)
-    const fee = parseDeskNumber(feeBdt)
+    const fee = isFree ? null : parseDeskNumber(feeBdt)
     try {
       const issued = await issueToken(token, chamberId, {
         commandId: newBoardCommandId(),
         patientId: selected.id,
         queueTypeId,
         feeBdt: fee,
+        isFree,
       })
       onClose()
       await afterDeskIssue(issued, onDone, toast, t)
@@ -181,7 +185,7 @@ export function ExistingPatientModal({
           queueBengaliName: '',
           patientId: selected.id,
           clinicPatientId: selected.clinicPatientId,
-          patientBengaliName: selected.bengaliName,
+          patientName: selected.name,
           status: 'WAITING',
           issuedAt: new Date().toISOString(),
         }}
@@ -226,11 +230,11 @@ export function ExistingPatientModal({
         <div className="rounded-xl bg-brand-mist/80 p-4 dark:bg-white/10">
           <div className="flex items-start gap-3">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-coral/15 text-sm font-bold text-brand-coral-action">
-              {selected.bengaliName.trim().charAt(0) || '?'}
+              {selected.name.trim().charAt(0) || '?'}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="font-semibold">{selected.bengaliName}</p>
-              <p className="text-sm text-brand-navy/65 dark:text-white/65">{patientMeta(selected, t)}</p>
+              <p className="font-semibold">{selected.name}</p>
+              <p className="text-sm text-brand-navy/65 dark:text-white/65">{patientMeta(selected, t, locale)}</p>
             </div>
             <button
               type="button"
@@ -252,13 +256,13 @@ export function ExistingPatientModal({
           />
         </div>
         <div className="mt-4">
-          <TextField
+          <FeeField
             id="existing-fee"
-            label={t('boardFieldFee')}
-            inputMode="numeric"
             value={feeBdt}
-            onChange={(event) => setFeeBdt(event.target.value)}
+            onChange={setFeeBdt}
             disabled={issuing}
+            free={isFree}
+            onFreeChange={setIsFree}
           />
         </div>
       </Modal>
@@ -308,12 +312,12 @@ export function ExistingPatientModal({
                   className="flex w-full items-center gap-3 rounded-xl border border-brand-navy/10 px-4 py-3 text-left transition hover:bg-brand-mist/60 dark:border-white/10 dark:hover:bg-white/5"
                 >
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-coral/15 text-sm font-bold">
-                    {patient.bengaliName.trim().charAt(0) || '?'}
+                    {patient.name.trim().charAt(0) || '?'}
                   </span>
                   <span className="min-w-0">
-                    <span className="block font-semibold">{patient.bengaliName}</span>
+                    <span className="block font-semibold">{patient.name}</span>
                     <span className="block text-sm text-brand-navy/65 dark:text-white/65">
-                      {patientMeta(patient, t)}
+                      {patientMeta(patient, t, locale)}
                     </span>
                   </span>
                 </button>

@@ -88,15 +88,18 @@ export async function pickChamberIdWithOpenSession(
   chambers: { id: string }[],
 ): Promise<string> {
   if (chambers.length === 0) return ''
-  for (const chamber of chambers) {
-    try {
-      const snapshot = await getQueueDeskSnapshot(token, chamber.id, { includeTokens: false })
-      if (snapshot.sessionOpen) return chamber.id
-    } catch {
-      // try next chamber
-    }
-  }
-  return chambers[0]!.id
+  // Ask every chamber at once (one slow or failing chamber must not hide the open one),
+  // then take the first open one in list order.
+  const open = await Promise.all(
+    chambers.map((chamber) =>
+      getQueueDeskSnapshot(token, chamber.id, { includeTokens: false }).then(
+        (snapshot) => snapshot.sessionOpen,
+        () => false,
+      ),
+    ),
+  )
+  const index = open.indexOf(true)
+  return chambers[index === -1 ? 0 : index]!.id
 }
 
 export async function startQueueDeskSession(token: string, chamberId: string): Promise<void> {
@@ -112,11 +115,12 @@ export async function previewIssueToken(
   patientId: string,
   queueTypeId: string,
   feeBdt?: number | null,
+  isFree = false,
 ): Promise<IssuePreview> {
   return apiFetch<IssuePreview>(`${chamberPath(chamberId)}/issue-preview`, {
     method: 'POST',
     headers: bearer(token),
-    body: JSON.stringify({ patientId, queueTypeId, feeBdt: feeBdt ?? undefined }),
+    body: JSON.stringify({ patientId, queueTypeId, feeBdt: feeBdt ?? undefined, isFree }),
   })
 }
 
@@ -128,6 +132,7 @@ export async function issueToken(
     patientId: string
     queueTypeId: string
     feeBdt?: number | null
+    isFree?: boolean
   },
 ): Promise<IssuedTokenResult> {
   return apiFetch<IssuedTokenResult>(`${chamberPath(chamberId)}/issue`, {
@@ -141,7 +146,7 @@ export async function issueToken(
 export async function registerAndIssueToken(
   token: string,
   chamberId: string,
-  input: RegisterPatientInput & { queueTypeId: string; feeBdt?: number | null },
+  input: RegisterPatientInput & { queueTypeId: string; feeBdt?: number | null; isFree?: boolean },
 ): Promise<IssuedTokenResult> {
   return apiFetch<IssuedTokenResult>(`${chamberPath(chamberId)}/register-and-issue`, {
     method: 'POST',

@@ -39,7 +39,7 @@ BoardTokenView _view(int serial) => BoardTokenView(
   queueBengaliName: 'সাধারণ',
   patientId: 'patient-$serial',
   clinicPatientId: '$serial',
-  patientBengaliName: 'রোগী $serial',
+  patientName: 'রোগী $serial',
   status: TokenStatus.waiting,
   issuedAt: DateTime.utc(2026),
 );

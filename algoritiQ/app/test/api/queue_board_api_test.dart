@@ -207,7 +207,7 @@ void main() {
       clinicPatientId: 'P-000001',
       patientIdPrefix: '',
       patientIdSequence: 1,
-      input: const PatientInput(bengaliName: 'Test', phone: '01712345678'),
+      input: const PatientInput(name: 'Test', phone: '01712345678'),
       createdAtMs: kit.clock().millisecondsSinceEpoch,
     );
     await boardRepo.issueToken(
@@ -254,7 +254,7 @@ void main() {
       clinicPatientId: 'P-000009',
       patientIdPrefix: '',
       patientIdSequence: 9,
-      input: const PatientInput(bengaliName: 'NoList', phone: '01712345670'),
+      input: const PatientInput(name: 'NoList', phone: '01712345670'),
       createdAtMs: kit.clock().millisecondsSinceEpoch,
     );
     await boardRepo.issueToken(
@@ -301,7 +301,7 @@ void main() {
       clinicPatientId: 'P-000002',
       patientIdPrefix: '',
       patientIdSequence: 2,
-      input: const PatientInput(bengaliName: 'Paged', phone: '01712345679'),
+      input: const PatientInput(name: 'Paged', phone: '01712345679'),
       createdAtMs: kit.clock().millisecondsSinceEpoch,
     );
     await boardRepo.issueToken(

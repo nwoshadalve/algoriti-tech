@@ -20,7 +20,7 @@ import { formatQueueSerial } from '@/features/queue/formatQueueSerial'
 type QueueControlsSectionProps = {
   chamberId: string
   controls: QueueTypeBoardControl[]
-  calledToken: BoardTokenView | null
+  calledTokens: BoardTokenView[]
   sessionOpen: boolean
   onRefresh: () => void
   layout?: 'card' | 'desk'
@@ -30,7 +30,7 @@ type QueueControlsSectionProps = {
 export function QueueControlsSection({
   chamberId,
   controls,
-  calledToken,
+  calledTokens,
   sessionOpen,
   onRefresh,
   layout = 'card',
@@ -72,20 +72,14 @@ export function QueueControlsSection({
     }
   }
 
-  const blocked = calledToken ? (
-    <p className="mt-1 text-sm text-amber-900 dark:text-amber-100" role="status">
-      {t('boardCallBlocked', {
-        serial: formatQueueSerial(calledToken.serial, locale),
-      })}
-    </p>
-  ) : null
-
   const list = (
     <ul className={layout === 'desk' ? 'mt-3 flex flex-col gap-2' : 'mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3'}>
       {controls.map((control) => {
         const name = queueDisplayName(locale, control.englishName, control.bengaliName)
         const loading = busyType === control.queueTypeId
         const recalling = busyRecall === control.queueTypeId
+        // A queue calls one patient at a time; the others are free.
+        const calling = calledTokens.find((token) => token.queueTypeId === control.queueTypeId)
         return (
           <li
             key={control.queueTypeId}
@@ -112,17 +106,25 @@ export function QueueControlsSection({
                     {t('boardNextSerial', { serial: formatQueueSerial(control.nextSerial, locale) })}
                   </p>
                 ) : null}
+                {calling ? (
+                  <p className="mt-1 text-sm text-amber-900 dark:text-amber-100" role="status">
+                    {t('boardCallBlocked', { serial: formatQueueSerial(calling.serial, locale) })}
+                  </p>
+                ) : null}
               </div>
               <div className={layout === 'desk' ? 'flex shrink-0 flex-wrap gap-2' : 'mt-3 flex flex-col gap-2'}>
-                <LoadingButton
-                  isLoading={loading}
-                  loadingLabel={t('boardWorking')}
-                  disabled={!control.canCallNext || !!busyType || !!busyRecall}
-                  className={layout === 'desk' ? '!min-h-9 !w-auto !px-3 !py-1.5 !text-xs sm:!min-w-0' : undefined}
-                  onClick={() => void callNext(control.queueTypeId)}
-                >
-                  {t('boardCallNext')}
-                </LoadingButton>
+                {/* A queue that is calling has no Call next: Recall (or Call, in the current-call panel) is enough. */}
+                {calling ? null : (
+                  <LoadingButton
+                    isLoading={loading}
+                    loadingLabel={t('boardWorking')}
+                    disabled={!control.canCallNext || !!busyType || !!busyRecall}
+                    className={layout === 'desk' ? '!min-h-9 !w-auto !px-3 !py-1.5 !text-xs sm:!min-w-0' : undefined}
+                    onClick={() => void callNext(control.queueTypeId)}
+                  >
+                    {t('boardCallNext')}
+                  </LoadingButton>
+                )}
                 <LoadingButton
                   isLoading={recalling}
                   loadingLabel={t('boardWorking')}
@@ -154,7 +156,6 @@ export function QueueControlsSection({
         <h2 id="board-queue-controls" className="text-xs font-bold tracking-wide text-brand-navy/70 uppercase dark:text-white/70">
           {t('boardQueueControlsTitle')}
         </h2>
-        {blocked}
         {list}
         {empty}
       </section>
@@ -166,7 +167,6 @@ export function QueueControlsSection({
       <h2 id="board-queue-controls" className="font-semibold">
         {t('boardQueueControlsTitle')}
       </h2>
-      {blocked}
       {list}
       {empty}
     </Card>

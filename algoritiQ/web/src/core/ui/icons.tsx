@@ -388,3 +388,50 @@ export function BluetoothIcon(props: SVGProps<SVGSVGElement>) {
     </Icon>
   )
 }
+
+export function AnalyticsIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M4 20h16" />
+      <path d="M7 20v-7M12 20V6M17 20v-10" />
+    </Icon>
+  )
+}
+
+export function HistoryIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M4 12a8 8 0 1 0 2.4-5.7" />
+      <path d="M4 4v4h4" />
+      <path d="M12 8v4l3 2" />
+    </Icon>
+  )
+}
+
+export function ClockIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </Icon>
+  )
+}
+
+export function CalendarIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <rect x="3.5" y="5" width="17" height="15" rx="2.2" />
+      <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </Icon>
+  )
+}
+
+export function BanknoteIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="6" width="18" height="12" rx="2.2" />
+      <circle cx="12" cy="12" r="2.6" />
+      <path d="M6.5 9.5h.01M17.5 14.5h.01" />
+    </Icon>
+  )
+}

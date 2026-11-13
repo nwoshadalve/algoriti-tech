@@ -12,7 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/id_generator.dart';
 import '../../../core/toast/toast_controller.dart';
-import '../../../core/widgets/labeled_text_field.dart';
 import '../../../core/widgets/loading_button.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../access/application/tablet_session.dart';
@@ -20,6 +19,7 @@ import '../application/queue_board_providers.dart';
 import '../application/queue_board_service.dart';
 import '../domain/board_models.dart';
 import 'queue_desk_dialog_layout.dart';
+import 'queue_desk_fee_field.dart';
 import 'queue_desk_errors.dart';
 import 'queue_desk_patient_edit_dialog.dart';
 import 'queue_desk_patient_widgets.dart';
@@ -91,6 +91,7 @@ class _ExistingDeskDialogState extends ConsumerState<_ExistingDeskDialog> {
   String? _queueTypeId;
   var _issuing = false;
   var _submitted = false;
+  var _isFree = false;
 
   @override
   void initState() {
@@ -183,7 +184,8 @@ class _ExistingDeskDialogState extends ConsumerState<_ExistingDeskDialog> {
             widget.chamberId,
             patient.id,
             queueId,
-            feeBdt: queueDeskParseNumber(_fee.text),
+            feeBdt: _isFree ? null : queueDeskParseNumber(_fee.text),
+            isFree: _isFree,
             commandId: ref.read(idGeneratorProvider)(),
           );
       if (!mounted) return;
@@ -245,12 +247,11 @@ class _ExistingDeskDialogState extends ConsumerState<_ExistingDeskDialog> {
                 : null,
           ),
           deskFormFieldSpacer(),
-          LabeledTextField(
-            compact: true,
-            label: l10n.deskFieldFee,
+          DeskFeeField(
             controller: _fee,
-            keyboardType: TextInputType.number,
             enabled: !_issuing,
+            free: _isFree,
+            onFreeChanged: (on) => setState(() => _isFree = on),
           ),
         ],
       ),

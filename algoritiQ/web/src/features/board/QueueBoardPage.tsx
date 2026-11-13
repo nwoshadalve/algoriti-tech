@@ -23,10 +23,10 @@ import { useAuth } from '@/features/auth/authContext'
 import { readSession } from '@/features/auth/session'
 import { boardErrorKey } from '@/features/board/boardErrors'
 import { CancelTokenModal } from '@/features/board/CancelTokenModal'
-import { CurrentCallPanel } from '@/features/board/CurrentCallPanel'
+import { DeskQueueLanes } from '@/features/board/DeskQueueLanes'
 import { EditPatientModal } from '@/features/board/EditPatientModal'
 import { ExistingPatientModal } from '@/features/board/ExistingPatientModal'
-import { QueueControlsSection } from '@/features/board/QueueControlsSection'
+import { QueueDeskTabs, queueDeskPanelId, queueDeskTabId, type QueueDeskTab } from '@/features/board/QueueDeskTabs'
 import { QueueDeskTableToolbar } from '@/features/board/QueueDeskTableToolbar'
 import { queueDeskQueryKeys } from '@/features/board/queueDeskQueryKeys'
 import { RegisterPatientModal } from '@/features/board/RegisterPatientModal'
@@ -67,6 +67,7 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
   const [startingSession, setStartingSession] = useState(false)
   const [tokenDialog, setTokenDialog] = useState<TokenDialog>(null)
   const [patientDialog, setPatientDialog] = useState<PatientDialog>(null)
+  const [deskTab, setDeskTab] = useState<QueueDeskTab>('calling')
   const [editPatientToken, setEditPatientToken] = useState<BoardTokenView | null>(null)
 
   const receptionistReady = workScopeState?.status === 'ready'
@@ -241,78 +242,80 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
       ) : null}
 
       {snapshot && activeChamberId && sessionOpen ? (
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 xl:flex-row xl:items-stretch">
-          <aside className="flex w-full shrink-0 flex-col gap-3 xl:w-[min(100%,20rem)] xl:max-w-xs">
-            <CurrentCallPanel
-              layout="desk"
-              chamberId={activeChamberId}
-              called={snapshot.calledToken}
-              onRefresh={() => refreshBoard(activeChamberId)}
-              onCancel={(token) => setTokenDialog({ kind: 'cancel', token })}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <QueueDeskTabs
+              selected={deskTab}
+              onSelect={setDeskTab}
+              calling={snapshot.calledTokens.length}
+              patients={table.total}
             />
-            <QueueControlsSection
-              layout="desk"
-              chamberId={activeChamberId}
-              controls={snapshot.queueControls}
-              calledToken={snapshot.calledToken}
+            <SessionPatientActions
               sessionOpen={sessionOpen}
-              onRefresh={() => refreshBoard(activeChamberId)}
+              onAddNew={() => setPatientDialog({ kind: 'new' })}
+              onAddExisting={() => setPatientDialog({ kind: 'existing' })}
             />
-          </aside>
+          </div>
 
-          <section
-            aria-labelledby="board-session-table"
-            className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-brand-navy/10 bg-white shadow-sm dark:border-white/10 dark:bg-brand-navy-raised xl:min-h-[20rem]"
-          >
-            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-navy/10 px-3 py-3 dark:border-white/10 sm:px-4">
-              <h2
-                id="board-session-table"
-                className="text-xs font-bold tracking-wide text-brand-navy/70 uppercase dark:text-white/70"
-              >
-                {t('boardSessionTableTitle')}
-              </h2>
-              <SessionPatientActions
-                sessionOpen={sessionOpen}
-                onAddNew={() => setPatientDialog({ kind: 'new' })}
-                onAddExisting={() => setPatientDialog({ kind: 'existing' })}
+          {deskTab === 'calling' ? (
+            <div
+              role="tabpanel"
+              id={queueDeskPanelId('calling')}
+              aria-labelledby={queueDeskTabId('calling')}
+              className="min-w-0"
+            >
+              <DeskQueueLanes
+                chamberId={activeChamberId}
+                controls={snapshot.queueControls}
+                called={snapshot.calledTokens}
+                onRefresh={() => refreshBoard(activeChamberId)}
+                onCancel={(token) => setTokenDialog({ kind: 'cancel', token })}
               />
-            </header>
-            <QueueDeskTableToolbar
-              search={table.searchInput}
-              onSearchChange={table.setSearchInput}
-              status={table.status}
-              onStatusChange={table.setStatus}
-              queueTypeId={table.queueTypeId}
-              onQueueChange={table.setQueueTypeId}
-              notPrintedOnly={table.notPrintedOnly}
-              onToggleNotPrinted={table.setNotPrintedOnly}
-              sort={table.sort}
-              ascending={table.ascending}
-              onSort={table.toggleSort}
-              counts={table.counts}
-              total={table.total}
-              queues={snapshot.queueControls}
-              hasFilters={table.hasFilters}
-              onClear={table.clearFilters}
-            />
-            <SessionTokensTable
-              tokens={table.tokens}
-              printerBusyTokenId={snapshot.printerBusyTokenId}
-              sort={table.sort}
-              ascending={table.ascending}
-              onSort={table.toggleSort}
-              emptyFiltered={table.hasFilters && table.tokens.length === 0 && !table.isLoading}
-              onClearFilters={table.clearFilters}
-              hasMore={table.hasMore}
-              isLoadingMore={table.isLoadingMore}
-              onLoadMore={table.loadMore}
-              onPrint={(token) => setTokenDialog({ kind: 'print', token })}
-              onReprint={(token) => setTokenDialog({ kind: 'print', token })}
-              onEditPatient={(token) => setEditPatientToken(token)}
-              onCancel={(token) => setTokenDialog({ kind: 'cancel', token })}
-              embedded
-            />
-          </section>
+            </div>
+          ) : (
+            <section
+              role="tabpanel"
+              id={queueDeskPanelId('patients')}
+              aria-labelledby={queueDeskTabId('patients')}
+              className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-brand-navy/10 bg-white shadow-sm dark:border-white/10 dark:bg-brand-navy-raised xl:min-h-[20rem]"
+            >
+              <QueueDeskTableToolbar
+                search={table.searchInput}
+                onSearchChange={table.setSearchInput}
+                status={table.status}
+                onStatusChange={table.setStatus}
+                queueTypeId={table.queueTypeId}
+                onQueueChange={table.setQueueTypeId}
+                notPrintedOnly={table.notPrintedOnly}
+                onToggleNotPrinted={table.setNotPrintedOnly}
+                sort={table.sort}
+                ascending={table.ascending}
+                onSort={table.toggleSort}
+                counts={table.counts}
+                total={table.total}
+                queues={snapshot.queueControls}
+                hasFilters={table.hasFilters}
+                onClear={table.clearFilters}
+              />
+              <SessionTokensTable
+                tokens={table.tokens}
+                printerBusyTokenId={snapshot.printerBusyTokenId}
+                sort={table.sort}
+                ascending={table.ascending}
+                onSort={table.toggleSort}
+                emptyFiltered={table.hasFilters && table.tokens.length === 0 && !table.isLoading}
+                onClearFilters={table.clearFilters}
+                hasMore={table.hasMore}
+                isLoadingMore={table.isLoadingMore}
+                onLoadMore={table.loadMore}
+                onPrint={(token) => setTokenDialog({ kind: 'print', token })}
+                onReprint={(token) => setTokenDialog({ kind: 'print', token })}
+                onEditPatient={(token) => setEditPatientToken(token)}
+                onCancel={(token) => setTokenDialog({ kind: 'cancel', token })}
+                embedded
+              />
+            </section>
+          )}
         </div>
       ) : null}
 
@@ -354,6 +357,7 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
       {editPatientToken ? (
         <EditPatientModal
           token={editPatientToken}
+          withFee
           onClose={() => setEditPatientToken(null)}
           onSaved={() => {
             setEditPatientToken(null)

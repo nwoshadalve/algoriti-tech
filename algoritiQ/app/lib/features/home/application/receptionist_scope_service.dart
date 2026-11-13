@@ -33,11 +33,15 @@ final class ReceptionistScopeLoad {
     required this.assignmentTarget,
     required this.scopeIds,
     required this.options,
+    this.activeOptions = const [],
   });
 
   final AssignmentTarget assignmentTarget;
   final List<String> scopeIds;
   final List<WorkScopeOption> options;
+
+  /// The [options] whose chamber has a session open right now.
+  final List<WorkScopeOption> activeOptions;
 }
 
 /// Chambers or doctors assigned to a receptionist, resolved to names.
@@ -46,13 +50,16 @@ final class ReceptionistScopeService {
     required AccountRepository accounts,
     required ClinicRepository clinic,
     required Future<LicensePayload?> Function() licensePayload,
+    Future<bool> Function(String chamberId)? hasOpenSession,
   }) : _accounts = accounts,
        _clinic = clinic,
-       _licensePayload = licensePayload;
+       _licensePayload = licensePayload,
+       _hasOpenSession = hasOpenSession;
 
   final AccountRepository _accounts;
   final ClinicRepository _clinic;
   final Future<LicensePayload?> Function() _licensePayload;
+  final Future<bool> Function(String chamberId)? _hasOpenSession;
 
   Future<ReceptionistScopeLoad> load(Account account) async {
     final scopeIds = await _accounts.getUserScopes(account.id);
@@ -61,10 +68,19 @@ final class ReceptionistScopeService {
         ? AssignmentTarget.doctor
         : AssignmentTarget.chamber;
     final options = await _resolve(scopeIds, target);
+    final check = _hasOpenSession;
+    final active = <WorkScopeOption>[];
+    if (check != null && options.length > 1) {
+      for (final option in options) {
+        final chamberId = option.deskChamberId;
+        if (chamberId != null && await check(chamberId)) active.add(option);
+      }
+    }
     return ReceptionistScopeLoad(
       assignmentTarget: target,
       scopeIds: scopeIds,
       options: options,
+      activeOptions: active,
     );
   }
 

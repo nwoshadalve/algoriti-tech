@@ -9,10 +9,13 @@ import '../core/security/secure_storage_secret_store.dart';
 import '../features/home/application/receptionist_work.dart';
 import '../features/access/application/access_providers.dart';
 import '../features/clinic/application/clinic_providers.dart';
+import '../features/tv_live/application/announcement_providers.dart';
 import '../features/backup/application/backup_providers.dart';
 import '../features/monitoring/application/monitoring_providers.dart';
 import '../features/queue/application/queue_providers.dart';
 import '../features/queue_board/application/queue_board_providers.dart';
+import '../features/analytics/application/analytics_service.dart';
+import '../features/fee_codes/application/fee_code_service.dart';
 import '../features/audit/application/audit_query_service.dart';
 import '../platform/keep_alive_gateway.dart';
 import 'live_providers.dart';
@@ -93,13 +96,19 @@ final class LocalApiHost implements ApiHost {
   final int port;
 
   LocalApiServer? _server;
+  String? _certificate;
 
   @override
   Future<ApiEndpoint> start() async {
-    final identity = await _tls.loadOrCreate();
+    final identity = await _tls.loadOrCreate(addresses: await _addresses());
     final server = await _createServer();
-    await server.start(context: identity.toSecurityContext(), port: port);
+    await server.start(
+      context: identity.toSecurityContext(),
+      caCertificatePem: identity.caCertificatePem,
+      port: port,
+    );
     _server = server;
+    _certificate = identity.certificatePem;
     await _startName();
     return ApiEndpoint(
       port: port,
@@ -122,8 +131,25 @@ final class LocalApiHost implements ApiHost {
   Future<List<String>> currentAddresses() => _addresses();
 
   @override
-  Future<void> refreshLocalNetwork() =>
-      _names?.refreshAfterNetworkChange() ?? Future<void>.value();
+  Future<void> refreshLocalNetwork() async {
+    await _names?.refreshAfterNetworkChange();
+    await _refreshCertificate();
+  }
+
+  /// A new IP address needs a certificate that names it; phones keep trusting
+  /// it because the CA that signs it does not change.
+  Future<void> _refreshCertificate() async {
+    final server = _server;
+    if (server == null) return;
+    try {
+      final identity = await _tls.loadOrCreate(addresses: await _addresses());
+      if (identity.certificatePem == _certificate) return;
+      _certificate = identity.certificatePem;
+      server.updateSecurityContext(identity.toSecurityContext());
+    } on Exception {
+      // Keep serving with the certificate in use.
+    }
+  }
 
   @override
   Stream<String?> get localNames => _names?.names ?? const Stream.empty();
@@ -153,6 +179,10 @@ final apiHostProvider = Provider<ApiHost>((ref) {
       queueBoard: () async => ref.read(queueBoardServiceProvider),
       tokenPrint: () async => ref.read(tokenPrintServiceProvider),
       auditQuery: ref.read(auditQueryServiceProvider),
+      analytics: ref.read(analyticsServiceProvider),
+      feeCodes: ref.read(feeCodeServiceProvider),
+      tvAnnouncement: ref.read(announcementServiceProvider).clip,
+      tvTestVoice: ref.read(announcementServiceProvider).testClip,
       tvDoctorPhoto: (doctorId) async {
         final doctors = await ref
             .read(clinicRepositoryProvider)

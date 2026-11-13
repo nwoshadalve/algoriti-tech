@@ -12,14 +12,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/id_generator.dart';
 import '../../../core/toast/toast_controller.dart';
-import '../../../core/widgets/labeled_text_field.dart';
 import '../../../core/widgets/loading_button.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../access/application/tablet_session.dart';
+import '../application/patient_drafts.dart';
 import '../application/queue_board_providers.dart';
 import '../application/queue_board_service.dart';
 import '../domain/board_models.dart';
+import 'patient_draft_notice.dart';
 import 'queue_desk_dialog_layout.dart';
+import 'queue_desk_fee_field.dart';
 import 'queue_desk_errors.dart';
 import 'queue_desk_patient_fields.dart';
 import 'queue_desk_queue_picker.dart';
@@ -65,36 +67,86 @@ class _RegisterDeskDialog extends ConsumerStatefulWidget {
 }
 
 class _RegisterDeskDialogState extends ConsumerState<_RegisterDeskDialog> {
-  final _bengaliName = TextEditingController();
-  final _englishName = TextEditingController();
+  final _name = TextEditingController();
   late final TextEditingController _phone;
   final _age = TextEditingController();
   final _fee = TextEditingController();
   PatientGender? _gender;
   String? _queueTypeId;
   var _hasPaperFile = false;
+  var _isFree = false;
   var _busy = false;
   var _duplicateConfirm = false;
   var _submitted = false;
+  var _restored = false;
+  late final PatientDraftSync _draft;
+
+  PatientDraft _snapshot() => PatientDraft(
+    name: _name.text,
+    phone: _phone.text,
+    age: _age.text,
+    gender: _gender,
+    hasPaperFile: _hasPaperFile,
+    queueTypeId: _queueTypeId,
+    fee: _fee.text,
+    isFree: _isFree,
+  );
+
+  void _apply(PatientDraft d) {
+    _name.text = d.name;
+    _phone.text = d.phone;
+    _age.text = d.age;
+    _fee.text = d.fee;
+    _isFree = d.isFree;
+    _gender = d.gender;
+    _hasPaperFile = d.hasPaperFile;
+    _queueTypeId = d.queueTypeId;
+  }
+
+  void _changed() {
+    _draft.persist();
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
     _phone = TextEditingController(text: widget.initialPhone);
-    if (_hasBengali(widget.initialName)) {
-      _bengaliName.text = widget.initialName;
-    } else {
-      _englishName.text = widget.initialName;
-    }
+    _name.text = widget.initialName;
     if (widget.queueControls.length == 1) {
       _queueTypeId = widget.queueControls.first.queueTypeId;
     }
-    for (final c in [_bengaliName, _phone]) {
+    for (final c in [_name, _phone]) {
       c.addListener(_clearErrorsAsTyped);
+    }
+    _draft = PatientDraftSync(
+      store: ref.read(patientDraftsProvider.notifier),
+      key: 'desk-new:${widget.chamberId}',
+      baseline: _snapshot(),
+      snapshot: _snapshot,
+    );
+    // A draft comes back unless the desk opened this form for a typed search.
+    final saved = _draft.restore();
+    if (saved != null &&
+        widget.initialPhone.isEmpty &&
+        widget.initialName.isEmpty) {
+      _apply(saved);
+      _restored = true;
+    }
+    for (final c in [_name, _phone, _age, _fee]) {
+      c.addListener(_changed);
     }
   }
 
-  static bool _hasBengali(String text) => RegExp('[ঀ-৿]').hasMatch(text);
+  void _discardDraft() {
+    final base = _draft.baseline;
+    setState(() {
+      _apply(base);
+      _restored = false;
+      _submitted = false;
+    });
+    _draft.discard();
+  }
 
   /// Once errors are showing, they follow what the receptionist types.
   void _clearErrorsAsTyped() {
@@ -103,14 +155,14 @@ class _RegisterDeskDialogState extends ConsumerState<_RegisterDeskDialog> {
 
   @override
   void dispose() {
-    for (final c in [_bengaliName, _englishName, _phone, _age, _fee]) {
+    for (final c in [_name, _phone, _age, _fee]) {
       c.dispose();
     }
     super.dispose();
   }
 
   bool get _valid =>
-      _bengaliName.text.trim().isNotEmpty &&
+      _name.text.trim().isNotEmpty &&
       _phone.text.trim().isNotEmpty &&
       _queueTypeId != null;
 
@@ -126,16 +178,14 @@ class _RegisterDeskDialogState extends ConsumerState<_RegisterDeskDialog> {
     }
     setState(() => _busy = true);
     final newId = ref.read(idGeneratorProvider);
-    final english = _englishName.text.trim();
     try {
       final issued = await ref
           .read(queueBoardServiceProvider)
           .registerAndIssue(
             account,
             PatientInput(
-              bengaliName: _bengaliName.text.trim(),
+              name: _name.text.trim(),
               phone: _phone.text.trim(),
-              englishName: english.isEmpty ? null : english,
               gender: _gender,
               approximateAgeYears: queueDeskParseNumber(_age.text),
               hasPaperFile: _hasPaperFile,
@@ -144,8 +194,10 @@ class _RegisterDeskDialogState extends ConsumerState<_RegisterDeskDialog> {
             _queueTypeId!,
             chamberId: widget.chamberId,
             commandId: newId(),
-            feeBdt: queueDeskParseNumber(_fee.text),
+            feeBdt: _isFree ? null : queueDeskParseNumber(_fee.text),
+            isFree: _isFree,
           );
+      _draft.discard();
       if (!mounted) return;
       Navigator.of(context).pop(issued);
     } on QueueBoardRefused catch (e) {
@@ -168,6 +220,12 @@ class _RegisterDeskDialogState extends ConsumerState<_RegisterDeskDialog> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          PatientDraftNotice(
+            visible: !_draft.snapshot().sameAs(_draft.baseline),
+            restored: _restored,
+            onDiscard: _discardDraft,
+            enabled: !_busy,
+          ),
           if (_duplicateConfirm)
             Padding(
               padding: const EdgeInsets.only(bottom: deskFormFieldGap),
@@ -177,12 +235,14 @@ class _RegisterDeskDialogState extends ConsumerState<_RegisterDeskDialog> {
               ),
             ),
           DeskPatientFields(
-            bengaliName: _bengaliName,
-            englishName: _englishName,
+            name: _name,
             phone: _phone,
             age: _age,
             gender: _gender,
-            onGender: (v) => setState(() => _gender = v),
+            onGender: (v) {
+              setState(() => _gender = v);
+              _changed();
+            },
             enabled: !_busy,
             showErrors: _submitted,
           ),
@@ -191,24 +251,32 @@ class _RegisterDeskDialogState extends ConsumerState<_RegisterDeskDialog> {
             controls: widget.queueControls,
             selectedId: _queueTypeId,
             enabled: !_busy,
-            onSelected: (id) => setState(() => _queueTypeId = id),
+            onSelected: (id) {
+              setState(() => _queueTypeId = id);
+              _changed();
+            },
             errorText: _submitted && _queueTypeId == null
                 ? l10n.deskFieldRequired
                 : null,
           ),
           deskFormFieldSpacer(),
-          LabeledTextField(
-            compact: true,
-            label: l10n.deskFieldFee,
+          DeskFeeField(
             controller: _fee,
-            keyboardType: TextInputType.number,
             enabled: !_busy,
+            free: _isFree,
+            onFreeChanged: (on) {
+              setState(() => _isFree = on);
+              _changed();
+            },
           ),
           CheckboxListTile(
             value: _hasPaperFile,
             onChanged: _busy
                 ? null
-                : (v) => setState(() => _hasPaperFile = v ?? false),
+                : (v) {
+                    setState(() => _hasPaperFile = v ?? false);
+                    _changed();
+                  },
             title: Text(
               l10n.deskFieldPaperFile,
               style: deskFormBodyStyle(context),

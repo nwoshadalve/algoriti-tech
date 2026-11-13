@@ -89,6 +89,18 @@ export type Messages = {
   errorScreenTitle: string
   errorScreenBody: string
   errorScreenReload: string
+  connectTitle: string
+  connectBody: string
+  connectField: string
+  connectHint: string
+  connectInvalid: string
+  connectFailed: string
+  connectCertHelp: string
+  connectOpenTablet: string
+  connectSubmit: string
+  connectChecking: string
+  connectRetry: string
+  connectUseDefault: string
   loginSubmitting: string
   forgotPasswordLink: string
   noticePasswordReset: string
@@ -659,6 +671,9 @@ export type Messages = {
   boardExistingPatient: string
   boardAddPatientShort: string
   boardAddExistingShort: string
+  boardTabCalling: string
+  boardTabPatients: string
+  boardDeskTabsLabel: string
   boardFieldAge: string
   boardFieldAdminNote: string
   boardSaveAndIssue: string
@@ -696,8 +711,28 @@ export type Messages = {
   boardFieldPreviewSerial: string
   boardPreviewHint: string
   boardFieldFee: string
-  boardFieldBengaliName: string
-  boardFieldEnglishName: string
+  feeCodesTitle: string
+  feeCodesHelp: string
+  feeCodesEmpty: string
+  feeCodesLoadError: string
+  feeCodeAdd: string
+  feeCodeFieldCode: string
+  feeCodeFieldAmount: string
+  feeCodeRemove: string
+  feeCodeRemoveNamed: string
+  feeCodeErrorRequired: string
+  feeCodeErrorDuplicate: string
+  feeCodeErrorAmount: string
+  feeCodesSave: string
+  feeCodesSaving: string
+  feeCodesSaved: string
+  feeCodesSaveError: string
+  feeCodesDiscard: string
+  boardFeeNone: string
+  boardFreeShort: string
+  boardFreeLabel: string
+  boardFreeTooltip: string
+  boardFieldName: string
   boardFieldGender: string
   boardFieldLocality: string
   boardFieldPaperFile: string
@@ -719,6 +754,7 @@ export type Messages = {
   boardNextSerial: string
   boardCallNext: string
   boardRecall: string
+  boardCall: string
   boardCallBlocked: string
   boardCallNextSuccess: string
   boardRecallSent: string
@@ -778,6 +814,200 @@ export type Messages = {
   boardEditPatientIntro: string
   boardEditPatientSave: string
   boardEditPatientSaved: string
+  navSessionHistory: string
+  historyIntro: string
+  historyChamber: string
+  historyAllChambers: string
+  historyRange: string
+  historyRange7: string
+  historyRange30: string
+  historyRangeAll: string
+  historyEmpty: string
+  historyLoadFailed: string
+  historyShowMore: string
+  historyStatusOpen: string
+  historyStatusEnded: string
+  historyStatusForced: string
+  historyTokens: string
+  historyNotSeen: string
+  historyOpenedBy: string
+  historyOpenedByLabel: string
+  historyEndedByLabel: string
+  historyEndedBy: string
+  historyTimeRange: string
+  historyTimeOpen: string
+  historyDurationHM: string
+  historyDurationM: string
+  historyReason: string
+  historyDetailTitle: string
+  historyBack: string
+  historyOpened: string
+  historyEnded: string
+  historyDuration: string
+  historyFirstCall: string
+  historyLastCall: string
+  historyByQueue: string
+  historyPatients: string
+  historyNoPatients: string
+  historyColToken: string
+  historyColPatient: string
+  historyColQueue: string
+  historyColIssued: string
+  historyColCalled: string
+  historyColOutcome: string
+  historyColFinished: string
+  historyTotalFees: string
+  historyFree: string
+  historyColFee: string
+  historyColWait: string
+  historyPatientCount: string
+  historyAverageWait: string
+  historyLongestWait: string
+  historyOverview: string
+  historyTokenList: string
+  historyLoadingMore: string
+  historySearch: string
+  historyNoMatch: string
+  historySortLabel: string
+  navAnalytics: string
+  analyticsIntro: string
+  analyticsLoadFailed: string
+  analyticsPeriodLabel: string
+  analyticsPeriodDay: string
+  analyticsPeriodWeek: string
+  analyticsPeriodMonth: string
+  analyticsPeriodYear: string
+  analyticsPeriodAll: string
+  analyticsVsDay: string
+  analyticsVsWeek: string
+  analyticsVsMonth: string
+  analyticsVsYear: string
+  analyticsSince: string
+  analyticsPrevious: string
+  analyticsNext: string
+  analyticsCurrent: string
+  analyticsNothing: string
+  analyticsKeyFigures: string
+  analyticsSeen: string
+  analyticsOfTokens: string
+  analyticsNewPatients: string
+  analyticsPatientsServed: string
+  analyticsSessionsCount: string
+  analyticsTokensOverTime: string
+  analyticsTokensOverTimeHint: string
+  analyticsFeesOverTime: string
+  analyticsFeesOverTimeHint: string
+  analyticsOutcomes: string
+  analyticsOutcomesHint: string
+  analyticsNewPatientsOverTime: string
+  analyticsNewPatientsHint: string
+  analyticsBusiestHours: string
+  analyticsBusiestHoursHint: string
+  analyticsByWeekday: string
+  analyticsByWeekdayHint: string
+  analyticsByQueue: string
+  analyticsByQueueHint: string
+  analyticsByChamber: string
+  analyticsByChamberHint: string
+  analyticsHighlights: string
+  analyticsHighlightsHint: string
+  analyticsHighBusiestHour: string
+  analyticsHighBusiestPoint: string
+  analyticsHighTopFees: string
+  analyticsHighPerSession: string
+  analyticsHighFeePerPatient: string
+  analyticsHighSessionLength: string
+  analyticsColPeriod: string
+  analyticsViewTable: string
+  analyticsViewChart: string
+  overviewTodayTitle: string
+  overviewTokensToday: string
+  overviewWaitingNow: string
+  overviewSessionsOpen: string
+  overviewFeesToday: string
+  overviewVsYesterday: string
+  overviewLiveTitle: string
+  overviewLiveHint: string
+  overviewOpenDesk: string
+  overviewNoChambers: string
+  overviewSessionRunning: string
+  overviewSessionOpen: string
+  overviewSessionClosed: string
+  overviewSessionClosedShort: string
+  overviewWaitingCount: string
+  overviewWaitingShort: string
+  overviewNowCalling: string
+  overviewNobodyCalled: string
+  overviewHealthTitle: string
+  overviewHealthLoading: string
+  overviewDetails: string
+  overviewStorage: string
+  overviewMemory: string
+  overviewBackupTitle: string
+  overviewManage: string
+  overviewBackupLast: string
+  overviewBackupNever: string
+  overviewBackupSchedule: string
+  overviewHoursTitle: string
+  overviewHoursHint: string
+  overviewWeekTitle: string
+  overviewWeekHint: string
+  overviewOpenAnalytics: string
+  overviewActivityTitle: string
+  overviewActivityNone: string
+  overviewActivitySystem: string
+  overviewViewAll: string
+  overviewAllGood: string
+  overviewAttentionTitle: string
+  overviewAlertOffline: string
+  overviewAlertServiceFailed: string
+  overviewAlertServiceWarning: string
+  overviewAlertStorage: string
+  overviewAlertLongSession: string
+  overviewAlertBackupNone: string
+  overviewAlertBackupStale: string
+  overviewAlertBackupOff: string
+  historyFilterAll: string
+  historyForbidden: string
+  navPatients: string
+  patientsIntro: string
+  patientsSearch: string
+  patientsAdd: string
+  patientsAddTitle: string
+  patientsAddSave: string
+  patientsEmpty: string
+  patientsEmptyFiltered: string
+  patientsLoadFailed: string
+  patientsGender: string
+  patientsGenderAll: string
+  patientsGenderUnset: string
+  patientsPaperOnly: string
+  patientsSortNewest: string
+  patientsSortName: string
+  patientsSortId: string
+  patientsSortPhone: string
+  patientsSortVisits: string
+  patientsSortLastVisit: string
+  patientsSortBy: string
+  patientsSortOrder: string
+  patientsReverse: string
+  patientsClearFilters: string
+  patientsSaved: string
+  patientsEdit: string
+  patientsCount: string
+  patientsColAge: string
+  patientsNoPhone: string
+  patientsRegistered: string
+  patientsTotalLabel: string
+  patientsShownLabel: string
+  patientsVisits: string
+  patientsLastVisit: string
+  patientsNoVisits: string
+  patientsTableLabel: string
+  draftRestored: string
+  draftKept: string
+  draftDiscard: string
+  draftBadge: string
 }
 
 export type Locale = 'en' | 'bn'

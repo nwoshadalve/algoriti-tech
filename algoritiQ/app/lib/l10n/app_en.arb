@@ -158,8 +158,8 @@
   "serverRunning": "Server running",
   "serverNoNetwork": "Connect this tablet to the clinic Wi-Fi to continue.",
   "serverFailed": "The server could not start.",
-  "certNote": "Your browser will say the connection is not private. That is expected: the tablet uses its own certificate. Check the fingerprint, then continue.",
-  "certFingerprintLabel": "Certificate fingerprint",
+  "certNote": "The tablet makes its own security certificate, so a phone shows a warning until it trusts it. Open /ca.crt on this address from the phone, then install it in Android Settings: Security, Encryption and credentials, Install a certificate, CA certificate. After that the warning is gone and the web app can be installed.",
+  "certFingerprintLabel": "Certificate fingerprint (SHA-256)",
   "readinessTitle": "Keep the tablet ready",
   "readinessIntro": "So the queue stays reachable for patients, the TV and the web app, even with the screen locked or after a restart.",
   "readinessBackgroundTitle": "Run in the background",
@@ -374,6 +374,9 @@
   "deskPatientEntered": "Entered",
   "deskPatientMissed": "Missed",
   "deskSessionTableTitle": "Today's session",
+  "deskFieldName": "Name",
+  "deskTabCalling": "Calling",
+  "deskTabPatients": "Patients",
   "deskSessionEmpty": "No tokens issued yet.",
   "deskAddPatientShort": "Add",
   "deskAddExistingShort": "Add existing",
@@ -389,12 +392,14 @@
   "deskDuplicatePhoneConfirm": "This phone is already on file. Confirm to save anyway.",
   "deskRegisterSave": "Confirm and save",
   "deskSaveAndIssue": "Save and issue token",
-  "deskFieldBengaliName": "Name (Bengali)",
-  "deskFieldEnglishName": "Name (English)",
   "deskFieldQueue": "Queue",
   "deskFieldAge": "Age",
   "deskFieldGender": "Gender",
   "deskFieldFee": "Fee (BDT)",
+  "deskFeeNone": "No fee",
+  "deskFreeShort": "F",
+  "deskFreeLabel": "Free patient",
+  "deskFreeTooltip": "Free patient: no fee is taken",
   "deskFieldAdminNote": "Admin note",
   "deskFieldPaperFile": "Has existing paper file",
   "deskFieldPatient": "Patient",
@@ -559,7 +564,9 @@
   "tvUnpairBody": "{name} will stop showing this chamber's queue. You can pair it again later.",
   "@tvUnpairBody": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "tvUnpairConfirm": "Unpair",
@@ -676,5 +683,145 @@
   "deskSortDescending": "sorted descending",
   "deskLoadFailed": "Could not load patients.",
   "deskSortBy": "Sort by",
-  "deskColIssued": "Time added"
+  "deskColIssued": "Time added",
+  "navHistory": "Session history",
+  "historyTitle": "Session history",
+  "historyIntro": "Look back at earlier queue sessions: when each ran and what happened in it.",
+  "historyAllChambers": "All chambers",
+  "historyChamberLabel": "Chamber",
+  "historyRange7": "Last 7 days",
+  "historyRange30": "Last 30 days",
+  "historyRangeAll": "All time",
+  "historyEmpty": "No sessions in this period.",
+  "historyLoadFailed": "Could not load the session history.",
+  "historyShowMore": "Show more",
+  "historyStatusOpen": "Running now",
+  "historyStatusEnded": "Ended",
+  "historyStatusForced": "Ended by admin",
+  "historyTokens": "Tokens",
+  "historyNotSeen": "Not seen",
+  "historyFree": "Free patients",
+  "historyOpenedBy": "Opened by {name}",
+  "@historyOpenedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "historyEndedBy": "Ended by {name}",
+  "@historyEndedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "historyTime": "{start} to {end}",
+  "@historyTime": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "historyTimeOpen": "{start} to now",
+  "@historyTimeOpen": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      }
+    }
+  },
+  "historyDurationHM": "{hours} h {minutes} min",
+  "@historyDurationHM": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "historyDurationM": "{minutes} min",
+  "@historyDurationM": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "historyReason": "Reason: {reason}",
+  "@historyReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "historyDetailTitle": "Session details",
+  "historyBack": "Back to sessions",
+  "historyOpened": "Opened",
+  "historyEnded": "Ended",
+  "historyDuration": "Duration",
+  "historyFirstCall": "First call",
+  "historyLastCall": "Last call",
+  "historyByQueue": "By queue",
+  "historyPatients": "Patients",
+  "historyNoPatients": "No tokens were issued in this session.",
+  "historyColToken": "Token",
+  "historyColPatient": "Patient",
+  "historyColQueue": "Queue",
+  "historyColIssued": "Issued",
+  "historyColCalled": "Called",
+  "historyColOutcome": "Outcome",
+  "draftRestored": "Continuing your saved draft.",
+  "draftDiscard": "Discard draft",
+  "draftKept": "Unsaved changes are kept as a draft until you save or discard them.",
+  "draftBadge": "Draft",
+  "navPatients": "Patients",
+  "patientsTitle": "Patients",
+  "patientsIntro": "Find patients, add new ones and update their details.",
+  "patientsSearch": "Search by name, patient ID or phone",
+  "patientsAdd": "Add patient",
+  "patientsAddTitle": "Add patient",
+  "patientsAddSave": "Save patient",
+  "patientsEmpty": "No patients yet.",
+  "patientsEmptyFiltered": "No patients match.",
+  "patientsLoadFailed": "Could not load patients.",
+  "patientsGender": "Gender",
+  "patientsGenderAll": "All genders",
+  "patientsGenderUnset": "Not stated",
+  "patientsPaperOnly": "Paper file",
+  "patientsSortNewest": "Newest first",
+  "patientsSortName": "Name",
+  "patientsSortId": "Patient ID",
+  "patientsSortPhone": "Phone",
+  "patientsSortOrder": "Sort",
+  "patientsReverse": "Reverse order",
+  "patientsClearFilters": "Clear filters",
+  "patientsSaved": "Patient added.",
+  "patientsEdit": "Edit",
+  "patientsNoChamber": "You are not assigned to a chamber yet.",
+  "patientsAge": "Age",
+  "patientsCount": "{count} patients",
+  "@patientsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "patientsTotalLabel": "Total patients",
+  "patientsShownLabel": "Showing",
+  "patientsVisits": "Visits",
+  "patientsLastVisit": "Last visit",
+  "patientsNoVisits": "No visits yet",
+  "patientsRegistered": "Registered",
+  "patientsSortVisits": "Most visits",
+  "patientsSortLastVisit": "Latest visit"
 }

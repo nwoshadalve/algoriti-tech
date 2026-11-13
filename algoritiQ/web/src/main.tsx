@@ -11,6 +11,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { LocaleProvider } from '@/core/i18n/LocaleProvider'
 import { ThemeProvider } from '@/core/theme/ThemeProvider'
+import { ConnectionGate } from '@/app/ConnectionGate'
 import { ErrorBoundary } from '@/app/ErrorBoundary'
 import { ToastProvider } from '@/core/toast/ToastProvider'
 import { AuthProvider } from '@/features/auth/AuthProvider'
@@ -24,11 +25,13 @@ createRoot(document.getElementById('root')!).render(
       <LocaleProvider>
         <ErrorBoundary>
           <ToastProvider>
-            <AuthProvider>
-              <QueryProvider>
-                <App />
-              </QueryProvider>
-            </AuthProvider>
+            <ConnectionGate>
+              <AuthProvider>
+                <QueryProvider>
+                  <App />
+                </QueryProvider>
+              </AuthProvider>
+            </ConnectionGate>
           </ToastProvider>
         </ErrorBoundary>
       </LocaleProvider>

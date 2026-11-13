@@ -33,6 +33,14 @@ final class TvClientInfo {
       chamberId == TvClientInfo.anyChamber || chamberId == chamber;
 }
 
+/// One event as it was published on the bus.
+final class LiveBusEvent {
+  const LiveBusEvent(this.name, this.payload);
+
+  final String name;
+  final Map<String, Object?> payload;
+}
+
 /// A TV of a chamber that is connected right now.
 final class TvPresence {
   const TvPresence({
@@ -107,12 +115,17 @@ class LiveEventBus {
   Timer? _heartbeat;
   final _tvChanges = StreamController<String>.broadcast();
   final _testAcks = StreamController<TvTestAck>.broadcast();
+  final _events = StreamController<LiveBusEvent>.broadcast();
 
   /// Fires with the chamber id whenever its TV connects or leaves.
   Stream<String> get tvChanges => _tvChanges.stream;
 
   /// What connected TVs report after a test command.
   Stream<TvTestAck> get testAcks => _testAcks.stream;
+
+  /// Every published event, for screens on this tablet (the TV board shown for
+  /// screen casting) that follow the queue like a connected TV does.
+  Stream<LiveBusEvent> get events => _events.stream;
 
   /// How many events were published (heartbeats do not count).
   int get eventSequence => _published;
@@ -172,6 +185,7 @@ class LiveEventBus {
   /// chamber.
   void publish(String name, Map<String, Object?> payload) {
     _published++;
+    if (!_events.isClosed) _events.add(LiveBusEvent(name, payload));
     final chamberId = payload['chamberId'];
     for (final client in List<_Client>.from(_clients)) {
       final tv = client.tv;

@@ -166,17 +166,14 @@ class _QueueDeskPanelState extends ConsumerState<QueueDeskPanel> {
     ref.read(toastControllerProvider.notifier).success(l10n.deskRecallSent);
   });
 
-  /// Marks the called patient entered or missed.
+  /// Marks a called patient entered or missed.
   Future<void> _resolveCalled(
+    BoardTokenView called,
     Future<BoardTokenView> Function(QueueBoardService service, String tokenId)
     resolve,
-  ) {
-    final called = _snapshot?.calledToken;
-    if (called == null) return Future.value();
-    return _run(() async {
-      await resolve(ref.read(queueBoardServiceProvider), called.id);
-    });
-  }
+  ) => _run(() async {
+    await resolve(ref.read(queueBoardServiceProvider), called.id);
+  });
 
   /// Asks first (it cannot be undone), saying how many are still waiting.
   Future<void> _endSession() async {
@@ -221,17 +218,15 @@ class _QueueDeskPanelState extends ConsumerState<QueueDeskPanel> {
     return QueueDeskCallbacks(
       onCall: (id) => unawaited(_callNext(id)),
       onRecall: (id) => unawaited(_recall(id)),
-      onEntered: () =>
-          unawaited(_resolveCalled((s, id) => s.markEntered(account, id))),
-      onMissed: () =>
-          unawaited(_resolveCalled((s, id) => s.markSkipped(account, id))),
-      onCancelCalled: () {
-        final called = _snapshot?.calledToken;
-        if (called != null) unawaited(_tokenActions.cancel(called));
-      },
+      onEntered: (called) => unawaited(
+        _resolveCalled(called, (s, id) => s.markEntered(account, id)),
+      ),
+      onMissed: (called) => unawaited(
+        _resolveCalled(called, (s, id) => s.markSkipped(account, id)),
+      ),
+      onCancelCalled: (called) => unawaited(_tokenActions.cancel(called)),
       onAdd: () => unawaited(_openRegister()),
       onAddExisting: () => unawaited(_openExisting()),
-      onSearch: _table.setSearch,
       onStatus: _table.setStatus,
       onQueue: _table.setQueue,
       onToggleNotPrinted: _table.toggleNotPrinted,

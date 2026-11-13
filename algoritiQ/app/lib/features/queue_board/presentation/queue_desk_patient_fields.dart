@@ -16,8 +16,7 @@ import 'queue_desk_dialog_layout.dart';
 class DeskPatientFields extends StatelessWidget {
   const DeskPatientFields({
     super.key,
-    required this.bengaliName,
-    required this.englishName,
+    required this.name,
     required this.phone,
     required this.age,
     required this.gender,
@@ -26,8 +25,7 @@ class DeskPatientFields extends StatelessWidget {
     this.showErrors = false,
   });
 
-  final TextEditingController bengaliName;
-  final TextEditingController englishName;
+  final TextEditingController name;
   final TextEditingController phone;
   final TextEditingController age;
   final PatientGender? gender;
@@ -47,20 +45,11 @@ class DeskPatientFields extends StatelessWidget {
         deskFormRow([
           LabeledTextField(
             compact: true,
-            label: '${l10n.deskFieldBengaliName} *',
-            controller: bengaliName,
-            errorText: _required(bengaliName, l10n),
+            label: '${l10n.deskFieldName} *',
+            controller: name,
+            errorText: _required(name, l10n),
             enabled: enabled,
           ),
-          LabeledTextField(
-            compact: true,
-            label: l10n.deskFieldEnglishName,
-            controller: englishName,
-            enabled: enabled,
-          ),
-        ]),
-        deskFormFieldSpacer(),
-        deskFormRow([
           LabeledTextField(
             compact: true,
             label: '${l10n.fieldPhone} *',
@@ -69,6 +58,9 @@ class DeskPatientFields extends StatelessWidget {
             keyboardType: TextInputType.phone,
             enabled: enabled,
           ),
+        ]),
+        deskFormFieldSpacer(),
+        deskFormRow([
           LabeledTextField(
             compact: true,
             label: l10n.deskFieldAge,
@@ -76,30 +68,29 @@ class DeskPatientFields extends StatelessWidget {
             keyboardType: TextInputType.number,
             enabled: enabled,
           ),
+          DeskLabeledDropdown<PatientGender?>(
+            label: l10n.deskFieldGender,
+            enabled: enabled,
+            // "Prefer not to say" is the same as not set; one entry covers both.
+            value: gender == PatientGender.notStated ? null : gender,
+            onSelected: onGender,
+            entries: [
+              DropdownMenuEntry(value: null, label: l10n.deskGenderUnset),
+              DropdownMenuEntry(
+                value: PatientGender.male,
+                label: l10n.deskGenderMale,
+              ),
+              DropdownMenuEntry(
+                value: PatientGender.female,
+                label: l10n.deskGenderFemale,
+              ),
+              DropdownMenuEntry(
+                value: PatientGender.other,
+                label: l10n.deskGenderOther,
+              ),
+            ],
+          ),
         ]),
-        deskFormFieldSpacer(),
-        DeskLabeledDropdown<PatientGender?>(
-          label: l10n.deskFieldGender,
-          enabled: enabled,
-          // "Prefer not to say" is the same as not set; one entry covers both.
-          value: gender == PatientGender.notStated ? null : gender,
-          onSelected: onGender,
-          entries: [
-            DropdownMenuEntry(value: null, label: l10n.deskGenderUnset),
-            DropdownMenuEntry(
-              value: PatientGender.male,
-              label: l10n.deskGenderMale,
-            ),
-            DropdownMenuEntry(
-              value: PatientGender.female,
-              label: l10n.deskGenderFemale,
-            ),
-            DropdownMenuEntry(
-              value: PatientGender.other,
-              label: l10n.deskGenderOther,
-            ),
-          ],
-        ),
       ],
     );
   }

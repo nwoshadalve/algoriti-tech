@@ -1159,6 +1159,74 @@ paths:
           description: Unknown chamber (`not_found`).
         '409':
           description: It is the only chamber (`last_chamber`).
+  /fee-codes:
+    get:
+      summary: The clinic's fee codes
+      description: >-
+        Any signed-in account. The desk picks one of these when a patient joins a
+        queue. Empty when none are defined (the desk then types the fee by hand).
+      operationId: getFeeCodes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The codes, in the order the admin set them.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [codes]
+                properties:
+                  codes:
+                    type: array
+                    items: { $ref: '#/components/schemas/FeeCode' }
+        '401': { description: Not signed in (`unauthorized`). }
+    put:
+      summary: Replace the clinic's fee codes
+      description: >-
+        Admins only. Replaces the whole list; an empty list removes every code.
+        A code sent without an `id` gets one; a code that keeps its `id` keeps
+        standing for the same fee when renamed. Limits: at most 50 codes, code
+        1-16 characters and unique ignoring case, amount a whole number from 1
+        to 9999999. Audited as `fee_codes.updated`.
+      operationId: replaceFeeCodes
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [codes]
+              properties:
+                codes:
+                  type: array
+                  items:
+                    type: object
+                    required: [code, amountBdt]
+                    properties:
+                      id: { type: string }
+                      code: { type: string }
+                      amountBdt: { type: integer }
+      responses:
+        '200':
+          description: The saved codes.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [codes]
+                properties:
+                  codes:
+                    type: array
+                    items: { $ref: '#/components/schemas/FeeCode' }
+        '400':
+          description: >-
+            Validation failed (`validation_failed`); `error.problem` is one of
+            `tooMany`, `codeRequired`, `codeTooLong`, `codeDuplicate`, `amountInvalid`.
+        '401': { description: Not signed in (`unauthorized`). }
+        '403': { description: Not an admin (`forbidden`). }
   /queue/defaults:
     get:
       summary: Clinic-wide queue policy and types
@@ -1422,8 +1490,8 @@ paths:
     post:
       summary: Find patients for the queue desk
       description: >
-        Admin or receptionist with access to the chamber. Search by Bengali or
-        English name, clinic patient ID, or phone prefix.
+        Admin or receptionist with access to the chamber. Search by name (any
+        part, any language), clinic patient ID, or phone prefix.
       operationId: searchPatients
       tags: [Patients]
       security:
@@ -1490,11 +1558,28 @@ paths:
           application/json:
             schema:
               type: object
-              required: [bengaliName, phone]
+              required: [name, phone]
               properties:
-                bengaliName: { type: string }
+                name: { type: string, description: The patient's one name. A page opened before the single name may still send bengaliName, which is read as name. }
                 phone: { type: string }
-                englishName: { type: string }
+                tokenId:
+                  type: string
+                  description: >
+                    A token of this patient in the open session. When present, the
+                    fee on that token is set to `feeBdt` in the same step; it is
+                    refused when the token is another patient's or the session
+                    has ended.
+                feeBdt:
+                  type: integer
+                  nullable: true
+                  minimum: 0
+                  maximum: 1000000
+                  description: The new fee (BDT) for `tokenId`; null clears it.
+                isFree:
+                  type: boolean
+                  description: >-
+                    With `tokenId`: the visit is free; any `feeBdt` is dropped.
+                    False (or left out) makes it a paid visit again.
                 gender:
                   type: string
                   enum: [male, female, other, not_stated]
@@ -1633,6 +1718,9 @@ paths:
                 patientId: { type: string }
                 queueTypeId: { type: string }
                 feeBdt: { type: integer, nullable: true }
+                isFree:
+                  type: boolean
+                  description: A free visit; any `feeBdt` is dropped.
       responses:
         '200':
           content:
@@ -1659,12 +1747,11 @@ paths:
           application/json:
             schema:
               type: object
-              required: [commandId, bengaliName, phone, queueTypeId]
+              required: [commandId, name, phone, queueTypeId]
               properties:
                 commandId: { type: string, format: uuid }
-                bengaliName: { type: string }
+                name: { type: string }
                 phone: { type: string }
-                englishName: { type: string }
                 gender:
                   type: string
                   enum: [male, female, other, not_stated]
@@ -1673,6 +1760,9 @@ paths:
                 confirmDuplicatePhone: { type: boolean }
                 queueTypeId: { type: string }
                 feeBdt: { type: integer, nullable: true }
+                isFree:
+                  type: boolean
+                  description: A free visit; any `feeBdt` is dropped.
       responses:
         '200':
           content:
@@ -1705,6 +1795,9 @@ paths:
                 patientId: { type: string }
                 queueTypeId: { type: string }
                 feeBdt: { type: integer, nullable: true }
+                isFree:
+                  type: boolean
+                  description: A free visit; any `feeBdt` is dropped.
       responses:
         '200':
           content:
@@ -2258,6 +2351,13 @@ components:
         timeZone: { type: string, example: Asia/Dhaka }
         dayBoundary: { type: string, example: '06:00' }
         autoStart: { type: boolean }
+    FeeCode:
+      type: object
+      required: [id, code, amountBdt]
+      properties:
+        id: { type: string }
+        code: { type: string }
+        amountBdt: { type: integer, minimum: 1 }
     QueueTypeConfig:
       type: object
       required: [id, englishName, bengaliName, startNumber, endNumber, displayOrder, enabled]
@@ -2303,13 +2403,12 @@ components:
               capacity: { type: integer }
     PatientSummary:
       type: object
-      required: [id, patientNumber, clinicPatientId, bengaliName]
+      required: [id, patientNumber, clinicPatientId, name]
       properties:
         id: { type: string }
         patientNumber: { type: integer }
         clinicPatientId: { type: string }
-        bengaliName: { type: string }
-        englishName: { type: string, nullable: true }
+        name: { type: string }
         phoneNormalized: { type: string }
         gender:
           type: string
@@ -2319,13 +2418,12 @@ components:
     PatientRegisterInput:
       allOf:
         - type: object
-          required: [bengaliName, phone, chamberId, commandId]
+          required: [name, phone, chamberId, commandId]
           properties:
             chamberId: { type: string }
             commandId: { type: string, format: uuid }
-            bengaliName: { type: string }
+            name: { type: string }
             phone: { type: string }
-            englishName: { type: string }
             gender:
               type: string
               enum: [male, female, other, not_stated]
@@ -2347,7 +2445,7 @@ components:
         - queueBengaliName
         - patientId
         - clinicPatientId
-        - patientBengaliName
+        - patientName
         - status
         - issuedAt
       properties:
@@ -2358,14 +2456,19 @@ components:
         queueBengaliName: { type: string }
         patientId: { type: string }
         clinicPatientId: { type: string }
-        patientBengaliName: { type: string }
-        status:
+        patientName: { type: string }
+        announced:
+          type: boolean
+          description: >
+            False while the token is on the board as the next one (the queue
+            moved on by itself) but its call has not been announced yet.        status:
           type: string
           enum: [WAITING, CALLED, SKIPPED, ENTERED, CANCELLED]
         issuedAt: { type: string, format: date-time }
         firstCalledAt: { type: string, format: date-time, nullable: true }
         enteredAt: { type: string, format: date-time, nullable: true }
         feeBdt: { type: integer, nullable: true }
+        isFree: { type: boolean, description: A free visit (no fee). }
         latestPrintStatus:
           type: string
           nullable: true
@@ -2403,8 +2506,13 @@ components:
         sessionId: { type: string, nullable: true }
         sessionOpen: { type: boolean }
         calledToken:
+          description: The most recently called token; kept for desks that show one call.
           allOf: [{ $ref: '#/components/schemas/BoardTokenView' }]
           nullable: true
+        calledTokens:
+          description: Every token being called now, one per queue type at most, in queue order.
+          type: array
+          items: { $ref: '#/components/schemas/BoardTokenView' }
         queueControls:
           type: array
           items: { $ref: '#/components/schemas/QueueTypeBoardControl' }
@@ -2441,6 +2549,7 @@ components:
         queueBengaliName: { type: string }
         previewSerial: { type: integer }
         feeBdt: { type: integer, nullable: true }
+        isFree: { type: boolean }
     IssuedTokenResult:
       type: object
       required: [token, printAttemptId, printStatus]

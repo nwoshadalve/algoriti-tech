@@ -43,4 +43,69 @@ void main() {
       expect(waiting[issued.token.queueTypeId], isEmpty);
     },
   );
+
+  test(
+    'should list every call going on, one per queue, newest as called',
+    () async {
+      final desk = await QueueDeskKit.open();
+      await desk.board.startSession(desk.account, deskChamberId);
+      final regular = await desk.addPatient(
+        'রোগী',
+        '01700000001',
+        command: 'a',
+      );
+      final report = await desk.addPatient(
+        'রোগী দুই',
+        '01700000002',
+        queue: 'report',
+        command: 'b',
+      );
+      await desk.board.callNext(desk.account, deskChamberId, 'regular');
+      await desk.board.callNext(desk.account, deskChamberId, 'report');
+      final snapshots = TvLiveSnapshotService(
+        clinic: DriftClinicRepository(desk.kit.database, desk.kit.clock.call),
+        board: desk.boardRepo,
+      );
+
+      final display = await snapshots.buildChamberDisplay(deskChamberId);
+
+      final list = display['calledList'] as List;
+      expect(list.map((c) => (c as Map)['queueTypeId']), ['regular', 'report']);
+      expect((list.first as Map)['serial'], regular.token.serial);
+      expect((list.last as Map)['serial'], report.token.serial);
+      // A TV that knows one call still gets the newest.
+      expect(display['called'], isNotNull);
+    },
+  );
+
+  test('should say how long each waiting serial has waited', () async {
+    final desk = await QueueDeskKit.open();
+    await desk.board.startSession(desk.account, deskChamberId);
+    final first = await desk.addPatient(
+      'রোগী',
+      '01700000001',
+      command: 'wait-1',
+    );
+    final second = await desk.addPatient(
+      'রোগী দুই',
+      '01700000002',
+      command: 'wait-2',
+    );
+    final snapshots = TvLiveSnapshotService(
+      clinic: DriftClinicRepository(desk.kit.database, desk.kit.clock.call),
+      board: desk.boardRepo,
+      clock: () => first.token.issuedAt.add(const Duration(seconds: 90)),
+    );
+
+    final display = await snapshots.buildChamberDisplay(deskChamberId);
+
+    final typeId = first.token.queueTypeId;
+    final waiting = (display['waiting'] as Map)[typeId] as List;
+    final waited = (display['waitedSeconds'] as Map)[typeId] as List;
+    expect(waiting, [first.token.serial, second.token.serial]);
+    // Same order as the serials; the later one has waited less.
+    expect(waited.length, waiting.length);
+    expect(waited.first, 90);
+    expect(waited.last, lessThanOrEqualTo(90 as num));
+  });
 }

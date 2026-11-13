@@ -20,6 +20,7 @@ import '../features/connectivity/application/printer_controller.dart';
 import '../features/licensing/application/license_controller.dart';
 import '../features/licensing/domain/license_payload.dart';
 import '../features/licensing/domain/license_state.dart';
+import '../features/queue_board/application/session_auto_stop.dart';
 import 'app.dart';
 
 /// Starts the app.
@@ -43,6 +44,8 @@ Future<void> bootstrap() async {
   if (container.read(licenseControllerProvider).value is Licensed) {
     container.listen(serverControllerProvider, (_, _) {});
     container.listen(printerControllerProvider, (_, _) {});
+    // A session ends at the stop time set on the queue page, also with no screen.
+    container.listen(sessionAutoStopProvider, (_, _) {});
   }
 
   await waitForScreen(PlatformDispatcher.instance);

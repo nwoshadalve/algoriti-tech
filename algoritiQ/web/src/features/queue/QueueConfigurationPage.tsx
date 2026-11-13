@@ -27,6 +27,7 @@ import { secondaryButton } from '@/core/ui/buttonStyles'
 import { SelectField } from '@/core/ui/SelectField'
 import { useAuth } from '@/features/auth/authContext'
 import { readSession } from '@/features/auth/session'
+import { FeeCodesCard } from '@/features/fees/FeeCodesCard'
 import { queueErrorKey } from '@/features/queue/queueErrors'
 import { queueQueryKeys } from '@/features/queue/queueQueryKeys'
 import { markQueueConfigurationSavedLocally } from '@/features/queue/queueLocalChange'
@@ -330,6 +331,8 @@ export function QueueConfigurationPage() {
           <p className="px-4 pb-6 text-sm text-brand-navy/70 dark:text-white/70">{t('queueNoChamber')}</p>
         )}
       </Card>
+
+      <FeeCodesCard />
 
       <p className="mt-8 text-center text-sm text-brand-navy/60 dark:text-white/60">
         {t('queueTimezoneFootnote', { zone: timeZoneLabel })}

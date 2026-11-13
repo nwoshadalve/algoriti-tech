@@ -25,6 +25,8 @@ import { queueDisplayName } from '@/features/board/boardFormat'
 import { IssueConfirmModal } from '@/features/board/IssueConfirmModal'
 import { RegisterPatientModal } from '@/features/board/RegisterPatientModal'
 import { ApiError } from '@/core/api/client'
+import { formatDigits } from '@/features/queue/formatQueueSerial'
+import { FeeField } from '@/features/fees/FeeField'
 
 type PatientEntrySectionProps = {
   chamberId: string
@@ -57,6 +59,7 @@ export function PatientEntrySection({
   const [selected, setSelected] = useState<PatientSummary | null>(null)
   const [queueTypeId, setQueueTypeId] = useState('')
   const [feeBdt, setFeeBdt] = useState('')
+  const [isFree, setIsFree] = useState(false)
   const [previewBusy, setPreviewBusy] = useState(false)
   const [dialog, setDialog] = useState<Dialog>(null)
 
@@ -107,9 +110,9 @@ export function PatientEntrySection({
     const token = readSession()
     if (!token || !selected || !defaultQueueId || previewBusy) return
     setPreviewBusy(true)
-    const fee = feeBdt.trim() ? Number(feeBdt) : undefined
+    const fee = !isFree && feeBdt.trim() ? Number(feeBdt) : undefined
     try {
-      const preview = await previewIssueToken(token, chamberId, selected.id, defaultQueueId, fee)
+      const preview = await previewIssueToken(token, chamberId, selected.id, defaultQueueId, fee, isFree)
       setDialog({ kind: 'issue', preview })
     } catch (error) {
       if (error instanceof ApiError && error.code === 'duplicate_phone_needs_confirm') {
@@ -183,9 +186,9 @@ export function PatientEntrySection({
                             : 'border-brand-navy/10 hover:bg-brand-mist/60 dark:border-white/10 dark:hover:bg-white/5',
                         ].join(' ')}
                       >
-                        <p className="font-semibold">{patient.bengaliName}</p>
+                        <p className="font-semibold">{patient.name}</p>
                         <p className="text-brand-navy/70 dark:text-white/70">
-                          {patient.clinicPatientId}
+                          {formatDigits(patient.clinicPatientId, locale)}
                           {patient.ageLabel ? ` · ${patient.ageLabel}` : ''}
                         </p>
                       </button>
@@ -212,7 +215,7 @@ export function PatientEntrySection({
 
               {selected ? (
                 <div className="space-y-3 rounded-xl border border-brand-navy/10 bg-brand-mist/30 p-4 dark:border-white/10 dark:bg-white/5">
-                  <p className="text-sm font-medium">{t('boardIssueFor', { name: selected.bengaliName })}</p>
+                  <p className="text-sm font-medium">{t('boardIssueFor', { name: selected.name })}</p>
                   {enabledTypes.length > 1 ? (
                     <SelectField
                       id="issue-queue"
@@ -222,12 +225,12 @@ export function PatientEntrySection({
                       options={[{ value: '', label: t('boardChooseQueue') }, ...queueOptions]}
                     />
                   ) : null}
-                  <TextField
+                  <FeeField
                     id="issue-fee"
-                    label={t('boardFieldFee')}
-                    inputMode="numeric"
                     value={feeBdt}
-                    onChange={(event) => setFeeBdt(event.target.value)}
+                    onChange={setFeeBdt}
+                    free={isFree}
+                    onFreeChange={setIsFree}
                   />
                   <LoadingButton
                     isLoading={previewBusy}

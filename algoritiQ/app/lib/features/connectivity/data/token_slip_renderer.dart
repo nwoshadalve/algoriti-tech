@@ -100,18 +100,6 @@ final class TokenSlipRenderer {
 
     final chamber = paintText(slip.chamberName, 26, weight: FontWeight.w700);
     final doctor = paintText(slip.doctorName, 24, maxLines: 1);
-    const pillPadX = 18.0;
-    const pillPadY = 8.0;
-    const queueBlockGap = 6.0;
-    final type = paintText(
-      slip.queueText,
-      28,
-      weight: FontWeight.w700,
-      color: _paper,
-      maxLines: 1,
-      maxWidth: inner - 2 * pillPadX,
-    );
-    final pillWidth = type.width + 2 * pillPadX;
     final number = fitSerial(slip.tokenText, inner);
     final id = paintText(
       '$_idLabel ${slip.idText}',
@@ -126,8 +114,6 @@ final class TokenSlipRenderer {
 
     const gap = 10.0;
     const rule = 2.0;
-    final queueBlockHeight =
-        type.height + 2 * pillPadY + queueBlockGap + number.height;
     final height =
         _margin +
         chamber.height +
@@ -136,7 +122,7 @@ final class TokenSlipRenderer {
         gap +
         rule +
         gap +
-        queueBlockHeight +
+        number.height +
         gap +
         rule +
         gap +
@@ -164,16 +150,6 @@ final class TokenSlipRenderer {
     _dashedRule(canvas, y, width);
     y += rule + gap;
 
-    final pillLeft = _margin + (inner - pillWidth) / 2;
-    final pill = Rect.fromLTWH(
-      pillLeft,
-      y,
-      pillWidth,
-      type.height + 2 * pillPadY,
-    );
-    canvas.drawRect(pill, Paint()..color = _ink);
-    type.paint(canvas, Offset(pill.left + pillPadX, pill.top + pillPadY));
-    y += type.height + 2 * pillPadY + queueBlockGap;
     number.paint(canvas, Offset(_margin + (inner - number.width) / 2, y));
     y += number.height + gap;
 

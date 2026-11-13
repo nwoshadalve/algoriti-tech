@@ -15,6 +15,8 @@ import '../../connectivity/application/printer_controller.dart';
 import '../../connectivity/domain/printer.dart';
 import '../../connectivity/presentation/connectivity_page.dart';
 import '../../settings/presentation/settings_page.dart';
+import '../../queue_board/presentation/patients_page.dart';
+import '../../queue_board/presentation/session_history_page.dart';
 import 'board_page.dart';
 import 'receptionist_side_nav.dart';
 import 'work_scope_context_header.dart';
@@ -43,6 +45,10 @@ class _ReceptionistShellState extends ConsumerState<ReceptionistShell> {
 
   void _openBoard() => _goTo(ReceptionistDestination.board);
 
+  void _openPatients() => _goTo(ReceptionistDestination.patients);
+
+  void _openHistory() => _goTo(ReceptionistDestination.history);
+
   void _openConnectivity() => _goTo(ReceptionistDestination.connectivity);
 
   void _openSettings() => _goTo(ReceptionistDestination.settings);
@@ -50,6 +56,8 @@ class _ReceptionistShellState extends ConsumerState<ReceptionistShell> {
   Widget _mainContent() {
     return switch (_destination) {
       ReceptionistDestination.board => const BoardPage(),
+      ReceptionistDestination.patients => const PatientsPage(),
+      ReceptionistDestination.history => const SessionHistoryPage(),
       ReceptionistDestination.connectivity => const ConnectivityPage(),
       ReceptionistDestination.settings => const SettingsPage(),
     };
@@ -119,6 +127,8 @@ class _ReceptionistShellState extends ConsumerState<ReceptionistShell> {
     final sideNav = ReceptionistSideNav(
       destination: _destination,
       onSelectBoard: _openBoard,
+      onSelectPatients: _openPatients,
+      onSelectHistory: _openHistory,
       onSelectConnectivity: _openConnectivity,
       onSelectSettings: _openSettings,
     );
@@ -173,6 +183,8 @@ class _ReceptionistShellState extends ConsumerState<ReceptionistShell> {
           destination: _destination,
           // The nav closes the drawer itself before calling these.
           onSelectBoard: _openBoard,
+          onSelectPatients: _openPatients,
+          onSelectHistory: _openHistory,
           onSelectConnectivity: _openConnectivity,
           onSelectSettings: _openSettings,
           showCloseButton: true,

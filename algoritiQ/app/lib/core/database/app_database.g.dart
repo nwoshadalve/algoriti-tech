@@ -5219,6 +5219,16 @@ class $PatientsTable extends Patients
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _bengaliNameMeta = const VerificationMeta(
     'bengaliName',
   );
@@ -5370,6 +5380,7 @@ class $PatientsTable extends Patients
     clinicPatientId,
     patientIdPrefix,
     patientIdSequence,
+    name,
     bengaliName,
     englishName,
     phoneNormalized,
@@ -5439,6 +5450,12 @@ class $PatientsTable extends Patients
           data['patient_id_sequence']!,
           _patientIdSequenceMeta,
         ),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
       );
     }
     if (data.containsKey('bengali_name')) {
@@ -5578,6 +5595,10 @@ class $PatientsTable extends Patients
         DriftSqlType.int,
         data['${effectivePrefix}patient_id_sequence'],
       )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
       bengaliName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}bengali_name'],
@@ -5651,6 +5672,15 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
 
   /// Sequence copied at registration; legacy rows use [patientNumber].
   final int patientIdSequence;
+
+  /// The patient's name, in whatever language it was written. Since v17 this
+  /// is the only name the app reads or writes.
+  final String name;
+
+  /// The Bengali and English names of before v17. Never dropped (old data stays
+  /// safe, and an older app can still read the table); new rows copy [name]
+  /// into [bengaliName] to satisfy its NOT NULL, and the English name is left
+  /// as it was. Search still looks in both.
   final String bengaliName;
   final String? englishName;
   final String phoneNormalized;
@@ -5670,6 +5700,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
     required this.clinicPatientId,
     required this.patientIdPrefix,
     required this.patientIdSequence,
+    required this.name,
     required this.bengaliName,
     this.englishName,
     required this.phoneNormalized,
@@ -5692,6 +5723,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
     map['clinic_patient_id'] = Variable<String>(clinicPatientId);
     map['patient_id_prefix'] = Variable<String>(patientIdPrefix);
     map['patient_id_sequence'] = Variable<int>(patientIdSequence);
+    map['name'] = Variable<String>(name);
     map['bengali_name'] = Variable<String>(bengaliName);
     if (!nullToAbsent || englishName != null) {
       map['english_name'] = Variable<String>(englishName);
@@ -5735,6 +5767,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
       clinicPatientId: Value(clinicPatientId),
       patientIdPrefix: Value(patientIdPrefix),
       patientIdSequence: Value(patientIdSequence),
+      name: Value(name),
       bengaliName: Value(bengaliName),
       englishName: englishName == null && nullToAbsent
           ? const Value.absent()
@@ -5780,6 +5813,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
       clinicPatientId: serializer.fromJson<String>(json['clinicPatientId']),
       patientIdPrefix: serializer.fromJson<String>(json['patientIdPrefix']),
       patientIdSequence: serializer.fromJson<int>(json['patientIdSequence']),
+      name: serializer.fromJson<String>(json['name']),
       bengaliName: serializer.fromJson<String>(json['bengaliName']),
       englishName: serializer.fromJson<String?>(json['englishName']),
       phoneNormalized: serializer.fromJson<String>(json['phoneNormalized']),
@@ -5808,6 +5842,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
       'clinicPatientId': serializer.toJson<String>(clinicPatientId),
       'patientIdPrefix': serializer.toJson<String>(patientIdPrefix),
       'patientIdSequence': serializer.toJson<int>(patientIdSequence),
+      'name': serializer.toJson<String>(name),
       'bengaliName': serializer.toJson<String>(bengaliName),
       'englishName': serializer.toJson<String?>(englishName),
       'phoneNormalized': serializer.toJson<String>(phoneNormalized),
@@ -5832,6 +5867,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
     String? clinicPatientId,
     String? patientIdPrefix,
     int? patientIdSequence,
+    String? name,
     String? bengaliName,
     Value<String?> englishName = const Value.absent(),
     String? phoneNormalized,
@@ -5851,6 +5887,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
     clinicPatientId: clinicPatientId ?? this.clinicPatientId,
     patientIdPrefix: patientIdPrefix ?? this.patientIdPrefix,
     patientIdSequence: patientIdSequence ?? this.patientIdSequence,
+    name: name ?? this.name,
     bengaliName: bengaliName ?? this.bengaliName,
     englishName: englishName.present ? englishName.value : this.englishName,
     phoneNormalized: phoneNormalized ?? this.phoneNormalized,
@@ -5888,6 +5925,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
       patientIdSequence: data.patientIdSequence.present
           ? data.patientIdSequence.value
           : this.patientIdSequence,
+      name: data.name.present ? data.name.value : this.name,
       bengaliName: data.bengaliName.present
           ? data.bengaliName.value
           : this.bengaliName,
@@ -5928,6 +5966,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
           ..write('clinicPatientId: $clinicPatientId, ')
           ..write('patientIdPrefix: $patientIdPrefix, ')
           ..write('patientIdSequence: $patientIdSequence, ')
+          ..write('name: $name, ')
           ..write('bengaliName: $bengaliName, ')
           ..write('englishName: $englishName, ')
           ..write('phoneNormalized: $phoneNormalized, ')
@@ -5952,6 +5991,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
     clinicPatientId,
     patientIdPrefix,
     patientIdSequence,
+    name,
     bengaliName,
     englishName,
     phoneNormalized,
@@ -5975,6 +6015,7 @@ class PatientRow extends DataClass implements Insertable<PatientRow> {
           other.clinicPatientId == this.clinicPatientId &&
           other.patientIdPrefix == this.patientIdPrefix &&
           other.patientIdSequence == this.patientIdSequence &&
+          other.name == this.name &&
           other.bengaliName == this.bengaliName &&
           other.englishName == this.englishName &&
           other.phoneNormalized == this.phoneNormalized &&
@@ -5996,6 +6037,7 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
   final Value<String> clinicPatientId;
   final Value<String> patientIdPrefix;
   final Value<int> patientIdSequence;
+  final Value<String> name;
   final Value<String> bengaliName;
   final Value<String?> englishName;
   final Value<String> phoneNormalized;
@@ -6016,6 +6058,7 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
     this.clinicPatientId = const Value.absent(),
     this.patientIdPrefix = const Value.absent(),
     this.patientIdSequence = const Value.absent(),
+    this.name = const Value.absent(),
     this.bengaliName = const Value.absent(),
     this.englishName = const Value.absent(),
     this.phoneNormalized = const Value.absent(),
@@ -6037,6 +6080,7 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
     required String clinicPatientId,
     this.patientIdPrefix = const Value.absent(),
     this.patientIdSequence = const Value.absent(),
+    this.name = const Value.absent(),
     required String bengaliName,
     this.englishName = const Value.absent(),
     required String phoneNormalized,
@@ -6063,6 +6107,7 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
     Expression<String>? clinicPatientId,
     Expression<String>? patientIdPrefix,
     Expression<int>? patientIdSequence,
+    Expression<String>? name,
     Expression<String>? bengaliName,
     Expression<String>? englishName,
     Expression<String>? phoneNormalized,
@@ -6084,6 +6129,7 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
       if (clinicPatientId != null) 'clinic_patient_id': clinicPatientId,
       if (patientIdPrefix != null) 'patient_id_prefix': patientIdPrefix,
       if (patientIdSequence != null) 'patient_id_sequence': patientIdSequence,
+      if (name != null) 'name': name,
       if (bengaliName != null) 'bengali_name': bengaliName,
       if (englishName != null) 'english_name': englishName,
       if (phoneNormalized != null) 'phone_normalized': phoneNormalized,
@@ -6109,6 +6155,7 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
     Value<String>? clinicPatientId,
     Value<String>? patientIdPrefix,
     Value<int>? patientIdSequence,
+    Value<String>? name,
     Value<String>? bengaliName,
     Value<String?>? englishName,
     Value<String>? phoneNormalized,
@@ -6130,6 +6177,7 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
       clinicPatientId: clinicPatientId ?? this.clinicPatientId,
       patientIdPrefix: patientIdPrefix ?? this.patientIdPrefix,
       patientIdSequence: patientIdSequence ?? this.patientIdSequence,
+      name: name ?? this.name,
       bengaliName: bengaliName ?? this.bengaliName,
       englishName: englishName ?? this.englishName,
       phoneNormalized: phoneNormalized ?? this.phoneNormalized,
@@ -6165,6 +6213,9 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
     }
     if (patientIdSequence.present) {
       map['patient_id_sequence'] = Variable<int>(patientIdSequence.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
     }
     if (bengaliName.present) {
       map['bengali_name'] = Variable<String>(bengaliName.value);
@@ -6221,6 +6272,7 @@ class PatientsCompanion extends UpdateCompanion<PatientRow> {
           ..write('clinicPatientId: $clinicPatientId, ')
           ..write('patientIdPrefix: $patientIdPrefix, ')
           ..write('patientIdSequence: $patientIdSequence, ')
+          ..write('name: $name, ')
           ..write('bengaliName: $bengaliName, ')
           ..write('englishName: $englishName, ')
           ..write('phoneNormalized: $phoneNormalized, ')
@@ -6608,6 +6660,19 @@ class $QueueTokensTable extends QueueTokens
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _isFreeMeta = const VerificationMeta('isFree');
+  @override
+  late final GeneratedColumn<bool> isFree = GeneratedColumn<bool>(
+    'is_free',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_free" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _issuedAtMeta = const VerificationMeta(
     'issuedAt',
   );
@@ -6625,6 +6690,17 @@ class $QueueTokensTable extends QueueTokens
   @override
   late final GeneratedColumn<int> firstCalledAt = GeneratedColumn<int>(
     'first_called_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _announcedAtMeta = const VerificationMeta(
+    'announcedAt',
+  );
+  @override
+  late final GeneratedColumn<int> announcedAt = GeneratedColumn<int>(
+    'announced_at',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -6685,8 +6761,10 @@ class $QueueTokensTable extends QueueTokens
     serial,
     status,
     feeBdt,
+    isFree,
     issuedAt,
     firstCalledAt,
+    announcedAt,
     enteredAt,
     cancelledAt,
     cancelReason,
@@ -6766,6 +6844,12 @@ class $QueueTokensTable extends QueueTokens
         feeBdt.isAcceptableOrUnknown(data['fee_bdt']!, _feeBdtMeta),
       );
     }
+    if (data.containsKey('is_free')) {
+      context.handle(
+        _isFreeMeta,
+        isFree.isAcceptableOrUnknown(data['is_free']!, _isFreeMeta),
+      );
+    }
     if (data.containsKey('issued_at')) {
       context.handle(
         _issuedAtMeta,
@@ -6780,6 +6864,15 @@ class $QueueTokensTable extends QueueTokens
         firstCalledAt.isAcceptableOrUnknown(
           data['first_called_at']!,
           _firstCalledAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('announced_at')) {
+      context.handle(
+        _announcedAtMeta,
+        announcedAt.isAcceptableOrUnknown(
+          data['announced_at']!,
+          _announcedAtMeta,
         ),
       );
     }
@@ -6857,6 +6950,10 @@ class $QueueTokensTable extends QueueTokens
         DriftSqlType.int,
         data['${effectivePrefix}fee_bdt'],
       ),
+      isFree: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_free'],
+      )!,
       issuedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}issued_at'],
@@ -6864,6 +6961,10 @@ class $QueueTokensTable extends QueueTokens
       firstCalledAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}first_called_at'],
+      ),
+      announcedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}announced_at'],
       ),
       enteredAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -6899,8 +7000,15 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
   final int serial;
   final String status;
   final int? feeBdt;
+
+  /// A free visit: no fee is taken, and [feeBdt] stays null.
+  final bool isFree;
   final int issuedAt;
   final int? firstCalledAt;
+
+  /// When the receptionist first announced the call (voice and board flash).
+  /// Null while the token is on the board as the next one but not yet spoken.
+  final int? announcedAt;
   final int? enteredAt;
   final int? cancelledAt;
   final String? cancelReason;
@@ -6914,8 +7022,10 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
     required this.serial,
     required this.status,
     this.feeBdt,
+    required this.isFree,
     required this.issuedAt,
     this.firstCalledAt,
+    this.announcedAt,
     this.enteredAt,
     this.cancelledAt,
     this.cancelReason,
@@ -6934,9 +7044,13 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
     if (!nullToAbsent || feeBdt != null) {
       map['fee_bdt'] = Variable<int>(feeBdt);
     }
+    map['is_free'] = Variable<bool>(isFree);
     map['issued_at'] = Variable<int>(issuedAt);
     if (!nullToAbsent || firstCalledAt != null) {
       map['first_called_at'] = Variable<int>(firstCalledAt);
+    }
+    if (!nullToAbsent || announcedAt != null) {
+      map['announced_at'] = Variable<int>(announcedAt);
     }
     if (!nullToAbsent || enteredAt != null) {
       map['entered_at'] = Variable<int>(enteredAt);
@@ -6965,10 +7079,14 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
       feeBdt: feeBdt == null && nullToAbsent
           ? const Value.absent()
           : Value(feeBdt),
+      isFree: Value(isFree),
       issuedAt: Value(issuedAt),
       firstCalledAt: firstCalledAt == null && nullToAbsent
           ? const Value.absent()
           : Value(firstCalledAt),
+      announcedAt: announcedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(announcedAt),
       enteredAt: enteredAt == null && nullToAbsent
           ? const Value.absent()
           : Value(enteredAt),
@@ -6998,8 +7116,10 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
       serial: serializer.fromJson<int>(json['serial']),
       status: serializer.fromJson<String>(json['status']),
       feeBdt: serializer.fromJson<int?>(json['feeBdt']),
+      isFree: serializer.fromJson<bool>(json['isFree']),
       issuedAt: serializer.fromJson<int>(json['issuedAt']),
       firstCalledAt: serializer.fromJson<int?>(json['firstCalledAt']),
+      announcedAt: serializer.fromJson<int?>(json['announcedAt']),
       enteredAt: serializer.fromJson<int?>(json['enteredAt']),
       cancelledAt: serializer.fromJson<int?>(json['cancelledAt']),
       cancelReason: serializer.fromJson<String?>(json['cancelReason']),
@@ -7020,8 +7140,10 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
       'serial': serializer.toJson<int>(serial),
       'status': serializer.toJson<String>(status),
       'feeBdt': serializer.toJson<int?>(feeBdt),
+      'isFree': serializer.toJson<bool>(isFree),
       'issuedAt': serializer.toJson<int>(issuedAt),
       'firstCalledAt': serializer.toJson<int?>(firstCalledAt),
+      'announcedAt': serializer.toJson<int?>(announcedAt),
       'enteredAt': serializer.toJson<int?>(enteredAt),
       'cancelledAt': serializer.toJson<int?>(cancelledAt),
       'cancelReason': serializer.toJson<String?>(cancelReason),
@@ -7038,8 +7160,10 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
     int? serial,
     String? status,
     Value<int?> feeBdt = const Value.absent(),
+    bool? isFree,
     int? issuedAt,
     Value<int?> firstCalledAt = const Value.absent(),
+    Value<int?> announcedAt = const Value.absent(),
     Value<int?> enteredAt = const Value.absent(),
     Value<int?> cancelledAt = const Value.absent(),
     Value<String?> cancelReason = const Value.absent(),
@@ -7053,10 +7177,12 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
     serial: serial ?? this.serial,
     status: status ?? this.status,
     feeBdt: feeBdt.present ? feeBdt.value : this.feeBdt,
+    isFree: isFree ?? this.isFree,
     issuedAt: issuedAt ?? this.issuedAt,
     firstCalledAt: firstCalledAt.present
         ? firstCalledAt.value
         : this.firstCalledAt,
+    announcedAt: announcedAt.present ? announcedAt.value : this.announcedAt,
     enteredAt: enteredAt.present ? enteredAt.value : this.enteredAt,
     cancelledAt: cancelledAt.present ? cancelledAt.value : this.cancelledAt,
     cancelReason: cancelReason.present ? cancelReason.value : this.cancelReason,
@@ -7076,10 +7202,14 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
       serial: data.serial.present ? data.serial.value : this.serial,
       status: data.status.present ? data.status.value : this.status,
       feeBdt: data.feeBdt.present ? data.feeBdt.value : this.feeBdt,
+      isFree: data.isFree.present ? data.isFree.value : this.isFree,
       issuedAt: data.issuedAt.present ? data.issuedAt.value : this.issuedAt,
       firstCalledAt: data.firstCalledAt.present
           ? data.firstCalledAt.value
           : this.firstCalledAt,
+      announcedAt: data.announcedAt.present
+          ? data.announcedAt.value
+          : this.announcedAt,
       enteredAt: data.enteredAt.present ? data.enteredAt.value : this.enteredAt,
       cancelledAt: data.cancelledAt.present
           ? data.cancelledAt.value
@@ -7104,8 +7234,10 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
           ..write('serial: $serial, ')
           ..write('status: $status, ')
           ..write('feeBdt: $feeBdt, ')
+          ..write('isFree: $isFree, ')
           ..write('issuedAt: $issuedAt, ')
           ..write('firstCalledAt: $firstCalledAt, ')
+          ..write('announcedAt: $announcedAt, ')
           ..write('enteredAt: $enteredAt, ')
           ..write('cancelledAt: $cancelledAt, ')
           ..write('cancelReason: $cancelReason, ')
@@ -7124,8 +7256,10 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
     serial,
     status,
     feeBdt,
+    isFree,
     issuedAt,
     firstCalledAt,
+    announcedAt,
     enteredAt,
     cancelledAt,
     cancelReason,
@@ -7143,8 +7277,10 @@ class QueueTokenRow extends DataClass implements Insertable<QueueTokenRow> {
           other.serial == this.serial &&
           other.status == this.status &&
           other.feeBdt == this.feeBdt &&
+          other.isFree == this.isFree &&
           other.issuedAt == this.issuedAt &&
           other.firstCalledAt == this.firstCalledAt &&
+          other.announcedAt == this.announcedAt &&
           other.enteredAt == this.enteredAt &&
           other.cancelledAt == this.cancelledAt &&
           other.cancelReason == this.cancelReason &&
@@ -7160,8 +7296,10 @@ class QueueTokensCompanion extends UpdateCompanion<QueueTokenRow> {
   final Value<int> serial;
   final Value<String> status;
   final Value<int?> feeBdt;
+  final Value<bool> isFree;
   final Value<int> issuedAt;
   final Value<int?> firstCalledAt;
+  final Value<int?> announcedAt;
   final Value<int?> enteredAt;
   final Value<int?> cancelledAt;
   final Value<String?> cancelReason;
@@ -7176,8 +7314,10 @@ class QueueTokensCompanion extends UpdateCompanion<QueueTokenRow> {
     this.serial = const Value.absent(),
     this.status = const Value.absent(),
     this.feeBdt = const Value.absent(),
+    this.isFree = const Value.absent(),
     this.issuedAt = const Value.absent(),
     this.firstCalledAt = const Value.absent(),
+    this.announcedAt = const Value.absent(),
     this.enteredAt = const Value.absent(),
     this.cancelledAt = const Value.absent(),
     this.cancelReason = const Value.absent(),
@@ -7193,8 +7333,10 @@ class QueueTokensCompanion extends UpdateCompanion<QueueTokenRow> {
     required int serial,
     required String status,
     this.feeBdt = const Value.absent(),
+    this.isFree = const Value.absent(),
     required int issuedAt,
     this.firstCalledAt = const Value.absent(),
+    this.announcedAt = const Value.absent(),
     this.enteredAt = const Value.absent(),
     this.cancelledAt = const Value.absent(),
     this.cancelReason = const Value.absent(),
@@ -7217,8 +7359,10 @@ class QueueTokensCompanion extends UpdateCompanion<QueueTokenRow> {
     Expression<int>? serial,
     Expression<String>? status,
     Expression<int>? feeBdt,
+    Expression<bool>? isFree,
     Expression<int>? issuedAt,
     Expression<int>? firstCalledAt,
+    Expression<int>? announcedAt,
     Expression<int>? enteredAt,
     Expression<int>? cancelledAt,
     Expression<String>? cancelReason,
@@ -7234,8 +7378,10 @@ class QueueTokensCompanion extends UpdateCompanion<QueueTokenRow> {
       if (serial != null) 'serial': serial,
       if (status != null) 'status': status,
       if (feeBdt != null) 'fee_bdt': feeBdt,
+      if (isFree != null) 'is_free': isFree,
       if (issuedAt != null) 'issued_at': issuedAt,
       if (firstCalledAt != null) 'first_called_at': firstCalledAt,
+      if (announcedAt != null) 'announced_at': announcedAt,
       if (enteredAt != null) 'entered_at': enteredAt,
       if (cancelledAt != null) 'cancelled_at': cancelledAt,
       if (cancelReason != null) 'cancel_reason': cancelReason,
@@ -7253,8 +7399,10 @@ class QueueTokensCompanion extends UpdateCompanion<QueueTokenRow> {
     Value<int>? serial,
     Value<String>? status,
     Value<int?>? feeBdt,
+    Value<bool>? isFree,
     Value<int>? issuedAt,
     Value<int?>? firstCalledAt,
+    Value<int?>? announcedAt,
     Value<int?>? enteredAt,
     Value<int?>? cancelledAt,
     Value<String?>? cancelReason,
@@ -7270,8 +7418,10 @@ class QueueTokensCompanion extends UpdateCompanion<QueueTokenRow> {
       serial: serial ?? this.serial,
       status: status ?? this.status,
       feeBdt: feeBdt ?? this.feeBdt,
+      isFree: isFree ?? this.isFree,
       issuedAt: issuedAt ?? this.issuedAt,
       firstCalledAt: firstCalledAt ?? this.firstCalledAt,
+      announcedAt: announcedAt ?? this.announcedAt,
       enteredAt: enteredAt ?? this.enteredAt,
       cancelledAt: cancelledAt ?? this.cancelledAt,
       cancelReason: cancelReason ?? this.cancelReason,
@@ -7307,11 +7457,17 @@ class QueueTokensCompanion extends UpdateCompanion<QueueTokenRow> {
     if (feeBdt.present) {
       map['fee_bdt'] = Variable<int>(feeBdt.value);
     }
+    if (isFree.present) {
+      map['is_free'] = Variable<bool>(isFree.value);
+    }
     if (issuedAt.present) {
       map['issued_at'] = Variable<int>(issuedAt.value);
     }
     if (firstCalledAt.present) {
       map['first_called_at'] = Variable<int>(firstCalledAt.value);
+    }
+    if (announcedAt.present) {
+      map['announced_at'] = Variable<int>(announcedAt.value);
     }
     if (enteredAt.present) {
       map['entered_at'] = Variable<int>(enteredAt.value);
@@ -7342,8 +7498,10 @@ class QueueTokensCompanion extends UpdateCompanion<QueueTokenRow> {
           ..write('serial: $serial, ')
           ..write('status: $status, ')
           ..write('feeBdt: $feeBdt, ')
+          ..write('isFree: $isFree, ')
           ..write('issuedAt: $issuedAt, ')
           ..write('firstCalledAt: $firstCalledAt, ')
+          ..write('announcedAt: $announcedAt, ')
           ..write('enteredAt: $enteredAt, ')
           ..write('cancelledAt: $cancelledAt, ')
           ..write('cancelReason: $cancelReason, ')
@@ -12626,6 +12784,7 @@ typedef $$PatientsTableCreateCompanionBuilder = PatientsCompanion Function({
   required String clinicPatientId,
   Value<String> patientIdPrefix,
   Value<int> patientIdSequence,
+  Value<String> name,
   required String bengaliName,
   Value<String?> englishName,
   required String phoneNormalized,
@@ -12647,6 +12806,7 @@ typedef $$PatientsTableUpdateCompanionBuilder = PatientsCompanion Function({
   Value<String> clinicPatientId,
   Value<String> patientIdPrefix,
   Value<int> patientIdSequence,
+  Value<String> name,
   Value<String> bengaliName,
   Value<String?> englishName,
   Value<String> phoneNormalized,
@@ -12717,6 +12877,11 @@ class $$PatientsTableFilterComposer
 
   ColumnFilters<int> get patientIdSequence => $composableBuilder(
     column: $table.patientIdSequence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12845,6 +13010,11 @@ class $$PatientsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get bengaliName => $composableBuilder(
     column: $table.bengaliName,
     builder: (column) => ColumnOrderings(column),
@@ -12942,6 +13112,9 @@ class $$PatientsTableAnnotationComposer
     column: $table.patientIdSequence,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
 
   GeneratedColumn<String> get bengaliName => $composableBuilder(
     column: $table.bengaliName,
@@ -13057,6 +13230,7 @@ class $$PatientsTableTableManager
                 Value<String> clinicPatientId = const Value.absent(),
                 Value<String> patientIdPrefix = const Value.absent(),
                 Value<int> patientIdSequence = const Value.absent(),
+                Value<String> name = const Value.absent(),
                 Value<String> bengaliName = const Value.absent(),
                 Value<String?> englishName = const Value.absent(),
                 Value<String> phoneNormalized = const Value.absent(),
@@ -13077,6 +13251,7 @@ class $$PatientsTableTableManager
                 clinicPatientId: clinicPatientId,
                 patientIdPrefix: patientIdPrefix,
                 patientIdSequence: patientIdSequence,
+                name: name,
                 bengaliName: bengaliName,
                 englishName: englishName,
                 phoneNormalized: phoneNormalized,
@@ -13099,6 +13274,7 @@ class $$PatientsTableTableManager
                 required String clinicPatientId,
                 Value<String> patientIdPrefix = const Value.absent(),
                 Value<int> patientIdSequence = const Value.absent(),
+                Value<String> name = const Value.absent(),
                 required String bengaliName,
                 Value<String?> englishName = const Value.absent(),
                 required String phoneNormalized,
@@ -13119,6 +13295,7 @@ class $$PatientsTableTableManager
                 clinicPatientId: clinicPatientId,
                 patientIdPrefix: patientIdPrefix,
                 patientIdSequence: patientIdSequence,
+                name: name,
                 bengaliName: bengaliName,
                 englishName: englishName,
                 phoneNormalized: phoneNormalized,
@@ -13388,8 +13565,10 @@ typedef $$QueueTokensTableCreateCompanionBuilder =
       required int serial,
       required String status,
       Value<int?> feeBdt,
+      Value<bool> isFree,
       required int issuedAt,
       Value<int?> firstCalledAt,
+      Value<int?> announcedAt,
       Value<int?> enteredAt,
       Value<int?> cancelledAt,
       Value<String?> cancelReason,
@@ -13406,8 +13585,10 @@ typedef $$QueueTokensTableUpdateCompanionBuilder =
       Value<int> serial,
       Value<String> status,
       Value<int?> feeBdt,
+      Value<bool> isFree,
       Value<int> issuedAt,
       Value<int?> firstCalledAt,
+      Value<int?> announcedAt,
       Value<int?> enteredAt,
       Value<int?> cancelledAt,
       Value<String?> cancelReason,
@@ -13530,6 +13711,11 @@ class $$QueueTokensTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get isFree => $composableBuilder(
+    column: $table.isFree,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get issuedAt => $composableBuilder(
     column: $table.issuedAt,
     builder: (column) => ColumnFilters(column),
@@ -13537,6 +13723,11 @@ class $$QueueTokensTableFilterComposer
 
   ColumnFilters<int> get firstCalledAt => $composableBuilder(
     column: $table.firstCalledAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get announcedAt => $composableBuilder(
+    column: $table.announcedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13689,6 +13880,11 @@ class $$QueueTokensTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isFree => $composableBuilder(
+    column: $table.isFree,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get issuedAt => $composableBuilder(
     column: $table.issuedAt,
     builder: (column) => ColumnOrderings(column),
@@ -13696,6 +13892,11 @@ class $$QueueTokensTableOrderingComposer
 
   ColumnOrderings<int> get firstCalledAt => $composableBuilder(
     column: $table.firstCalledAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get announcedAt => $composableBuilder(
+    column: $table.announcedAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -13815,11 +14016,19 @@ class $$QueueTokensTableAnnotationComposer
   GeneratedColumn<int> get feeBdt =>
       $composableBuilder(column: $table.feeBdt, builder: (column) => column);
 
+  GeneratedColumn<bool> get isFree =>
+      $composableBuilder(column: $table.isFree, builder: (column) => column);
+
   GeneratedColumn<int> get issuedAt =>
       $composableBuilder(column: $table.issuedAt, builder: (column) => column);
 
   GeneratedColumn<int> get firstCalledAt => $composableBuilder(
     column: $table.firstCalledAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get announcedAt => $composableBuilder(
+    column: $table.announcedAt,
     builder: (column) => column,
   );
 
@@ -13978,8 +14187,10 @@ class $$QueueTokensTableTableManager
                 Value<int> serial = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<int?> feeBdt = const Value.absent(),
+                Value<bool> isFree = const Value.absent(),
                 Value<int> issuedAt = const Value.absent(),
                 Value<int?> firstCalledAt = const Value.absent(),
+                Value<int?> announcedAt = const Value.absent(),
                 Value<int?> enteredAt = const Value.absent(),
                 Value<int?> cancelledAt = const Value.absent(),
                 Value<String?> cancelReason = const Value.absent(),
@@ -13994,8 +14205,10 @@ class $$QueueTokensTableTableManager
                 serial: serial,
                 status: status,
                 feeBdt: feeBdt,
+                isFree: isFree,
                 issuedAt: issuedAt,
                 firstCalledAt: firstCalledAt,
+                announcedAt: announcedAt,
                 enteredAt: enteredAt,
                 cancelledAt: cancelledAt,
                 cancelReason: cancelReason,
@@ -14012,8 +14225,10 @@ class $$QueueTokensTableTableManager
                 required int serial,
                 required String status,
                 Value<int?> feeBdt = const Value.absent(),
+                Value<bool> isFree = const Value.absent(),
                 required int issuedAt,
                 Value<int?> firstCalledAt = const Value.absent(),
+                Value<int?> announcedAt = const Value.absent(),
                 Value<int?> enteredAt = const Value.absent(),
                 Value<int?> cancelledAt = const Value.absent(),
                 Value<String?> cancelReason = const Value.absent(),
@@ -14028,8 +14243,10 @@ class $$QueueTokensTableTableManager
                 serial: serial,
                 status: status,
                 feeBdt: feeBdt,
+                isFree: isFree,
                 issuedAt: issuedAt,
                 firstCalledAt: firstCalledAt,
+                announcedAt: announcedAt,
                 enteredAt: enteredAt,
                 cancelledAt: cancelledAt,
                 cancelReason: cancelReason,

@@ -44,7 +44,9 @@ export function TokenRowActions({
 }: TokenRowActionsProps) {
   const { t } = useLocale()
   const [open, setOpen] = useState(false)
-  const [menuAbove, setMenuAbove] = useState(false)
+  // Where the menu sits on screen. It is fixed to the screen, not to the row, so the
+  // table's edges (which hide anything that sticks out) cannot cut it off.
+  const [menuPos, setMenuPos] = useState<{ right: number; top?: number; bottom?: number } | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -52,8 +54,16 @@ export function TokenRowActions({
     function onPointerDown(event: MouseEvent) {
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
     }
+    // The menu does not follow its row, so any scroll or resize closes it.
+    const close = () => setOpen(false)
     document.addEventListener('mousedown', onPointerDown)
-    return () => document.removeEventListener('mousedown', onPointerDown)
+    window.addEventListener('scroll', close, true)
+    window.addEventListener('resize', close)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      window.removeEventListener('scroll', close, true)
+      window.removeEventListener('resize', close)
+    }
   }, [open])
 
   useLayoutEffect(() => {
@@ -61,7 +71,12 @@ export function TokenRowActions({
     const rect = rootRef.current.getBoundingClientRect()
     const spaceBelow = window.innerHeight - rect.bottom
     const spaceAbove = rect.top
-    setMenuAbove(spaceBelow < menuEstimatePx && spaceAbove > spaceBelow)
+    const right = Math.max(8, window.innerWidth - rect.right)
+    setMenuPos(
+      spaceBelow < menuEstimatePx && spaceAbove > spaceBelow
+        ? { right, bottom: window.innerHeight - rect.top + 4 }
+        : { right, top: rect.bottom + 4 },
+    )
   }, [open])
 
   const printed = token.latestPrintStatus === 'SENT'
@@ -101,13 +116,11 @@ export function TokenRowActions({
           aria-expanded={open}
         />
       </div>
-      {open ? (
+      {open && menuPos ? (
         <div
           role="menu"
-          className={[
-            'absolute right-0 z-[100] min-w-[11rem] rounded-xl border border-brand-navy/10 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-brand-navy-raised',
-            menuAbove ? 'bottom-full mb-1' : 'top-full mt-1',
-          ].join(' ')}
+          style={menuPos}
+          className="fixed z-[100] min-w-[11rem] rounded-xl border border-brand-navy/10 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-brand-navy-raised"
         >
           <button
             type="button"

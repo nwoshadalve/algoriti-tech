@@ -48,7 +48,7 @@ final class HttpsServerSocket extends StreamView<Socket>
   }
 
   final ServerSocket _inner;
-  final SecurityContext _context;
+  SecurityContext _context;
   final Duration _sniffTimeout;
   final StreamController<Socket> _secure;
 
@@ -57,6 +57,9 @@ final class HttpsServerSocket extends StreamView<Socket>
 
   /// A browser's request line and headers are far smaller than this.
   static const _maxHeadBytes = 4 * 1024;
+
+  /// Used for connections that start after this call; open ones keep theirs.
+  set context(SecurityContext value) => _context = value;
 
   @override
   int get port => _inner.port;

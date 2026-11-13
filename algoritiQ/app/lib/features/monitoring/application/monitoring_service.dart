@@ -19,7 +19,8 @@ import '../domain/health_snapshot.dart';
 /// that fails can be tried again; progress is kept here so every browser sees
 /// the same retry.
 ///
-/// The printer uses [PrinterController]; TV health follows live WebSocket clients.
+/// The printer uses [PrinterController]; TV health follows live WebSocket
+/// clients (the TV apps).
 class MonitoringService {
   MonitoringService({
     required SystemHealthGateway health,

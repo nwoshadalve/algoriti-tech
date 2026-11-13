@@ -130,6 +130,7 @@ This is the first finalized event catalogue. Extend later sections as other prod
 | `queue.type.updated` | admin | queue type ID and safe before/after fields |
 | `queue.type.enabled` | admin | queue type ID |
 | `queue.type.disabled` | admin | queue type ID |
+| `fee_codes.updated` | admin | number of fee codes before and after (no codes or amounts) |
 | `queue.type.reordered` | admin | ordered queue type IDs |
 | `queue.chamber_override.created` | admin | chamber ID and overridden fields |
 | `queue.chamber_override.updated` | admin | chamber ID and safe before/after fields |

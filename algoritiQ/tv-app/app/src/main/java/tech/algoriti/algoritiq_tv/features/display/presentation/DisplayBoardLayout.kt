@@ -50,7 +50,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -62,17 +65,32 @@ import androidx.tv.material3.Text
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import kotlinx.coroutines.delay
 import tech.algoriti.algoritiq_tv.R
 
 private val Navy = Color(0xFF0B1F3A)
 private val NavyLift = Color(0xFF16345F)
 private val Accent = Color(0xFFEA580C)
-private val AccentSoft = Color(0xFFFFEDD5)
 private val Page = Color(0xFFF1F5F9)
 private val Line = Color(0xFFE2E8F0)
 private val Muted = Color(0xFF475569)
 private val Faint = Color(0xFF64748B)
+
+/** How long someone has waited, as a colour: calm, getting long, long. The words always say it too. */
+private val WaitShort = Color(0xFF16A34A)
+private val WaitMedium = Color(0xFFD97706)
+private val WaitLong = Color(0xFFDC2626)
+
+/** Under 10 minutes calm, up to 30 minutes getting long, longer than that long. */
+internal fun waitColor(seconds: Int): Color {
+    val minutes = seconds / 60
+    return when {
+        minutes < 10 -> WaitShort
+        minutes < 30 -> WaitMedium
+        else -> WaitLong
+    }
+}
 
 /** Western digits to Bengali ones: the waiting room reads Bengali numerals. */
 internal fun bnDigits(text: String): String = text.map { if (it in '0'..'9') "০১২৩৪৫৬৭৮৯"[it - '0'] else it }.joinToString("")
@@ -99,13 +117,13 @@ fun DisplayBoardLayout(
                 .padding(horizontal = 36.dp, vertical = 28.dp),
         horizontalArrangement = Arrangement.spacedBy(24.dp),
     ) {
-        IdentityPanel(state = state, photo = doctorPhoto, modifier = Modifier.width(340.dp).fillMaxHeight())
+        IdentityPanel(state = state, photo = doctorPhoto, modifier = Modifier.width(312.dp).fillMaxHeight())
         Column(
             modifier = Modifier.weight(1f).fillMaxHeight().alpha(dim),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            CalledCard(state = state, modifier = Modifier.weight(1.15f).fillMaxWidth())
-            WaitingPanel(state = state, modifier = Modifier.weight(1f).fillMaxWidth())
+            CalledCard(state = state, modifier = Modifier.weight(0.92f).fillMaxWidth())
+            WaitingPanel(state = state, modifier = Modifier.weight(1.2f).fillMaxWidth())
             footerActions()
         }
     }
@@ -119,24 +137,29 @@ private fun IdentityPanel(
     modifier: Modifier,
 ) {
     val shape = RoundedCornerShape(28.dp)
-    Column(
+    Box(
         modifier =
             modifier
                 .clip(shape)
                 .background(Color.White)
                 .border(1.dp, Line, shape)
                 .padding(horizontal = 24.dp, vertical = 20.dp),
+    ) {
+    // Nothing is cut short: if the doctor's details are long, the whole block shrinks to fit.
+    Column(
+        modifier = Modifier.fillMaxSize().shrinkToFitHeight(),
         verticalArrangement = Arrangement.Center,
     ) {
-        DoctorPhoto(photo, state.doctorNameBn, modifier = Modifier.size(128.dp).align(Alignment.CenterHorizontally))
-        Spacer(Modifier.height(16.dp))
+        // No photo, no picture box: the details use the whole card.
+        if (photo != null) {
+            DoctorPhoto(photo, modifier = Modifier.size(128.dp).align(Alignment.CenterHorizontally))
+            Spacer(Modifier.height(16.dp))
+        }
         Text(
             text = state.doctorNameBn,
             color = Navy,
             fontSize = 25.sp,
             fontWeight = FontWeight.ExtraBold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
         )
         if (state.doctorDegrees.isNotBlank()) {
             Spacer(Modifier.height(6.dp))
@@ -145,8 +168,6 @@ private fun IdentityPanel(
                 color = Muted,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
             )
         }
         if (state.doctorDesignation.isNotBlank()) {
@@ -156,12 +177,10 @@ private fun IdentityPanel(
                 color = Navy,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
             )
         }
         if (state.doctorSpecialty.isNotBlank()) {
-            Text(text = state.doctorSpecialty, color = Muted, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = state.doctorSpecialty, color = Muted, fontSize = 14.sp)
         }
         SubLine(state.doctorWorkplace)
         if (state.doctorRegistration.isNotBlank()) {
@@ -175,8 +194,6 @@ private fun IdentityPanel(
             color = Navy,
             fontSize = 19.sp,
             fontWeight = FontWeight.ExtraBold,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
         )
         SubLine(state.chamberLocation)
         if (state.chamberPhone.isNotBlank()) {
@@ -189,7 +206,49 @@ private fun IdentityPanel(
             )
         }
     }
+    }
 }
+
+/**
+ * Lays the content out at its full height and, if that is taller than the space, scales the whole
+ * block down so every line is shown (the screen cannot be scrolled from across the room).
+ */
+private fun Modifier.shrinkToFit(): Modifier =
+    layout { measurable, constraints ->
+        val placeable = measurable.measure(Constraints())
+        val scale =
+            minOf(
+                1f,
+                if (placeable.width > 0) constraints.maxWidth.toFloat() / placeable.width else 1f,
+                if (placeable.height > 0) constraints.maxHeight.toFloat() / placeable.height else 1f,
+            )
+        val width = (placeable.width * scale).toInt()
+        val height = (placeable.height * scale).toInt()
+        layout(width, height) {
+            // Scaled about the left edge and the middle, so lift it to sit in the middle of the space.
+            placeable.placeWithLayer(0, (height - placeable.height) / 2) {
+                transformOrigin = TransformOrigin(0f, 0.5f)
+                scaleX = scale
+                scaleY = scale
+            }
+        }
+    }
+
+private fun Modifier.shrinkToFitHeight(): Modifier =
+    layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
+        val available = constraints.maxHeight
+        val scale = if (placeable.height > available && placeable.height > 0) available.toFloat() / placeable.height else 1f
+        layout(placeable.width, minOf(placeable.height, available)) {
+            // The block scales about its own centre, so lift it to sit in the middle of the space.
+            val y = if (scale < 1f) (available - placeable.height) / 2 else 0
+            placeable.placeWithLayer(0, y) {
+                transformOrigin = TransformOrigin(0f, 0.5f)
+                scaleX = scale
+                scaleY = scale
+            }
+        }
+    }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -207,8 +266,7 @@ internal fun formatPhone(phone: String): String {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun DoctorPhoto(
-    photo: ImageBitmap?,
-    name: String,
+    photo: ImageBitmap,
     modifier: Modifier,
 ) {
     val shape = RoundedCornerShape(22.dp)
@@ -216,25 +274,12 @@ private fun DoctorPhoto(
         modifier = modifier.clip(shape).background(Page).border(3.dp, Line, shape),
         contentAlignment = Alignment.Center,
     ) {
-        // The photo arrives after the first screen; it settles in rather than popping.
-        AnimatedContent(
-            targetState = photo,
-            transitionSpec = { fadeIn(tween(500)) togetherWith fadeOut(tween(300)) },
-            label = "photo",
-        ) { image ->
-            if (image != null) {
-                Image(
-                    bitmap = image,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = name.trim().take(1), color = Navy, fontSize = 48.sp, fontWeight = FontWeight.ExtraBold)
-                }
-            }
-        }
+        Image(
+            bitmap = photo,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
@@ -246,9 +291,11 @@ private fun CalledCard(
     modifier: Modifier,
 ) {
     val called = state.calledSerial
+    val anyCalled = state.calls.isNotEmpty()
+    val waiting = state.queueTypes.sumOf { it.waitingSerials.size + it.hiddenCount }
     // A new call flashes the card from navy to orange and back, so it is noticed from across the room.
     var flash by remember { mutableStateOf(false) }
-    LaunchedEffect(called) {
+    LaunchedEffect(called, state.callPulse) {
         if (called != null) {
             flash = true
             delay(1600)
@@ -257,28 +304,47 @@ private fun CalledCard(
     }
     val top by animateColorAsState(if (flash) Accent else NavyLift, tween(450), label = "flashTop")
     val shape = RoundedCornerShape(28.dp)
-    Box(
+    Column(
         modifier =
             modifier
                 .clip(shape)
                 .background(Brush.verticalGradient(listOf(top, Navy)))
                 .padding(horizontal = 32.dp, vertical = 22.dp),
     ) {
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            PulseDot(active = called != null)
+        // The header takes its own height; the number is centred in the space left below it, so the
+        // time and date never crowd it.
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+            Box(Modifier.height(36.dp), contentAlignment = Alignment.Center) { PulseDot(active = anyCalled) }
             Spacer(Modifier.width(10.dp))
-            Text(
-                text = stringResource(if (called == null) R.string.display_please_wait else R.string.display_now_serving),
-                color = Color.White.copy(alpha = 0.85f),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
+            Box(Modifier.height(36.dp), contentAlignment = Alignment.Center) {
+                Text(
+                    text = stringResource(if (!anyCalled) R.string.display_please_wait else R.string.display_now_serving),
+                    color = Color.White.copy(alpha = 0.85f),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
             Spacer(Modifier.weight(1f))
             Clock()
         }
+        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            CalledNumber(calls = state.calls, newest = called, pulse = state.callPulse, waiting = waiting)
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun CalledNumber(
+    calls: List<CalledToken>,
+    newest: Int?,
+    pulse: Int,
+    waiting: Int,
+) {
+    Box {
         AnimatedContent(
-            targetState = called to state.calledTypeLabelBn,
-            modifier = Modifier.align(Alignment.Center),
+            // The pulse is part of the target, so a recall of the same number animates in again.
+            targetState = Triple(calls, newest, pulse),
             transitionSpec = {
                 (
                     slideInVertically(spring(stiffness = Spring.StiffnessMediumLow)) { it / 2 } +
@@ -287,38 +353,71 @@ private fun CalledCard(
                 ) togetherWith (slideOutVertically(tween(300)) { -it / 2 } + fadeOut(tween(250)))
             },
             label = "called",
-        ) { (serial, type) ->
+        ) { (shown, latest, _) ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                if (serial == null) {
+                if (shown.isEmpty()) {
+                    // Nobody is called: say whether people are waiting, never that nothing has happened.
                     Text(
-                        text = stringResource(R.string.display_idle_hint),
+                        text = stringResource(if (waiting > 0) R.string.display_soon else R.string.display_nobody),
                         color = Color.White,
-                        fontSize = 34.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                     )
                 } else {
-                    Text(
-                        text = bnDigits(serial.toString()),
-                        color = Color.White,
-                        fontSize = 120.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                    )
-                    type?.let {
-                        Text(
-                            text = it,
-                            color = Color(0xFF9A3412),
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            modifier =
-                                Modifier
-                                    .padding(top = 6.dp)
-                                    .clip(RoundedCornerShape(50))
-                                    .background(AccentSoft)
-                                    .padding(horizontal = 30.dp, vertical = 8.dp),
-                        )
-                    }
+                    CalledTiles(shown, latest)
                 }
+            }
+        }
+    }
+}
+
+/**
+ * The tokens being called, one tile per queue. A lone call is as big as the card allows; several
+ * share the width, each with its queue name, and the newest is lit.
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun CalledTiles(
+    calls: List<CalledToken>,
+    newest: Int?,
+) {
+    val alone = calls.size == 1
+    val numberSize = if (alone) 120.sp else if (calls.size == 2) 84.sp else 64.sp
+    Row(modifier = Modifier.shrinkToFit(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        calls.forEach { call ->
+            // Outlined in orange until the call has been announced.
+            val lit = !call.announced
+            val framed = !alone || !call.announced
+            val shape = RoundedCornerShape(22.dp)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier =
+                    if (!framed) {
+                        Modifier
+                    } else {
+                        Modifier
+                            .clip(shape)
+                            .background(Color.White.copy(alpha = if (lit) 0.16f else 0.07f))
+                            .border(if (lit) 3.dp else 1.5.dp, if (lit) Accent else Color.White.copy(alpha = 0.24f), shape)
+                            .padding(horizontal = 22.dp, vertical = 10.dp)
+                    },
+            ) {
+                if (!alone && call.queueLabelBn.isNotBlank()) {
+                    Text(
+                        text = call.queueLabelBn,
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                    )
+                }
+                Text(
+                    text = bnDigits(call.serial.toString()),
+                    color = Color.White,
+                    fontSize = numberSize,
+                    fontWeight = FontWeight.ExtraBold,
+                )
             }
         }
     }
@@ -343,11 +442,15 @@ private fun PulseDot(active: Boolean) {
     )
 }
 
-/** The time, in Bengali digits, kept to the minute. */
+private val BangladeshTime: TimeZone = TimeZone.getTimeZone("Asia/Dhaka")
+
+/** The time and date in Bangladesh, whatever the TV's own timezone is set to, in Bengali. */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun Clock() {
-    val format = remember { SimpleDateFormat("hh:mm", Locale.US) }
+    val format = remember { SimpleDateFormat("hh:mm", Locale.US).apply { timeZone = BangladeshTime } }
+    val dateFormat =
+        remember { SimpleDateFormat("EEEE, d MMMM yyyy", Locale("bn", "BD")).apply { timeZone = BangladeshTime } }
     var now by remember { mutableStateOf(Date()) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -355,12 +458,20 @@ private fun Clock() {
             delay(60_000L - System.currentTimeMillis() % 60_000L)
         }
     }
-    Text(
-        text = bnDigits(format.format(now)),
-        color = Color.White,
-        fontSize = 30.sp,
-        fontWeight = FontWeight.Bold,
-    )
+    Column(horizontalAlignment = Alignment.End) {
+        Text(
+            text = bnDigits(format.format(now)),
+            color = Color.White,
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            text = bnDigits(dateFormat.format(now)),
+            color = Color.White.copy(alpha = 0.85f),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
+    }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -370,19 +481,45 @@ private fun WaitingPanel(
     modifier: Modifier,
 ) {
     val shape = RoundedCornerShape(28.dp)
+    // The waiting times count on by themselves between updates from the tablet.
+    var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(15_000L)
+            nowMs = System.currentTimeMillis()
+        }
+    }
+    val people = state.queueTypes.sumOf { it.waitingSerials.size + it.hiddenCount }
     Column(
-        modifier = modifier.clip(shape).background(Color.White).border(1.dp, Line, shape).padding(18.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier =
+            modifier
+                .clip(shape)
+                .background(Color.White)
+                .border(1.dp, Line, shape)
+                .padding(start = 16.dp, top = 14.dp, end = 16.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(
-            text = stringResource(R.string.display_waiting_heading),
-            color = Navy,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(start = 6.dp),
-        )
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            state.queueTypes.forEach { type -> QueueRow(type, modifier = Modifier.weight(1f)) }
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                text = stringResource(R.string.display_waiting_heading),
+                color = Navy,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.ExtraBold,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            if (people > 0) {
+                Text(
+                    text = bnDigits(stringResource(R.string.display_total_waiting, people)),
+                    color = Accent,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+            }
+        }
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            state.queueTypes.forEach { type ->
+                QueueRow(type, sinceMs = nowMs - state.receivedAtMs, modifier = Modifier.weight(1f))
+            }
         }
     }
 }
@@ -391,29 +528,34 @@ private fun WaitingPanel(
 @Composable
 private fun QueueRow(
     type: QueueTypeBoard,
+    sinceMs: Long,
     modifier: Modifier,
 ) {
     val shape = RoundedCornerShape(18.dp)
     Row(
-        modifier = modifier.fillMaxWidth().clip(shape).background(Page).padding(horizontal = 16.dp),
+        modifier = modifier.fillMaxWidth().clip(shape).background(Page).padding(horizontal = 16.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text(
             text = type.labelBn,
             color = Navy,
             fontSize = 19.sp,
             fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.width(104.dp),
-            maxLines = 1,
+            modifier = Modifier.width(84.dp),
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
-        Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        // Never bigger than the row: the chips shrink together if they would not fit.
+        Row(modifier = Modifier.weight(1f).shrinkToFit(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (type.waitingSerials.isEmpty()) {
-                Text(text = "—", color = Faint, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                Text(text = "—", color = Faint, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             }
             // A chip is a place in the line. When someone is called the next serial slides up into it.
-            type.waitingSerials.forEachIndexed { place, serial -> SerialChip(serial, next = place == 0) }
+            type.waitingSerials.forEachIndexed { place, serial ->
+                val waited = type.waitedSeconds.getOrElse(place) { 0 } + (sinceMs / 1000L).toInt().coerceAtLeast(0)
+                SerialChip(serial, waitedSeconds = waited, next = place == 0)
+            }
         }
         AnimatedContent(
             targetState = type.hiddenCount,
@@ -424,7 +566,7 @@ private fun QueueRow(
                 Text(
                     text = bnDigits(stringResource(R.string.display_more_waiting, hidden)),
                     color = Faint,
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }
@@ -432,35 +574,66 @@ private fun QueueRow(
     }
 }
 
-/** The next in line is filled, so the eye lands on it first. */
+/** How long someone has waited: `এইমাত্র`, `৫ মিনিট`, `১ ঘ ১০ মি`. */
+@Composable
+private fun waitedText(seconds: Int): String {
+    val minutes = seconds / 60
+    return when {
+        minutes < 1 -> stringResource(R.string.display_waited_now)
+        minutes < 60 -> bnDigits(stringResource(R.string.display_waited_minutes, minutes))
+        else -> bnDigits(stringResource(R.string.display_waited_hours, minutes / 60, minutes % 60))
+    }
+}
+
+/**
+ * The next in line is filled, so the eye lands on it first. Under each serial is how long it
+ * has waited, with a dot that goes from green to amber to red as the wait grows.
+ */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SerialChip(
     serial: Int,
+    waitedSeconds: Int,
     next: Boolean,
 ) {
-    val shape = RoundedCornerShape(14.dp)
+    val shape = RoundedCornerShape(16.dp)
     val fill by animateColorAsState(if (next) Navy else Color.White, tween(400), label = "chipFill")
-    AnimatedContent(
-        targetState = serial,
-        transitionSpec = {
-            (slideInVertically(tween(350)) { it } + fadeIn(tween(350))) togetherWith
-                (slideOutVertically(tween(250)) { -it } + fadeOut(tween(200)))
-        },
-        label = "chip",
-    ) { value ->
-        Text(
-            text = bnDigits(value.toString()),
-            color = if (next) Color.White else Navy,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.ExtraBold,
-            textAlign = TextAlign.Center,
+    Box(contentAlignment = Alignment.TopCenter) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
                 Modifier
                     .clip(shape)
                     .background(fill)
-                    .border(1.dp, if (next) Navy else Line, shape)
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-        )
+                    .border(1.5.dp, if (next) Navy else Line, shape)
+                    .padding(horizontal = 11.dp, vertical = 5.dp),
+        ) {
+            AnimatedContent(
+                targetState = serial,
+                transitionSpec = {
+                    (slideInVertically(tween(350)) { it } + fadeIn(tween(350))) togetherWith
+                        (slideOutVertically(tween(250)) { -it } + fadeOut(tween(200)))
+                },
+                label = "chip",
+            ) { value ->
+                Text(
+                    text = bnDigits(value.toString()),
+                    color = if (next) Color.White else Navy,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Box(Modifier.size(10.dp).clip(CircleShape).background(waitColor(waitedSeconds)))
+                Text(
+                    text = waitedText(waitedSeconds),
+                    color = if (next) Color.White else Navy,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                )
+            }
+        }
     }
 }

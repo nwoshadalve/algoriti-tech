@@ -124,6 +124,8 @@ class QueueDeskTokenActions {
       final saved = await showDeskPatientEditDialog(
         context: context,
         patient: patient,
+        // The session table is the open session: its fee can be edited too.
+        token: token,
       );
       if (saved != null && context.mounted) await refresh();
     } on Object {
@@ -142,7 +144,7 @@ class QueueDeskTokenActions {
       title: l10n.deskCancelTokenTitle,
       body: l10n.deskCancelTokenBody(
         queueDeskFormatSerial(token.serial, locale),
-        token.patientBengaliName,
+        token.patientName,
       ),
       keep: l10n.deskCancelTokenKeep,
       action: l10n.deskCancelTokenTitle,

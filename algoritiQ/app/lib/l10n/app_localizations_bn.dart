@@ -315,10 +315,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get certNote =>
-      'ব্রাউজার বলবে সংযোগটি ব্যক্তিগত নয়। এটি স্বাভাবিক, কারণ ট্যাবলেট নিজের সার্টিফিকেট ব্যবহার করে। ফিঙ্গারপ্রিন্ট মিলিয়ে নিয়ে চালিয়ে যান।';
+      'ট্যাবলেট নিজের নিরাপত্তা সার্টিফিকেট তৈরি করে, তাই ফোন সেটি বিশ্বাস না করা পর্যন্ত সতর্কতা দেখায়। ফোন থেকে এই ঠিকানার /ca.crt খুলে সেটি ইনস্টল করুন: অ্যান্ড্রয়েড সেটিংস, সিকিউরিটি, এনক্রিপশন ও ক্রেডেনশিয়াল, সার্টিফিকেট ইনস্টল, CA সার্টিফিকেট। এরপর সতর্কতা থাকবে না এবং ওয়েব অ্যাপ ইনস্টল করা যাবে।';
 
   @override
-  String get certFingerprintLabel => 'সার্টিফিকেট ফিঙ্গারপ্রিন্ট';
+  String get certFingerprintLabel => 'সার্টিফিকেট ফিঙ্গারপ্রিন্ট (SHA-256)';
 
   @override
   String get readinessTitle => 'ট্যাবলেট প্রস্তুত রাখুন';
@@ -774,6 +774,15 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deskSessionTableTitle => 'আজকের সেশন';
 
   @override
+  String get deskFieldName => 'নাম';
+
+  @override
+  String get deskTabCalling => 'ডাকা হচ্ছে';
+
+  @override
+  String get deskTabPatients => 'রোগী';
+
+  @override
   String get deskSessionEmpty => 'এখনও কোনো টোকেন দেওয়া হয়নি।';
 
   @override
@@ -820,12 +829,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deskSaveAndIssue => 'সংরক্ষণ ও টোকেন দিন';
 
   @override
-  String get deskFieldBengaliName => 'নাম (বাংলা)';
-
-  @override
-  String get deskFieldEnglishName => 'নাম (ইংরেজি)';
-
-  @override
   String get deskFieldQueue => 'কিউ';
 
   @override
@@ -836,6 +839,18 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deskFieldFee => 'ফি (টাকা)';
+
+  @override
+  String get deskFeeNone => 'কোনো ফি নেই';
+
+  @override
+  String get deskFreeShort => 'F';
+
+  @override
+  String get deskFreeLabel => 'ফ্রি রোগী';
+
+  @override
+  String get deskFreeTooltip => 'ফ্রি রোগী: কোনো ফি নেওয়া হবে না';
 
   @override
   String get deskFieldAdminNote => 'অ্যাডমিন নোট';
@@ -1582,4 +1597,258 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deskColIssued => 'যোগের সময়';
+
+  @override
+  String get navHistory => 'সেশন ইতিহাস';
+
+  @override
+  String get historyTitle => 'সেশন ইতিহাস';
+
+  @override
+  String get historyIntro =>
+      'আগের কিউ সেশনগুলো দেখুন: কখন চলেছে এবং কী কী হয়েছে।';
+
+  @override
+  String get historyAllChambers => 'সব চেম্বার';
+
+  @override
+  String get historyChamberLabel => 'চেম্বার';
+
+  @override
+  String get historyRange7 => 'গত ৭ দিন';
+
+  @override
+  String get historyRange30 => 'গত ৩০ দিন';
+
+  @override
+  String get historyRangeAll => 'সব সময়';
+
+  @override
+  String get historyEmpty => 'এই সময়ে কোনো সেশন নেই।';
+
+  @override
+  String get historyLoadFailed => 'সেশন ইতিহাস লোড করা যায়নি।';
+
+  @override
+  String get historyShowMore => 'আরও দেখুন';
+
+  @override
+  String get historyStatusOpen => 'এখন চলছে';
+
+  @override
+  String get historyStatusEnded => 'শেষ হয়েছে';
+
+  @override
+  String get historyStatusForced => 'অ্যাডমিন শেষ করেছেন';
+
+  @override
+  String get historyTokens => 'টোকেন';
+
+  @override
+  String get historyNotSeen => 'দেখা হয়নি';
+
+  @override
+  String get historyFree => 'ফ্রি রোগী';
+
+  @override
+  String historyOpenedBy(String name) {
+    return 'শুরু করেছেন $name';
+  }
+
+  @override
+  String historyEndedBy(String name) {
+    return 'শেষ করেছেন $name';
+  }
+
+  @override
+  String historyTime(String start, String end) {
+    return '$start থেকে $end';
+  }
+
+  @override
+  String historyTimeOpen(String start) {
+    return '$start থেকে এখন পর্যন্ত';
+  }
+
+  @override
+  String historyDurationHM(int hours, int minutes) {
+    return '$hours ঘণ্টা $minutes মিনিট';
+  }
+
+  @override
+  String historyDurationM(int minutes) {
+    return '$minutes মিনিট';
+  }
+
+  @override
+  String historyReason(String reason) {
+    return 'কারণ: $reason';
+  }
+
+  @override
+  String get historyDetailTitle => 'সেশনের বিবরণ';
+
+  @override
+  String get historyBack => 'সেশন তালিকায় ফিরুন';
+
+  @override
+  String get historyOpened => 'শুরু';
+
+  @override
+  String get historyEnded => 'শেষ';
+
+  @override
+  String get historyDuration => 'সময়কাল';
+
+  @override
+  String get historyFirstCall => 'প্রথম ডাক';
+
+  @override
+  String get historyLastCall => 'শেষ ডাক';
+
+  @override
+  String get historyByQueue => 'কিউ অনুযায়ী';
+
+  @override
+  String get historyPatients => 'রোগী';
+
+  @override
+  String get historyNoPatients => 'এই সেশনে কোনো টোকেন দেওয়া হয়নি।';
+
+  @override
+  String get historyColToken => 'টোকেন';
+
+  @override
+  String get historyColPatient => 'রোগী';
+
+  @override
+  String get historyColQueue => 'কিউ';
+
+  @override
+  String get historyColIssued => 'দেওয়া হয়েছে';
+
+  @override
+  String get historyColCalled => 'ডাকা হয়েছে';
+
+  @override
+  String get historyColOutcome => 'ফল';
+
+  @override
+  String get draftRestored => 'আপনার সংরক্ষিত খসড়া থেকে চালিয়ে যাচ্ছেন।';
+
+  @override
+  String get draftDiscard => 'খসড়া বাতিল করুন';
+
+  @override
+  String get draftKept =>
+      'সংরক্ষণ না করা পরিবর্তন খসড়া হিসেবে থাকবে, যতক্ষণ না সংরক্ষণ বা বাতিল করেন।';
+
+  @override
+  String get draftBadge => 'খসড়া';
+
+  @override
+  String get navPatients => 'রোগী';
+
+  @override
+  String get patientsTitle => 'রোগী';
+
+  @override
+  String get patientsIntro =>
+      'রোগী খুঁজুন, নতুন যোগ করুন এবং তথ্য হালনাগাদ করুন।';
+
+  @override
+  String get patientsSearch => 'নাম, রোগীর আইডি বা ফোন দিয়ে খুঁজুন';
+
+  @override
+  String get patientsAdd => 'রোগী যোগ করুন';
+
+  @override
+  String get patientsAddTitle => 'রোগী যোগ করুন';
+
+  @override
+  String get patientsAddSave => 'রোগী সংরক্ষণ করুন';
+
+  @override
+  String get patientsEmpty => 'এখনও কোনো রোগী নেই।';
+
+  @override
+  String get patientsEmptyFiltered => 'কোনো রোগী মেলেনি।';
+
+  @override
+  String get patientsLoadFailed => 'রোগীদের তালিকা লোড করা যায়নি।';
+
+  @override
+  String get patientsGender => 'লিঙ্গ';
+
+  @override
+  String get patientsGenderAll => 'সব লিঙ্গ';
+
+  @override
+  String get patientsGenderUnset => 'উল্লেখ নেই';
+
+  @override
+  String get patientsPaperOnly => 'কাগজের ফাইল';
+
+  @override
+  String get patientsSortNewest => 'নতুন আগে';
+
+  @override
+  String get patientsSortName => 'নাম';
+
+  @override
+  String get patientsSortId => 'রোগীর আইডি';
+
+  @override
+  String get patientsSortPhone => 'ফোন';
+
+  @override
+  String get patientsSortOrder => 'সাজান';
+
+  @override
+  String get patientsReverse => 'উল্টো ক্রম';
+
+  @override
+  String get patientsClearFilters => 'ফিল্টার মুছুন';
+
+  @override
+  String get patientsSaved => 'রোগী যোগ হয়েছে।';
+
+  @override
+  String get patientsEdit => 'সম্পাদনা';
+
+  @override
+  String get patientsNoChamber =>
+      'আপনাকে এখনও কোনো চেম্বারে নিযুক্ত করা হয়নি।';
+
+  @override
+  String get patientsAge => 'বয়স';
+
+  @override
+  String patientsCount(int count) {
+    return '$count জন রোগী';
+  }
+
+  @override
+  String get patientsTotalLabel => 'মোট রোগী';
+
+  @override
+  String get patientsShownLabel => 'দেখানো হচ্ছে';
+
+  @override
+  String get patientsVisits => 'ভিজিট';
+
+  @override
+  String get patientsLastVisit => 'সর্বশেষ ভিজিট';
+
+  @override
+  String get patientsNoVisits => 'এখনও ভিজিট নেই';
+
+  @override
+  String get patientsRegistered => 'নিবন্ধনের তারিখ';
+
+  @override
+  String get patientsSortVisits => 'বেশি ভিজিট';
+
+  @override
+  String get patientsSortLastVisit => 'সর্বশেষ ভিজিট';
 }

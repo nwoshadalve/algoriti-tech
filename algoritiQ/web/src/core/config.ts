@@ -5,6 +5,8 @@
  * Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
  * or distribution is prohibited.
  */
+import { readServerAddress } from '@/core/serverAddress'
+
 /** Client-safe configuration (VITE_* only). */
 
 const apiPath = import.meta.env.VITE_API_BASE_PATH ?? '/api/v1'
@@ -15,15 +17,13 @@ const apiPath = import.meta.env.VITE_API_BASE_PATH ?? '/api/v1'
  * (proxied to the tablet) so the browser stays same-origin and avoids CORS.
  *
  * Set `VITE_API_ORIGIN=https://algoritiq.local:8443` to call the tablet directly.
+ * An address the person typed on the connect screen (installed app, name not
+ * reachable) wins over both.
  */
 export function resolveApiBase(): string {
   const configured = import.meta.env.VITE_API_ORIGIN as string | undefined
   const origin =
-    configured !== undefined
-      ? configured.trim() || null
-      : import.meta.env.DEV
-        ? null
-        : null
+    readServerAddress() ?? (configured !== undefined ? configured.trim() || null : null)
 
   if (!origin) return apiPath
   const base = origin.replace(/\/$/, '')
@@ -31,6 +31,9 @@ export function resolveApiBase(): string {
 }
 
 export const config = {
-  apiBasePath: resolveApiBase(),
+  /** Read on every call: the saved tablet address can change without a reload. */
+  get apiBasePath(): string {
+    return resolveApiBase()
+  },
   appName: 'AlgoritiQ',
 } as const

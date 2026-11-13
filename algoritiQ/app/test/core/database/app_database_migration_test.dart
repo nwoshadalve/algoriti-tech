@@ -4,7 +4,7 @@
 // Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
 // or distribution is prohibited.
 import 'package:algoritiq_app/core/database/app_database.dart';
-import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/drift.dart' show Variable, driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -156,5 +156,115 @@ void main() {
     final chamber = await database.select(database.chambers).getSingle();
     expect(chamber.patientIdPrefix, isNotEmpty);
     expect(chamber.patientIdNextSequence, 1);
+  });
+
+  group('one patient name (v17)', () {
+    // A v16 database: patients with the Bengali and English names, tokens
+    // without the announced column. Only the columns this step touches.
+    AppDatabase v16() => AppDatabase(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw
+            ..execute(
+              'CREATE TABLE patients (id TEXT NOT NULL, bengali_name TEXT NOT '
+              'NULL, english_name TEXT NULL, phone_normalized TEXT NOT NULL, '
+              'PRIMARY KEY (id))',
+            )
+            ..execute(
+              'CREATE TABLE queue_tokens (id TEXT NOT NULL, status TEXT NOT '
+              'NULL, first_called_at INTEGER NULL, PRIMARY KEY (id))',
+            )
+            ..execute(
+              "INSERT INTO patients (id, bengali_name, english_name, "
+              "phone_normalized) VALUES "
+              "('p1', 'করিম', 'Karim', '017'), "
+              "('p2', '  ', 'Rahim', '018'), "
+              "('p3', 'সালমা', NULL, '019')",
+            )
+            ..execute(
+              "INSERT INTO queue_tokens (id, status, first_called_at) VALUES "
+              "('t1', 'CALLED', 100), ('t2', 'WAITING', NULL)",
+            )
+            ..execute('PRAGMA user_version = 16');
+        },
+      ),
+    );
+
+    test(
+      'should fill the name from the Bengali name, else the English',
+      () async {
+        final database = v16();
+        addTearDown(database.close);
+
+        final rows = await database
+            .customSelect('SELECT id, name FROM patients ORDER BY id')
+            .get();
+
+        expect(
+          {for (final r in rows) r.read<String>('id'): r.read<String>('name')},
+          {'p1': 'করিম', 'p2': 'Rahim', 'p3': 'সালমা'},
+        );
+      },
+    );
+
+    test(
+      'should keep the old Bengali and English names as they were',
+      () async {
+        final database = v16();
+        addTearDown(database.close);
+
+        final rows = await database
+            .customSelect(
+              'SELECT bengali_name, english_name FROM patients WHERE id = ?',
+              variables: [Variable.withString('p1')],
+            )
+            .get();
+
+        expect(rows.single.read<String>('bengali_name'), 'করিম');
+        expect(rows.single.read<String>('english_name'), 'Karim');
+      },
+    );
+
+    test('should count tokens called before as announced', () async {
+      final database = v16();
+      addTearDown(database.close);
+
+      final rows = await database
+          .customSelect('SELECT id, announced_at FROM queue_tokens ORDER BY id')
+          .get();
+
+      expect(rows[0].read<int?>('announced_at'), 100);
+      expect(rows[1].read<int?>('announced_at'), isNull);
+    });
+  });
+
+  test('should keep every earlier token paid with its fee (v18)', () async {
+    // A v17 tokens table: fees but no free column. Only what this step touches.
+    final database = AppDatabase(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw
+            ..execute(
+              'CREATE TABLE queue_tokens (id TEXT NOT NULL, status TEXT NOT '
+              'NULL, fee_bdt INTEGER NULL, PRIMARY KEY (id))',
+            )
+            ..execute(
+              "INSERT INTO queue_tokens (id, status, fee_bdt) VALUES "
+              "('t1', 'ENTERED', 500), ('t2', 'WAITING', NULL)",
+            )
+            ..execute('PRAGMA user_version = 17');
+        },
+      ),
+    );
+    addTearDown(database.close);
+
+    final rows = await database
+        .customSelect(
+          'SELECT id, fee_bdt, is_free FROM queue_tokens ORDER BY id',
+        )
+        .get();
+
+    expect([for (final r in rows) r.read<int?>('fee_bdt')], [500, null]);
+    expect([for (final r in rows) r.read<bool>('is_free')], [false, false]);
   });
 }

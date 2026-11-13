@@ -241,6 +241,14 @@ class DriftQueueRepository {
     return rows.isEmpty ? null : rows.first;
   }
 
+  /// Every session that is still open, in any chamber.
+  Future<List<QueueSessionRow>> openSessions() {
+    final open = {QueueSessionStatus.open, QueueSessionStatus.rolloverDue};
+    return (_db.select(
+      _db.queueSessions,
+    )..where((s) => s.status.isIn(open.map((e) => e.apiValue)))).get();
+  }
+
   /// A chamber other than [chamberId] that has a session open, or null.
   Future<ChamberRow?> otherChamberWithOpenSession(String chamberId) async {
     final chambers = await _db.select(_db.chambers).get();

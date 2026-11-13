@@ -7,6 +7,7 @@
  */
 import { Outlet } from 'react-router-dom'
 import { ClinicProvider } from '@/core/clinic/ClinicProvider'
+import { PatientDraftsProvider } from '@/features/patients/patientDrafts'
 import { WorkScopeProvider } from '@/features/work/WorkScopeProvider'
 
 /** Signed-in routes that may need receptionist work-scope state. */
@@ -14,7 +15,9 @@ export function AuthenticatedShell() {
   return (
     <ClinicProvider>
       <WorkScopeProvider>
-        <Outlet />
+        <PatientDraftsProvider>
+          <Outlet />
+        </PatientDraftsProvider>
       </WorkScopeProvider>
     </ClinicProvider>
   )

@@ -30,7 +30,7 @@ BoardTokenView _token(
   queueBengaliName: queue == 'regular' ? 'সাধারণ' : 'রিপোর্ট',
   patientId: 'patient-$serial',
   clinicPatientId: '77$serial',
-  patientBengaliName: name,
+  patientName: name,
   status: status,
   issuedAt: DateTime.now().subtract(const Duration(minutes: 12)),
   firstCalledAt: status == TokenStatus.waiting

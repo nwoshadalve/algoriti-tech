@@ -16,7 +16,7 @@ import { Modal } from '@/core/ui/Modal'
 import { readSession } from '@/features/auth/session'
 import { boardErrorKey } from '@/features/board/boardErrors'
 import { newBoardCommandId, queueDisplayName } from '@/features/board/boardFormat'
-import { formatQueueSerial } from '@/features/queue/formatQueueSerial'
+import { formatDigits, formatQueueSerial } from '@/features/queue/formatQueueSerial'
 
 type IssueConfirmModalProps = {
   chamberId: string
@@ -42,7 +42,8 @@ export function IssueConfirmModal({ chamberId, preview, onClose, onIssued }: Iss
         commandId: newBoardCommandId(),
         patientId: preview.patient.id,
         queueTypeId: preview.queueTypeId,
-        feeBdt: preview.feeBdt ?? undefined,
+        feeBdt: preview.isFree ? undefined : (preview.feeBdt ?? undefined),
+        isFree: preview.isFree ?? false,
       })
       toast.success(t('boardIssueSuccess'))
       onIssued()
@@ -78,8 +79,8 @@ export function IssueConfirmModal({ chamberId, preview, onClose, onIssued }: Iss
       <dl className="grid gap-3 text-sm sm:grid-cols-2">
         <div>
           <dt className="text-brand-navy/60 dark:text-white/60">{t('boardFieldPatient')}</dt>
-          <dd className="font-medium">{preview.patient.bengaliName}</dd>
-          <dd className="text-brand-navy/70 dark:text-white/70">{preview.patient.clinicPatientId}</dd>
+          <dd className="font-medium">{preview.patient.name}</dd>
+          <dd className="text-brand-navy/70 dark:text-white/70">{formatDigits(preview.patient.clinicPatientId, locale)}</dd>
         </div>
         <div>
           <dt className="text-brand-navy/60 dark:text-white/60">{t('boardFieldChamber')}</dt>
@@ -94,7 +95,14 @@ export function IssueConfirmModal({ chamberId, preview, onClose, onIssued }: Iss
           <dd className="text-2xl font-bold tabular-nums">{serial}</dd>
           <dd className="text-xs text-brand-navy/60 dark:text-white/60">{t('boardPreviewHint')}</dd>
         </div>
-        {preview.feeBdt != null ? (
+        {preview.isFree ? (
+          <div>
+            <dt className="text-brand-navy/60 dark:text-white/60">{t('boardFieldFee')}</dt>
+            <dd className="font-medium" data-testid="issue-confirm-free">
+              {t('boardFreeLabel')}
+            </dd>
+          </div>
+        ) : preview.feeBdt != null ? (
           <div>
             <dt className="text-brand-navy/60 dark:text-white/60">{t('boardFieldFee')}</dt>
             <dd className="font-medium">{preview.feeBdt}</dd>

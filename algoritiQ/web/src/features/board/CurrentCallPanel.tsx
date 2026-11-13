@@ -16,17 +16,17 @@ import { secondaryButton } from '@/core/ui/buttonStyles'
 import { readSession } from '@/features/auth/session'
 import { boardErrorKey } from '@/features/board/boardErrors'
 import { newBoardCommandId, queueDisplayName } from '@/features/board/boardFormat'
-import { formatQueueSerial } from '@/features/queue/formatQueueSerial'
+import { formatDigits, formatQueueSerial } from '@/features/queue/formatQueueSerial'
 
 type CurrentCallPanelProps = {
   chamberId: string
-  called: BoardTokenView | null
+  called: BoardTokenView[]
   onRefresh: () => void
   onCancel: (token: BoardTokenView) => void
   layout?: 'card' | 'desk'
 }
 
-/** Actions for the token currently in CALLED state. */
+/** Actions for each token currently in CALLED state, one per queue at most. */
 export function CurrentCallPanel({
   chamberId,
   called,
@@ -36,16 +36,18 @@ export function CurrentCallPanel({
 }: CurrentCallPanelProps) {
   const { t, locale } = useLocale()
   const toast = useToast()
+  // Which action of which token is running, as `<token id>:<action>`.
   const [busy, setBusy] = useState('')
 
   async function run(action: 'entered' | 'skipped' | 'recall', activeCall: BoardTokenView) {
     const token = readSession()
     if (!token || busy) return
-    setBusy(action)
+    setBusy(`${activeCall.id}:${action}`)
     try {
       if (action === 'recall') {
         await recallCalledToken(token, chamberId, newBoardCommandId(), activeCall.queueTypeId)
-        toast.success(t('boardRecallSent'))
+        // The first announcement of a token that came up by itself is a call, not a recall.
+        toast.success(activeCall.announced === false ? t('boardCallNextSuccess') : t('boardRecallSent'))
       } else if (action === 'entered') {
         await markTokenEntered(token, activeCall.id, newBoardCommandId())
         toast.success(t('boardEnteredToast'))
@@ -62,22 +64,25 @@ export function CurrentCallPanel({
   }
 
   function renderActions(activeCall: BoardTokenView, compact: boolean) {
+    const running = (action: string) => busy === `${activeCall.id}:${action}`
+    // A token that came up on the board by itself is not announced yet: Call announces it.
+    const announced = activeCall.announced !== false
     const btnClass = compact
       ? '!min-h-9 !w-auto !px-3 !py-1.5 !text-xs sm:!min-w-0'
       : 'sm:w-auto sm:min-w-36'
     return (
       <div className={`flex flex-wrap gap-2 ${compact ? 'mt-3' : 'mt-4 sm:flex-row'}`}>
         <LoadingButton
-          isLoading={busy === 'recall'}
+          isLoading={running('recall')}
           loadingLabel={t('boardWorking')}
           disabled={!!busy}
           className={btnClass}
           onClick={() => void run('recall', activeCall)}
         >
-          {t('boardRecall')}
+          {announced ? t('boardRecall') : t('boardCall')}
         </LoadingButton>
         <LoadingButton
-          isLoading={busy === 'entered'}
+          isLoading={running('entered')}
           loadingLabel={t('boardWorking')}
           disabled={!!busy}
           className={btnClass}
@@ -86,7 +91,7 @@ export function CurrentCallPanel({
           {t('boardPatientEntered')}
         </LoadingButton>
         <LoadingButton
-          isLoading={busy === 'skipped'}
+          isLoading={running('skipped')}
           loadingLabel={t('boardWorking')}
           disabled={!!busy}
           className={btnClass}
@@ -106,7 +111,7 @@ export function CurrentCallPanel({
     )
   }
 
-  if (!called) {
+  if (called.length === 0) {
     const empty = <p className="mt-2 text-sm text-brand-navy/65 dark:text-white/65">{t('boardCurrentCallEmpty')}</p>
     if (layout === 'desk') {
       return (
@@ -125,20 +130,29 @@ export function CurrentCallPanel({
     )
   }
 
-  const serial = formatQueueSerial(called.serial, locale)
-  const queueName = queueDisplayName(locale, called.queueEnglishName, called.queueBengaliName)
   const compact = layout === 'desk'
 
   const inner = (
-    <>
-      <div className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 ${compact ? 'mt-2' : 'mt-3'}`}>
-        <p className="text-3xl font-bold tabular-nums text-brand-coral-action">{serial}</p>
-        <p className="text-sm font-medium">{called.patientBengaliName}</p>
-        <p className="text-sm text-brand-navy/65 dark:text-white/65">{called.clinicPatientId}</p>
-        <p className={`text-sm text-brand-navy/65 dark:text-white/65 ${compact ? 'w-full' : ''}`}>{queueName}</p>
-      </div>
-      {renderActions(called, compact)}
-    </>
+    <ul className={compact ? 'mt-2 flex flex-col gap-3' : 'mt-3 flex flex-col gap-4'}>
+      {called.map((token) => {
+        const serial = formatQueueSerial(token.serial, locale)
+        const queueName = queueDisplayName(locale, token.queueEnglishName, token.queueBengaliName)
+        return (
+          <li
+            key={token.id}
+            className="border-t border-brand-navy/10 pt-3 first:border-t-0 first:pt-0 dark:border-white/10"
+          >
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <p className="text-3xl font-bold tabular-nums text-brand-coral-action">{serial}</p>
+              <p className="text-sm font-medium">{token.patientName}</p>
+              <p className="text-sm text-brand-navy/65 dark:text-white/65">{formatDigits(token.clinicPatientId, locale)}</p>
+              <p className={`text-sm text-brand-navy/65 dark:text-white/65 ${compact ? 'w-full' : ''}`}>{queueName}</p>
+            </div>
+            {renderActions(token, compact)}
+          </li>
+        )
+      })}
+    </ul>
   )
 
   if (layout === 'desk') {

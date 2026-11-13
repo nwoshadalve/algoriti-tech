@@ -18,7 +18,7 @@ import {
 } from '@/features/board/boardFormat'
 import { sortHeadingLabel, type SortableColumn } from '@/features/board/QueueDeskTableToolbar'
 import { TokenRowActions } from '@/features/board/TokenRowActions'
-import { formatQueueSerial } from '@/features/queue/formatQueueSerial'
+import { formatDigits, formatQueueSerial } from '@/features/queue/formatQueueSerial'
 
 type SessionTokensTableProps = {
   tokens: BoardTokenView[]
@@ -87,9 +87,11 @@ export function SessionTokensTable({
   const shellClass = embedded
     ? 'flex min-h-0 flex-1 flex-col overflow-hidden'
     : 'flex min-h-0 flex-col overflow-hidden rounded-2xl border border-brand-navy/10 bg-white shadow-sm dark:border-white/10 dark:bg-brand-navy-raised'
+  // On phones the page scrolls, not the table: a scroll container with
+  // `overscroll-contain` traps touch drags and stops the page from moving.
   const scrollClass = embedded
-    ? 'min-h-[480px] flex-1 overflow-y-auto overscroll-contain max-md:min-h-[480px] md:min-h-0'
-    : 'max-h-[min(28rem,50vh)] overflow-y-auto overscroll-contain max-md:min-h-[480px]'
+    ? 'overflow-y-auto overscroll-contain max-md:min-h-[480px] max-md:overflow-visible max-md:overscroll-auto md:h-[max(20rem,calc(100dvh-22rem))] md:flex-none lg:h-auto lg:min-h-0 lg:flex-1'
+    : 'max-h-[min(28rem,50vh)] overflow-y-auto overscroll-contain max-md:min-h-[480px] max-md:max-h-none max-md:overflow-visible max-md:overscroll-auto'
 
   function headingButton(column: SortableColumn, tokenSort: TokenSort) {
     const active = sort === tokenSort
@@ -173,7 +175,7 @@ export function SessionTokensTable({
                             {formatQueueSerial(row.serial, locale)}
                           </span>
                           <span className="min-w-0 flex-1 text-sm leading-snug font-semibold break-words line-clamp-2">
-                            {row.patientBengaliName}
+                            {row.patientName}
                           </span>
                           <span className="shrink-0 text-xs tabular-nums text-brand-navy/70 dark:text-white/70">
                             {formatWaitElapsed(waitMs, locale)}
@@ -181,7 +183,7 @@ export function SessionTokensTable({
                         </div>
                         <div className="relative z-20 flex min-w-0 items-center gap-2">
                           <p className="min-w-0 flex-1 text-xs leading-snug text-brand-navy/65 dark:text-white/65">
-                            <span className="tabular-nums">{row.clinicPatientId}</span>
+                            <span className="tabular-nums">{formatDigits(row.clinicPatientId, locale)}</span>
                             <span aria-hidden> · </span>
                             {queueDisplayName(locale, row.queueEnglishName, row.queueBengaliName)}
                           </p>
@@ -196,13 +198,13 @@ export function SessionTokensTable({
                       <span className="hidden text-brand-navy/60 max-md:inline dark:text-white/60">
                         {t('boardColPatientId')}
                       </span>
-                      {row.clinicPatientId}
+                      {formatDigits(row.clinicPatientId, locale)}
                     </td>
                     <td className={`${cell} max-md:hidden min-w-0 break-words md:table-cell`} data-label={t('boardColName')}>
                       <span className="hidden text-brand-navy/60 max-md:inline dark:text-white/60">
                         {t('boardColName')}
                       </span>
-                      <span className="line-clamp-2">{row.patientBengaliName}</span>
+                      <span className="line-clamp-2">{row.patientName}</span>
                     </td>
                     <td className={`${cell} max-md:hidden font-bold tabular-nums md:table-cell`} data-label={t('boardColSerial')}>
                       <span className="hidden text-brand-navy/60 max-md:inline dark:text-white/60">

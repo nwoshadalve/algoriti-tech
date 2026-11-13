@@ -22,7 +22,11 @@ fun AlgoritiqTvNavHost(viewModel: TvShellViewModel = hiltViewModel()) {
     Box {
         when {
             uiState.showMain -> MainDisplayScreen(state = uiState.display, doctorPhoto = uiState.doctorPhoto)
-            else -> ConnectingScreen()
+            else ->
+                ConnectingScreen(
+                    savedAddress = viewModel.savedAddress(),
+                    onSaveAddress = viewModel::saveAddress,
+                )
         }
         uiState.testScreen?.let { TestScreenOverlay(it) }
     }

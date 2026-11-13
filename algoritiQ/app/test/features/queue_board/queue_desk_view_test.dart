@@ -24,7 +24,7 @@ BoardTokenView _token(
   queueBengaliName: 'সাধারণ সারি ০',
   patientId: 'patient-$serial',
   clinicPatientId: '77$serial',
-  patientBengaliName: name,
+  patientName: name,
   status: status,
   issuedAt: DateTime.now().subtract(const Duration(minutes: 7)),
   firstCalledAt: status == TokenStatus.waiting ? null : DateTime.now(),
@@ -49,7 +49,7 @@ BoardSnapshot _snapshot(int queues, {BoardTokenView? called}) => BoardSnapshot(
   chamberName: 'Room 1',
   sessionId: 'session',
   sessionOpen: true,
-  calledToken: called,
+  calledTokens: [?called],
   queueControls: _queues(queues),
   tokens: const [],
   printerBusyTokenId: null,
@@ -58,12 +58,11 @@ BoardSnapshot _snapshot(int queues, {BoardTokenView? called}) => BoardSnapshot(
 QueueDeskCallbacks _callbacks(List<String> log) => QueueDeskCallbacks(
   onCall: (id) => log.add('call $id'),
   onRecall: (id) => log.add('recall $id'),
-  onEntered: () => log.add('entered'),
-  onMissed: () => log.add('missed'),
-  onCancelCalled: () => log.add('cancelCalled'),
+  onEntered: (t) => log.add('entered ${t.serial}'),
+  onMissed: (t) => log.add('missed ${t.serial}'),
+  onCancelCalled: (t) => log.add('cancelCalled ${t.serial}'),
   onAdd: () => log.add('add'),
   onAddExisting: () => log.add('addExisting'),
-  onSearch: (t) => log.add('search $t'),
   onStatus: (s) => log.add('status ${s?.name}'),
   onQueue: (q) => log.add('queue $q'),
   onToggleNotPrinted: () => log.add('notPrinted'),
@@ -116,7 +115,9 @@ void main() {
       tester,
       Padding(
         padding: const EdgeInsets.all(8),
+        // A new desk each time, so it opens on Calling again.
         child: QueueDeskView(
+          key: UniqueKey(),
           snapshot: _snapshot(
             queues,
             called: called
@@ -133,6 +134,12 @@ void main() {
       brightness: brightness,
       keyboard: keyboard,
     );
+  }
+
+  /// Opens the Patients tab.
+  Future<void> openPatients(WidgetTester tester) async {
+    await tester.tap(find.textContaining('Patients'));
+    await tester.pumpAndSettle();
   }
 
   group('layout matrix', () {
@@ -155,7 +162,7 @@ void main() {
             // page. On tablets everything must be on screen without scrolling.
             if (entry.key.startsWith('phone')) return;
             final screen = Offset.zero & entry.value;
-            for (final text in ['Queue number 0', 'করিম', if (called) '1001']) {
+            for (final text in ['Queue number 0', if (called) '1001']) {
               final rect = tester.getRect(find.text(text).first);
               expect(
                 screen.contains(rect.topLeft) &&
@@ -164,6 +171,29 @@ void main() {
                 reason: '$text is on screen, at $rect',
               );
             }
+            // Up to three queues are all on screen at once, each with Call.
+            if (queues <= 3) {
+              final calls = find.widgetWithText(FilledButton, 'Call');
+              // A queue that is calling has no Call button.
+              expect(calls, findsNWidgets(called ? queues - 1 : queues));
+              for (final call in calls.evaluate()) {
+                final rect = tester.getRect(find.byWidget(call.widget));
+                expect(
+                  screen.contains(rect.topLeft) &&
+                      screen.contains(rect.bottomRight),
+                  isTrue,
+                  reason: 'Call is on screen, at $rect',
+                );
+              }
+            }
+            // The patients are on the other tab, with the whole screen.
+            await openPatients(tester);
+            final row = tester.getRect(find.text('করিম').first);
+            expect(
+              screen.contains(row.topLeft) && screen.contains(row.bottomRight),
+              isTrue,
+              reason: 'the first patient is on screen, at $row',
+            );
           });
         }
       }
@@ -198,47 +228,97 @@ void main() {
     }
   });
 
-  testWidgets('should scroll nothing but the patient list', (tester) async {
-    for (final size in [const Size(1340, 800), const Size(800, 1340)]) {
-      await pumpView(tester, size: size, queues: 3, called: true);
+  int scrolling(WidgetTester tester) => [
+    for (final e in find.byType(Scrollable).evaluate())
+      (e as StatefulElement).state as ScrollableState,
+  ].where((s) => s.position.maxScrollExtent > 0).length;
 
-      final scrollable = <ScrollableState>[
-        for (final e in find.byType(Scrollable).evaluate())
-          (e as StatefulElement).state as ScrollableState,
-      ];
-      final scrolling = scrollable.where((s) => s.position.maxScrollExtent > 0);
-      expect(scrolling, hasLength(1), reason: 'only the list, at $size');
-    }
-  });
+  testWidgets(
+    'should scroll nothing on Calling and only the list on Patients',
+    (tester) async {
+      for (final size in [const Size(1340, 800), const Size(800, 1340)]) {
+        await pumpView(tester, size: size, queues: 3, called: true);
+        expect(
+          scrolling(tester),
+          0,
+          reason: 'Calling does not scroll, at $size',
+        );
 
-  testWidgets('should sit the strip beside the table in landscape', (
+        await openPatients(tester);
+        expect(scrolling(tester), 1, reason: 'only the list, at $size');
+      }
+    },
+  );
+
+  testWidgets('should open on Calling and switch to the patients and back', (
     tester,
   ) async {
     await pumpView(
       tester,
       size: const Size(1340, 800),
       queues: 3,
-      called: false,
-    );
-
-    final queueX = tester.getTopLeft(find.text('Queue number 0').first).dx;
-    final tableX = tester.getTopLeft(find.text('Patient ID')).dx;
-    expect(queueX, lessThan(tableX));
-  });
-
-  testWidgets('should stack the parts in portrait', (tester) async {
-    await pumpView(
-      tester,
-      size: const Size(800, 1340),
-      queues: 3,
       called: true,
     );
 
-    final nowY = tester.getTopLeft(find.text('1001').first).dy;
-    final queueY = tester.getTopLeft(find.text('Queue number 0').first).dy;
-    final tableY = tester.getTopLeft(find.text('Patient ID')).dy;
-    expect(nowY, lessThan(queueY));
-    expect(queueY, lessThan(tableY));
+    expect(find.text('Queue number 0'), findsOneWidget);
+    expect(find.text('Patient ID'), findsNothing);
+
+    await openPatients(tester);
+    expect(find.text('Patient ID'), findsOneWidget);
+    expect(find.text('Queue number 0'), findsWidgets);
+
+    await tester.tap(find.textContaining('Calling'));
+    await tester.pumpAndSettle();
+    expect(find.text('Patient ID'), findsNothing);
+    expect(find.text('1001'), findsOneWidget);
+  });
+
+  testWidgets('should show how many are calling and how many patients', (
+    tester,
+  ) async {
+    await pumpView(
+      tester,
+      size: const Size(1340, 800),
+      queues: 2,
+      called: true,
+      rows: 3,
+    );
+
+    expect(find.text('Calling 1'), findsOneWidget);
+    expect(find.text('Patients 3'), findsOneWidget);
+  });
+
+  testWidgets('should keep the Add buttons on both tabs', (tester) async {
+    final log = <String>[];
+    await pumpView(
+      tester,
+      size: const Size(1340, 800),
+      queues: 2,
+      called: false,
+      log: log,
+    );
+
+    await tester.tap(find.text('Add'));
+    await openPatients(tester);
+    await tester.tap(find.text('Add existing'));
+
+    expect(log, ['add', 'addExisting']);
+  });
+
+  testWidgets('should put the Add buttons under the tabs on a narrow pane', (
+    tester,
+  ) async {
+    await pumpView(
+      tester,
+      size: const Size(360, 700),
+      queues: 2,
+      called: false,
+    );
+
+    final tabsY = tester.getTopLeft(find.textContaining('Calling')).dy;
+    final addY = tester.getTopLeft(find.text('Add')).dy;
+    expect(addY, greaterThan(tabsY));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('should pass every action through', (tester) async {
@@ -256,37 +336,24 @@ void main() {
     await tester.tap(find.text('Add existing'));
     await tester.tap(find.text('Call').first);
     await tester.tap(find.text('Entered').first);
+    await tester.tap(find.text('End session'));
+    await openPatients(tester);
     await tester.tap(find.text('All statuses 3'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Waiting 3'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Serial'));
-    await tester.tap(find.text('End session'));
 
     expect(log, [
       'add',
       'addExisting',
-      'call q0',
-      'entered',
+      // q0 is calling, so its Call is gone; the first Call is q1's.
+      'call q1',
+      'entered 1001',
+      'endSession',
       'status waiting',
       'sort serial',
-      'endSession',
     ]);
-  });
-
-  testWidgets('should show the session title with the matching total', (
-    tester,
-  ) async {
-    await pumpView(
-      tester,
-      size: const Size(1340, 800),
-      queues: 1,
-      called: false,
-      rows: 3,
-    );
-
-    expect(find.text("Today's session"), findsOneWidget);
-    expect(find.text('3'), findsOneWidget);
   });
 
   testWidgets('should offer to clear filters only while one is on', (
@@ -300,6 +367,7 @@ void main() {
       called: false,
       log: log,
     );
+    await openPatients(tester);
     expect(find.byTooltip('Clear filters'), findsNothing);
 
     await pumpView(
@@ -315,84 +383,35 @@ void main() {
         loading: false,
       ),
     );
+    await openPatients(tester);
     await tester.tap(find.byTooltip('Clear filters'));
 
     expect(log, ['clear']);
   });
 
-  group('typing in the search box', () {
+  group('keyboard', () {
     const landscape = Size(893, 381);
-    // The keyboard of the Honor Pad covers roughly half of a landscape screen.
-    const keyboard = 200.0;
 
-    Future<void> focusSearchThenOpenKeyboard(
-      WidgetTester tester,
-      Size size,
-    ) async {
-      await pumpView(tester, size: size, queues: 3, called: true);
-      await tester.tap(find.byType(TextField));
-      await tester.pump();
-      await pumpView(
-        tester,
-        size: size,
-        queues: 3,
-        called: true,
-        keyboard: keyboard,
-      );
-      await tester.pump();
-    }
-
-    for (final size in [landscape, const Size(533, 741)]) {
-      testWidgets('should keep the search box above the keyboard at $size', (
-        tester,
-      ) async {
-        await focusSearchThenOpenKeyboard(tester, size);
-
-        expect(tester.takeException(), isNull);
-        final box = tester.getRect(find.byType(TextField));
-        expect(box.bottom, lessThanOrEqualTo(size.height - keyboard));
-        expect(box.top, greaterThanOrEqualTo(0));
-        // Only the table is left, with its first rows in the room that is.
-        expect(find.text("Today's session"), findsNothing);
-        expect(find.text('Call'), findsNothing);
-        final row = tester.getRect(find.text('করিম').first);
-        expect(row.bottom, lessThanOrEqualTo(size.height - keyboard));
-      });
-
-      testWidgets('should keep the keyboard open while the desk rearranges', (
-        tester,
-      ) async {
-        await focusSearchThenOpenKeyboard(tester, size);
-
-        final field = tester.widget<TextField>(find.byType(TextField));
-        expect(field.focusNode!.hasFocus, isTrue);
-      });
-    }
-
-    testWidgets('should show the whole desk again when the keyboard closes', (
-      tester,
-    ) async {
-      await focusSearchThenOpenKeyboard(tester, landscape);
+    testWidgets('should have no search box on the desk', (tester) async {
       await pumpView(tester, size: landscape, queues: 3, called: true);
-      await tester.pump();
 
-      expect(find.text('Queue number 0'), findsWidgets);
-      expect(find.text("Today's session"), findsOneWidget);
+      expect(find.byType(TextField), findsNothing);
     });
 
-    testWidgets('should leave the desk alone when a dialog opens the keyboard', (
-      tester,
-    ) async {
-      // The search box has no focus, so the keyboard belongs to something else.
-      await pumpView(
-        tester,
-        size: landscape,
-        queues: 3,
-        called: true,
-        keyboard: keyboard,
-      );
+    testWidgets(
+      'should leave the desk alone when a dialog opens the keyboard',
+      (tester) async {
+        await pumpView(
+          tester,
+          size: landscape,
+          queues: 3,
+          called: true,
+          keyboard: 200,
+        );
 
-      expect(find.text('Queue number 0'), findsWidgets);
-    });
+        expect(find.text('Queue number 0'), findsWidgets);
+        expect(find.text('Patients 40'), findsOneWidget);
+      },
+    );
   });
 }

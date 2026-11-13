@@ -130,7 +130,6 @@ final class TokenSlipPreviewHtml {
     <div class="doctor">${_escape(slip.doctorName)}</div>
     <hr class="rule"/>
     <div class="queue-block">
-      <span class="pill">${_escape(slip.queueText)}</span>
       <span class="serial">${_escape(slip.tokenText)}</span>
     </div>
     <hr class="rule"/>

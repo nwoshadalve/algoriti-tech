@@ -27,6 +27,7 @@ fun DisplayPreview() {
         base.copy(
             calledSerial = if (step == 0) null else 10 + step,
             calledTypeLabelBn = if (step == 0) null else "নিয়মিত",
+            calls = if (step == 0) emptyList() else listOf(CalledToken(10 + step, "নিয়মিত")),
             queueTypes = listOf(base.queueTypes[0].copy(waitingSerials = waiting), base.queueTypes[1], base.queueTypes[2]),
         )
     DisplayBoardLayout(state = state)

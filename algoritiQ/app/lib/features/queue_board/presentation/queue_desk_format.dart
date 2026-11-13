@@ -31,11 +31,15 @@ String queueDeskPreviewQueueName(Locale locale, IssuePreview preview) {
 }
 
 /// Serial for display (Bengali digits when locale is bn).
-String queueDeskFormatSerial(int serial, Locale locale) {
-  final text = serial.toString();
+String queueDeskFormatSerial(int serial, Locale locale) =>
+    queueDeskFormatDigits(serial.toString(), locale);
+
+/// Any text with its digits in Bengali when the locale is bn: a patient ID such
+/// as `7761` or `P-000001` reads `৭৭৬১` or `P-০০০০০১`. Typing the Bengali digits
+/// in a search finds the same patient.
+String queueDeskFormatDigits(String text, Locale locale) {
   if (locale.languageCode != 'bn') return text;
-  const bn = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-  return text.replaceAllMapped(RegExp(r'\d'), (m) => bn[int.parse(m[0]!)]);
+  return _bengaliDigits(text);
 }
 
 String queueDeskWaitingMinutes(DateTime issuedAt, DateTime now, Locale locale) {

@@ -29,12 +29,22 @@
     <!-- Connecting (no URLs, tokens, or hostnames on screen) -->
     <string name="connecting_title">ক্লিনিকের সাথে সংযোগ হচ্ছে</string>
     <string name="connecting_please_wait">অনুগ্রহ করে অপেক্ষা করুন</string>
+    <!-- Shown only after a while without a link, for a network where the tablet is not found by name -->
+    <string name="connecting_address_hint">ট্যাবলেট খুঁজে পাওয়া যাচ্ছে না? ট্যাবলেটের আইপি ঠিকানা লিখুন</string>
+    <string name="connecting_address_label">আইপি ঠিকানা</string>
+    <string name="connecting_address_connect">সংযোগ করুন</string>
+    <string name="connecting_address_invalid">ঠিকানাটি সঠিক নয়। চারটি সংখ্যা বিন্দু দিয়ে আলাদা করে লিখুন।</string>
 
     <!-- Display -->
     <string name="display_called_heading">ঘোষণা</string>
     <string name="display_waiting_heading">অপেক্ষমাণ</string>
     <string name="display_more_waiting">আর %1$d জন</string>
-    <string name="display_idle_hint">এখনও কোনো টোকেন ডাকা হয়নি</string>
+    <string name="display_total_waiting">মোট %1$d জন</string>
+    <string name="display_waited_now">এইমাত্র</string>
+    <string name="display_waited_minutes">%1$d মিনিট</string>
+    <string name="display_waited_hours">%1$d ঘ %2$d মি</string>
+    <string name="display_soon">শীঘ্রই ডাকা হবে</string>
+    <string name="display_nobody">এখন কেউ অপেক্ষায় নেই</string>
     <string name="display_connected">সংযুক্ত</string>
     <string name="display_disconnected">সংযোগ নেই</string>
     <string name="display_now_serving">এখন ডাকা হচ্ছে</string>

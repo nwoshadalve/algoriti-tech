@@ -41,7 +41,12 @@ export default defineConfig(({ mode }) => {
           theme_color: '#0B1F3A',
           background_color: '#0B1F3A',
           display: 'standalone',
+          orientation: 'any',
+          id: './',
+          scope: './',
           start_url: './',
+          lang: 'en',
+          categories: ['medical', 'business'],
           icons: [
             { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
             { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -56,7 +61,8 @@ export default defineConfig(({ mode }) => {
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,svg,ttf,woff2}'],
           navigateFallback: 'index.html',
-          navigateFallbackDenylist: [/^\/api\//],
+          // The CA download is a real file, not an app route.
+          navigateFallbackDenylist: [/^\/api\//, /\/ca\.crt$/],
         },
       }),
     ],

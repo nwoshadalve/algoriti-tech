@@ -12,7 +12,13 @@ import '../../../core/widgets/brand_logo.dart';
 import '../../../l10n/app_localizations.dart';
 import 'dashboard_user_menu.dart';
 
-enum ReceptionistDestination { board, connectivity, settings }
+enum ReceptionistDestination {
+  board,
+  patients,
+  history,
+  connectivity,
+  settings,
+}
 
 /// Side navigation for the receptionist dashboard (drawer or fixed rail).
 class ReceptionistSideNav extends StatelessWidget {
@@ -20,6 +26,8 @@ class ReceptionistSideNav extends StatelessWidget {
     super.key,
     required this.destination,
     required this.onSelectBoard,
+    required this.onSelectPatients,
+    required this.onSelectHistory,
     required this.onSelectConnectivity,
     required this.onSelectSettings,
     this.onCloseDrawer,
@@ -28,6 +36,8 @@ class ReceptionistSideNav extends StatelessWidget {
 
   final ReceptionistDestination destination;
   final VoidCallback onSelectBoard;
+  final VoidCallback onSelectPatients;
+  final VoidCallback onSelectHistory;
   final VoidCallback onSelectConnectivity;
   final VoidCallback onSelectSettings;
   final VoidCallback? onCloseDrawer;
@@ -36,6 +46,16 @@ class ReceptionistSideNav extends StatelessWidget {
   void _selectBoard() {
     onCloseDrawer?.call();
     onSelectBoard();
+  }
+
+  void _selectPatients() {
+    onCloseDrawer?.call();
+    onSelectPatients();
+  }
+
+  void _selectHistory() {
+    onCloseDrawer?.call();
+    onSelectHistory();
   }
 
   void _selectConnectivity() {
@@ -107,6 +127,28 @@ class ReceptionistSideNav extends StatelessWidget {
                       label: l10n.navBoard,
                       selected: destination == ReceptionistDestination.board,
                       onTap: _selectBoard,
+                    ),
+                  ),
+                  Semantics(
+                    selected: destination == ReceptionistDestination.patients,
+                    button: true,
+                    label: l10n.navPatients,
+                    child: _NavTile(
+                      icon: Icons.people_outline_rounded,
+                      label: l10n.navPatients,
+                      selected: destination == ReceptionistDestination.patients,
+                      onTap: _selectPatients,
+                    ),
+                  ),
+                  Semantics(
+                    selected: destination == ReceptionistDestination.history,
+                    button: true,
+                    label: l10n.navHistory,
+                    child: _NavTile(
+                      icon: Icons.history_rounded,
+                      label: l10n.navHistory,
+                      selected: destination == ReceptionistDestination.history,
+                      onTap: _selectHistory,
                     ),
                   ),
                   Semantics(

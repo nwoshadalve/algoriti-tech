@@ -21,8 +21,8 @@ The page contains:
    - **Call next**;
    - **Recall** for that queue's latest called token.
 3. **Current call/service panel**
-   - currently called patient;
-   - recall, patient entered, and missed actions according to state.
+   - every patient being called now (one per queue at most);
+   - recall, patient entered, and missed actions for each, according to state.
 4. **Current-session queue**
    - fixed-height viewport with a fixed header;
    - internally scrolling rows;
@@ -42,8 +42,8 @@ Receptionists should not have to know whether a person is already stored.
 
 1. Search by clinic patient ID or normalized phone number.
 2. Show all possible matches; phone numbers are not unique because families may share one.
-3. Each result shows patient ID, Bengali name, and optional age information sufficient to disambiguate.
-4. Receptionist selects the patient, selects a queue type, enters the optional visit fee, and creates the token.
+3. Each result shows patient ID, name, and optional age information sufficient to disambiguate.
+4. Receptionist selects the patient, selects a queue type, enters the optional visit fee (or picks a **fee code** when the admin has defined any, default **No fee**), and creates the token.
 
 ### New patient
 
@@ -72,17 +72,20 @@ A generic “Is existing patient?” checkbox must not replace search.
 
 Required:
 
-- Bengali full name;
+- full name, one field in whatever language it is written (not a separate Bengali and English name; before this was decided, patients had both, and the old values are kept in the database but no longer shown);
 - phone number.
 
 Optional:
 
-- English name;
 - exact date of birth, birth year, or approximate age;
 - gender (`male`, `female`, `other`, `not_stated`);
 - locality or short address;
 - legacy paper-file number;
 - short administrative note.
+
+**Patient ID display.** When the app or web page is in Bengali, the clinic patient ID is written with Bengali digits (`৭৭৬১`, `P-০০০০০১`). A search accepts the ID typed in Bengali or English digits and finds the same patient.
+
+**Fee while editing.** Editing a patient from the open session (the session table's *Edit patient*) also shows that patient's **Fee (BDT)** for the token in the session, prefilled. Saving changes the patient and the fee together; an empty fee clears it. A fee must be a whole number from 0 to 1,000,000. Once the session has ended the fee can no longer be edited. The patients list, which is not tied to a session, does not show a fee.
 
 Do not collect diagnosis, clinical notes, national ID, or other unnecessary sensitive information in v1.
 
@@ -124,7 +127,7 @@ These values belong to the visit/token, not the permanent patient profile:
 
 - queue type;
 - chamber/work scope (from the signed-in receptionist context);
-- optional fee amount;
+- optional fee amount (typed by hand, or taken from a **fee code** when the admin has defined fee codes: see [Queue configuration](./queue-configuration.md) §7a);
 - session and issue time.
 
 If more than one queue type is enabled, queue selection is required. If only one is enabled, preselect and display it.
@@ -147,13 +150,13 @@ Only one active token is allowed per patient per chamber session, regardless of 
 
 On the tablet queue desk the confirmation screen below is **not used**. **Save and issue token** (new patient) and **Issue token** (existing patient) save the patient and issue the token at once, so the patient is in today's session table whether or not the slip prints. The slip is printed right after; if the printer is off or fails, the token stays, the row shows **Not printed**, and **Print** / **Reprint** is offered in the table. A new patient is saved together with the token, so a failed issue never leaves a patient saved without one.
 
-Existing-patient search matches Bengali or English name (any part), phone (leading digits) and clinic patient ID. The web board keeps the confirmation step.
+Existing-patient search matches the name (any part, any language), phone (leading digits) and clinic patient ID. The web board keeps the confirmation step.
 
 ### Confirmation before issue
 
 Before allocating the serial or printing, show a token confirmation screen containing:
 
-- selected patient ID and Bengali name;
+- selected patient ID and name;
 - chamber;
 - queue type in Bengali and English;
 - optional fee;
@@ -242,14 +245,14 @@ For each enabled queue type show:
 - **Call next**;
 - **Recall**.
 
-Only one token may be actively `CALLED` in a chamber at a time, regardless of queue type. While a called token is unresolved:
+Only one token may be actively `CALLED` **in a queue type** at a time. Different queue types can each have a called token, so a chamber with three queues can have up to three called patients at once. While a queue's called token is unresolved:
 
-- disable **Call next** for every queue type;
-- explain which serial is awaiting entry;
-- allow Recall only for the current token;
-- release the call/announcement guard only when the token becomes `ENTERED`, `SKIPPED`, or `CANCELLED`.
+- disable **Call next** for that queue type only; the other queue types stay available;
+- explain which serial is awaiting entry in that queue;
+- allow Recall only for that queue's current token;
+- release the queue's call guard only when its token becomes `ENTERED`, `SKIPPED`, or `CANCELLED`.
 
-Announcement playback is also serialized: do not start a second announcement while the current audio attempt is playing. A playback timeout or failure releases the audio transport lock without changing the token's `CALLED` state.
+Announcement playback is serialized across all queues: calls are spoken first in, first out, and a second announcement starts only after the current audio attempt has finished, so several simultaneous calls never talk over each other. A playback timeout or failure releases the audio transport lock without changing the token's `CALLED` state, and the next waiting announcement continues. When the TV app goes away, announcements still waiting are dropped.
 
 ### Call next
 
@@ -317,7 +320,13 @@ When `CALLED`:
 
 For v1, the assigned receptionist confirms chamber entry. An admin may correct status only through an explicit correction flow with confirmation and a mandatory reason.
 
-If **Call next** is pressed while the relevant previous token is still `CALLED`, do not silently mark it entered. Show the unresolved token and require staff to mark **Patient entered**, **Missed**, or **Cancelled** before proceeding according to the queue policy.
+**The next token comes up by itself.** When a `CALLED` token is marked **Patient entered**, **Missed** or **Cancelled**, the same queue's oldest waiting token becomes `CALLED` at once, so it appears on the waiting-room board as the current number for that queue. It is **not announced**: no voice and no flash. Its tile has an orange outline on the board until the receptionist presses **Call** for it, which makes the first announcement (worded as a call, not a reminder) and removes the outline. After that, **Recall** repeats it as a reminder. Nothing happens when nobody is waiting, and cancelling a token that was only waiting calls nobody. The first token of a queue is still called by hand with **Call**.
+
+**Call button.** While a queue has a called patient it shows no queue-level **Call** button. The patient's own buttons are **Recall** (**Call** while the token has not been announced yet), **Patient entered**, **Missed** and **Cancel**. The queue's **Call** button is back once the patient is resolved and the next one has been called or nobody waits.
+
+The spoken call says the token number and the queue only. The patient's name is never announced.
+
+If **Call next** is pressed while that queue's previous token is still `CALLED`, do not silently mark it entered. Show the unresolved token and require staff to mark **Patient entered**, **Missed**, or **Cancelled** before proceeding. Another queue's called token never blocks this queue.
 
 `ENTERED` is the successful terminal state for the queue. The patient leaves the active queue but remains in current-session history. The system must not describe this as served, consultation completed, or treatment received.
 

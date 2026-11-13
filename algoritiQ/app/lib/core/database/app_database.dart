@@ -70,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -149,9 +149,54 @@ class AppDatabase extends _$AppDatabase {
       if (from < 16) {
         await m.createTable(tvDevices);
       }
+      if (from < 17) {
+        await _addPatientName(m);
+      }
+      if (from < 18) {
+        await _addTokenFreeFlag(m);
+      }
     },
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );
+
+  /// One name for a patient (v17): a new column filled from the Bengali name,
+  /// or from the English one when the Bengali is blank. The old columns stay
+  /// exactly as they were, so nothing is lost and the step can be repeated.
+  Future<void> _addPatientName(Migrator m) async {
+    // Tokens remember when they were first announced. Every token called
+    // before this counts as announced.
+    final tokenColumns = await customSelect('PRAGMA table_info(queue_tokens)')
+        .get();
+    // No columns means no such table (a database that never had tokens).
+    if (tokenColumns.isNotEmpty) {
+      if (!tokenColumns.any((c) => c.read<String>('name') == 'announced_at')) {
+        await m.addColumn(queueTokens, queueTokens.announcedAt);
+      }
+      await customStatement(
+        'UPDATE queue_tokens SET announced_at = first_called_at '
+        'WHERE announced_at IS NULL AND first_called_at IS NOT NULL',
+      );
+    }
+    final columns = await customSelect('PRAGMA table_info(patients)').get();
+    final has = columns.any((c) => c.read<String>('name') == 'name');
+    if (!has) await m.addColumn(patients, patients.name);
+    await customStatement(
+      "UPDATE patients SET name = CASE WHEN TRIM(bengali_name) <> '' "
+      "THEN TRIM(bengali_name) ELSE TRIM(COALESCE(english_name, '')) END "
+      "WHERE TRIM(name) = ''",
+    );
+  }
+
+  /// Free visits (v18): every token already issued was a paid one, so the new
+  /// column starts false and no fee is touched.
+  Future<void> _addTokenFreeFlag(Migrator m) async {
+    final columns = await customSelect('PRAGMA table_info(queue_tokens)').get();
+    // No columns means no such table; a table made just now already has it.
+    if (columns.isEmpty) return;
+    if (!columns.any((c) => c.read<String>('name') == 'is_free')) {
+      await m.addColumn(queueTokens, queueTokens.isFree);
+    }
+  }
 
   /// Idempotent create for tablets where version reached 10 without board tables.
   Future<void> _ensureQueueBoardTables(Migrator m) async {

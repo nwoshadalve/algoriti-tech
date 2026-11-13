@@ -61,7 +61,6 @@ void main() {
           body: QueueDeskTableToolbar(
             state: state,
             queues: _queues,
-            onSearch: (t) => log.add('search $t'),
             onStatus: (s) => log.add('status ${s?.name}'),
             onQueue: (q) => log.add('queue $q'),
             onToggleNotPrinted: () => log.add('notPrinted'),
@@ -156,30 +155,10 @@ void main() {
     );
   });
 
-  testWidgets('should report what is typed in the search box', (tester) async {
+  testWidgets('should have no search box', (tester) async {
     await pump(tester);
 
-    await tester.enterText(find.byType(TextField), 'করিম');
-
-    expect(log, ['search করিম']);
-  });
-
-  testWidgets('should empty the search box when filters are cleared', (
-    tester,
-  ) async {
-    await pump(
-      tester,
-      state: const DeskTableState(
-        loading: false,
-        query: TokenQuery(search: 'করিম'),
-      ),
-    );
-    expect(find.text('করিম'), findsOneWidget);
-
-    await pump(tester);
-    await tester.pump();
-
-    expect(find.text('করিম'), findsNothing);
+    expect(find.byType(TextField), findsNothing);
   });
 
   testWidgets('should filter by queue', (tester) async {

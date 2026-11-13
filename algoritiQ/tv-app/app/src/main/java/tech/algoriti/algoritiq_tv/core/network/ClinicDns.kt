@@ -22,18 +22,22 @@ import timber.log.Timber
  * resolve `.local` names itself, so this asks the local network directly (multicast DNS): the
  * tablet answers to its own name. A normal lookup is tried first, then the multicast question,
  * asked a few times because Wi-Fi drops the odd multicast packet. Every other name goes to the
- * system as usual.
+ * system as usual. Where the name is not heard on a network, an address saved on this TV
+ * ([TabletAddressStore]) stands in for it.
  */
 @Singleton
 class ClinicDns
     @Inject
     constructor(
         @ApplicationContext private val context: Context,
+        private val tabletAddress: TabletAddressStore,
     ) : Dns {
         @Volatile private var lastKnown: InetAddress? = null
 
         override fun lookup(hostname: String): List<InetAddress> {
             if (!hostname.equals(ClinicTls.CLINIC_HOST, ignoreCase = true)) return Dns.SYSTEM.lookup(hostname)
+            // An address typed in on this TV is a choice made on purpose: it is used as it is.
+            tabletAddress.saved()?.let { return listOf(InetAddress.getByName(it)) }
             DevClinicDns.emulatorHost()?.let { return listOf(it) }
             runCatching { Dns.SYSTEM.lookup(hostname) }.getOrNull()?.takeIf { it.isNotEmpty() }?.let { return it }
             val found = ask(hostname) ?: lastKnown

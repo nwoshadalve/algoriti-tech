@@ -37,6 +37,7 @@ class ConnectivityCard extends StatelessWidget {
     required this.statusLabel,
     required this.tone,
     required this.child,
+    this.trailing,
   });
 
   final IconData icon;
@@ -44,6 +45,9 @@ class ConnectivityCard extends StatelessWidget {
   final String statusLabel;
   final ConnectivityTone tone;
   final Widget child;
+
+  /// An optional control at the end of the header, such as a settings button.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +98,7 @@ class ConnectivityCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                ?trailing,
               ],
             ),
             const SizedBox(height: Spacing.md),

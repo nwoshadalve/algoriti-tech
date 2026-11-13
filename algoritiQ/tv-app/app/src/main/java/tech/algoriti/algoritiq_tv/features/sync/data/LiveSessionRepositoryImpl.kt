@@ -117,7 +117,7 @@ class LiveSessionRepositoryImpl
                 }
                 "token.called" -> {
                     scope.launch { maybePlayAnnouncement(frame.payload, baseHost) }
-                    applyDisplayPayload(frame.payload, connected = true)
+                    applyDisplayPayload(frame.payload, connected = true, called = true)
                 }
                 else -> applyDisplayPayload(frame.payload, connected = true)
             }
@@ -177,17 +177,20 @@ class LiveSessionRepositoryImpl
         private fun applyDisplayPayload(
             payload: JsonObject?,
             connected: Boolean,
+            called: Boolean = false,
         ) {
             val arrived = displaysFromPayload(payload)
             if (arrived.isEmpty()) return
             arrived.forEach(chambers::update)
             val displayJson = chambers.current() ?: return
+            val pulse = _display.value.callPulse + if (called) 1 else 0
             _display.value =
-                TvDisplayMapper.fromDisplayJson(
-                    display = displayJson,
-                    connected = connected,
-                    lastUpdateLabel = formatNow(),
-                )
+                TvDisplayMapper
+                    .fromDisplayJson(
+                        display = displayJson,
+                        connected = connected,
+                        lastUpdateLabel = formatNow(),
+                    ).copy(callPulse = pulse)
         }
 
         private fun formatNow(): String = timeFormat.format(Date())

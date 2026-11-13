@@ -647,13 +647,13 @@ abstract class AppLocalizations {
   /// No description provided for @certNote.
   ///
   /// In en, this message translates to:
-  /// **'Your browser will say the connection is not private. That is expected: the tablet uses its own certificate. Check the fingerprint, then continue.'**
+  /// **'The tablet makes its own security certificate, so a phone shows a warning until it trusts it. Open /ca.crt on this address from the phone, then install it in Android Settings: Security, Encryption and credentials, Install a certificate, CA certificate. After that the warning is gone and the web app can be installed.'**
   String get certNote;
 
   /// No description provided for @certFingerprintLabel.
   ///
   /// In en, this message translates to:
-  /// **'Certificate fingerprint'**
+  /// **'Certificate fingerprint (SHA-256)'**
   String get certFingerprintLabel;
 
   /// No description provided for @readinessTitle.
@@ -1460,6 +1460,24 @@ abstract class AppLocalizations {
   /// **'Today\'s session'**
   String get deskSessionTableTitle;
 
+  /// No description provided for @deskFieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get deskFieldName;
+
+  /// No description provided for @deskTabCalling.
+  ///
+  /// In en, this message translates to:
+  /// **'Calling'**
+  String get deskTabCalling;
+
+  /// No description provided for @deskTabPatients.
+  ///
+  /// In en, this message translates to:
+  /// **'Patients'**
+  String get deskTabPatients;
+
   /// No description provided for @deskSessionEmpty.
   ///
   /// In en, this message translates to:
@@ -1550,18 +1568,6 @@ abstract class AppLocalizations {
   /// **'Save and issue token'**
   String get deskSaveAndIssue;
 
-  /// No description provided for @deskFieldBengaliName.
-  ///
-  /// In en, this message translates to:
-  /// **'Name (Bengali)'**
-  String get deskFieldBengaliName;
-
-  /// No description provided for @deskFieldEnglishName.
-  ///
-  /// In en, this message translates to:
-  /// **'Name (English)'**
-  String get deskFieldEnglishName;
-
   /// No description provided for @deskFieldQueue.
   ///
   /// In en, this message translates to:
@@ -1585,6 +1591,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fee (BDT)'**
   String get deskFieldFee;
+
+  /// No description provided for @deskFeeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No fee'**
+  String get deskFeeNone;
+
+  /// No description provided for @deskFreeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'F'**
+  String get deskFreeShort;
+
+  /// No description provided for @deskFreeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Free patient'**
+  String get deskFreeLabel;
+
+  /// No description provided for @deskFreeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Free patient: no fee is taken'**
+  String get deskFreeTooltip;
 
   /// No description provided for @deskFieldAdminNote.
   ///
@@ -2977,6 +3007,474 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Time added'**
   String get deskColIssued;
+
+  /// No description provided for @navHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Session history'**
+  String get navHistory;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session history'**
+  String get historyTitle;
+
+  /// No description provided for @historyIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Look back at earlier queue sessions: when each ran and what happened in it.'**
+  String get historyIntro;
+
+  /// No description provided for @historyAllChambers.
+  ///
+  /// In en, this message translates to:
+  /// **'All chambers'**
+  String get historyAllChambers;
+
+  /// No description provided for @historyChamberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chamber'**
+  String get historyChamberLabel;
+
+  /// No description provided for @historyRange7.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get historyRange7;
+
+  /// No description provided for @historyRange30.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get historyRange30;
+
+  /// No description provided for @historyRangeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get historyRangeAll;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions in this period.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the session history.'**
+  String get historyLoadFailed;
+
+  /// No description provided for @historyShowMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get historyShowMore;
+
+  /// No description provided for @historyStatusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Running now'**
+  String get historyStatusOpen;
+
+  /// No description provided for @historyStatusEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get historyStatusEnded;
+
+  /// No description provided for @historyStatusForced.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended by admin'**
+  String get historyStatusForced;
+
+  /// No description provided for @historyTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'Tokens'**
+  String get historyTokens;
+
+  /// No description provided for @historyNotSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Not seen'**
+  String get historyNotSeen;
+
+  /// No description provided for @historyFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free patients'**
+  String get historyFree;
+
+  /// No description provided for @historyOpenedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened by {name}'**
+  String historyOpenedBy(String name);
+
+  /// No description provided for @historyEndedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended by {name}'**
+  String historyEndedBy(String name);
+
+  /// No description provided for @historyTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} to {end}'**
+  String historyTime(String start, String end);
+
+  /// No description provided for @historyTimeOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} to now'**
+  String historyTimeOpen(String start);
+
+  /// No description provided for @historyDurationHM.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String historyDurationHM(int hours, int minutes);
+
+  /// No description provided for @historyDurationM.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String historyDurationM(int minutes);
+
+  /// No description provided for @historyReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason: {reason}'**
+  String historyReason(String reason);
+
+  /// No description provided for @historyDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session details'**
+  String get historyDetailTitle;
+
+  /// No description provided for @historyBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sessions'**
+  String get historyBack;
+
+  /// No description provided for @historyOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened'**
+  String get historyOpened;
+
+  /// No description provided for @historyEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get historyEnded;
+
+  /// No description provided for @historyDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get historyDuration;
+
+  /// No description provided for @historyFirstCall.
+  ///
+  /// In en, this message translates to:
+  /// **'First call'**
+  String get historyFirstCall;
+
+  /// No description provided for @historyLastCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Last call'**
+  String get historyLastCall;
+
+  /// No description provided for @historyByQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'By queue'**
+  String get historyByQueue;
+
+  /// No description provided for @historyPatients.
+  ///
+  /// In en, this message translates to:
+  /// **'Patients'**
+  String get historyPatients;
+
+  /// No description provided for @historyNoPatients.
+  ///
+  /// In en, this message translates to:
+  /// **'No tokens were issued in this session.'**
+  String get historyNoPatients;
+
+  /// No description provided for @historyColToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Token'**
+  String get historyColToken;
+
+  /// No description provided for @historyColPatient.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient'**
+  String get historyColPatient;
+
+  /// No description provided for @historyColQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get historyColQueue;
+
+  /// No description provided for @historyColIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued'**
+  String get historyColIssued;
+
+  /// No description provided for @historyColCalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Called'**
+  String get historyColCalled;
+
+  /// No description provided for @historyColOutcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Outcome'**
+  String get historyColOutcome;
+
+  /// No description provided for @draftRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Continuing your saved draft.'**
+  String get draftRestored;
+
+  /// No description provided for @draftDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard draft'**
+  String get draftDiscard;
+
+  /// No description provided for @draftKept.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsaved changes are kept as a draft until you save or discard them.'**
+  String get draftKept;
+
+  /// No description provided for @draftBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get draftBadge;
+
+  /// No description provided for @navPatients.
+  ///
+  /// In en, this message translates to:
+  /// **'Patients'**
+  String get navPatients;
+
+  /// No description provided for @patientsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Patients'**
+  String get patientsTitle;
+
+  /// No description provided for @patientsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Find patients, add new ones and update their details.'**
+  String get patientsIntro;
+
+  /// No description provided for @patientsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, patient ID or phone'**
+  String get patientsSearch;
+
+  /// No description provided for @patientsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add patient'**
+  String get patientsAdd;
+
+  /// No description provided for @patientsAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add patient'**
+  String get patientsAddTitle;
+
+  /// No description provided for @patientsAddSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save patient'**
+  String get patientsAddSave;
+
+  /// No description provided for @patientsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No patients yet.'**
+  String get patientsEmpty;
+
+  /// No description provided for @patientsEmptyFiltered.
+  ///
+  /// In en, this message translates to:
+  /// **'No patients match.'**
+  String get patientsEmptyFiltered;
+
+  /// No description provided for @patientsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load patients.'**
+  String get patientsLoadFailed;
+
+  /// No description provided for @patientsGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get patientsGender;
+
+  /// No description provided for @patientsGenderAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All genders'**
+  String get patientsGenderAll;
+
+  /// No description provided for @patientsGenderUnset.
+  ///
+  /// In en, this message translates to:
+  /// **'Not stated'**
+  String get patientsGenderUnset;
+
+  /// No description provided for @patientsPaperOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper file'**
+  String get patientsPaperOnly;
+
+  /// No description provided for @patientsSortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest first'**
+  String get patientsSortNewest;
+
+  /// No description provided for @patientsSortName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get patientsSortName;
+
+  /// No description provided for @patientsSortId.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient ID'**
+  String get patientsSortId;
+
+  /// No description provided for @patientsSortPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get patientsSortPhone;
+
+  /// No description provided for @patientsSortOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get patientsSortOrder;
+
+  /// No description provided for @patientsReverse.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverse order'**
+  String get patientsReverse;
+
+  /// No description provided for @patientsClearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get patientsClearFilters;
+
+  /// No description provided for @patientsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient added.'**
+  String get patientsSaved;
+
+  /// No description provided for @patientsEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get patientsEdit;
+
+  /// No description provided for @patientsNoChamber.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not assigned to a chamber yet.'**
+  String get patientsNoChamber;
+
+  /// No description provided for @patientsAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get patientsAge;
+
+  /// No description provided for @patientsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} patients'**
+  String patientsCount(int count);
+
+  /// No description provided for @patientsTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total patients'**
+  String get patientsTotalLabel;
+
+  /// No description provided for @patientsShownLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing'**
+  String get patientsShownLabel;
+
+  /// No description provided for @patientsVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits'**
+  String get patientsVisits;
+
+  /// No description provided for @patientsLastVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Last visit'**
+  String get patientsLastVisit;
+
+  /// No description provided for @patientsNoVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'No visits yet'**
+  String get patientsNoVisits;
+
+  /// No description provided for @patientsRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered'**
+  String get patientsRegistered;
+
+  /// No description provided for @patientsSortVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Most visits'**
+  String get patientsSortVisits;
+
+  /// No description provided for @patientsSortLastVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest visit'**
+  String get patientsSortLastVisit;
 }
 
 class _AppLocalizationsDelegate

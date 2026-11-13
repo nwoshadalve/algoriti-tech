@@ -45,6 +45,7 @@ object EngineHolder {
         SystemHealthChannel.register(engine, app)
         PrinterChannel.register(engine, app)
         BackupChannel.register(engine, app)
+        SpeechChannel.register(engine, app)
         engine.dartExecutor.executeDartEntrypoint(
             DartExecutor.DartEntrypoint.createDefault(),
         )

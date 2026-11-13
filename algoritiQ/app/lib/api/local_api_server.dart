@@ -33,7 +33,13 @@ import '../features/queue/domain/queue_models.dart';
 import '../features/queue_board/application/queue_board_service.dart';
 import '../features/queue_board/application/token_print_service.dart';
 import '../features/queue_board/domain/board_models.dart';
+import '../features/queue_board/domain/patient_query.dart';
+import '../features/queue_board/domain/session_history_models.dart';
 import '../features/queue_board/domain/token_query.dart';
+import '../features/analytics/application/analytics_service.dart';
+import '../features/analytics/domain/analytics_models.dart';
+import '../features/fee_codes/application/fee_code_service.dart';
+import '../features/fee_codes/domain/fee_code.dart';
 import '../features/audit/application/audit_query_service.dart';
 import 'https_server_socket.dart';
 import 'cors_policy.dart';
@@ -60,11 +66,17 @@ class LocalApiServer {
     Future<QueueBoardService> Function()? queueBoard,
     Future<TokenPrintService> Function()? tokenPrint,
     AuditQueryService? auditQuery,
+    AnalyticsService? analytics,
+    FeeCodeService? feeCodes,
     this._web,
     LiveEventBus? liveEvents,
     Future<List<int>?> Function(String doctorId)? tvDoctorPhoto,
+    List<int>? Function(String callId)? tvAnnouncement,
+    Future<List<int>?> Function()? tvTestVoice,
     CorsPolicy? corsPolicy,
   }) : _tvDoctorPhoto = tvDoctorPhoto,
+       _tvAnnouncement = tvAnnouncement,
+       _tvTestVoice = tvTestVoice,
        _users = users,
        _doctor = doctor,
        _chambers = chambers,
@@ -75,6 +87,8 @@ class LocalApiServer {
        _queueBoard = queueBoard,
        _tokenPrint = tokenPrint,
        _auditQuery = auditQuery,
+       _analytics = analytics,
+       _feeCodes = feeCodes,
        liveEvents = liveEvents ?? LiveEventBus(),
        _corsPolicy = corsPolicy ?? defaultCorsPolicy() {
     _liveSocket = LiveApiWebSocket(bus: this.liveEvents, access: _access);
@@ -82,6 +96,8 @@ class LocalApiServer {
 
   final Future<AccessService> Function() _access;
   final Future<List<int>?> Function(String doctorId)? _tvDoctorPhoto;
+  final List<int>? Function(String callId)? _tvAnnouncement;
+  final Future<List<int>?> Function()? _tvTestVoice;
   final Future<UserManagementService> Function()? _users;
   final Future<DoctorProfileService> Function()? _doctor;
   final Future<ChamberService> Function()? _chambers;
@@ -92,6 +108,8 @@ class LocalApiServer {
   final Future<QueueBoardService> Function()? _queueBoard;
   final Future<TokenPrintService> Function()? _tokenPrint;
   final AuditQueryService? _auditQuery;
+  final AnalyticsService? _analytics;
+  final FeeCodeService? _feeCodes;
   DateTime _startedAt = DateTime.now();
   final CorsPolicy _corsPolicy;
 
@@ -103,6 +121,9 @@ class LocalApiServer {
   final WebSite? _web;
   HttpServer? _server;
   HttpsServerSocket? _socket;
+
+  /// The certificate authority phones install, served at `/ca.crt`.
+  String? _caCertificatePem;
 
   /// The port actually bound (useful when started on port 0 in tests).
   int get port => _server!.port;
@@ -136,9 +157,11 @@ class LocalApiServer {
   /// plain HTTP (tests only).
   Future<void> start({
     SecurityContext? context,
+    String? caCertificatePem,
     int port = 8443,
     InternetAddress? address,
   }) async {
+    _caCertificatePem = caCertificatePem;
     final server = address != null
         ? await _bind(address, port, context)
         : await _bindEverywhere(port, context);
@@ -213,6 +236,10 @@ class LocalApiServer {
         await _tvDoctorPhotoApi(request);
         return;
       }
+      if (path.startsWith('/api/v1/tv/announcements/')) {
+        await _tvAnnouncementApi(request, path);
+        return;
+      }
       if (path == '/api/v1/tv/test-announcement') {
         await _tvTestAnnouncement(request);
         return;
@@ -228,6 +255,14 @@ class LocalApiServer {
       }
       if (path.startsWith('/api/v1/queue')) {
         await _queueApi(request, path);
+        return;
+      }
+      if (path == '/api/v1/analytics') {
+        await _analyticsApi(request);
+        return;
+      }
+      if (path == '/api/v1/fee-codes') {
+        await _feeCodesApi(request);
         return;
       }
       if (path.startsWith('/api/v1/audit')) {
@@ -296,6 +331,7 @@ class LocalApiServer {
 
   static const _knownPaths = {
     '/api/v1/health',
+    '/api/v1/fee-codes',
     '/api/v1/setup/status',
     '/api/v1/setup/claim/verify',
     '/api/v1/setup/admin',
@@ -675,13 +711,32 @@ class LocalApiServer {
     await request.response.close();
   }
 
+  /// The spoken call of one token, made when staff pressed call or recall.
+  /// The id is long and random, and the clip only says a queue and a serial.
+  Future<void> _tvAnnouncementApi(HttpRequest request, String path) async {
+    if (request.method != 'GET') {
+      throw const _ApiError(405, 'method_not_allowed', 'Wrong method.');
+    }
+    final callId = path.substring('/api/v1/tv/announcements/'.length);
+    final bytes = callId.isEmpty ? null : _tvAnnouncement?.call(callId);
+    if (bytes == null) throw const _ApiError(404, 'not_found', 'No clip.');
+    request.response.headers.contentType = ContentType('audio', 'wav');
+    request.response.headers.set(HttpHeaders.cacheControlHeader, 'no-store');
+    request.response.contentLength = bytes.length;
+    request.response.add(bytes);
+    await request.response.close();
+  }
+
   Future<void> _tvTestAnnouncement(HttpRequest request) async {
     if (request.method != 'GET') {
       throw const _ApiError(405, 'method_not_allowed', 'Wrong method.');
     }
     // The TV fetches this itself over the same TLS link; it is a plain test
     // tone, nothing private.
-    final bytes = buildTestAnnouncementWav();
+    // The tablet's own Bengali voice when it has one; otherwise a plain tone,
+    // so the speaker can still be checked.
+    final spoken = await _tvTestVoice?.call();
+    final bytes = spoken ?? buildTestAnnouncementWav();
     request.response.headers.contentType = ContentType('audio', 'wav');
     request.response.headers.set(HttpHeaders.cacheControlHeader, 'no-store');
     request.response.contentLength = bytes.length;
@@ -1256,6 +1311,7 @@ class LocalApiServer {
     final account = await _signedIn(request);
     final service = await _queueBoardService();
     await service.expireStalePrintAttempts();
+    await service.closeSessionsDueForAutoStop();
     try {
       if (path == '/api/v1/patients/search' && request.method == 'POST') {
         final body = await _readJson(request);
@@ -1265,6 +1321,23 @@ class LocalApiServer {
         );
         await _json(request, 200, {
           'patients': [for (final p in patients) _patientSummaryJson(p)],
+        });
+        return;
+      }
+      if (path == '/api/v1/patients' && request.method == 'GET') {
+        final query = _patientQueryFromRequest(request.uri);
+        if (query == null) {
+          throw const _ApiError(
+            400,
+            'validation_failed',
+            'Check the fields and try again.',
+          );
+        }
+        final page = await service.listPatients(account, query);
+        await _json(request, 200, {
+          'items': [for (final p in page.items) _patientSummaryJson(p)],
+          'total': page.total,
+          'registeredTotal': page.registeredTotal,
         });
         return;
       }
@@ -1289,9 +1362,88 @@ class LocalApiServer {
           account,
           patientId,
           _patientInputFromJson(body),
+          // The fee of the patient's token in the open session, edited with
+          // the patient: `tokenId` names the token, `feeBdt` null clears it,
+          // `isFree` makes it a free visit (and drops any fee).
+          fee: body['tokenId'] is String
+              ? TokenFeeChange(
+                  tokenId: body['tokenId'] as String,
+                  feeBdt: body['feeBdt'] as int?,
+                  isFree: body['isFree'] == true,
+                )
+              : null,
         );
         await _json(request, 200, _patientSummaryJson(saved));
         return;
+      }
+      if (path == '/api/v1/queue-desk/sessions' && request.method == 'GET') {
+        final params = request.uri.queryParameters;
+        var limit = int.tryParse(params['limit'] ?? '') ?? 20;
+        limit = limit.clamp(1, 100);
+        final offset = (int.tryParse(params['offset'] ?? '') ?? 0).clamp(
+          0,
+          1 << 30,
+        );
+        final page = await service.listSessions(
+          account,
+          SessionHistoryQuery(
+            chamberId: params['chamberId'],
+            from: DateTime.tryParse(params['from'] ?? ''),
+            to: DateTime.tryParse(params['to'] ?? ''),
+            limit: limit,
+            offset: offset,
+          ),
+        );
+        final chambers = await service.historyChambers(account);
+        await _json(request, 200, {
+          'items': [for (final item in page.items) _sessionSummaryJson(item)],
+          'total': page.total,
+          'chambers': [
+            for (final c in chambers) {'id': c.id, 'name': c.name},
+          ],
+        });
+        return;
+      }
+      const sessionPrefix = '/api/v1/queue-desk/sessions/';
+      if (path.startsWith(sessionPrefix) && request.method == 'GET') {
+        final parts = path.substring(sessionPrefix.length).split('/');
+        if (parts.length == 1) {
+          final detail = await service.sessionDetail(account, parts.first);
+          await _json(request, 200, {
+            'session': _sessionSummaryJson(detail.summary),
+            'queues': [
+              for (final q in detail.queues)
+                {
+                  'queueTypeId': q.queueTypeId,
+                  'englishName': q.englishName,
+                  'bengaliName': q.bengaliName,
+                  'counts': _countsJson(q.counts),
+                  'feeBdt': q.feeBdt,
+                },
+            ],
+            'patientCount': detail.patientCount,
+            'averageWaitSeconds': detail.averageWaitSeconds,
+            'longestWaitSeconds': detail.longestWaitSeconds,
+          });
+          return;
+        }
+        if (parts.length == 2 && parts[1] == 'tokens') {
+          final query = _tokenQueryFromRequest(request.uri);
+          if (query == null) {
+            throw const _ApiError(
+              400,
+              'validation_failed',
+              'Check the fields and try again.',
+            );
+          }
+          final page = await service.searchHistoryTokens(
+            account,
+            parts.first,
+            query,
+          );
+          await _json(request, 200, _tokenPageJson(page));
+          return;
+        }
       }
       const prefix = '/api/v1/queue-desk/chambers/';
       if (path.startsWith(prefix)) {
@@ -1350,6 +1502,7 @@ class LocalApiServer {
             chamberId: chamberId,
             commandId: body['commandId'] as String? ?? '',
             feeBdt: (body['feeBdt'] as num?)?.toInt(),
+            isFree: body['isFree'] == true,
           );
           await _json(request, 200, _issuedTokenJson(issued));
           return;
@@ -1364,6 +1517,7 @@ class LocalApiServer {
             body['patientId'] as String? ?? '',
             body['queueTypeId'] as String? ?? '',
             feeBdt: body['feeBdt'] as int?,
+            isFree: body['isFree'] == true,
           );
           await _json(request, 200, _issuePreviewJson(preview));
           return;
@@ -1378,6 +1532,7 @@ class LocalApiServer {
             body['patientId'] as String? ?? '',
             body['queueTypeId'] as String? ?? '',
             feeBdt: body['feeBdt'] as int?,
+            isFree: body['isFree'] == true,
             commandId: body['commandId'] as String? ?? '',
           );
           await _json(request, 200, _issuedTokenJson(issued));
@@ -1542,7 +1697,7 @@ class LocalApiServer {
       QueueBoardProblem.unresolvedCalledToken => const _ApiError(
         409,
         'unresolved_called_token',
-        'Mark the current call entered, missed, or cancelled first.',
+        'Mark this queue\'s current call entered, missed, or cancelled first.',
       ),
       QueueBoardProblem.otherSessionOpen => _ApiError(
         409,
@@ -1569,9 +1724,11 @@ class LocalApiServer {
     'chamberName': board.chamberName,
     'sessionId': board.sessionId,
     'sessionOpen': board.sessionOpen,
+    // `calledToken` is the newest call, kept for desks that know one call.
     'calledToken': board.calledToken == null
         ? null
         : _boardTokenJson(board.calledToken!),
+    'calledTokens': [for (final t in board.calledTokens) _boardTokenJson(t)],
     'queueControls': [
       for (final c in board.queueControls) _queueControlJson(c),
     ],
@@ -1597,24 +1754,31 @@ class LocalApiServer {
     'queueBengaliName': t.queueBengaliName,
     'patientId': t.patientId,
     'clinicPatientId': t.clinicPatientId,
-    'patientBengaliName': t.patientBengaliName,
+    'patientName': t.patientName,
     'status': t.status.apiValue,
     'issuedAt': t.issuedAt.toUtc().toIso8601String(),
     'firstCalledAt': t.firstCalledAt?.toUtc().toIso8601String(),
     'enteredAt': t.enteredAt?.toUtc().toIso8601String(),
+    'cancelledAt': t.cancelledAt?.toUtc().toIso8601String(),
+    'cancelReason': t.cancelReason,
     'feeBdt': t.feeBdt,
+    'isFree': t.isFree,
     'latestPrintStatus': t.latestPrintStatus,
+    'announced': t.announced,
   };
 
   Map<String, Object?> _patientSummaryJson(PatientSummary p) => {
     'id': p.id,
     'patientNumber': p.patientNumber,
     'clinicPatientId': p.clinicPatientId,
-    'bengaliName': p.bengaliName,
-    'englishName': p.englishName,
+    'name': p.name,
     'phoneNormalized': p.phoneNormalized,
     'gender': p.gender?.apiValue,
     'ageLabel': p.ageLabel,
+    'hasPaperFile': p.hasPaperFile,
+    'registeredAt': p.registeredAt?.toUtc().toIso8601String(),
+    'visitCount': p.visitCount,
+    'lastVisitAt': p.lastVisitAt?.toUtc().toIso8601String(),
   };
 
   Map<String, Object?> _issuePreviewJson(IssuePreview preview) => {
@@ -1625,12 +1789,35 @@ class LocalApiServer {
     'queueBengaliName': preview.queueBengaliName,
     'previewSerial': preview.previewSerial,
     'feeBdt': preview.feeBdt,
+    'isFree': preview.isFree,
   };
 
   Map<String, Object?> _issuedTokenJson(IssuedTokenResult issued) => {
     'token': _boardTokenJson(issued.token),
     'printAttemptId': issued.printAttemptId,
     'printStatus': issued.printStatus,
+  };
+
+  Map<String, int> _countsJson(Map<TokenStatus, int> counts) => {
+    for (final entry in counts.entries) entry.key.apiValue: entry.value,
+  };
+
+  Map<String, Object?> _sessionSummaryJson(SessionSummary s) => {
+    'id': s.id,
+    'chamberId': s.chamberId,
+    'chamberName': s.chamberName,
+    'businessDate': s.businessDate,
+    'status': s.status,
+    'openedAt': s.openedAt.toUtc().toIso8601String(),
+    'openedByName': s.openedByName,
+    'closedAt': s.closedAt?.toUtc().toIso8601String(),
+    'closedByName': s.closedByName,
+    'closeReason': s.closeReason,
+    'firstCalledAt': s.firstCalledAt?.toUtc().toIso8601String(),
+    'lastCalledAt': s.lastCalledAt?.toUtc().toIso8601String(),
+    'counts': _countsJson(s.counts),
+    'totalFeeBdt': s.totalFeeBdt,
+    'freeCount': s.freeCount,
   };
 
   Map<String, Object?> _tokenPageJson(TokenPage page) => {
@@ -1646,6 +1833,41 @@ class LocalApiServer {
     if (raw == 'true' || raw == '1') return true;
     if (raw == 'false' || raw == '0') return false;
     return defaultValue;
+  }
+
+  PatientQuery? _patientQueryFromRequest(Uri uri) {
+    final params = uri.queryParameters;
+    PatientGender? gender;
+    var genderUnset = false;
+    final genderRaw = params['gender'] ?? '';
+    if (genderRaw == 'unset') {
+      genderUnset = true;
+    } else if (genderRaw.isNotEmpty) {
+      gender = PatientGender.parse(genderRaw);
+      if (gender == null) return null;
+    }
+    var sort = PatientSort.registered;
+    final sortRaw = params['sort'] ?? '';
+    if (sortRaw.isNotEmpty) {
+      final parsed = PatientSort.values.where((v) => v.name == sortRaw);
+      if (parsed.isEmpty) return null;
+      sort = parsed.first;
+    }
+    final limit = (int.tryParse(params['limit'] ?? '') ?? 30).clamp(1, 100);
+    final offset = (int.tryParse(params['offset'] ?? '') ?? 0).clamp(
+      0,
+      1 << 30,
+    );
+    return PatientQuery(
+      search: params['search'] ?? '',
+      gender: gender,
+      genderUnset: genderUnset,
+      paperFileOnly: _queryBool(params['paperFileOnly'], defaultValue: false),
+      sort: sort,
+      ascending: _queryBool(params['ascending'], defaultValue: false),
+      limit: limit,
+      offset: offset,
+    );
   }
 
   TokenQuery? _tokenQueryFromRequest(Uri uri) {
@@ -1691,9 +1913,9 @@ class LocalApiServer {
   }
 
   PatientInput _patientInputFromJson(Map<String, Object?> body) => PatientInput(
-    bengaliName: body['bengaliName'] as String? ?? '',
+    // `bengaliName` is what a page opened before the single name still sends.
+    name: (body['name'] ?? body['bengaliName']) as String? ?? '',
     phone: body['phone'] as String? ?? '',
-    englishName: body['englishName'] as String?,
     gender: PatientGender.parse(body['gender'] as String?),
     dateOfBirthMs: body['dateOfBirthMs'] as int?,
     birthYear: body['birthYear'] as int?,
@@ -1704,6 +1926,76 @@ class LocalApiServer {
     hasPaperFile: body['hasPaperFile'] as bool? ?? false,
     confirmDuplicatePhone: body['confirmDuplicatePhone'] as bool? ?? false,
   );
+
+  /// The admin analytics page: `GET /api/v1/analytics?period=day|week|month|year|all`
+  /// with an optional `date` (a day in clinic time inside the period) and `chamberId`.
+  Future<void> _analyticsApi(HttpRequest request) async {
+    await _signedInAdmin(request);
+    final analytics = _analytics;
+    if (analytics == null || request.method != 'GET') {
+      throw const _ApiError(404, 'not_found', 'Not found.');
+    }
+    final params = request.uri.queryParameters;
+    final period = AnalyticsPeriod.parse(params['period']);
+    final date = params['date'];
+    if (period == null ||
+        (date != null && !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(date))) {
+      throw const _ApiError(
+        400,
+        'validation_failed',
+        'Check the fields and try again.',
+      );
+    }
+    final result = await analytics.read(
+      period: period,
+      date: date,
+      chamberId: params['chamberId'],
+    );
+    await _json(request, 200, result.toJson());
+  }
+
+  /// The clinic's fee codes. Anyone signed in reads them (the desk picks one
+  /// when a patient joins a queue); only an admin replaces the list.
+  Future<void> _feeCodesApi(HttpRequest request) async {
+    final service = _feeCodes;
+    if (service == null) throw const _ApiError(404, 'not_found', 'Not found.');
+    if (request.method == 'GET') {
+      await _signedIn(request);
+      await _json(request, 200, _feeCodesJson(await service.list()));
+      return;
+    }
+    if (request.method != 'PUT') {
+      throw const _ApiError(405, 'method_not_allowed', 'Wrong method.');
+    }
+    final admin = await _signedInAdmin(request);
+    final body = await _readJson(request);
+    final raw = body['codes'];
+    if (raw is! List) {
+      throw const _ApiError(
+        400,
+        'validation_failed',
+        'Check the fields and try again.',
+      );
+    }
+    try {
+      final saved = await service.replace(admin, [
+        for (final item in raw)
+          if (item is Map<String, Object?>) FeeCode.fromJson(item),
+      ]);
+      await _json(request, 200, _feeCodesJson(saved));
+    } on FeeCodeRefused catch (refused) {
+      throw _ApiError(
+        400,
+        'validation_failed',
+        'Check the fee codes and try again.',
+        extra: {'problem': refused.problem.name},
+      );
+    }
+  }
+
+  Map<String, Object?> _feeCodesJson(List<FeeCode> codes) => {
+    'codes': [for (final fee in codes) fee.toJson()],
+  };
 
   Future<void> _auditApi(HttpRequest request, String path) async {
     await _signedInAdmin(request);
@@ -2655,12 +2947,33 @@ class LocalApiServer {
     await _json(request, 200, {'account': _accountJson(updated)});
   }
 
+  /// Switches to a new server certificate for connections made from now on
+  /// (the tablet got another IP address); the server keeps running.
+  void updateSecurityContext(SecurityContext context) {
+    _socket?.context = context;
+  }
+
   /// Anything outside `/api/`: the web app's pages and files, read-only.
   Future<void> _page(HttpRequest request) async {
     final response = request.response;
     final isRead = request.method == 'GET' || request.method == 'HEAD';
     if (!isRead) {
       return _fail(response, 405, 'method_not_allowed', 'Wrong method.');
+    }
+    final ca = _caCertificatePem;
+    if (request.uri.path == '/ca.crt' && ca != null) {
+      // Public on purpose: it is the certificate to install, with no secret.
+      response
+        ..statusCode = HttpStatus.ok
+        ..headers.contentType = ContentType('application', 'x-x509-ca-cert')
+        ..headers.set(
+          'content-disposition',
+          'attachment; filename="algoritiq-ca.crt"',
+        );
+      final bytes = utf8.encode(ca);
+      response.contentLength = bytes.length;
+      if (request.method == 'GET') response.add(bytes);
+      return response.close();
     }
     final asset = await _web?.find(request.uri.path);
     if (asset == null) {

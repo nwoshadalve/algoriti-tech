@@ -34,17 +34,10 @@ void main() {
   Future<IssuedTokenResult> add(
     String name,
     String phone, {
-    String? english,
     String queue = 'regular',
   }) async {
     desk.kit.clock.advance(const Duration(minutes: 1));
-    return desk.addPatient(
-      name,
-      phone,
-      englishName: english,
-      queue: queue,
-      command: 'cmd-$phone',
-    );
+    return desk.addPatient(name, phone, queue: queue, command: 'cmd-$phone');
   }
 
   setUp(() async {
@@ -54,13 +47,13 @@ void main() {
 
   group('search', () {
     setUp(() async {
-      await add('করিম উদ্দিন', '01711000111', english: 'Karim Uddin');
-      await add('রহিমা বেগম', '01822000222', english: 'Rahima Begum');
+      await add('করিম উদ্দিন', '01711000111');
+      await add('Rahima Begum', '01822000222');
       await add('100% সালমা', '01933000333', queue: 'report');
     });
 
     test(
-      'should match a Bengali name part, English name in any case',
+      'should match part of a name in either script, in any letter case',
       () async {
         expect(await serials(const TokenQuery(search: 'করিম')), [1001]);
         expect(await serials(const TokenQuery(search: 'BEGUM')), [1002]);

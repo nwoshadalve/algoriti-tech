@@ -3,6 +3,7 @@
 //
 // Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
 // or distribution is prohibited.
+import '../../../core/database/app_database.dart';
 import '../../clinic/domain/chamber.dart';
 import '../../clinic/domain/clinic_repository.dart';
 import '../../clinic/domain/doctor.dart';
@@ -15,11 +16,14 @@ final class TvLiveSnapshotService {
   TvLiveSnapshotService({
     required ClinicRepository clinic,
     required DriftQueueBoardRepository board,
+    DateTime Function() clock = DateTime.now,
   }) : _clinic = clinic,
-       _board = board;
+       _board = board,
+       _clock = clock;
 
   final ClinicRepository _clinic;
   final DriftQueueBoardRepository _board;
+  final DateTime Function() _clock;
 
   Future<Map<String, Object?>> buildFullSnapshot() async {
     final chambers = await _clinic.watchChambers().first;
@@ -45,23 +49,44 @@ final class TvLiveSnapshotService {
           ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
 
     Map<String, Object?>? called;
+    final calledList = <Map<String, Object?>>[];
     Map<String, List<int>> waiting = {
       for (final type in types) type.id: <int>[],
     };
+    // How long each waiting serial has waited, in seconds as of now, in the
+    // same order as [waiting]. The board adds the time since it received this.
+    final waitedSeconds = <String, List<int>>{};
 
     if (session != null) {
       waiting = await _board.waitingSerialsByQueueType(session.id);
+      final now = _clock().millisecondsSinceEpoch;
+      final issued = await _board.waitingIssuedAtByQueueType(session.id);
+      issued.forEach((typeId, times) {
+        waitedSeconds[typeId] = [
+          for (final at in times) ((now - at) ~/ 1000).clamp(0, 1 << 31),
+        ];
+      });
       for (final type in types) {
         waiting.putIfAbsent(type.id, () => []);
       }
-      final calledRow = await _board.calledTokenForSession(session.id);
-      if (calledRow != null) {
-        called = {
-          'tokenId': calledRow.id,
-          'queueTypeId': calledRow.queueTypeId,
-          'serial': calledRow.serial,
-        };
+      final calledRows = await _board.calledTokensForSession(session.id);
+      Map<String, Object?> json(QueueTokenRow row) => {
+        'tokenId': row.id,
+        'queueTypeId': row.queueTypeId,
+        'serial': row.serial,
+        // False while the token is on the board as the next one and has not
+        // been announced yet: the board outlines it.
+        'announced': row.announcedAt != null,
+      };
+      // In the queues' order; `called` is the newest call (the rows come
+      // oldest first), which a TV that only knows one call shows.
+      for (final type in types) {
+        calledList.addAll([
+          for (final row in calledRows)
+            if (row.queueTypeId == type.id) json(row),
+        ]);
       }
+      if (calledRows.isNotEmpty) called = json(calledRows.last);
     }
 
     return {
@@ -75,7 +100,9 @@ final class TvLiveSnapshotService {
       'chamber': _chamberJson(chamber),
       'queueTypes': [for (final t in types) _queueTypeJson(t)],
       'called': called,
+      'calledList': calledList,
       'waiting': waiting.map((key, value) => MapEntry(key, value)),
+      'waitedSeconds': waitedSeconds,
     };
   }
 

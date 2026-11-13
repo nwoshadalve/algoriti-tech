@@ -8,11 +8,54 @@ import 'package:algoritiq_app/features/access/domain/account.dart';
 import 'package:algoritiq_app/features/queue/data/drift_queue_repository.dart';
 import 'package:algoritiq_app/features/queue/domain/queue_models.dart';
 import 'package:algoritiq_app/features/queue_board/application/queue_board_service.dart';
+import 'package:algoritiq_app/features/tv_live/application/announcement_service.dart';
+import 'package:algoritiq_app/features/tv_live/application/tv_live_publisher.dart';
 import 'package:algoritiq_app/features/queue_board/domain/board_models.dart';
 import 'package:algoritiq_app/features/queue_board/domain/token_query.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/queue_desk_kit.dart';
+
+class _Voice implements AnnouncementPreparer {
+  _Voice(this.url);
+  final String? url;
+
+  @override
+  Future<String?> prepare({
+    required String callId,
+    required int serial,
+    required String queueTypeId,
+    required String queueLabelBn,
+    bool recall = false,
+  }) async => url;
+}
+
+class _Call {
+  _Call(this.serial, this.callId, this.announcementUrl);
+  final int serial;
+  final String callId;
+  final String? announcementUrl;
+}
+
+class _RecordingTv implements TvLivePublisher {
+  final calls = <_Call>[];
+
+  @override
+  Future<Map<String, Object?>> buildLiveSnapshot() async => const {};
+
+  @override
+  Future<void> notifyQueueUpdated(String chamberId) async {}
+
+  @override
+  Future<void> notifyTokenCalled({
+    required String chamberId,
+    required String tokenId,
+    required String queueTypeId,
+    required int serial,
+    required String callId,
+    String? announcementUrl,
+  }) async => calls.add(_Call(serial, callId, announcementUrl));
+}
 
 void main() {
   test('should load queue board snapshot for a chamber', () async {
@@ -32,7 +75,7 @@ void main() {
 
     expect(issued.printStatus, 'PENDING');
     final board = await desk.board.loadBoard(desk.account, deskChamberId);
-    expect(board.tokens.map((t) => t.patientBengaliName), ['করিম']);
+    expect(board.tokens.map((t) => t.patientName), ['করিম']);
     expect(board.tokens.single.status, TokenStatus.waiting);
   });
 
@@ -93,47 +136,40 @@ void main() {
     Future<QueueDeskKit> deskWithPatients() async {
       final desk = await QueueDeskKit.open();
       await desk.board.startSession(desk.account, deskChamberId);
-      await desk.addPatient(
-        'করিম উদ্দিন',
-        '01711000111',
-        englishName: 'Karim Uddin',
-        command: 'a',
-      );
-      await desk.addPatient(
-        'রহিমা বেগম',
-        '01822000222',
-        englishName: 'Rahima Begum',
-        command: 'b',
-      );
+      await desk.addPatient('করিম উদ্দিন', '01711000111', command: 'a');
+      await desk.addPatient('Rahima Begum', '01822000222', command: 'b');
       return desk;
     }
 
-    test('should find by part of a Bengali name', () async {
+    test('should find by part of a name written in Bengali', () async {
       final desk = await deskWithPatients();
 
       expect(await desk.searchNames('করিম'), ['করিম উদ্দিন']);
-      expect(await desk.searchNames('বেগম'), ['রহিমা বেগম']);
+      expect(await desk.searchNames('উদ্দিন'), ['করিম উদ্দিন']);
     });
 
-    test('should find by English name in any letter case', () async {
-      final desk = await deskWithPatients();
+    test(
+      'should find by a name written in English in any letter case',
+      () async {
+        final desk = await deskWithPatients();
 
-      expect(await desk.searchNames('karim'), ['করিম উদ্দিন']);
-      expect(await desk.searchNames('BEGUM'), ['রহিমা বেগম']);
-    });
+        expect(await desk.searchNames('rahima'), ['Rahima Begum']);
+        expect(await desk.searchNames('BEGUM'), ['Rahima Begum']);
+      },
+    );
 
     test('should find by the start of a phone number', () async {
       final desk = await deskWithPatients();
 
       expect(await desk.searchNames('0171'), ['করিম উদ্দিন']);
-      expect(await desk.searchNames('01822000222'), ['রহিমা বেগম']);
+      expect(await desk.searchNames('01822000222'), ['Rahima Begum']);
     });
 
     test('should find by patient id', () async {
       final desk = await deskWithPatients();
       final board = await desk.board.loadBoard(desk.account, deskChamberId);
       final id = board.tokens
-          .firstWhere((t) => t.patientBengaliName == 'করিম উদ্দিন')
+          .firstWhere((t) => t.patientName == 'করিম উদ্দিন')
           .clinicPatientId;
 
       expect(await desk.searchNames(id), ['করিম উদ্দিন']);
@@ -162,14 +198,14 @@ void main() {
       desk.account,
       issued.token.patientId,
       const PatientInput(
-        bengaliName: 'করিম হোসেন',
+        name: 'করিম হোসেন',
         phone: '01911999888',
         approximateAgeYears: 40,
         gender: PatientGender.male,
       ),
     );
 
-    expect(updated.bengaliName, 'করিম হোসেন');
+    expect(updated.name, 'করিম হোসেন');
     expect(updated.gender, PatientGender.male);
     expect(await desk.searchNames('01911'), ['করিম হোসেন']);
     expect(await desk.searchNames('01711'), isEmpty);
@@ -230,6 +266,58 @@ void main() {
     expect(board.printerBusyTokenId, isNull);
     expect(board.tokens.single.id, issued.token.id);
     expect(board.tokens.single.latestPrintStatus, 'FAILED');
+  });
+
+  group('announcing a call', () {
+    test(
+      'should send the spoken call with the token that was called',
+      () async {
+        final tv = _RecordingTv();
+        final desk = await QueueDeskKit.open(
+          tvLive: tv,
+          announcer: _Voice('/clip/1'),
+        );
+        await desk.board.startSession(desk.account, deskChamberId);
+        await desk.addPatient('করিম', '01711000111');
+
+        final called = await desk.board.callNext(
+          desk.account,
+          deskChamberId,
+          'regular',
+        );
+
+        expect(tv.calls.single.serial, called.serial);
+        expect(tv.calls.single.announcementUrl, '/clip/1');
+      },
+    );
+
+    test('should send a fresh call id on a recall', () async {
+      final tv = _RecordingTv();
+      final desk = await QueueDeskKit.open(
+        tvLive: tv,
+        announcer: _Voice('/clip'),
+      );
+      await desk.board.startSession(desk.account, deskChamberId);
+      await desk.addPatient('করিম', '01711000111');
+      await desk.board.callNext(desk.account, deskChamberId, 'regular');
+
+      await desk.board.recall(desk.account, deskChamberId, 'regular');
+
+      expect(tv.calls, hasLength(2));
+      expect(tv.calls[0].callId, isNot(tv.calls[1].callId));
+      expect(tv.calls[1].announcementUrl, '/clip');
+    });
+
+    test('should still call the patient when no voice can be made', () async {
+      final tv = _RecordingTv();
+      final desk = await QueueDeskKit.open(tvLive: tv, announcer: _Voice(null));
+      await desk.board.startSession(desk.account, deskChamberId);
+      await desk.addPatient('করিম', '01711000111');
+
+      await desk.board.callNext(desk.account, deskChamberId, 'regular');
+
+      expect(tv.calls.single.announcementUrl, isNull);
+    });
   });
 
   group('one session at a time', () {
@@ -326,7 +414,7 @@ void main() {
         deskChamberId,
         TokenQuery(search: text),
       );
-      return [for (final t in page.items) t.patientBengaliName];
+      return [for (final t in page.items) t.patientName];
     }
 
     test('should find a phone typed in Bengali digits', () async {
@@ -361,7 +449,7 @@ void main() {
       );
 
       expect(page.total, 1);
-      expect(page.items.single.patientBengaliName, 'করিম');
+      expect(page.items.single.patientName, 'করিম');
       expect(page.items.single.queueEnglishName, 'Report');
       expect(page.counts[TokenStatus.waiting], 1);
     });
@@ -420,7 +508,7 @@ void main() {
       );
 
       expect(board.tokens, isEmpty);
-      expect(board.calledToken?.patientBengaliName, 'করিম');
+      expect(board.calledToken?.patientName, 'করিম');
       expect(board.queueControls, isNotEmpty);
       expect(
         (await desk.board.loadBoard(desk.account, deskChamberId)).tokens,

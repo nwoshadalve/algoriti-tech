@@ -210,6 +210,37 @@ void main() {
     });
   });
 
+  test('should serve the CA certificate to download at /ca.crt', () async {
+    final kit = await AccessKit.create();
+    final server = LocalApiServer(access: () async => kit.service, web: null);
+    await server.start(
+      port: 0,
+      address: InternetAddress.loopbackIPv4,
+      caCertificatePem: 'CA PEM TEXT',
+    );
+    final client = HttpClient();
+    addTearDown(() async {
+      client.close(force: true);
+      await server.stop();
+      await kit.close();
+    });
+
+    final response = await (await client.getUrl(
+      Uri.parse('http://127.0.0.1:${server.port}/ca.crt'),
+    )).close();
+
+    expect(response.statusCode, 200);
+    expect(
+      response.headers.contentType?.mimeType,
+      'application/x-x509-ca-cert',
+    );
+    expect(
+      response.headers.value('content-disposition'),
+      contains('algoritiq-ca.crt'),
+    );
+    expect(await utf8.decodeStream(response), 'CA PEM TEXT');
+  });
+
   test('should show a plain page when no web app is bundled', () async {
     final kit = await AccessKit.create();
     final server = LocalApiServer(access: () async => kit.service);

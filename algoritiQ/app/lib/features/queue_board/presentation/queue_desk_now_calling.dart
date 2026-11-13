@@ -14,9 +14,10 @@ import 'queue_desk_format.dart';
 /// the patient.
 const _rowMinWidth = 640.0;
 
-/// The patient being called now: big serial, name, ID and queue, and what the
-/// receptionist can do next. It sizes to its content (a long name wraps to
-/// two lines) and never needs a fixed height.
+/// The patients being called now, one row each (a queue can call one patient
+/// at a time, so up to one per queue): big serial, name, ID and queue, and what
+/// the receptionist can do next with that patient. It sizes to its content (a
+/// long name wraps to two lines) and never needs a fixed height.
 class DeskNowCalling extends StatelessWidget {
   const DeskNowCalling({
     super.key,
@@ -27,17 +28,16 @@ class DeskNowCalling extends StatelessWidget {
     required this.onCancel,
   });
 
-  final BoardTokenView? called;
-  final VoidCallback onRecall;
-  final VoidCallback onEntered;
-  final VoidCallback onMissed;
-  final VoidCallback onCancel;
+  final List<BoardTokenView> called;
+  final ValueChanged<BoardTokenView> onRecall;
+  final ValueChanged<BoardTokenView> onEntered;
+  final ValueChanged<BoardTokenView> onMissed;
+  final ValueChanged<BoardTokenView> onCancel;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final token = called;
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -45,7 +45,7 @@ class DeskNowCalling extends StatelessWidget {
           horizontal: Spacing.sm + Spacing.xs,
           vertical: Spacing.sm,
         ),
-        child: token == null
+        child: called.isEmpty
             ? Text(
                 l10n.deskCurrentCallEmpty,
                 textAlign: TextAlign.center,
@@ -53,45 +53,80 @@ class DeskNowCalling extends StatelessWidget {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               )
-            : LayoutBuilder(
-                builder: (context, constraints) {
-                  final wide = constraints.maxWidth >= _rowMinWidth;
-                  final identity = _Identity(
-                    token: token,
-                    // Narrow: Cancel sits beside the patient so the three main
-                    // actions can share the full width underneath.
-                    trailing: wide ? null : _CancelButton(onCancel: onCancel),
-                  );
-                  final actions = _Actions(
-                    onRecall: onRecall,
-                    onEntered: onEntered,
-                    onMissed: onMissed,
-                    onCancel: wide ? onCancel : null,
-                    expand: !wide,
-                  );
-                  if (wide) {
-                    return Row(
-                      children: [
-                        Expanded(child: identity),
-                        const SizedBox(width: Spacing.md),
-                        actions,
-                      ],
-                    );
-                  }
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      identity,
-                      const SizedBox(height: Spacing.sm),
-                      actions,
-                    ],
-                  );
-                },
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < called.length; i++) ...[
+                    if (i > 0) const Divider(height: Spacing.md),
+                    _CallRow(
+                      token: called[i],
+                      onRecall: () => onRecall(called[i]),
+                      onEntered: () => onEntered(called[i]),
+                      onMissed: () => onMissed(called[i]),
+                      onCancel: () => onCancel(called[i]),
+                    ),
+                  ],
+                ],
               ),
       ),
     );
   }
+}
+
+/// One called patient with their actions.
+class _CallRow extends StatelessWidget {
+  const _CallRow({
+    required this.token,
+    required this.onRecall,
+    required this.onEntered,
+    required this.onMissed,
+    required this.onCancel,
+  });
+
+  final BoardTokenView token;
+  final VoidCallback onRecall;
+  final VoidCallback onEntered;
+  final VoidCallback onMissed;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final wide = constraints.maxWidth >= _rowMinWidth;
+      final identity = _Identity(
+        token: token,
+        // Narrow: Cancel sits beside the patient so the three main
+        // actions can share the full width underneath.
+        trailing: wide ? null : _CancelButton(onCancel: onCancel),
+      );
+      final actions = _Actions(
+        onRecall: onRecall,
+        onEntered: onEntered,
+        onMissed: onMissed,
+        onCancel: wide ? onCancel : null,
+        expand: !wide,
+      );
+      if (wide) {
+        return Row(
+          children: [
+            Expanded(child: identity),
+            const SizedBox(width: Spacing.md),
+            actions,
+          ],
+        );
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          identity,
+          const SizedBox(height: Spacing.sm),
+          actions,
+        ],
+      );
+    },
+  );
 }
 
 class _Identity extends StatelessWidget {
@@ -121,7 +156,7 @@ class _Identity extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                token.patientBengaliName,
+                token.patientName,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),

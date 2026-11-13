@@ -32,49 +32,100 @@
   html {
     @apply h-full antialiased;
     scrollbar-gutter: stable;
+    color-scheme: light;
     /* Phones must not enlarge text on their own after a rotation. */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
 
+  html.dark {
+    color-scheme: dark;
+  }
+
+  /*
+   * Chart colours: one set per theme, validated together (adjacent colour
+   * separation for colour-blind readers, lightness band, contrast on the card).
+   * 1 blue = tokens and volume, 2 orange = patients, 3 aqua = money, 4 yellow = waiting.
+   */
+  :root {
+    --viz-1: #2a78d6;
+    --viz-2: #eb6834;
+    --viz-3: #1baf7a;
+    --viz-4: #eda100;
+    --viz-grid: rgb(11 31 58 / 0.1);
+    --viz-axis: rgb(11 31 58 / 0.25);
+  }
+
+  html.dark {
+    --viz-1: #3987e5;
+    --viz-2: #d95926;
+    --viz-3: #199e70;
+    --viz-4: #c98500;
+    --viz-grid: rgb(255 255 255 / 0.1);
+    --viz-axis: rgb(255 255 255 / 0.22);
+  }
+
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgb(11 31 58 / 0.5) rgb(11 31 58 / 0.12);
   }
 
-  .dark * {
-    scrollbar-color: rgb(255 255 255 / 0.38) rgb(255 255 255 / 0.1);
+  /* Light theme only — a global navy thumb disappears on dark surfaces (queue desk). */
+  html:not(.dark),
+  html:not(.dark) * {
+    scrollbar-color: rgb(11 31 58 / 0.45) rgb(11 31 58 / 0.14);
   }
 
-  *::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+  html:not(.dark)::-webkit-scrollbar,
+  html:not(.dark) *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
   }
 
-  *::-webkit-scrollbar-track {
-    background: rgb(11 31 58 / 0.1);
-    border-radius: 10px;
+  html:not(.dark)::-webkit-scrollbar-track,
+  html:not(.dark) *::-webkit-scrollbar-track {
+    background: rgb(11 31 58 / 0.12);
+    border-radius: 999px;
   }
 
-  *::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background-color: rgb(11 31 58 / 0.42);
+  html:not(.dark)::-webkit-scrollbar-thumb,
+  html:not(.dark) *::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background-color: rgb(11 31 58 / 0.45);
   }
 
-  *::-webkit-scrollbar-thumb:hover {
-    background-color: rgb(11 31 58 / 0.55);
+  html:not(.dark)::-webkit-scrollbar-thumb:hover,
+  html:not(.dark) *::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(11 31 58 / 0.58);
   }
 
-  .dark *::-webkit-scrollbar-track {
-    background: rgb(255 255 255 / 0.1);
+  /* Page + panel scroll areas (queue desk table on phones uses document scroll). */
+  html.dark,
+  html.dark * {
+    scrollbar-color: rgb(148 163 184 / 0.95) rgb(255 255 255 / 0.12);
   }
 
-  .dark *::-webkit-scrollbar-thumb {
-    background-color: rgb(255 255 255 / 0.32);
+  html.dark::-webkit-scrollbar,
+  html.dark *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
   }
 
-  .dark *::-webkit-scrollbar-thumb:hover {
-    background-color: rgb(255 255 255 / 0.45);
+  html.dark::-webkit-scrollbar-track,
+  html.dark *::-webkit-scrollbar-track {
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+    border-radius: 999px;
+  }
+
+  html.dark::-webkit-scrollbar-thumb,
+  html.dark *::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background-color: rgb(148 163 184 / 0.9);
+  }
+
+  html.dark::-webkit-scrollbar-thumb:hover,
+  html.dark *::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(203 213 225);
   }
 
   body {
