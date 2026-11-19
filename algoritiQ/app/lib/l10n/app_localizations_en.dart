@@ -738,6 +738,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskStartSession => 'Start session';
 
   @override
+  String get deskStartSessionTitle => 'Start today\'s session?';
+
+  @override
+  String get deskStartSessionBody =>
+      'Tokens can be issued and patients called once it starts. End it when the day is over.';
+
+  @override
   String get deskEndSession => 'End session';
 
   @override

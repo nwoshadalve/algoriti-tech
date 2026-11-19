@@ -327,6 +327,8 @@
   "deskSessionClosedTitle": "Session not open",
   "deskSessionClosedHint": "Start today's session to issue tokens and call patients.",
   "deskStartSession": "Start session",
+  "deskStartSessionTitle": "Start today's session?",
+  "deskStartSessionBody": "Tokens can be issued and patients called once it starts. End it when the day is over.",
   "deskEndSession": "End session",
   "deskOtherSessionOpen": "The session of {chamber} is still open. End it before starting this one.",
   "@deskOtherSessionOpen": {

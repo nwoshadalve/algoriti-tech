@@ -770,6 +770,8 @@ export const bn: Messages = {
   boardSessionClosedTitle: 'সেশন খোলা নেই',
   boardSessionClosedHelp: 'টোকেন ও কলের জন্য আজকের সেশন শুরু করুন।',
   boardStartSession: 'সেশন শুরু',
+  boardStartSessionTitle: 'আজকের সেশন শুরু করবেন?',
+  boardStartSessionBody: 'শুরু করলে টোকেন দেওয়া ও রোগী ডাকা যাবে। দিন শেষে সেশন শেষ করুন।',
   boardSessionStarted: 'সেশন শুরু হয়েছে।',
   boardQueueControlsTitle: 'কিউ',
   boardWaitingCount: '{count} জন অপেক্ষায়',

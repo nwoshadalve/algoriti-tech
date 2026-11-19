@@ -6,7 +6,7 @@
  * or distribution is prohibited.
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as queueDeskApi from '@/core/api/queueDesk'
@@ -101,6 +101,52 @@ describe('AdminQueueBoardPage', () => {
     renderBoard(admin)
     expect(await screen.findByRole('heading', { name: 'Queue desk' })).toBeInTheDocument()
     expect(await screen.findByText('Session not open')).toBeInTheDocument()
+  })
+
+  function mockClosedDesk() {
+    vi.spyOn(session, 'readSession').mockReturnValue('tok')
+    vi.spyOn(chambersApi, 'listChambers').mockResolvedValue([
+      { id: 'c1', name: 'Main', location: '', phone: '', patientIdPrefix: '776', patientIdNextSequence: 1 },
+    ])
+    vi.spyOn(queueDeskApi, 'pickChamberIdWithOpenSession').mockResolvedValue('c1')
+    vi.spyOn(queueDeskApi, 'getQueueDeskSnapshot').mockResolvedValue({
+      chamberId: 'c1',
+      chamberName: 'Main',
+      sessionId: null,
+      sessionOpen: false,
+      calledToken: null,
+      calledTokens: [],
+      queueControls: [],
+      tokens: [],
+      printerBusyTokenId: null,
+    })
+    vi.spyOn(queueDeskApi, 'searchSessionTokensCompat').mockResolvedValue({ items: [], total: 0, counts: {} })
+    return vi.spyOn(queueDeskApi, 'startQueueDeskSession').mockResolvedValue()
+  }
+
+  it('should ask before starting a session and not start it on cancel', async () => {
+    const start = mockClosedDesk()
+    renderBoard(admin)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Start session' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Start today’s session?' })
+    expect(dialog).toHaveTextContent('Tokens can be issued')
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(start).not.toHaveBeenCalled()
+  })
+
+  it('should start the session once confirmed', async () => {
+    const start = mockClosedDesk()
+    renderBoard(admin)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Start session' }))
+    const dialog = await screen.findByRole('dialog')
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Start session' }))
+
+    await vi.waitFor(() => expect(start).toHaveBeenCalledWith('tok', 'c1'))
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
   it('should render session tokens from the paged API when a session is open', async () => {

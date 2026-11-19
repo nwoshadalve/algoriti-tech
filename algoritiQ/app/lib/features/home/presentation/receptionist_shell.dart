@@ -188,7 +188,9 @@ class _ReceptionistShellState extends ConsumerState<ReceptionistShell> {
           onSelectConnectivity: _openConnectivity,
           onSelectSettings: _openSettings,
           showCloseButton: true,
-          onCloseDrawer: () => Navigator.of(context).pop(),
+          // closeDrawer is a no-op when already closed; a second
+          // Navigator.pop would remove the app's only page (black screen).
+          onCloseDrawer: () => _scaffoldKey.currentState?.closeDrawer(),
         ),
       ),
       body: Column(

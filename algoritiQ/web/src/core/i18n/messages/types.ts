@@ -748,6 +748,8 @@ export type Messages = {
   boardSessionClosedTitle: string
   boardSessionClosedHelp: string
   boardStartSession: string
+  boardStartSessionTitle: string
+  boardStartSessionBody: string
   boardSessionStarted: string
   boardQueueControlsTitle: string
   boardWaitingCount: string

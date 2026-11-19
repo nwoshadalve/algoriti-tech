@@ -267,6 +267,8 @@
   "deskSessionClosedTitle": "সেশন খোলা নেই",
   "deskSessionClosedHint": "টোকেন দিতে ও রোগী ডাকতে আজকের সেশন শুরু করুন।",
   "deskStartSession": "সেশন শুরু",
+  "deskStartSessionTitle": "আজকের সেশন শুরু করবেন?",
+  "deskStartSessionBody": "শুরু করলে টোকেন দেওয়া ও রোগী ডাকা যাবে। দিন শেষে সেশন শেষ করুন।",
   "deskOtherSessionOpen": "{chamber}-এর সেশন এখনও চালু আছে। এটি শুরু করার আগে সেটি শেষ করুন।",
   "deskEndSession": "সেশন শেষ করুন",
   "deskEndSessionTitle": "আজকের সেশন শেষ করবেন?",

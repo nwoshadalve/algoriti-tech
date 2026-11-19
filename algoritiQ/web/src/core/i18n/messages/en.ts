@@ -767,6 +767,8 @@ export const en: Messages = {
   boardSessionClosedTitle: 'Session not open',
   boardSessionClosedHelp: 'Start today’s session for this chamber to issue tokens and call patients.',
   boardStartSession: 'Start session',
+  boardStartSessionTitle: 'Start today’s session?',
+  boardStartSessionBody: 'Tokens can be issued and patients called once it starts. End it when the day is over.',
   boardSessionStarted: 'Session started.',
   boardQueueControlsTitle: 'Queue',
   boardWaitingCount: '{count} waiting',

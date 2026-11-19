@@ -175,6 +175,57 @@ class _QueueDeskPanelState extends ConsumerState<QueueDeskPanel> {
     await resolve(ref.read(queueBoardServiceProvider), called.id);
   });
 
+  /// Asks a yes/no question about the session; true only on [confirmLabel].
+  Future<bool> _confirm({
+    required String title,
+    required String body,
+    required String cancelLabel,
+    required String confirmLabel,
+  }) async {
+    final confirmed = await showAppDialog<bool>(
+      context: context,
+      title: title,
+      body: Text(body),
+      actions: [
+        Builder(
+          builder: (dialogContext) => TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(cancelLabel),
+          ),
+        ),
+        Builder(
+          builder: (dialogContext) => FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(confirmLabel),
+          ),
+        ),
+      ],
+    );
+    return confirmed == true;
+  }
+
+  /// Asks first, so a stray tap does not open a session.
+  Future<void> _startSession() async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await _confirm(
+      title: l10n.deskStartSessionTitle,
+      body: l10n.deskStartSessionBody,
+      cancelLabel: l10n.cancelEditButton,
+      confirmLabel: l10n.deskStartSession,
+    );
+    if (!confirmed || !mounted) return;
+    await _run(() async {
+      final account = ref.read(tabletSessionProvider)!.account;
+      await ref
+          .read(queueBoardServiceProvider)
+          .startSession(account, widget.chamberId);
+      if (!mounted) return;
+      ref
+          .read(toastControllerProvider.notifier)
+          .success(l10n.deskSessionStarted);
+    });
+  }
+
   /// Asks first (it cannot be undone), saying how many are still waiting.
   Future<void> _endSession() async {
     final waiting = [
@@ -183,26 +234,13 @@ class _QueueDeskPanelState extends ConsumerState<QueueDeskPanel> {
         q.waitingCount,
     ].fold<int>(0, (a, b) => a + b);
     final l10n = AppLocalizations.of(context);
-    final confirmed = await showAppDialog<bool>(
-      context: context,
+    final confirmed = await _confirm(
       title: l10n.deskEndSessionTitle,
-      body: Text(l10n.deskEndSessionBody(waiting)),
-      actions: [
-        Builder(
-          builder: (dialogContext) => TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.deskEndSessionKeep),
-          ),
-        ),
-        Builder(
-          builder: (dialogContext) => FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.deskEndSession),
-          ),
-        ),
-      ],
+      body: l10n.deskEndSessionBody(waiting),
+      cancelLabel: l10n.deskEndSessionKeep,
+      confirmLabel: l10n.deskEndSession,
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
     await _run(() async {
       final account = ref.read(tabletSessionProvider)!.account;
       await ref
@@ -274,16 +312,7 @@ class _QueueDeskPanelState extends ConsumerState<QueueDeskPanel> {
         alignment: Alignment.topCenter,
         child: _SessionClosedCard(
           busy: _busy,
-          onStart: () => _run(() async {
-            final account = ref.read(tabletSessionProvider)!.account;
-            await ref
-                .read(queueBoardServiceProvider)
-                .startSession(account, widget.chamberId);
-            if (!mounted) return;
-            ref
-                .read(toastControllerProvider.notifier)
-                .success(l10n.deskSessionStarted);
-          }),
+          onStart: () => unawaited(_startSession()),
         ),
       );
     }

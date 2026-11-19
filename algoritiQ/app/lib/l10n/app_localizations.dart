@@ -1346,6 +1346,18 @@ abstract class AppLocalizations {
   /// **'Start session'**
   String get deskStartSession;
 
+  /// No description provided for @deskStartSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start today\'s session?'**
+  String get deskStartSessionTitle;
+
+  /// No description provided for @deskStartSessionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tokens can be issued and patients called once it starts. End it when the day is over.'**
+  String get deskStartSessionBody;
+
   /// No description provided for @deskEndSession.
   ///
   /// In en, this message translates to:

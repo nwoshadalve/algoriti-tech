@@ -1,15 +1,17 @@
 # Algoriti Tech — Brand assets
 
-Vector logos for **Algoriti** (company) and **AlgoritiQ** (product). All artwork is hand-authored SVG. Wordmarks use live text set in Plus Jakarta Sans Bold (fallback: Segoe UI / system sans-serif); convert to outlines before print or locked-font use.
+Vector logos for **Algoriti** (company), **AlgoritiQ**, and **AlgoritiDx** (products). All artwork uses SVG geometry. Wordmarks use live text set in Plus Jakarta Sans Bold (fallback: Segoe UI / system sans-serif); convert to outlines before print or locked-font use.
 
 ## Concept
 
-Both marks are built from chunky rounded bars in navy with one coral accent, so the company and product read as one family.
+The marks are built from chunky rounded bars in navy with one coral accent, so the company and product read as one family.
 
 - **Algoriti (company):** bars indented step by step, like lines of code. The coral last bar is the step being executed. It stands for an algorithm.
 - **AlgoritiQ (product):** three equal bars with the middle one coral and pushed forward. It stands for an ordered queue where the active item steps out of line.
 
-Naming: **Algoriti** (capital A only) and **AlgoritiQ** (capital Q, set in coral in the wordmark).
+- **AlgoritiDx (product):** rounded navy bars frame a coral diagnostic cross, linking diagnostic services to the same visual family.
+
+Naming: **Algoriti** (capital A only) and **AlgoritiQ** (capital Q, set in coral in the wordmark), and **AlgoritiDx** (capital D, lowercase x, with Dx set in coral).
 
 ## Color palette
 
@@ -21,7 +23,7 @@ Naming: **Algoriti** (capital A only) and **AlgoritiQ** (capital Q, set in coral
 
 ## Files
 
-Each brand has its own folder under `logo/`: `logo/algoriti/` (company, file prefix `algoriti-tech-`) and `logo/algoritiq/` (product, prefix `algoritiq-`). The layout is identical in both.
+Each brand has its own folder under `logo/`: `logo/algoriti/` (company, file prefix `algoriti-tech-`) and `logo/algoritiq/` (product, prefix `algoritiq-`). AlgoritiDx uses `logo/algoritidx/` (prefix `algoritidx-`). The layout is identical across all three brands.
 
 | Path | Contents |
 |------|----------|
@@ -53,4 +55,9 @@ Copy the contents of `android/res/` into `app/src/main/res/` and set `android:ic
 
 ## License
 
-© Algoriti Tech. Assets in this folder are for Algoriti and AlgoritiQ projects unless otherwise noted.
+© Algoriti Tech. Assets in this folder are for Algoriti, AlgoritiQ, and AlgoritiDx projects unless otherwise noted.
+
+## Regenerating AlgoritiDx assets
+
+Run `python branding/tools/generate_algoritidx.py` from the repository root (requires Pillow). The script generates SVG, web icons, and Android resources and validates the generated XML and PNG files. Wordmarks use the same live-font approach as the existing brands.
+

@@ -703,6 +703,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deskStartSession => 'সেশন শুরু';
 
   @override
+  String get deskStartSessionTitle => 'আজকের সেশন শুরু করবেন?';
+
+  @override
+  String get deskStartSessionBody =>
+      'শুরু করলে টোকেন দেওয়া ও রোগী ডাকা যাবে। দিন শেষে সেশন শেষ করুন।';
+
+  @override
   String get deskEndSession => 'সেশন শেষ করুন';
 
   @override

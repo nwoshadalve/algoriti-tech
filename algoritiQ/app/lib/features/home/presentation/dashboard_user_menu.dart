@@ -82,10 +82,8 @@ class _DashboardUserMenuState extends ConsumerState<DashboardUserMenu> {
           ),
         MenuItemButton(
           leadingIcon: const Icon(Icons.settings_outlined, size: 20),
-          onPressed: () {
-            widget.onCloseDrawer?.call();
-            widget.onOpenSettings();
-          },
+          // onOpenSettings closes the drawer itself.
+          onPressed: widget.onOpenSettings,
           child: Text(l10n.navSettings),
         ),
         MenuItemButton(

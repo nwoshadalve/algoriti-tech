@@ -32,6 +32,7 @@ import { queueDeskQueryKeys } from '@/features/board/queueDeskQueryKeys'
 import { RegisterPatientModal } from '@/features/board/RegisterPatientModal'
 import { SessionPatientActions } from '@/features/board/SessionPatientActions'
 import { SessionTokensTable } from '@/features/board/SessionTokensTable'
+import { StartSessionModal } from '@/features/board/StartSessionModal'
 import { TokenPrintConfirmModal } from '@/features/board/TokenPrintConfirmModal'
 import {
   invalidateQueueDeskBoard,
@@ -65,6 +66,7 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
   const [chambersLoading, setChambersLoading] = useState(role === 'admin')
   const [chambersFailed, setChambersFailed] = useState(false)
   const [startingSession, setStartingSession] = useState(false)
+  const [confirmStart, setConfirmStart] = useState(false)
   const [tokenDialog, setTokenDialog] = useState<TokenDialog>(null)
   const [patientDialog, setPatientDialog] = useState<PatientDialog>(null)
   const [deskTab, setDeskTab] = useState<QueueDeskTab>('calling')
@@ -123,6 +125,7 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
     setStartingSession(true)
     try {
       await startQueueDeskSession(token, activeChamberId)
+      setConfirmStart(false)
       toast.success(t('boardSessionStarted'))
       refreshBoard(activeChamberId)
     } catch (error) {
@@ -234,7 +237,7 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
             className="mt-4 w-full sm:w-auto sm:min-w-48"
             isLoading={startingSession}
             loadingLabel={t('boardWorking')}
-            onClick={() => void startSession()}
+            onClick={() => setConfirmStart(true)}
           >
             {t('boardStartSession')}
           </LoadingButton>
@@ -317,6 +320,14 @@ export function QueueBoardPage({ role }: QueueBoardPageProps) {
             </section>
           )}
         </div>
+      ) : null}
+
+      {confirmStart && snapshot && !sessionOpen ? (
+        <StartSessionModal
+          busy={startingSession}
+          onConfirm={() => void startSession()}
+          onClose={() => setConfirmStart(false)}
+        />
       ) : null}
 
       {patientDialog?.kind === 'new' && snapshot ? (

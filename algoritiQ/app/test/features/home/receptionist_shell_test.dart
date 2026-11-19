@@ -3,7 +3,6 @@
 //
 // Proprietary source code of AlgoritiQ. Unauthorized copying, modification,
 // or distribution is prohibited.
-import 'package:algoritiq_app/app/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -80,5 +79,32 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Patient queue'), findsOneWidget);
+  });
+
+  testWidgets('user menu should open Settings and keep the app on screen', (
+    tester,
+  ) async {
+    await pumpShell(
+      tester,
+      size: const Size(800, 1340),
+      brightness: Brightness.light,
+    );
+
+    await tester.tap(find.byTooltip('Open menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.unfold_more_rounded));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(MenuItemButton, 'Settings'));
+    // The photo card shows a looping loader, so pump frames instead of settling.
+    await tester.pump();
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    // The drawer closed once, not twice: the shell is still there.
+    expect(tester.takeException(), isNull);
+    expect(find.byTooltip('Open menu'), findsOneWidget);
+    expect(find.byType(Drawer), findsNothing);
+    expect(find.text('Profile photo'), findsOneWidget);
   });
 }
